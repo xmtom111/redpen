@@ -30,13 +30,25 @@ RECALL_PARTIAL = 0.17
 FIX_HIGH = 0.40
 FIX_PARTIAL = 0.18
 
-STEP_LINE = re.compile(r"^\s*\**\s*step\s*(\d+)[*:.)\s\-]*\s*(.*)$", re.IGNORECASE)
-WRONG_LINE = re.compile(
-    r"^\s*\**\s*what(?:'s|’s| is)\s+wrong\s*\**\s*:?\s*(.*)$", re.IGNORECASE
+STEP_LINE = re.compile(
+    r"^\s*\**\s*(?:step|步骤|第)\s*(\d+)\s*步?[*:.)：:\s\-]*\s*(.*)$",
+    re.IGNORECASE,
 )
-FIX_LINE = re.compile(r"^\s*\**\s*fix\s*\**\s*:?\s*(.*)$", re.IGNORECASE)
-CLEAN_CLAIM = re.compile(r"\bno errors found\b", re.IGNORECASE)
+WRONG_LINE = re.compile(
+    r"^\s*\**\s*(?:what(?:'s|’s| is)\s+wrong|错误|错在哪里|错在|问题)\s*\**\s*[:：]?\s*(.*)$",
+    re.IGNORECASE,
+)
+FIX_LINE = re.compile(
+    r"^\s*\**\s*(?:fix|改正|修正|正确做法)\s*\**\s*[:：]?\s*(.*)$",
+    re.IGNORECASE,
+)
+CLEAN_CLAIM = re.compile(
+    r"(?:\bno errors found\b|未发现错误|没有发现错误|没有错误|无错误)",
+    re.IGNORECASE,
+)
+SPLIT_FIX = re.compile(r"(?:\bfix\s*:|改正\s*[:：]|修正\s*[:：])\s*", re.IGNORECASE)
 FRAC = re.compile(r"\\(?:d|t)?frac\s*\{([^{}]*)\}\s*\{([^{}]*)\}")
+CJK = re.compile(r"[\u4e00-\u9fff]")
 
 
 def load_lexicon(path: Path = LEXICON_PATH) -> dict:
@@ -102,13 +114,29 @@ def tokens(text: str, lexicon: dict | None = None) -> set[str]:
         if word in stop or not word:
             continue
         found.add(word)
+    found.update(cjk_bigrams(text))
     return found
+
+
+def cjk_bigrams(text: str) -> set[str]:
+    chars = CJK.findall(text or "")
+    return {a + b for a, b in zip(chars, chars[1:])}
 
 
 def cue_hits(text: str, category: str, lexicon: dict | None = None) -> int:
     lexicon = lexicon or LEXICON
     norm = normalize(text)
-    return sum(1 for cue in lexicon["cues"].get(category, []) if cue and cue in norm)
+    folded = str(text).lower()
+    hits = 0
+    for cue in lexicon["cues"].get(category, []):
+        if not cue:
+            continue
+        if CJK.search(cue):
+            if cue.lower() in folded:
+                hits += 1
+        elif cue in norm:
+            hits += 1
+    return hits
 
 
 def recall(student: set[str], reference: set[str]) -> float:
@@ -180,8 +208,10 @@ def only_clean_claim(body: str) -> bool:
         return False
     if re.search(r"\bstep\s*\d+", body, re.IGNORECASE):
         return False
+    if re.search(r"(?:步骤|第)\s*\d+", body):
+        return False
     stripped = CLEAN_CLAIM.sub(" ", body)
-    stripped = re.sub(r"[^a-z0-9]+", " ", stripped.lower()).strip()
+    stripped = re.sub(r"[^a-z0-9\u4e00-\u9fff]+", " ", stripped.lower()).strip()
     return stripped == ""
 
 
@@ -213,7 +243,7 @@ def parse_findings(text: str) -> dict:
             current = {"step": int(step_match.group(1)), "wrong": "", "fix": "", "raw": ""}
             field = "wrong"
             if rest:
-                pieces = re.split(r"\bfix\s*:\s*", rest, maxsplit=1, flags=re.IGNORECASE)
+                pieces = SPLIT_FIX.split(rest, maxsplit=1)
                 current["wrong"] = pieces[0].strip(" .;")
                 current["raw"] = rest
                 if len(pieces) == 2:
@@ -282,7 +312,19 @@ def choose_error(item: dict, errors: list[dict], lexicon: dict | None = None) ->
     return strong[0][0]
 
 
-def row_comment(found: bool, diagnosis: float, fix: float) -> str:
+def row_comment(found: bool, diagnosis: float, fix: float, lang: str = "en") -> str:
+    if lang == "zh":
+        if not found:
+            return "这一步没有被指出为错误的根源。"
+        if diagnosis == 1 and fix == 1:
+            return "你指出了被用错的规则，并给出了能还原正确步骤的改正。"
+        if diagnosis >= 0.5 and fix == 0:
+            return "方向是对的，但改正还没有写出正确的那一步。"
+        if diagnosis == 0 and fix >= 0.5:
+            return "改正的方向对，但还需要点明失效的是哪一条规则。"
+        if diagnosis == 0:
+            return "你标出了这一步，但还没有说明哪条规则或事实出了问题。"
+        return "方向对。把诊断或改正写得更紧一些。"
     if not found:
         return "This step was not identified as the root error."
     if diagnosis == 1 and fix == 1:
@@ -296,7 +338,27 @@ def row_comment(found: bool, diagnosis: float, fix: float) -> str:
     return "Right area. Tighten the diagnosis or the corrected step."
 
 
-def make_feedback(errors: list[dict], rows: list[dict], false_alarms: list[dict], revealed: bool = False) -> str:
+def make_feedback(errors: list[dict], rows: list[dict], false_alarms: list[dict], revealed: bool = False,
+                  lang: str = "en") -> str:
+    if lang == "zh":
+        if revealed:
+            return "答案已经揭晓，因此每一处埋入的错误都算作未找到。下一轮之前先读完改正。"
+        missed = [error for error, row in zip(errors, rows) if not row["found"]]
+        sentences = []
+        if not errors:
+            if not false_alarms:
+                sentences.append("这份解答是正确的，你也把它当成正确的。相信没有错误的推导，同样是这项能力的一部分。")
+            else:
+                sentences.append("这份解答是正确的。把正确的步骤标成错误会扣分，所以先核对再否定。")
+        else:
+            if not missed and not false_alarms:
+                sentences.append("你找出了每一处埋入的错误，也没有把正确的步骤标错。")
+            if missed:
+                sentences.append(f"你漏掉了 {len(missed)} 处埋入的错误。{missed[0]['catch_rule']}")
+            if false_alarms:
+                sentences.append("最后一行错了，并不表示前面每一行都错。先找到第一处断裂。")
+        sentences.append("改正某一步之后，把由它推出的后续步骤重做一遍。")
+        return " ".join(sentences)
     if revealed:
         return "The key is revealed, so every planted error counts as missed. Read the correction before the next round."
     missed = [error for error, row in zip(errors, rows) if not row["found"]]
@@ -323,7 +385,11 @@ def make_feedback(errors: list[dict], rows: list[dict], false_alarms: list[dict]
     return " ".join(sentences)
 
 
-def why_correct(step: int, level: int) -> str:
+def why_correct(step: int, level: int, lang: str = "en") -> str:
+    if lang == "zh":
+        if level == 0:
+            return f"这一轮是无错解答，所以步骤 {step} 是对的。把它标成错误属于误报。"
+        return f"步骤 {step} 是对的。它出现在每一处埋入的错误之前，所以后面的错误结果不能说明这一行是假的。"
     if level == 0:
         return f"This round is clean, so step {step} is valid. Flagging it is a false alarm."
     return (
@@ -337,7 +403,7 @@ def claim_text(item: dict) -> str:
     return re.sub(r"\s+", " ", text)[:140]
 
 
-def blank_grade(n_errors: int) -> dict:
+def blank_grade(n_errors: int, lang: str = "en") -> dict:
     return {
         "errors": [
             {"found": False, "diagnosis": 0, "fix": 0, "comment": ""}
@@ -345,13 +411,18 @@ def blank_grade(n_errors: int) -> dict:
         ],
         "false_alarms": [],
         "bounties": [],
-        "feedback": make_feedback([], [], [], revealed=True),
+        "feedback": make_feedback([], [], [], revealed=True, lang=lang),
     }
+
+
+def entry_lang(entry: dict) -> str:
+    return "zh" if entry.get("lang") == "zh" else "en"
 
 
 def grade_findings(entry: dict, findings: str, lexicon: dict | None = None) -> dict:
     """Grade findings against one sealed worksheet. The result passes redpen.validate_grade."""
     lexicon = lexicon or LEXICON
+    lang = entry_lang(entry)
     errors = entry["key"]["errors"]
     parsed = parse_findings(findings)
     items = [] if parsed["clean_claim"] else parsed["items"]
@@ -371,7 +442,7 @@ def grade_findings(entry: dict, findings: str, lexicon: dict | None = None) -> d
                 "found": False,
                 "diagnosis": 0,
                 "fix": 0,
-                "comment": row_comment(False, 0, 0),
+                "comment": row_comment(False, 0, 0, lang),
             })
             continue
         wrong_text = " ".join((item.get("wrong") or item.get("raw") or "") for item in group).strip()
@@ -382,7 +453,7 @@ def grade_findings(entry: dict, findings: str, lexicon: dict | None = None) -> d
             "found": True,
             "diagnosis": diagnosis,
             "fix": fix,
-            "comment": row_comment(True, diagnosis, fix),
+            "comment": row_comment(True, diagnosis, fix, lang),
         })
 
     false_alarms = []
@@ -395,12 +466,12 @@ def grade_findings(entry: dict, findings: str, lexicon: dict | None = None) -> d
         false_alarms.append({
             "step": item["step"],
             "claim": claim_text(item),
-            "why_correct": why_correct(item["step"], level),
+            "why_correct": why_correct(item["step"], level, lang),
         })
 
     return {
         "errors": rows,
         "false_alarms": false_alarms,
         "bounties": [],
-        "feedback": make_feedback(errors, rows, false_alarms),
+        "feedback": make_feedback(errors, rows, false_alarms, lang=lang),
     }

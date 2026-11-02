@@ -11,8 +11,9 @@ process.stdin.on("end", () => {
   grade.init(data.lexicon);
   const debriefs = data.cases.map((item) => {
     const entry = data.entries[item.id];
+    const lang = entry.lang || "en";
     const scored = item.revealed
-      ? grade.blankGrade(entry.key.errors.length)
+      ? grade.blankGrade(entry.key.errors.length, lang)
       : grade.gradeFindings(entry, item.findings);
     return grade.buildDebrief(
       entry,

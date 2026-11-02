@@ -27,7 +27,37 @@ body {
 .nib { width: 32px; height: 32px; }
 .mark { margin: 0; font-size: 1.7rem; letter-spacing: -0.03em; line-height: 1; }
 .sub { margin: 4px 0 0; color: var(--muted); font: 14px/1.4 system-ui, sans-serif; }
+.top-tools { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.lang-switch {
+  display: flex; gap: 10px; align-items: center;
+  font: 13px/1 system-ui, sans-serif;
+}
+.lang-switch [aria-current="page"] { color: var(--ink); font-weight: 650; }
+.lang-switch a { text-decoration: none; }
 .mode-note { margin: 0; max-width: 36rem; color: var(--muted); font: 13px/1.45 system-ui, sans-serif; text-align: right; }
+html[lang|="zh"] body {
+  font-family: "Songti SC", "Noto Serif SC", "Source Han Serif SC", "STSong", "SimSun", "PMingLiU", Palatino, serif;
+}
+html[lang|="zh"] .sub,
+html[lang|="zh"] .mode-note,
+html[lang|="zh"] .foot,
+html[lang|="zh"] .rules,
+html[lang|="zh"] .blurb,
+html[lang|="zh"] label,
+html[lang|="zh"] .btn,
+html[lang|="zh"] .linkish,
+html[lang|="zh"] .lang-switch,
+html[lang|="zh"] .breakdown,
+html[lang|="zh"] .banner,
+html[lang|="zh"] .hint,
+html[lang|="zh"] dt,
+html[lang|="zh"] summary,
+html[lang|="zh"] .debrief-error h3,
+html[lang|="zh"] textarea {
+  font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans SC", sans-serif;
+}
+html[lang|="zh"] .pill { letter-spacing: 0.02em; }
+html[lang|="zh"] ol.steps li::before { content: "步骤 " counter(step); letter-spacing: 0; }
 .skip {
   position: absolute; left: -999px; top: 8px;
   background: var(--ink); color: var(--paper); padding: 8px 12px;
@@ -141,6 +171,7 @@ summary { cursor: pointer; font: 600 14px system-ui, sans-serif; }
   body { background-image: none; }
   .wrap { padding-left: 18px; padding-right: 18px; }
   .top { flex-direction: column; align-items: start; }
+  .top-tools { align-items: flex-start; }
   .mode-note { text-align: left; }
   .layout { grid-template-columns: 1fr; }
   .panel { position: static; }

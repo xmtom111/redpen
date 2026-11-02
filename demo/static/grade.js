@@ -10,10 +10,14 @@
   const FIX_HIGH = 0.40;
   const FIX_PARTIAL = 0.18;
   const LEVELS = { 0: "Clean", 1: "Subtle", 2: "Minor", 3: "Mixed", 4: "Nonsense" };
-  const STEP_LINE = /^\s*\**\s*step\s*(\d+)[*:.)\s\-]*\s*(.*)$/i;
-  const WRONG_LINE = /^\s*\**\s*what(?:'s|’s| is)\s+wrong\s*\**\s*:?\s*(.*)$/i;
-  const FIX_LINE = /^\s*\**\s*fix\s*\**\s*:?\s*(.*)$/i;
+  const ZH_LEVELS = { 0: "无错", 1: "隐蔽", 2: "轻微", 3: "混杂", 4: "胡来" };
+  const STEP_LINE = /^\s*\**\s*(?:step|步骤|第)\s*(\d+)\s*步?[*:.)：:\s\-]*\s*(.*)$/i;
+  const WRONG_LINE = /^\s*\**\s*(?:what(?:'s|’s| is)\s+wrong|错误|错在哪里|错在|问题)\s*\**\s*[:：]?\s*(.*)$/i;
+  const FIX_LINE = /^\s*\**\s*(?:fix|改正|修正|正确做法)\s*\**\s*[:：]?\s*(.*)$/i;
+  const CLEAN_CLAIM = /(?:\bno errors found\b|未发现错误|没有发现错误|没有错误|无错误)/i;
+  const SPLIT_FIX = /(?:\bfix\s*:|改正\s*[:：]|修正\s*[:：])\s*/i;
   const FRAC = /\\(?:d|t)?frac\s*\{([^{}]*)\}\s*\{([^{}]*)\}/g;
+  const CJK = /[\u4e00-\u9fff]/;
 
   let LEX = null;
 
@@ -81,14 +85,28 @@
       if (!word || lexicon.stopwords.has(word)) continue;
       found.add(word);
     }
+    for (const gram of cjkBigrams(text)) found.add(gram);
     return found;
+  }
+
+  function cjkBigrams(text) {
+    const chars = String(text || "").match(/[\u4e00-\u9fff]/g) || [];
+    const grams = new Set();
+    for (let i = 0; i < chars.length - 1; i += 1) grams.add(chars[i] + chars[i + 1]);
+    return grams;
   }
 
   function cueHits(text, category) {
     const norm = normalize(text);
+    const folded = String(text).toLowerCase();
     const cues = lex().cues[category] || [];
     let hits = 0;
-    for (const cue of cues) if (cue && norm.includes(cue)) hits += 1;
+    for (const cue of cues) {
+      if (!cue) continue;
+      if (CJK.test(cue)) {
+        if (folded.includes(cue.toLowerCase())) hits += 1;
+      } else if (norm.includes(cue)) hits += 1;
+    }
     return hits;
   }
 
@@ -160,9 +178,13 @@
   }
 
   function onlyCleanClaim(body) {
-    if (!/\bno errors found\b/i.test(body)) return false;
+    if (!CLEAN_CLAIM.test(body)) return false;
     if (/\bstep\s*\d+/i.test(body)) return false;
-    const stripped = body.replace(/\bno errors found\b/gi, " ").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+    if (/(?:步骤|第)\s*\d+/.test(body)) return false;
+    const stripped = body.replace(/(?:\bno errors found\b|未发现错误|没有发现错误|没有错误|无错误)/gi, " ")
+      .toLowerCase()
+      .replace(/[^a-z0-9\u4e00-\u9fff]+/g, " ")
+      .trim();
     return stripped === "";
   }
 
@@ -171,7 +193,7 @@
   }
 
   function splitFix(rest) {
-    const match = /\bfix\s*:\s*/i.exec(rest);
+    const match = SPLIT_FIX.exec(rest);
     if (!match) return [rest];
     return [rest.slice(0, match.index), rest.slice(match.index + match[0].length)];
   }
@@ -271,7 +293,15 @@
     return strong[0][0];
   }
 
-  function rowComment(found, diagnosis, fix) {
+  function rowComment(found, diagnosis, fix, lang) {
+    if (lang === "zh") {
+      if (!found) return "这一步没有被指出为错误的根源。";
+      if (diagnosis === 1 && fix === 1) return "你指出了被用错的规则，并给出了能还原正确步骤的改正。";
+      if (diagnosis >= 0.5 && fix === 0) return "方向是对的，但改正还没有写出正确的那一步。";
+      if (diagnosis === 0 && fix >= 0.5) return "改正的方向对，但还需要点明失效的是哪一条规则。";
+      if (diagnosis === 0) return "你标出了这一步，但还没有说明哪条规则或事实出了问题。";
+      return "方向对。把诊断或改正写得更紧一些。";
+    }
     if (!found) return "This step was not identified as the root error.";
     if (diagnosis === 1 && fix === 1) {
       return "You named the broken rule and gave a correction that restores the valid step.";
@@ -286,7 +316,31 @@
     return "Right area. Tighten the diagnosis or the corrected step.";
   }
 
-  function makeFeedback(errors, rows, falseAlarms, revealed) {
+  function makeFeedback(errors, rows, falseAlarms, revealed, lang) {
+    if (lang === "zh") {
+      if (revealed) {
+        return "答案已经揭晓，因此每一处埋入的错误都算作未找到。下一轮之前先读完改正。";
+      }
+      const missed = errors.filter((error, index) => !rows[index].found);
+      const sentences = [];
+      if (!errors.length) {
+        if (!falseAlarms.length) {
+          sentences.push("这份解答是正确的，你也把它当成正确的。相信没有错误的推导，同样是这项能力的一部分。");
+        } else {
+          sentences.push("这份解答是正确的。把正确的步骤标成错误会扣分，所以先核对再否定。");
+        }
+      } else {
+        if (!missed.length && !falseAlarms.length) {
+          sentences.push("你找出了每一处埋入的错误，也没有把正确的步骤标错。");
+        }
+        if (missed.length) sentences.push(`你漏掉了 ${missed.length} 处埋入的错误。${missed[0].catch_rule}`);
+        if (falseAlarms.length) {
+          sentences.push("最后一行错了，并不表示前面每一行都错。先找到第一处断裂。");
+        }
+      }
+      sentences.push("改正某一步之后，把由它推出的后续步骤重做一遍。");
+      return sentences.join(" ");
+    }
     if (revealed) {
       return "The key is revealed, so every planted error counts as missed. Read the correction before the next round.";
     }
@@ -311,9 +365,17 @@
     return sentences.join(" ");
   }
 
-  function whyCorrect(step, level) {
+  function whyCorrect(step, level, lang) {
+    if (lang === "zh") {
+      if (level === 0) return `这一轮是无错解答，所以步骤 ${step} 是对的。把它标成错误属于误报。`;
+      return `步骤 ${step} 是对的。它出现在每一处埋入的错误之前，所以后面的错误结果不能说明这一行是假的。`;
+    }
     if (level === 0) return `This round is clean, so step ${step} is valid. Flagging it is a false alarm.`;
     return `Step ${step} is valid. It is earlier than every planted mistake, so a wrong result later does not make this line false.`;
+  }
+
+  function sheetLang(entry) {
+    return entry && entry.lang === "zh" ? "zh" : "en";
   }
 
   function claimText(item) {
@@ -321,17 +383,18 @@
     return text.slice(0, 140);
   }
 
-  function blankGrade(nErrors) {
+  function blankGrade(nErrors, lang) {
     return {
       errors: Array.from({ length: nErrors }, () => ({ found: false, diagnosis: 0, fix: 0, comment: "" })),
       false_alarms: [],
       bounties: [],
-      feedback: makeFeedback([], [], [], true),
+      feedback: makeFeedback([], [], [], true, lang || "en"),
     };
   }
 
   function gradeFindings(entry, findings) {
     lex();
+    const lang = sheetLang(entry);
     const errors = entry.key.errors;
     const parsed = parseFindings(findings);
     const items = parsed.clean_claim ? [] : parsed.items;
@@ -346,13 +409,13 @@
     const rows = errors.map((error, index) => {
       const group = buckets[index];
       if (!group.length) {
-        return { found: false, diagnosis: 0, fix: 0, comment: rowComment(false, 0, 0) };
+        return { found: false, diagnosis: 0, fix: 0, comment: rowComment(false, 0, 0, lang) };
       }
       const wrongText = group.map((item) => item.wrong || item.raw || "").join(" ").trim();
       const fixText = group.map((item) => item.fix || "").join(" ").trim() || wrongText;
       const diagnosis = diagnosisScore(wrongText, error);
       const fix = fixScore(fixText, error);
-      return { found: true, diagnosis, fix, comment: rowComment(true, diagnosis, fix) };
+      return { found: true, diagnosis, fix, comment: rowComment(true, diagnosis, fix, lang) };
     });
     const falseAlarms = [];
     const level = entry.key.level;
@@ -362,14 +425,14 @@
       falseAlarms.push({
         step: item.step,
         claim: claimText(item),
-        why_correct: whyCorrect(item.step, level),
+        why_correct: whyCorrect(item.step, level, lang),
       });
     });
     return {
       errors: rows,
       false_alarms: falseAlarms,
       bounties: [],
-      feedback: makeFeedback(errors, rows, falseAlarms, false),
+      feedback: makeFeedback(errors, rows, falseAlarms, false, lang),
     };
   }
 
@@ -435,8 +498,25 @@
     return hex === expected;
   }
 
-  function hintLadder(mode, level, steps, errors) {
+  function levelName(level, lang) {
+    if (lang === "zh") return ZH_LEVELS[level];
+    return LEVELS[level];
+  }
+
+  function hintLadder(mode, level, steps, errors, lang) {
     const hints = [];
+    if (lang === "zh") {
+      if (mode === "blind" || level >= 2) {
+        hints.push(`这份解答里有 ${errors.length} 处故意埋入的错误。`);
+      }
+      errors.forEach((error, index) => {
+        const low = Math.max(1, error.step - 1);
+        const high = Math.min(steps.length, error.step + 1);
+        hints.push(`第 ${index + 1} 处错误：仔细看步骤 ${low}-${high}。`);
+        hints.push(`第 ${index + 1} 处错误：${error.hint}`);
+      });
+      return hints;
+    }
     if (mode === "blind" || level >= 2) {
       hints.push(`This worksheet contains ${errors.length} planted error(s).`);
     }
@@ -451,6 +531,7 @@
 
   function buildDebrief(entry, mode, hintsUsed, grade, revealed, grader) {
     const key = entry.key;
+    const lang = sheetLang(entry);
     const scored = scoreRound(key.errors.length, grade, hintsUsed);
     const score = revealed ? null : scored.score;
     const errors = key.errors.map((error, index) => {
@@ -483,7 +564,7 @@
       bounties: scored.bounties,
       hints_used: scored.hints_used,
       level: entry.level,
-      level_name: LEVELS[entry.level],
+      level_name: levelName(entry.level, lang),
       mode,
       commitment: entry.commitment,
       commitment_short: entry.commitment.slice(0, 12),

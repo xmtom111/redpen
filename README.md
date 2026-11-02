@@ -13,17 +13,22 @@ git clone https://github.com/xmtom111/redpen.git && cd redpen
 python redpen.py demo
 ```
 
-The page opens at <http://127.0.0.1:8000>. Pick a worksheet, write a finding for each mistake (the step, what is wrong, and a fix), and submit. You get the same score weights as the CLI, then a debrief that corrects every planted error. The answer key stays in the server process until you submit or reveal. A commitment hash is shown with the worksheet, and the debrief checks the key against it.
+The page opens at <http://127.0.0.1:8000>. The same server also serves a Simplified Chinese demo at <http://127.0.0.1:8000/zh/>. The header links the two languages. Pick a worksheet, write a finding for each mistake (the step, what is wrong, and a fix), and submit. You get the same score weights as the CLI, then a debrief that corrects every planted error. The answer key stays in the server process until you submit or reveal. A commitment hash is shown with the worksheet, and the debrief checks the key against it.
 
 Canned rounds are graded in-process by a deterministic checker. It matches the step you name, and the wording of your diagnosis and fix, to the sealed key. When `REDPEN_MODEL` is set, the page also offers a live round: the model writes the worksheet and grades the hunt, and the key still stays on the server.
 
 ### Static demo (GitHub Pages)
 
-Pushes to `main` run [`.github/workflows/pages.yml`](.github/workflows/pages.yml), which publishes the same UI to <https://xmtom111.github.io/redpen/>. That copy grades in the browser. It loads an answer key when you submit, then checks the key against the commitment hash from the start of the round.
+Pushes to `main` run [`.github/workflows/pages.yml`](.github/workflows/pages.yml), which publishes the same UI to GitHub Pages. That copy grades in the browser. It loads an answer key when you submit, then checks the key against the commitment hash from the start of the round.
+
+- English: <https://xmtom111.github.io/redpen/>
+- 简体中文: <https://xmtom111.github.io/redpen/zh/>
+
+Use the 中文 / English link in the header to switch. Both pages grade the canned rounds with no API key.
 
 In the GitHub repo, set **Settings → Pages → Build and deployment** to **GitHub Actions** once. The workflow publishes on the next push to `main`.
 
-Build the site yourself with `python redpen.py demo --export _site` and host the `_site` folder anywhere static. `catalog.json` is the worksheet list. `secrets/` is fetched on submit.
+Build the site yourself with `python redpen.py demo --export _site` and host the `_site` folder anywhere static. English files are at the root (`catalog.json`, `secrets/`). The Chinese page is `_site/zh/` (`zh/catalog.json`, `zh/secrets/`), which Pages serves at `/zh/`. `catalog.json` is the worksheet list. `secrets/` is fetched on submit.
 
 The canned keys also live in [`demo/bank/`](demo/bank/) so the demo can run offline. Reading them before you hunt spoils the round.
 
@@ -155,6 +160,7 @@ CLAUDE.md      points Claude Code to AGENTS.md
 redpen.py      the CLI: sessions, sealed keys, SymPy checks, hints, scoring, stats
 demo/          browser demo: UI, canned worksheets, automatic grader, local server
 demo/bank/     canned answer keys. The server sends a key only in the debrief
+demo/bank/zh/  Simplified Chinese worksheets for /zh/
 Dockerfile     container for the demo (port 7860)
 .github/       GitHub Pages workflow for the static demo
 tests/         end-to-end tests with a fake model: python -m unittest discover tests
