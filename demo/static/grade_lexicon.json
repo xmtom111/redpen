@@ -1,0 +1,32 @@
+{
+  "stopwords": [
+    "the", "and", "for", "that", "this", "with", "from", "both", "sides", "side",
+    "step", "what", "whats", "wrong", "fix", "because", "since", "when", "where",
+    "which", "into", "then", "than", "are", "was", "were", "not", "but", "its",
+    "have", "has", "had", "you", "your", "they", "their", "using", "use", "used",
+    "just", "only", "also", "can", "will", "would", "should", "about", "after",
+    "before", "each", "other", "such", "any", "all", "one", "get", "gets", "give",
+    "gives", "let", "set", "hence", "therefore", "thus", "over", "under", "does",
+    "did", "been", "being", "there", "here", "out", "our", "who", "how", "why",
+    "via", "per", "within", "without", "across", "every", "very", "more", "most",
+    "some", "same", "too", "onto", "upon", "off", "its"
+  ],
+  "keep_short": ["ln", "du", "dx", "pi", "ab"],
+  "cues": {
+    "division-by-zero": ["divid", "zero", "discard", "cancel", "nonzero", "non-zero"],
+    "differentiation": ["chain", "inner", "inside", "deriv"],
+    "distribution": ["cross", "middle", "binomial", "expand", "2ab"],
+    "exponent-log": ["product", "sum of log", "ln ab", "logarithm of a product"],
+    "domain": ["domain", "defined", "positive", "argument", "restrict", "undefined"],
+    "integration": ["1/2", "factor", "substitut", "du"],
+    "sign": ["sign", "minus", "negative", "antideriv"],
+    "arithmetic": ["arith"],
+    "cancellation": ["cancel"],
+    "extraneous-root": ["extraneous"],
+    "inequality": ["inequal"],
+    "limit": ["indeterminate"],
+    "hypothesis": ["hypothesis"],
+    "case-missing": ["missing case"],
+    "quantifier": ["for all", "there exists"]
+  }
+}

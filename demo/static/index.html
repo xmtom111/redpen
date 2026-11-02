@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RedPen demo</title>
+<meta name="description" content="Hunt the planted mistakes in a worked math solution, then get a score and a debrief.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]] },
+  options: { skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code"] }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#app">Skip to content</a>
+<header class="wrap top">
+  <div class="brand">
+    <svg class="nib" viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M9 24.5 16.2 6.5h3.2L12.2 24.5H9z" fill="#c62828"/>
+      <path d="M11.2 24.5 9.4 29l4.2-2.2-2.4-2.3z" fill="#1f2328"/>
+    </svg>
+    <div>
+      <p class="mark">RedPen</p>
+      <p class="sub">Find the planted mistakes.</p>
+    </div>
+  </div>
+  <p id="mode-note" class="mode-note"></p>
+</header>
+<main id="app" class="wrap"></main>
+<footer class="wrap foot">
+  <p>A worksheet can contain planted errors. The debrief is the reference, not the worksheet.</p>
+  <p><a href="https://github.com/xmtom111/redpen">RedPen on GitHub</a></p>
+</footer>
+<script src="grade.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

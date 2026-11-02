@@ -1,0 +1,51 @@
+{
+  "title": "Solving a cubic equation",
+  "problem": "Find all real solutions of $x^3 = 4x$.",
+  "steps": [
+    "Start from the equation $x^3 = 4x$.",
+    "Divide both sides by $x$ to obtain $x^2 = 4$.",
+    "Take square roots of both sides: $x = 2$ or $x = -2$.",
+    "Substitute $x = 2$: $2^3 = 8$ and $4 \\cdot 2 = 8$, so this value satisfies the equation.",
+    "Substitute $x = -2$: $(-2)^3 = -8$ and $4 \\cdot (-2) = -8$, so this value satisfies the equation.",
+    "Both checked values satisfy the original equation, so the solution set is $\\{-2, 2\\}$."
+  ],
+  "final_answer": "$x \\in \\{-2, 2\\}$",
+  "key": {
+    "level": 1,
+    "clean_steps": [
+      "Move every term to one side: $x^3 - 4x = 0$.",
+      "Factor out the common factor: $x(x^2 - 4) = 0$.",
+      "Factor the difference of squares: $x(x - 2)(x + 2) = 0$.",
+      "A product is zero exactly when one factor is zero, so $x = 0$, $x = 2$, or $x = -2$.",
+      "Each value satisfies $x^3 = 4x$, since both sides equal $0$, $8$, and $-8$ respectively."
+    ],
+    "clean_final_answer": "$x \\in \\{-2, 0, 2\\}$",
+    "errors": [
+      {
+        "step": 2,
+        "category": "division-by-zero",
+        "original": "Move every term to one side and factor: $x(x^2 - 4) = 0$.",
+        "corrupted": "Divide both sides by $x$ to obtain $x^2 = 4$.",
+        "why_wrong": "Dividing by $x$ assumes $x \\neq 0$, which discards the solution $x = 0$.",
+        "why_tempting": "Cancelling a common factor looks like simplifying, and the later substitutions agree with the two roots that remain.",
+        "catch_rule": "Before dividing by an expression, ask whether it can be zero; if it can, solve that case separately. Checking the roots you found never proves you found them all.",
+        "hint": "What did one step assume about $x$ without stating it?",
+        "practice": {
+          "problem": "Solve $x^4 = 9x^2$ over the reals.",
+          "answer": "$x \\in \\{-3, 0, 3\\}$"
+        }
+      }
+    ],
+    "checks": [
+      "solve(x**3 - 4*x, x) == [-2, 0, 2]"
+    ],
+    "reference_check": "none"
+  },
+  "meta": {
+    "topic": "cubic equations",
+    "mode": "1",
+    "difficulty": "standard",
+    "focus": [],
+    "blurb": "Find every real solution of a cubic equation."
+  }
+}

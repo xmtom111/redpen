@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """RedPen: learn math by catching an AI's planted mistakes.
 
-Student commands: new, hint, submit, reveal, stats, verify
+Student commands: new, hint, submit, reveal, stats, verify, demo
 Agent commands:   seal, score, check  (an AI agent writes the JSON, this script does the rest)
 
 Needs only the Python standard library (3.9+). `pip install sympy` to machine-check answer keys.
@@ -917,6 +917,19 @@ def cmd_score(args: argparse.Namespace) -> None:
     finish(path, meta, key, grade)
 
 
+def cmd_demo(args: argparse.Namespace) -> None:
+    from demo.server import DemoError, export_site, serve
+
+    try:
+        if args.export:
+            path = export_site(Path(args.export))
+            print(f"Static demo written to {path}")
+            return
+        serve(args.host, args.port, open_browser=not args.no_open)
+    except (DemoError, ValueError) as err:
+        fail(str(err))
+
+
 def cmd_check(args: argparse.Namespace) -> None:
     results = run_checks(args.checks)
     for r in results:
@@ -967,6 +980,12 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = command("check", cmd_check, "run SymPy checks such as 'diff(x**3, x) == 3*x**2'", session=False)
     p.add_argument("checks", nargs="+")
+
+    p = command("demo", cmd_demo, "open a browser demo of canned rounds (no API key required)", session=False)
+    p.add_argument("--host", default="127.0.0.1", help="bind address (default: 127.0.0.1)")
+    p.add_argument("--port", type=int, default=8000, help="port (default: 8000)")
+    p.add_argument("--no-open", action="store_true", help="don't open a browser")
+    p.add_argument("--export", metavar="DIR", help="write a static site to DIR and exit")
     return parser
 
 

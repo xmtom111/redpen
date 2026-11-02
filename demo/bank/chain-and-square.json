@@ -1,0 +1,65 @@
+{
+  "title": "Differentiating a composite",
+  "problem": "Find $f'(x)$ if $f(x) = \\sin(x^2) + (x+1)^2$.",
+  "steps": [
+    "Differentiate term by term, which the sum rule allows: $f'(x) = \\frac{d}{dx}\\sin(x^2) + \\frac{d}{dx}(x+1)^2$.",
+    "The derivative of $\\sin u$ is $\\cos u$, so with $u = x^2$ one gets $\\frac{d}{dx}\\sin(x^2) = \\cos(x^2)$.",
+    "Square the binomial before differentiating: $(x+1)^2 = x^2 + 1$.",
+    "Differentiate that expansion by the power rule: $\\frac{d}{dx}(x^2 + 1) = 2x$.",
+    "Add the two derivatives: $f'(x) = \\cos(x^2) + 2x$."
+  ],
+  "final_answer": "$f'(x) = \\cos(x^2) + 2x$",
+  "key": {
+    "level": 2,
+    "clean_steps": [
+      "Differentiate term by term: $f'(x) = \\frac{d}{dx}\\sin(x^2) + \\frac{d}{dx}(x+1)^2$.",
+      "By the chain rule, $\\frac{d}{dx}\\sin(x^2) = 2x\\cos(x^2)$.",
+      "Expand $(x+1)^2 = x^2 + 2x + 1$, then differentiate to get $2x + 2$. Equivalently, $\\frac{d}{dx}(x+1)^2 = 2(x+1)$.",
+      "Add the derivatives: $f'(x) = 2x\\cos(x^2) + 2x + 2$."
+    ],
+    "clean_final_answer": "$f'(x) = 2x\\cos(x^2) + 2x + 2$",
+    "errors": [
+      {
+        "step": 2,
+        "category": "differentiation",
+        "original": "By the chain rule, $\\frac{d}{dx}\\sin(x^2) = 2x\\cos(x^2)$.",
+        "corrupted": "The derivative of $\\sin u$ is $\\cos u$, so with $u = x^2$ one gets $\\frac{d}{dx}\\sin(x^2) = \\cos(x^2)$.",
+        "why_wrong": "The chain rule multiplies by the derivative of the inside function. The inside is $x^2$, whose derivative is $2x$, so the result is $2x\\cos(x^2)$ rather than $\\cos(x^2)$.",
+        "why_tempting": "The outer derivative $\\cos u$ is the part people memorize, and the inner factor is easy to drop when the inside is a simple power.",
+        "catch_rule": "When the argument of a function is not just $x$, multiply by the derivative of that argument.",
+        "hint": "A derivative of a function of a function is missing a factor. Which function sits inside the sine?",
+        "practice": {
+          "problem": "Differentiate $\\cos(x^3)$.",
+          "answer": "$-3x^2\\sin(x^3)$"
+        }
+      },
+      {
+        "step": 3,
+        "category": "distribution",
+        "original": "Expand the square fully: $(x+1)^2 = x^2 + 2x + 1$.",
+        "corrupted": "Square the binomial before differentiating: $(x+1)^2 = x^2 + 1$.",
+        "why_wrong": "$(a+b)^2 = a^2 + 2ab + b^2$, so $(x+1)^2 = x^2 + 2x + 1$. The missing cross term $2x$ changes the derivative by $2$.",
+        "why_tempting": "Squaring each piece and adding feels like distributing the exponent, and the middle term is the piece that gets forgotten.",
+        "catch_rule": "Before expanding a square, write the middle term $2ab$ explicitly.",
+        "hint": "The square of a sum is missing its middle term.",
+        "practice": {
+          "problem": "Expand $(x-3)^2$.",
+          "answer": "$x^2 - 6x + 9$"
+        }
+      }
+    ],
+    "checks": [
+      "diff(sin(x**2) + (x+1)**2, x) == 2*x*cos(x**2) + 2*x + 2",
+      "expand((x+1)**2) == x**2 + 2*x + 1",
+      "diff(sin(x**2), x) == 2*x*cos(x**2)"
+    ],
+    "reference_check": "none"
+  },
+  "meta": {
+    "topic": "chain rule",
+    "mode": "2",
+    "difficulty": "standard",
+    "focus": [],
+    "blurb": "Differentiate a sine of a square, plus a squared binomial."
+  }
+}
