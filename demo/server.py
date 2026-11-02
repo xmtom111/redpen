@@ -30,6 +30,8 @@ ZH_LEVELS = {0: "无错", 1: "隐蔽", 2: "轻微", 3: "混杂", 4: "胡来"}
 ZH_BANNER = "RedPen 习题：这份解答可能含有故意埋入的错误。不要把它当作参考答案。"
 NO_HINTS = {"en": "This round has no hints.", "zh": "这一轮没有提示。"}
 HINTS_DONE = {"en": "No hints left.", "zh": "没有更多提示了。"}
+# Files the Chinese page loads from /zh/ that live next to the English page.
+ZH_SHARED_ASSETS = ("app.js", "grade.js", "style.css", "grade_lexicon.json", "favicon.svg")
 MIME = {
     ".html": "text/html; charset=utf-8",
     ".css": "text/css; charset=utf-8",
@@ -572,9 +574,27 @@ class DemoHandler(BaseHTTPRequestHandler):
         if candidate != root and root not in candidate.parents:
             raise DemoError("Not found.", 404)
         if candidate.is_dir():
+            if not url_path.endswith("/"):
+                location = url_path if url_path.startswith("/") else "/" + url_path
+                if not location.endswith("/"):
+                    location += "/"
+                query = urlparse(self.path).query
+                if query:
+                    location += "?" + query
+                self.send_response(301)
+                self.send_header("Location", location)
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+                return
             candidate = (candidate / "index.html").resolve()
             if candidate != root and root not in candidate.parents:
                 raise DemoError("Not found.", 404)
+        if not candidate.is_file():
+            parts = Path(rel).parts
+            if len(parts) == 2 and parts[0] == "zh" and parts[1] in ZH_SHARED_ASSETS:
+                fallback = (STATIC / parts[1]).resolve()
+                if fallback.is_file() and (fallback == root or root in fallback.parents):
+                    candidate = fallback
         if not candidate.is_file():
             raise DemoError("Not found.", 404)
         data = candidate.read_bytes()
@@ -607,6 +627,10 @@ def copy_static(dest: Path) -> None:
         target = dest / rel
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(path, target)
+    zh_root = dest / "zh"
+    zh_root.mkdir(parents=True, exist_ok=True)
+    for name in ZH_SHARED_ASSETS:
+        shutil.copy2(STATIC / name, zh_root / name)
 
 
 def write_catalog(dest: Path, entries: list[dict], lang: str) -> None:
