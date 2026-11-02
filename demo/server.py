@@ -16,7 +16,7 @@ import traceback
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import unquote, urlparse
+from urllib.parse import parse_qs, unquote, urlparse
 
 import redpen
 from demo.grade import blank_grade, grade_findings
@@ -26,6 +26,10 @@ BANK = Path(__file__).resolve().parent / "bank"
 STATIC = Path(__file__).resolve().parent / "static"
 ID_RE = re.compile(r"^[0-9a-f]{16}$")
 LEVEL_CHOICES = (*map(str, redpen.LEVELS), "blind")
+ZH_LEVELS = {0: "无错", 1: "隐蔽", 2: "轻微", 3: "混杂", 4: "胡来"}
+ZH_BANNER = "RedPen 习题：这份解答可能含有故意埋入的错误。不要把它当作参考答案。"
+NO_HINTS = {"en": "This round has no hints.", "zh": "这一轮没有提示。"}
+HINTS_DONE = {"en": "No hints left.", "zh": "没有更多提示了。"}
 MIME = {
     ".html": "text/html; charset=utf-8",
     ".css": "text/css; charset=utf-8",
@@ -55,12 +59,46 @@ def check_key(key: dict) -> str:
     return redpen.check_summary(results)
 
 
-def load_bank() -> list[dict]:
+def sheet_lang(entry: dict) -> str:
+    return "zh" if entry.get("lang") == "zh" else "en"
+
+
+def level_names(lang: str) -> dict:
+    return ZH_LEVELS if lang == "zh" else redpen.LEVELS
+
+
+def banner_for(lang: str) -> str:
+    return ZH_BANNER if lang == "zh" else redpen.BANNER
+
+
+def localize_verified(summary: str, lang: str) -> str:
+    if lang != "zh":
+        return summary
+    match = re.fullmatch(r"(\d+)/(\d+) SymPy checks passed", summary)
+    if match:
+        return f"SymPy 检验已通过 {match.group(1)}/{match.group(2)} 项"
+    if summary == "no machine checks":
+        return "没有机器检验"
+    if summary == "not machine-checked (pip install sympy)":
+        return "未经机器检验（pip install sympy）"
+    return summary
+
+
+def load_banks() -> dict[str, list[dict]]:
+    banks = {"en": load_bank()}
+    zh_dir = BANK / "zh"
+    if any(zh_dir.glob("*.json")):
+        banks["zh"] = load_bank(zh_dir, "zh")
+    return banks
+
+
+def load_bank(directory: Path | None = None, lang: str = "en") -> list[dict]:
     """Validate every canned worksheet and seal its key."""
+    directory = BANK if directory is None else Path(directory)
     entries = []
-    paths = sorted(BANK.glob("*.json"))
+    paths = sorted(directory.glob("*.json"))
     if not paths:
-        raise DemoError(f"no worksheets in {BANK}", 500)
+        raise DemoError(f"no worksheets in {directory}", 500)
     for path in paths:
         draft = json.loads(path.read_text(encoding="utf-8"))
         redpen.validate_draft(draft)
@@ -70,7 +108,7 @@ def load_bank() -> list[dict]:
         mode = str(info.get("mode", draft["key"]["level"]))
         if mode != str(draft["key"]["level"]):
             raise DemoError(f"{path.name}: meta.mode must match key.level for a canned worksheet", 500)
-        verified = check_key(draft["key"])
+        verified = localize_verified(check_key(draft["key"]), lang)
         steps = [redpen.STEP_PREFIX.sub("", step).strip() for step in draft["steps"]]
         entries.append({
             "id": path.stem,
@@ -87,6 +125,7 @@ def load_bank() -> list[dict]:
             "commitment": redpen.commitment(draft["key"]),
             "verified": verified,
             "live": False,
+            "lang": lang,
         })
     entries.sort(key=lambda entry: (entry["level"], entry["title"]))
     return entries
@@ -94,13 +133,14 @@ def load_bank() -> list[dict]:
 
 def card(entry: dict) -> dict:
     """Worksheet fields a hunter may see before the debrief."""
+    lang = sheet_lang(entry)
     return {
         "id": entry["id"],
         "title": entry["title"],
         "topic": entry["topic"],
         "blurb": entry["blurb"],
         "level": entry["level"],
-        "level_name": redpen.LEVELS[entry["level"]],
+        "level_name": level_names(lang)[entry["level"]],
         "difficulty": entry["difficulty"],
         "problem": entry["problem"],
         "steps": entry["steps"],
@@ -109,10 +149,22 @@ def card(entry: dict) -> dict:
         "commitment_short": entry["commitment"][:12],
         "verified": entry["verified"],
         "n_steps": len(entry["steps"]),
+        "lang": lang,
     }
 
 
 def hint_list(entry: dict, mode: str) -> list[str]:
+    if sheet_lang(entry) == "zh":
+        key = entry["key"]
+        n_steps = len(entry["steps"])
+        hints = []
+        if mode == "blind" or key["level"] >= 2:
+            hints.append(f"这份解答里有 {len(key['errors'])} 处故意埋入的错误。")
+        for index, error in enumerate(key["errors"], 1):
+            low, high = max(1, error["step"] - 1), min(n_steps, error["step"] + 1)
+            hints.append(f"第 {index} 处错误：仔细看步骤 {low}-{high}。")
+            hints.append(f"第 {index} 处错误：{error['hint']}")
+        return hints
     meta = {"mode": mode, "worksheet": {"steps": entry["steps"]}}
     return redpen.hint_ladder(meta, entry["key"])
 
@@ -130,7 +182,7 @@ def public_round(rnd: dict) -> dict:
         "final_answer": entry["final_answer"],
         "mode": mode,
         "level": None if blind else entry["level"],
-        "level_name": None if blind else redpen.LEVELS[entry["level"]],
+        "level_name": None if blind else level_names(sheet_lang(entry))[entry["level"]],
         "difficulty": entry["difficulty"],
         "commitment": entry["commitment"],
         "commitment_short": entry["commitment"][:12],
@@ -138,7 +190,8 @@ def public_round(rnd: dict) -> dict:
         "hints_used": rnd["hints_used"],
         "graded": rnd["graded"],
         "live": bool(entry.get("live")),
-        "banner": redpen.BANNER,
+        "banner": banner_for(sheet_lang(entry)),
+        "lang": sheet_lang(entry),
     }
     if rnd.get("debrief"):
         payload["debrief"] = rnd["debrief"]
@@ -200,7 +253,7 @@ def build_debrief(entry: dict, mode: str, hints_used: int, grade: dict, *, revea
         "bounties": result["bounties"],
         "hints_used": result["hints_used"],
         "level": entry["level"],
-        "level_name": redpen.LEVELS[entry["level"]],
+        "level_name": level_names(sheet_lang(entry))[entry["level"]],
         "mode": mode,
         "commitment": entry["commitment"],
         "commitment_short": entry["commitment"][:12],
@@ -236,7 +289,7 @@ def live_enabled() -> bool:
     return bool(os.environ.get("REDPEN_MODEL"))
 
 
-def generate_live(topic: str, mode: str, difficulty: str) -> dict:
+def generate_live(topic: str, mode: str, difficulty: str, lang: str = "en") -> dict:
     if not live_enabled():
         raise DemoError("Live rounds need REDPEN_MODEL in the environment. Canned rounds work with no key.")
     topic = " ".join(topic.split())
@@ -256,8 +309,11 @@ def generate_live(topic: str, mode: str, difficulty: str) -> dict:
             raise ValueError(f"'key.level' must be {level}")
         draft["_verified"] = check_key(draft["key"])
 
+    task = redpen.setter_task(topic, level, difficulty, [], None)
+    if lang == "zh":
+        task += "\nLanguage for all text: zh-Hans. Category ids stay in English."
     try:
-        draft = redpen.ask_json(redpen.setter_task(topic, level, difficulty, [], None), validate)
+        draft = redpen.ask_json(task, validate)
     except SystemExit as err:
         message = str(err) or "the model request failed"
         raise DemoError(message[:300]) from None
@@ -276,8 +332,9 @@ def generate_live(topic: str, mode: str, difficulty: str) -> dict:
         "blurb": "",
         "level": level,
         "commitment": redpen.commitment(draft["key"]),
-        "verified": verified,
+        "verified": localize_verified(verified, lang),
         "live": True,
+        "lang": "zh" if lang == "zh" else "en",
     }
     return make_round(entry, mode)
 
@@ -293,9 +350,12 @@ def grade_round(rnd: dict, findings: str) -> dict:
                 "final_answer": entry["final_answer"],
             }
         }
+        task = redpen.grader_task(meta, entry["key"], findings)
+        if sheet_lang(entry) == "zh":
+            task += "\nWrite comment and feedback in Simplified Chinese."
         try:
             grade = redpen.ask_json(
-                redpen.grader_task(meta, entry["key"], findings),
+                task,
                 lambda candidate: redpen.validate_grade(candidate, len(entry["key"]["errors"])),
             )
             return build_debrief(entry, rnd["mode"], rnd["hints_used"], grade, grader="model")
@@ -342,11 +402,14 @@ class DemoHandler(BaseHTTPRequestHandler):
             self._json({"ok": True, "live": live_enabled(), "static": False, "worksheets": len(bank)})
             return
         if path == "/api/catalog":
+            lang = self._requested_lang(urlparse(self.path).query)
+            entries = self._entries(lang)
             self._json({
-                "worksheets": [card(entry) for entry in self.server.bank],
+                "worksheets": [card(entry) for entry in entries],
                 "live": live_enabled(),
                 "static": False,
-                "banner": redpen.BANNER,
+                "banner": banner_for(lang if lang in self.server.banks else "en"),
+                "lang": lang if lang in self.server.banks else "en",
             })
             return
         parts = [unquote(part) for part in path.split("/") if part]
@@ -369,6 +432,7 @@ class DemoHandler(BaseHTTPRequestHandler):
                 str(body.get("topic") or ""),
                 str(body.get("level") or "2"),
                 str(body.get("difficulty") or "standard"),
+                self._body_lang(body),
             )
             with self.server.lock:
                 self.server.rounds[rnd["id"]] = rnd
@@ -388,15 +452,30 @@ class DemoHandler(BaseHTTPRequestHandler):
                 return
         raise DemoError("Unknown endpoint.", 404)
 
+    def _requested_lang(self, query: str) -> str:
+        raw = (parse_qs(query).get("lang") or ["en"])[0]
+        return raw if raw in self.server.banks else "en"
+
+    def _body_lang(self, body: dict) -> str:
+        raw = body.get("lang")
+        if isinstance(raw, str) and raw in self.server.banks:
+            return raw
+        return "en"
+
+    def _entries(self, lang: str) -> list[dict]:
+        return self.server.banks.get(lang) or self.server.bank
+
     def _start(self, body: dict) -> dict:
+        lang = self._body_lang(body)
+        bank = self._entries(lang)
         blind = bool(body.get("blind")) or body.get("worksheet_id") == "blind"
         if blind:
-            pool = [entry for entry in self.server.bank if entry["level"] <= 2]
+            pool = [entry for entry in bank if entry["level"] <= 2]
             entry = random.choice(pool)
             mode = "blind"
         else:
             wanted = str(body.get("worksheet_id") or "")
-            entry = next((item for item in self.server.bank if item["id"] == wanted), None)
+            entry = next((item for item in bank if item["id"] == wanted), None)
             if entry is None:
                 raise DemoError("Unknown worksheet.", 404)
             mode = entry["mode"]
@@ -418,10 +497,11 @@ class DemoHandler(BaseHTTPRequestHandler):
         if rnd["graded"]:
             raise DemoError("This round is already graded.", 409)
         hints = hint_list(rnd["entry"], rnd["mode"])
+        lang = sheet_lang(rnd["entry"])
         if not hints:
-            return {"hint": "This round has no hints.", "hints_used": rnd["hints_used"], "done": True}
+            return {"hint": NO_HINTS[lang], "hints_used": rnd["hints_used"], "done": True}
         if rnd["hints_used"] >= len(hints):
-            return {"hint": "No hints left.", "hints_used": rnd["hints_used"], "done": True}
+            return {"hint": HINTS_DONE[lang], "hints_used": rnd["hints_used"], "done": True}
         text = hints[rnd["hints_used"]]
         rnd["hints_used"] += 1
         return {
@@ -447,7 +527,7 @@ class DemoHandler(BaseHTTPRequestHandler):
     def _reveal(self, rnd: dict) -> dict:
         if rnd["graded"]:
             raise DemoError("This round is already graded.", 409)
-        grade = blank_grade(len(rnd["entry"]["key"]["errors"]))
+        grade = blank_grade(len(rnd["entry"]["key"]["errors"]), sheet_lang(rnd["entry"]))
         debrief = build_debrief(
             rnd["entry"], rnd["mode"], rnd["hints_used"], grade, revealed=True, grader="reveal"
         )
@@ -491,6 +571,10 @@ class DemoHandler(BaseHTTPRequestHandler):
         root = STATIC.resolve()
         if candidate != root and root not in candidate.parents:
             raise DemoError("Not found.", 404)
+        if candidate.is_dir():
+            candidate = (candidate / "index.html").resolve()
+            if candidate != root and root not in candidate.parents:
+                raise DemoError("Not found.", 404)
         if not candidate.is_file():
             raise DemoError("Not found.", 404)
         data = candidate.read_bytes()
@@ -503,55 +587,84 @@ class DemoHandler(BaseHTTPRequestHandler):
 
 
 class DemoServer(ThreadingHTTPServer):
-    def __init__(self, address, bank: list[dict]):
+    def __init__(self, address, bank):
         super().__init__(address, DemoHandler)
-        self.bank = bank
+        if isinstance(bank, dict):
+            self.banks = bank
+            self.bank = bank.get("en") or next(iter(bank.values()))
+        else:
+            self.banks = {"en": bank}
+            self.bank = bank
         self.rounds = {}
         self.lock = threading.Lock()
 
 
-def export_site(dest: Path, bank: list[dict] | None = None) -> Path:
-    """Write a static site that grades in the browser."""
-    dest = dest.resolve()
-    if dest.exists() and any(dest.iterdir()) and not (dest / "catalog.json").exists():
-        raise DemoError(f"{dest} is not empty and is not a previous export")
+def copy_static(dest: Path) -> None:
+    for path in STATIC.rglob("*"):
+        if not path.is_file() or path.name.startswith("."):
+            continue
+        rel = path.relative_to(STATIC)
+        target = dest / rel
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(path, target)
+
+
+def write_catalog(dest: Path, entries: list[dict], lang: str) -> None:
     dest.mkdir(parents=True, exist_ok=True)
-    bank = bank if bank is not None else load_bank()
-    for path in STATIC.iterdir():
-        if path.is_file():
-            shutil.copy2(path, dest / path.name)
     catalog = {
-        "worksheets": [card(entry) for entry in bank],
+        "worksheets": [card(entry) for entry in entries],
         "live": False,
         "static": True,
-        "banner": redpen.BANNER,
+        "banner": banner_for(lang),
+        "lang": lang,
     }
-    (dest / "catalog.json").write_text(json.dumps(catalog, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (dest / "catalog.json").write_text(
+        json.dumps(catalog, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
     secret_dir = dest / "secrets"
     secret_dir.mkdir(exist_ok=True)
-    keep = {f"{entry['id']}.json" for entry in bank}
+    keep = {f"{entry['id']}.json" for entry in entries}
     for stale in secret_dir.glob("*.json"):
         if stale.name not in keep:
             stale.unlink()
-    for entry in bank:
+    for entry in entries:
         secret = {"id": entry["id"], "key": entry["key"]}
         (secret_dir / f"{entry['id']}.json").write_text(
             json.dumps(secret, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
         )
+
+
+def export_site(dest: Path, bank: list[dict] | None = None) -> Path:
+    """Write a static site that grades in the browser, in English and zh-Hans."""
+    dest = dest.resolve()
+    if dest.exists() and any(dest.iterdir()) and not (dest / "catalog.json").exists():
+        raise DemoError(f"{dest} is not empty and is not a previous export")
+    dest.mkdir(parents=True, exist_ok=True)
+    english = bank if bank is not None else load_bank()
+    copy_static(dest)
+    write_catalog(dest, english, sheet_lang(english[0]) if english else "en")
+    zh_dir = BANK / "zh"
+    if any(zh_dir.glob("*.json")):
+        write_catalog(dest / "zh", load_bank(zh_dir, "zh"), "zh")
     (dest / ".nojekyll").write_text("", encoding="utf-8")
     return dest
 
 
 def serve(host: str, port: int, *, open_browser: bool = True, bank: list[dict] | None = None) -> None:
-    bank = bank if bank is not None else load_bank()
+    loaded = bank if bank is not None else load_banks()
     try:
-        httpd = DemoServer((host, port), bank)
+        httpd = DemoServer((host, port), loaded)
     except OSError as err:
         redpen.fail(f"cannot listen on {host}:{port} ({err.strerror})")
     shown = "127.0.0.1" if host in ("0.0.0.0", "::") else host
     url = f"http://{shown}:{httpd.server_address[1]}/"
     print(f"RedPen demo: {url}")
-    print(f"Canned rounds: {len(bank)}. No API key required. Stop with Ctrl-C.")
+    if "zh" in httpd.banks:
+        print(f"Chinese demo: {url}zh/")
+        rounds = f"{len(httpd.bank)} English, {len(httpd.banks['zh'])} Chinese"
+    else:
+        rounds = str(len(httpd.bank))
+    print(f"Canned rounds: {rounds}. No API key required. Stop with Ctrl-C.")
     if live_enabled():
         print("Live rounds are on: a model will write and grade those worksheets. The key stays in this process.")
     if open_browser:

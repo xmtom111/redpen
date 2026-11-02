@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RedPen 演示</title>
+<meta name="description" content="在一份数学解答里找出故意埋入的错误，然后得到评分和复盘。">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]] },
+  options: { skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code"] }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<a class="skip" href="#app">跳到主要内容</a>
+<header class="wrap top">
+  <div class="brand">
+    <svg class="nib" viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M9 24.5 16.2 6.5h3.2L12.2 24.5H9z" fill="#c62828"/>
+      <path d="M11.2 24.5 9.4 29l4.2-2.2-2.4-2.3z" fill="#1f2328"/>
+    </svg>
+    <div>
+      <p class="mark">RedPen</p>
+      <p class="sub">找出故意埋下的错误。</p>
+    </div>
+  </div>
+  <div class="top-tools">
+    <nav class="lang-switch" aria-label="语言">
+      <span aria-current="page" lang="zh-Hans">中文</span>
+      <a href="../" hreflang="en" lang="en">English</a>
+    </nav>
+    <p id="mode-note" class="mode-note"></p>
+  </div>
+</header>
+<main id="app" class="wrap"></main>
+<footer class="wrap foot">
+  <p>习题解答可能含有故意埋入的错误。复盘才是参考，解答本身不是。</p>
+  <p><a href="https://github.com/xmtom111/redpen">RedPen 的 GitHub 仓库</a></p>
+</footer>
+<script src="../grade.js"></script>
+<script src="../app.js"></script>
+</body>
+</html>

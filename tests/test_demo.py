@@ -18,7 +18,7 @@ import sympy as sp
 
 import redpen
 from demo.grade import grade_findings
-from demo.server import DemoError, DemoServer, build_debrief, export_site, load_bank
+from demo.server import DemoError, DemoServer, build_debrief, export_site, load_bank, load_banks
 
 ROOT = Path(__file__).resolve().parents[1]
 NODE = shutil.which("node")
@@ -75,6 +75,32 @@ Step 4
 What's wrong: 1 cubed plus 1 squared is not 2.
 Fix: F(1) = 3.
 """
+ZH_CUBIC = """\
+步骤 2
+错误：两边除以 x 时默认 x 不为零，丢掉了根 x = 0。
+改正：移项并提取公因式，得到 x(x^2-4)=0，所以 x=-2、x=0 或 x=2。
+"""
+ZH_CHAIN = """\
+步骤 2
+错误：链式法则还要乘以内层导数 2x，这里把内层导数漏掉了。
+改正：由链式法则，d/dx sin(x^2) = 2x cos(x^2)。
+
+步骤 3
+错误：展开 (x+1)^2 时漏了交叉项，不是 x^2+1。
+改正：把平方完全展开：(x+1)^2 = x^2 + 2x + 1。
+"""
+ZH_CLEAN = "未发现错误。\n"
+ZH_TEMPLATE = "步骤：\n错误：\n改正：\n"
+ZH_EARLY = """\
+步骤 1
+错误：这个代换本身不允许。
+改正：不要代换。
+"""
+ZH_INTEGRAL_FLAG = """\
+步骤 4
+错误：1 的立方加 1 的平方不是 2。
+改正：F(1) = 3。
+"""
 
 
 def rows(grade):
@@ -86,6 +112,8 @@ class BankAndGraderTest(unittest.TestCase):
     def setUpClass(cls):
         cls.bank = load_bank()
         cls.by_id = {entry["id"]: entry for entry in cls.bank}
+        cls.zh = load_bank(ROOT / "demo" / "bank" / "zh", "zh")
+        cls.zh_by_id = {entry["id"]: entry for entry in cls.zh}
 
     def entry(self, worksheet_id):
         return self.by_id[worksheet_id]
@@ -190,7 +218,7 @@ class BankAndGraderTest(unittest.TestCase):
             entry = self.entry(case["id"])
             if case["revealed"]:
                 from demo.grade import blank_grade
-                grade = blank_grade(len(entry["key"]["errors"]))
+                grade = blank_grade(len(entry["key"]["errors"]), entry.get("lang") or "en")
             else:
                 grade = grade_findings(entry, case["findings"])
             debrief = build_debrief(
@@ -244,6 +272,76 @@ class BankAndGraderTest(unittest.TestCase):
             digest = hashlib.sha256(text.encode("utf-8")).hexdigest()
             self.assertEqual(digest, entry["commitment"])
 
+    def test_chinese_bank_grades_without_a_model(self):
+        self.assertEqual(
+            sorted(entry["id"] for entry in self.zh),
+            ["chain-and-square", "cubic-lost-root", "definite-integral", "log-equation", "sine-substitution"],
+        )
+        for entry in self.zh:
+            self.assertEqual(entry["lang"], "zh")
+            self.assertIn("通过", entry["verified"])
+            self.assertEqual(redpen.commitment(entry["key"]), entry["commitment"])
+            self.assertNotIn("check_results", entry["key"])
+        cubic = grade_findings(self.zh_by_id["cubic-lost-root"], ZH_CUBIC)
+        self.assertEqual(rows(cubic), [(True, 1, 1)])
+        self.assertEqual(redpen.score_round(1, cubic, 0)["score"], 100)
+        chain = grade_findings(self.zh_by_id["chain-and-square"], ZH_CHAIN)
+        self.assertEqual(rows(chain), [(True, 1, 1), (True, 1, 1)])
+        trusted = grade_findings(self.zh_by_id["definite-integral"], ZH_CLEAN)
+        self.assertEqual(trusted["false_alarms"], [])
+        self.assertEqual(redpen.score_round(0, trusted, 0)["score"], 100)
+        template = grade_findings(self.zh_by_id["cubic-lost-root"], ZH_TEMPLATE)
+        self.assertEqual(rows(template), [(False, 0, 0)])
+        early = grade_findings(self.zh_by_id["sine-substitution"], ZH_EARLY)
+        self.assertEqual([item["step"] for item in early["false_alarms"]], [1])
+        flagged = grade_findings(self.zh_by_id["definite-integral"], ZH_INTEGRAL_FLAG)
+        self.assertEqual(redpen.score_round(0, flagged, 0)["score"], 67)
+
+    def test_chinese_browser_grader_matches_python(self):
+        if NODE is None:
+            self.skipTest("node is required to compare the browser grader")
+        cases = [
+            {"id": "cubic-lost-root", "mode": "1", "hints_used": 1, "findings": ZH_CUBIC, "revealed": False},
+            {"id": "chain-and-square", "mode": "2", "hints_used": 0, "findings": ZH_CHAIN, "revealed": False},
+            {"id": "definite-integral", "mode": "0", "hints_used": 0, "findings": ZH_CLEAN, "revealed": False},
+            {"id": "sine-substitution", "mode": "2", "hints_used": 0, "findings": ZH_EARLY, "revealed": False},
+            {"id": "cubic-lost-root", "mode": "blind", "hints_used": 0, "findings": "", "revealed": True},
+        ]
+        expected = []
+        for case in cases:
+            entry = self.zh_by_id[case["id"]]
+            if case["revealed"]:
+                from demo.grade import blank_grade
+                grade = blank_grade(len(entry["key"]["errors"]), entry.get("lang") or "en")
+            else:
+                grade = grade_findings(entry, case["findings"])
+            debrief = build_debrief(
+                entry, case["mode"], case["hints_used"], grade,
+                revealed=case["revealed"], grader="reveal" if case["revealed"] else "auto",
+            )
+            debrief.pop("report_md")
+            expected.append(debrief)
+        lexicon = json.loads((ROOT / "demo" / "static" / "grade_lexicon.json").read_text(encoding="utf-8"))
+        payload = {
+            "lexicon": lexicon,
+            "entries": self.zh_by_id,
+            "cases": cases,
+            "scores": [],
+            "keys": [entry["key"] for entry in self.zh],
+        }
+        completed = subprocess.run(
+            [NODE, str(ROOT / "tests" / "grade_parity.js")],
+            input=json.dumps(payload),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        got = json.loads(completed.stdout)
+        self.assertEqual(got["debriefs"], expected)
+        for entry, text in zip(self.zh, got["canonical"]):
+            self.assertEqual(text, json.dumps(entry["key"], sort_keys=True, ensure_ascii=False, separators=(",", ":")))
+
 
 SECRET_MARKERS = ("why_wrong", "why_tempting", "catch_rule", "clean_final_answer", "clean_steps", "division-by-zero")
 
@@ -251,10 +349,11 @@ SECRET_MARKERS = ("why_wrong", "why_tempting", "catch_rule", "clean_final_answer
 class ServerAndExportTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.bank = load_bank()
+        cls.banks = load_banks()
+        cls.bank = cls.banks["en"]
 
     def setUp(self):
-        self.httpd = DemoServer(("127.0.0.1", 0), self.bank)
+        self.httpd = DemoServer(("127.0.0.1", 0), self.banks)
         self.thread = threading.Thread(target=self.httpd.serve_forever, daemon=True)
         self.thread.start()
         self.port = self.httpd.server_address[1]
@@ -454,6 +553,77 @@ class ServerAndExportTest(unittest.TestCase):
             page = (dest / "index.html").read_text(encoding="utf-8")
             self.assertNotIn('src="/', page)
             self.assertNotIn("href=\"/", page)
+            self.assertIn('href="zh/"', page)
+            zh_page = (dest / "zh" / "index.html").read_text(encoding="utf-8")
+            self.assertIn('lang="zh-Hans"', zh_page)
+            self.assertIn('href="../"', zh_page)
+            self.assertNotIn('src="/', zh_page)
+            self.assertNotIn('href="/', zh_page)
+            self.assertNotIn("why_wrong", zh_page)
+            zh_catalog = json.loads((dest / "zh" / "catalog.json").read_text(encoding="utf-8"))
+            self.assertTrue(zh_catalog["static"])
+            self.assertEqual(zh_catalog["lang"], "zh")
+            self.assertNotIn("why_wrong", json.dumps(zh_catalog))
+            self.assertIn("全部实数解", json.dumps(zh_catalog, ensure_ascii=False))
+            self.assertNotIn("全部实数解", json.dumps(catalog, ensure_ascii=False))
+            zh_secret = json.loads((dest / "zh" / "secrets" / "cubic-lost-root.json").read_text(encoding="utf-8"))
+            zh_card = next(item for item in zh_catalog["worksheets"] if item["id"] == "cubic-lost-root")
+            self.assertEqual(zh_card["commitment"], redpen.commitment(zh_secret["key"]))
+            self.assertEqual(zh_card["lang"], "zh")
+            self.assertIn("丢掉", json.dumps(zh_secret, ensure_ascii=False))
+
+    def test_chinese_page_catalog_and_round(self):
+        status, page = self.request("GET", "/zh/")
+        self.assertEqual(status, 200)
+        text = page.decode("utf-8")
+        self.assertIn("zh-Hans", text)
+        self.assertIn("找出故意埋下的错误", text)
+        for marker in SECRET_MARKERS:
+            self.assertNotIn(marker, text)
+        status, direct = self.request("GET", "/zh")
+        self.assertEqual(status, 200)
+        self.assertIn("zh-Hans", direct.decode("utf-8"))
+
+        status, catalog = self.json("GET", "/api/catalog?lang=zh")
+        self.assertEqual(status, 200)
+        encoded = json.dumps(catalog, ensure_ascii=False)
+        for marker in SECRET_MARKERS:
+            self.assertNotIn(marker, encoded)
+        self.assertEqual(catalog["lang"], "zh")
+        self.assertIn("全部实数解", encoded)
+        self.assertEqual(len(catalog["worksheets"]), 5)
+        self.assertIn(catalog["worksheets"][0]["level_name"], ("无错", "隐蔽", "轻微", "混杂", "胡来"))
+
+        status, english = self.json("GET", "/api/catalog")
+        self.assertNotIn("全部实数解", json.dumps(english, ensure_ascii=False))
+        self.assertEqual(english["lang"], "en")
+
+        status, rnd = self.json("POST", "/api/rounds", {"worksheet_id": "cubic-lost-root", "lang": "zh"})
+        self.assertEqual(status, 200)
+        self.assertEqual(rnd["lang"], "zh")
+        self.assertEqual(rnd["level_name"], "隐蔽")
+        self.assertIn("全部实数解", rnd["problem"])
+        public = json.dumps(rnd, ensure_ascii=False)
+        self.assertNotIn("丢掉", public)
+        for marker in SECRET_MARKERS:
+            self.assertNotIn(marker, public)
+
+        status, hint = self.json("POST", f"/api/rounds/{rnd['id']}/hint", {})
+        self.assertIn("步骤 1-3", hint["hint"])
+        status, debrief = self.json("POST", f"/api/rounds/{rnd['id']}/submit", {"findings": ZH_CUBIC})
+        self.assertEqual(debrief["score"], 83)
+        self.assertEqual(debrief["level_name"], "隐蔽")
+        self.assertIn("丢掉", debrief["errors"][0]["why_wrong"])
+        self.assertTrue(debrief["commitment_ok"])
+        self.assertIn("0", debrief["clean_final_answer"])
+
+        with mock.patch("demo.server.random.choice", lambda pool: next(item for item in pool if item["id"] == "cubic-lost-root")):
+            status, blind = self.json("POST", "/api/rounds", {"blind": True, "lang": "zh"})
+        self.assertEqual(blind["mode"], "blind")
+        self.assertIsNone(blind["level"])
+        self.assertIn("全部实数解", blind["problem"])
+        status, blind_hint = self.json("POST", f"/api/rounds/{blind['id']}/hint", {})
+        self.assertIn("1 处", blind_hint["hint"])
 
     def test_license_is_apache_2(self):
         license_text = (ROOT / "LICENSE").read_text(encoding="utf-8")
