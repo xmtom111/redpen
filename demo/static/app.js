@@ -192,8 +192,34 @@
       .replace(/"/g, "&quot;");
   }
 
+  function pageDir() {
+    const path = location.pathname || "/";
+    return path.endsWith("/") ? path : path.slice(0, path.lastIndexOf("/") + 1);
+  }
+
+  function siteRoot() {
+    const dir = pageDir();
+    return dir.endsWith("/zh/") ? dir.slice(0, -"zh/".length) : dir;
+  }
+
   function apiPath(path) {
-    return (locale === "zh" ? "../" : "") + path;
+    return siteRoot() + String(path).replace(/^\//, "");
+  }
+
+  function lexiconUrls() {
+    const dir = pageDir();
+    const urls = [dir + "grade_lexicon.json"];
+    const root = siteRoot();
+    if (root !== dir) urls.push(root + "grade_lexicon.json");
+    return urls;
+  }
+
+  async function loadLexicon() {
+    for (const url of lexiconUrls()) {
+      const response = await fetch(url);
+      if (response.ok) return response.json();
+    }
+    throw new Error(text.missingLexicon);
   }
 
   function categoryLabel(id) {
@@ -256,10 +282,7 @@
   }
 
   async function boot() {
-    const lexicon = await fetch(apiPath("grade_lexicon.json")).then((response) => {
-      if (!response.ok) throw new Error(text.missingLexicon);
-      return response.json();
-    });
+    const lexicon = await loadLexicon();
     RedPenGrade.init(lexicon);
     try {
       const health = await fetch(apiPath("api/health"), { headers: { Accept: "application/json" } });
