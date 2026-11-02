@@ -4,6 +4,40 @@
 
 RedPen writes a worked solution with errors planted on purpose, at a level you choose. You find each error, explain what's wrong, and fix it. RedPen then grades you, debriefs every error, and aims the next round at what you missed.
 
+## Try it in the browser
+
+Canned rounds need no API key.
+
+```bash
+git clone https://github.com/xmtom111/redpen.git && cd redpen
+python redpen.py demo
+```
+
+The page opens at <http://127.0.0.1:8000>. Pick a worksheet, write a finding for each mistake (the step, what is wrong, and a fix), and submit. You get the same score weights as the CLI, then a debrief that corrects every planted error. The answer key stays in the server process until you submit or reveal. A commitment hash is shown with the worksheet, and the debrief checks the key against it.
+
+Canned rounds are graded in-process by a deterministic checker. It matches the step you name, and the wording of your diagnosis and fix, to the sealed key. When `REDPEN_MODEL` is set, the page also offers a live round: the model writes the worksheet and grades the hunt, and the key still stays on the server.
+
+### Static demo (GitHub Pages)
+
+Pushes to `main` run [`.github/workflows/pages.yml`](.github/workflows/pages.yml), which publishes the same UI to <https://xmtom111.github.io/redpen/>. That copy grades in the browser. It loads an answer key when you submit, then checks the key against the commitment hash from the start of the round.
+
+In the GitHub repo, set **Settings → Pages → Build and deployment** to **GitHub Actions** once. The workflow publishes on the next push to `main`.
+
+Build the site yourself with `python redpen.py demo --export _site` and host the `_site` folder anywhere static. `catalog.json` is the worksheet list. `secrets/` is fetched on submit.
+
+The canned keys also live in [`demo/bank/`](demo/bank/) so the demo can run offline. Reading them before you hunt spoils the round.
+
+### Docker and Hugging Face Spaces
+
+The root [`Dockerfile`](Dockerfile) serves the demo on port 7860, which is what a Docker Space expects.
+
+```bash
+docker build -t redpen-demo .
+docker run --rm -p 8000:7860 redpen-demo
+```
+
+To enable live rounds on a Space, set `REDPEN_API_KEY`, `REDPEN_BASE_URL`, and `REDPEN_MODEL` as Space secrets. Keep them out of the image and out of git.
+
 ## Why
 
 Reading a correct AI explanation feels like learning, but it's passive: it sounds convincing, and a week later it's gone. Hunting for errors forces you to check every step against what you actually know. If you've mastered a topic, you can spot a wrong step fast. RedPen trains exactly that, and the habit carries over to checking your own homework and exams.
@@ -61,6 +95,7 @@ You get a score, a debrief of every error (why it's wrong, why it's tempting, a 
 | `reveal` | Give up and see the answer key (errors count as missed) |
 | `stats` | Scores by level, the error types you miss most, the suggested next round |
 | `verify` | Prove the answer key wasn't changed after the worksheet was issued |
+| `demo` | Open the browser demo. `--export DIR` writes a static site. `--host` and `--port` change where it listens |
 
 **Scoring.** Each planted error is worth 3 points: 1 for finding it, 1 for diagnosing it, 1 for fixing it. Each false alarm costs 1, so flagging everything doesn't pay. A clean round scores 100 only if you flag nothing. A real error the AI didn't plant earns a +3 bounty.
 
@@ -118,6 +153,10 @@ Use the strongest reasoning model you have. The quality of the answer key depend
 AGENTS.md      the brain: levels, error taxonomy, setter and grader rules, formats
 CLAUDE.md      points Claude Code to AGENTS.md
 redpen.py      the CLI: sessions, sealed keys, SymPy checks, hints, scoring, stats
+demo/          browser demo: UI, canned worksheets, automatic grader, local server
+demo/bank/     canned answer keys. The server sends a key only in the debrief
+Dockerfile     container for the demo (port 7860)
+.github/       GitHub Pages workflow for the static demo
 tests/         end-to-end tests with a fake model: python -m unittest discover tests
 .env.example   model configuration
 sessions/      your rounds (git-ignored)
@@ -125,4 +164,4 @@ sessions/      your rounds (git-ignored)
 
 ## License
 
-MIT
+[Apache-2.0](LICENSE). Copyright 2026 RedPen contributors; see [NOTICE](NOTICE).
