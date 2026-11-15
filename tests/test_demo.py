@@ -384,6 +384,24 @@ class ServerAndExportTest(unittest.TestCase):
         status, payload = self.request(method, path, body)
         return status, json.loads(payload.decode("utf-8"))
 
+    def test_web_verification_and_ai_comparison_do_not_spoil_or_replace_student_grade(self):
+        status, rnd = self.json("POST", "/api/rounds", {"worksheet_id": "cubic-lost-root"})
+        self.assertEqual(status, 200)
+        base = "/api/rounds/" + rnd["id"]
+        status, verified = self.json("POST", base + "/verify", {})
+        self.assertEqual(status, 200)
+        self.assertTrue(verified["commitment_ok"])
+        self.assertIn("SymPy checks passed", verified["checks"])
+        self.assertNotIn("key", verified)
+        self.assertEqual(self.json("POST", base + "/ai", {})[0], 409)
+        _, student = self.json("POST", base + "/submit", {"findings": CLEAN})
+        with mock.patch.dict(os.environ, {"REDPEN_MODEL": "mock"}), mock.patch("redpen.llm", return_value=CUBIC_GOOD) as hunter:
+            status, compared = self.json("POST", base + "/ai", {})
+        self.assertEqual(status, 200)
+        self.assertEqual(compared["debrief"]["score"], 100)
+        self.assertNotIn("ANSWER KEY", hunter.call_args.args[0])
+        self.assertEqual(self.json("GET", base)[1]["debrief"]["score"], student["score"])
+
     def test_page_catalog_and_a_full_round(self):
         status, page = self.request("GET", "/")
         self.assertEqual(status, 200)
@@ -585,7 +603,7 @@ class ServerAndExportTest(unittest.TestCase):
         self.assertEqual(status, 200)
         text = page.decode("utf-8")
         self.assertIn("zh-Hans", text)
-        self.assertIn("找出故意埋下的错误", text)
+        self.assertIn("练数学，看穿 AI 错误", text)
         for marker in SECRET_MARKERS:
             self.assertNotIn(marker, text)
         status, direct = self.request("GET", "/zh")

@@ -9,7 +9,7 @@ WORKDIR /app
 COPY redpen.py AGENTS.md LICENSE NOTICE README.md ./
 COPY demo ./demo
 
-RUN pip install --no-cache-dir sympy \
+RUN pip install --no-cache-dir sympy==1.14.0 \
     && adduser --disabled-password --gecos "" redpen \
     && chown -R redpen:redpen /app
 

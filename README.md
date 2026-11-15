@@ -1,73 +1,39 @@
 # 🖍️ RedPen
 
-**Learn math by catching an AI's planted mistakes.**
+[**免安装在线体验 · 简体中文**](https://xmtom111.github.io/redpen/zh/) · [**Try online · English**](https://xmtom111.github.io/redpen/) · [中文说明](README_zh.md)
 
-RedPen writes a worked solution with errors planted on purpose, at a level you choose. You find each error, explain what's wrong, and fix it. RedPen then grades you, debriefs every error, and aims the next round at what you missed.
+**Practice solid math skills. Learn to spot mistakes in AI reasoning.**
 
-## Try it in the browser
+As AI advances, convincing explanations still need human checking. RedPen gives you worked math solutions with deliberately planted mistakes. Find the faulty step, explain the violated rule, and correct it. The debrief explains every planted error so you leave with correct mathematics.
 
-Canned rounds need no API key.
+## Your first round
 
-```bash
-git clone https://github.com/xmtom111/redpen.git && cd redpen
-python redpen.py demo
-```
+1. Open the online demo above. No installation or account is needed for built-in rounds.
+2. Choose a built-in worksheet; level 2 is a good starting point. For custom rounds, level 3 has easier-to-spot mistakes. Work toward level 1, then try blind rounds that hide whether any mistakes exist.
+3. Select a step, describe what went wrong, and write a correction. Submit for a score and full debrief.
 
-The page opens at <http://127.0.0.1:8000>. The same server also serves a Simplified Chinese demo at <http://127.0.0.1:8000/zh/>. The header links the two languages. Pick a worksheet, write a finding for each mistake (the step, what is wrong, and a fix), and submit. You get the same score weights as the CLI, then a debrief that corrects every planted error. The answer key stays in the server process until you submit or reveal. A commitment hash is shown with the worksheet, and the debrief checks the key against it.
+Each error earns one point for locating it, one for diagnosis, and one for correction. False alarms cost one point; hints cost half a point. Level 0 is entirely correct. A wrong final answer alone does not locate the root error.
 
-Canned rounds are graded in-process by a deterministic checker. It matches the step you name, and the wording of your diagnosis and fix, to the sealed key. When `REDPEN_MODEL` is set, the page also offers a live round: the model writes the worksheet and grades the hunt, and the key still stays on the server.
+## Custom practice
 
-### Static demo (GitHub Pages)
+Open **AI model settings**, choose a provider, and paste your own API key. Enter a topic or problem, choose level 0–4 or blind, and generate a round. You can upload problem text, supply a textbook answer, choose difficulty and focus categories, use hints, and compare your hunt with AI after submission. Browser history tracks your weak categories on this device.
 
-Pushes to `main` run [`.github/workflows/pages.yml`](.github/workflows/pages.yml), which publishes the same UI to GitHub Pages. That copy grades in the browser. It loads an answer key when you submit, then checks the key against the commitment hash from the start of the round.
+The browser sends requests directly to your selected provider, which may charge for usage. Keys stay in this browser's local storage until cleared; use your own device. Some providers block browser requests through CORS: choose a browser-compatible endpoint or use the local server with environment configuration. Browser-generated solutions are model-checked, not SymPy-verified. A commitment hash detects changes to the sealed key; it does not prove mathematical correctness or hide a key from browser developer tools.
 
-- English: <https://xmtom111.github.io/redpen/>
-- 简体中文: <https://xmtom111.github.io/redpen/zh/>
+## Local app and hosted server
 
-Use the 中文 / English link in the header to switch. Both pages grade the canned rounds with no API key.
+The repository includes a Docker Space setup and a Windows/macOS release build workflow. Official hosted Space and downloadable release assets require the owner to publish them; no live Space or binary is claimed here. See [deployment instructions](docs/deployment.md).
 
-In the GitHub repo, set **Settings → Pages → Build and deployment** to **GitHub Actions** once. The workflow publishes on the next push to `main`.
+Built-in rounds work without a key or network after loading the local app. Formula rendering uses an online MathJax CDN; plain-text math remains usable offline. The local Python service checks answer-key identities with SymPy.
 
-Build the site yourself with `python redpen.py demo --export _site` and host the `_site` folder anywhere static. English files are at the root (`catalog.json`, `secrets/`). The Chinese page is `_site/zh/` (`zh/catalog.json`, `zh/secrets/`), which Pages serves at `/zh/`. `catalog.json` is the worksheet list. `secrets/` is fetched on submit.
-
-The canned keys also live in [`demo/bank/`](demo/bank/) so the demo can run offline. Reading them before you hunt spoils the round.
-
-### Docker and Hugging Face Spaces
-
-The root [`Dockerfile`](Dockerfile) serves the demo on port 7860, which is what a Docker Space expects.
-
-```bash
-docker build -t redpen-demo .
-docker run --rm -p 8000:7860 redpen-demo
-```
-
-To enable live rounds on a Space, set `REDPEN_API_KEY`, `REDPEN_BASE_URL`, and `REDPEN_MODEL` as Space secrets. Keep them out of the image and out of git.
-
-## Why
-
-Reading a correct AI explanation feels like learning, but it's passive: it sounds convincing, and a week later it's gone. Hunting for errors forces you to check every step against what you actually know. If you've mastered a topic, you can spot a wrong step fast. RedPen trains exactly that, and the habit carries over to checking your own homework and exams.
-
-Learning science calls this *erroneous examples*: solutions with errors that students find and fix. They tend to pay off on delayed tests rather than right away, and they help most once you have some grounding in the topic ([research](#research)).
-
-## Error levels
-
-| Level | Name | What's planted |
-|---|---|---|
-| 0 | Clean | Nothing. Can you trust correct work? |
-| 1 | Subtle | One expert-level error: a failed hypothesis, a lost solution, an edge case |
-| 2 | Minor | 2–3 classic misconceptions (default) |
-| 3 | Mixed | About half the steps are wrong, including the method |
-| 4 | Nonsense | Nearly everything is wrong; only notation and common sense survive |
-| blind | ? | A hidden level from 0–2. You don't know how many errors there are, just like real work |
-
-Level 4 is the *easiest* to hunt and level 1 the hardest. Start at 3, work toward 1, then go blind.
+## Advanced: CLI, development, and AI coding assistants
 
 ## Quick start
 
 You need Python 3.9 or newer (use `python3` if `python` isn't found).
 
 ```bash
-git clone https://github.com/<you>/redpen.git && cd redpen
+git clone https://github.com/xmtom111/redpen.git && cd redpen
 pip install sympy        # optional, recommended: machine-checks every answer key
 cp .env.example .env     # add your API key and model
 python redpen.py new "integration by parts" --level 2
@@ -141,7 +107,7 @@ Use the strongest reasoning model you have. The quality of the answer key depend
 
 **Won't I learn wrong math?** Every round ends with each error corrected and explained, and worksheets carry a warning banner. Keep `report.md` as your notes, not the worksheet.
 
-**What if the AI makes a mistake it didn't plant?** Answer keys are checked with SymPy whenever possible, and the worksheet is regenerated if a check fails. If you find a real unplanted error, you get a bounty.
+**What if the AI makes a mistake it didn't plant?** Server-generated keys run SymPy identities when provided; failed checks trigger a retry. Browser-generated keys do not run SymPy. Model grading can award a bounty for a real unplanted error; the built-in heuristic grader cannot independently establish arbitrary bounties.
 
 **Why not just paste `AGENTS.md` into a chat app?** A chat window can't keep a hidden answer key. Without one, the AI reconstructs "its" errors after the fact. RedPen seals the key in a file and publishes its hash before you start.
 
