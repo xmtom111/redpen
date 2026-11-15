@@ -267,6 +267,8 @@ def build_debrief(entry: dict, mode: str, hints_used: int, grade: dict, *, revea
         "clean_final_answer": key["clean_final_answer"],
         "errors": errors,
         "false_alarm_details": list(grade.get("false_alarms") or []),
+        "bounty_details": list(grade.get("bounties") or []),
+        "reference_check": key.get("reference_check", "none"),
     }
     payload["report_md"] = redpen.render_report(meta, key, result, who="You")
     return payload
@@ -303,6 +305,10 @@ def generate_live(topic: str, mode: str, difficulty: str, lang: str = "en", focu
         raise DemoError("Level must be 0, 1, 2, 3, 4, or blind.")
     if difficulty not in redpen.DIFFICULTIES:
         raise DemoError("Difficulty must be intro, standard, advanced, or competition.")
+    if focus is not None and (not isinstance(focus, list) or len(focus) > 30 or not all(isinstance(item, str) and len(item) <= 80 for item in focus)):
+        raise DemoError("Focus must be a list of category names.")
+    if answer is not None and (not isinstance(answer, str) or len(answer) > 4000):
+        raise DemoError("Reference answer must be text up to 4000 characters.")
     level = random.choices(list(redpen.BLIND_WEIGHTS), list(redpen.BLIND_WEIGHTS.values()))[0] if mode == "blind" else int(mode)
 
     def validate(draft: dict) -> None:
@@ -452,8 +458,13 @@ class DemoHandler(BaseHTTPRequestHandler):
             if action == "ai":
                 if not rnd["graded"]:
                     raise DemoError("Submit your findings before comparing with AI.", 409)
+                if not (os.environ.get("REDPEN_HUNTER_MODEL") or live_enabled()):
+                    raise DemoError("Set up an AI model in the browser or configure the server model first.")
                 task = redpen.hunter_task({"worksheet": {k: rnd["entry"][k] for k in ("title", "problem", "steps", "final_answer")}})
-                findings = redpen.strip_thinking(redpen.llm(task, "REDPEN_HUNTER_MODEL"))
+                try:
+                    findings = redpen.strip_thinking(redpen.llm(task, "REDPEN_HUNTER_MODEL"))
+                except SystemExit as err:
+                    raise DemoError(str(err)[:300]) from None
                 self._json({"findings": findings, "debrief": grade_round(rnd, findings)})
                 return
             if action == "hint":

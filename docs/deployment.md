@@ -32,3 +32,18 @@ gh repo edit xmtom111/redpen --description 'Practice math skills by catching pla
 5. Verify all three assets and checksums, publish the draft in GitHub Releases, and add the actual latest-release link to both READMEs.
 
 需要维护者运行工作流、下载到未安装开发工具的 Windows/macOS 电脑验证，再发布草稿 Release。构建不会从本地自动推送，也不声称已通过真实干净电脑验收。
+
+## Provider and runner references
+
+Provider presets are editable starting points, not promises about access or CORS. Qwen uses the commercial `qwen-plus` alias with thinking enabled; its documentation describes synchronous output support for commercial thinking models: [Alibaba Cloud deep thinking API](https://www.alibabacloud.com/help/en/model-studio/deep-thinking). Runner architecture labels follow [GitHub's hosted runner reference](https://docs.github.com/en/actions/reference/runners/github-hosted-runners).
+
+## Reproduce verification (developers)
+
+```sh
+python -m pip install sympy
+python -m unittest discover tests
+python desktop.py --self-test
+python redpen.py demo --export /tmp/redpen-site
+```
+
+For optional end-to-end browser checks, install Playwright and MathJax 3 outside the repository. Start the local demo on port 18971 and an HTTP server for the exported site on port 18972. Run `tests/browser-flow.cjs` with `NODE_PATH` pointing to the installed node_modules and optionally `MATHJAX_DIR` pointing to mathjax/es5. `CHROME_PATH` selects an installed Chrome executable. The default is Linux `/usr/bin/google-chrome`. The tests mock AI calls and never spend a real key; the optional local MathJax route verifies actual rendered fraction previews.

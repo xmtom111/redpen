@@ -332,7 +332,9 @@ def run_checks(checks: list[str]) -> list[dict]:
         return []
     if importlib.util.find_spec("sympy") is None:
         return [{"check": c, "status": "skipped", "detail": "sympy not installed"} for c in checks]
-    results, pool = [], mp.Pool(1)
+    # The web server calls this from request threads; avoid inheriting their locks.
+    context = mp.get_context("spawn")
+    results, pool = [], context.Pool(1)
     try:
         for check in checks:
             try:
@@ -340,7 +342,7 @@ def run_checks(checks: list[str]) -> list[dict]:
             except mp.TimeoutError:
                 results.append({"check": check, "status": "unverified", "detail": "timed out"})
                 pool.terminate()
-                pool = mp.Pool(1)
+                pool = context.Pool(1)
             except Exception as err:  # a crashed check must not stop the session
                 results.append({"check": check, "status": "unverified", "detail": f"checker crashed: {err}"})
     finally:

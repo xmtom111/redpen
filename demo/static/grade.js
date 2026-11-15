@@ -594,6 +594,8 @@
       clean_final_answer: key.clean_final_answer,
       errors,
       false_alarm_details: (grade.false_alarms || []).slice(),
+      bounty_details: (grade.bounties || []).slice(),
+      reference_check: key.reference_check || "none",
     };
   }
 

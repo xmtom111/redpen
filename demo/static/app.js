@@ -78,7 +78,7 @@
       startDemo: "Start the demo with <code>python redpen.py demo</code>.",
       noteServerLive: "Local server. Canned keys stay in this process. Live rounds use the model in your environment.",
       noteServer: "Local server. The answer key stays in this process until you submit or reveal.",
-      noteStatic: "Public demo. The key file loads when you submit, checked against the commitment hash. python redpen.py demo keeps the key on the server.",
+      noteStatic: "Practice runs in this browser. Answer keys are checked against their commitment hashes; browser keys are accessible in developer tools.",
       categories: {},
     },
     zh: {
@@ -153,7 +153,7 @@
       startDemo: "请用 <code>python redpen.py demo</code> 启动演示。",
       noteServerLive: "本地服务器。内置题目的答案钥匙留在这个进程里。现场出题使用你环境中的模型。",
       noteServer: "本地服务器。在你提交或揭晓之前，答案钥匙留在这个进程里。",
-      noteStatic: "公开演示。提交时才会加载答案钥匙，并与一开始给出的承诺哈希核对。python redpen.py demo 会把钥匙留在服务器上。",
+      noteStatic: "练习在浏览器中完成，答案钥匙与承诺哈希核对。浏览器钥匙可通过开发者工具查看。",
       categories: {
         "division-by-zero": "除以零",
         differentiation: "求导",
@@ -170,6 +170,9 @@
         hypothesis: "定理条件",
         "case-missing": "漏掉情形",
         quantifier: "量词",
+        series: "级数", matrix: "矩阵", probability: "概率", counting: "计数", converse: "逆命题",
+        circular: "循环论证", induction: "归纳法", units: "单位", misread: "误读题意",
+        "wrong-method": "方法不适用", "invented-rule": "虚构规则",
       },
     },
   };
@@ -246,17 +249,17 @@
     return data;
   }
 
-  function typeset() {
+  function typeset(target = app) {
     const run = () => {
-      if (MathJax.typesetClear) MathJax.typesetClear([app]);
-      return MathJax.typesetPromise([app]);
+      if (MathJax.typesetClear) MathJax.typesetClear([target]);
+      return MathJax.typesetPromise([target]);
     };
     if (window.MathJax && MathJax.startup && MathJax.startup.promise) {
-      MathJax.startup.promise.then(run).catch(() => {});
+      typeset.queue = (typeset.queue || MathJax.startup.promise).then(run).catch(() => {});
       return;
     }
     if (window.MathJax && MathJax.typesetPromise) {
-      run().catch(() => {});
+      typeset.queue = (typeset.queue || Promise.resolve()).then(run).catch(() => {});
       return;
     }
     if (typeset.waiting) return;
@@ -316,6 +319,13 @@
 
   async function restore() {
     const params = new URLSearchParams(location.hash.replace(/^#/, ""));
+    try {
+      const stored = JSON.parse(sessionStorage.getItem('redpen:active:' + locale) || 'null');
+      if (stored && !stored.server && ((stored.browserLive && !location.hash) || (stored.worksheet_id === params.get('w') && (stored.mode === 'blind') === (params.get('blind') === '1')))) {
+        state.round = stored;
+        return;
+      }
+    } catch (_) { /* invalid or unavailable tab storage */ }
     if (state.kind === "server" && params.get("r")) {
       try {
         const round = await api(apiPath("api/rounds/" + params.get("r")));
@@ -369,6 +379,9 @@
   }
 
   function render() {
+    if (state.round && !state.round.server) {
+      try { sessionStorage.setItem('redpen:active:' + locale, JSON.stringify(state.round)); } catch (_) { /* storage unavailable */ }
+    }
     setNote();
     app.innerHTML = state.round ? roundHtml() : homeHtml();
     bind();
@@ -384,7 +397,7 @@
       </button>`).join("");
     const options = text.levels.map(([value, label, selected]) =>
       `<option value="${esc(value)}"${selected ? " selected" : ""}>${esc(label)}</option>`).join("");
-    const live = true ? `
+    const live = `
       <section class="live">
         <h2>${esc(text.liveTitle)}</h2>
         <p>${esc(text.liveBody)}</p>
@@ -392,7 +405,8 @@
           <label>${locale === 'zh' ? '上传题目文本（可选）' : 'Upload problem text (optional)'}<input id="problem-file" type="file" accept=".txt,.md,text/plain,text/markdown"></label>
           <label>${locale === 'zh' ? '教材标准答案（可选）' : 'Reference answer (optional)'}<textarea name="answer" maxlength="4000"></textarea></label>
           <label>${locale === 'zh' ? '难度' : 'Difficulty'}<select name="difficulty"><option value="intro">${locale === 'zh' ? '入门' : 'Intro'}</option><option value="standard" selected>${locale === 'zh' ? '标准' : 'Standard'}</option><option value="advanced">${locale === 'zh' ? '进阶' : 'Advanced'}</option><option value="competition">${locale === 'zh' ? '竞赛' : 'Competition'}</option></select></label>
-          <label>${locale === 'zh' ? '错误侧重点（英文类别，逗号分隔；留空则参考薄弱项）' : 'Focus categories (comma-separated; blank uses weak spots)'}<input name="focus" placeholder="domain, division-by-zero"></label>
+          <details class="focus-options"><summary>${locale === 'zh' ? '选择错误侧重点（可选；不选则参考薄弱项）' : 'Choose focus categories (optional; defaults to weak spots)'}</summary>
+          <div class="focus-grid">${['arithmetic','sign','distribution','cancellation','exponent-log','division-by-zero','extraneous-root','domain','inequality','differentiation','integration','limit','series','matrix','probability','counting','hypothesis','quantifier','converse','circular','induction','case-missing','units','misread','wrong-method','invented-rule'].map(id => `<label><input type="checkbox" name="focus" value="${id}">${esc(categoryLabel(id))}</label>`).join('')}</div></details>
           <label>${esc(text.topicLabel)}
             <input name="topic" required maxlength="4000" placeholder="${esc(text.topicPlaceholder)}">
           </label>
@@ -403,7 +417,7 @@
           </label>
           <button class="btn" type="submit" ${state.busy ? "disabled" : ""}>${esc(text.liveButton)}</button>
         </form>
-      </section>` : "";
+      </section>`;
     const rules = text.rules.map((rule) => `<li>${rule}</li>`).join("");
     return `
       <button class="btn secondary" id="ai-settings">${locale === "zh" ? "AI 模型设置" : "AI model settings"}</button>
@@ -439,8 +453,8 @@
     }).join("");
     const side = debrief ? debriefHtml(debrief) : composerHtml(round);
     return `
-      <p><button class="linkish" type="button" data-home="1">${esc(text.allRounds)}</button></p>
-      <button class="btn secondary" data-act="verify">${locale === 'zh' ? '校验答案承诺' : 'Verify commitment'}</button>
+      <p><button class="linkish" type="button" data-home="1" ${state.busy ? "disabled" : ""}>${esc(text.allRounds)}</button> · <button class="linkish" id="ai-settings">${locale === "zh" ? "AI 模型设置" : "AI model settings"}</button></p>
+      <button class="btn secondary" data-act="verify" ${state.busy ? "disabled" : ""}>${locale === 'zh' ? '校验答案承诺' : 'Verify commitment'}</button>
       ${round.verifyText ? `<p role="status">${esc(round.verifyText)}</p>` : ''}
       <p class="pill">${esc(level)}${round.live ? esc(text.liveSuffix) : ""}</p>
       <h1>${esc(round.title)}</h1>
@@ -494,11 +508,12 @@
     r.findings = active.map(row => row.step === 'clean' ? 'No errors found.' : `Step ${row.step}\nWhat's wrong: ${row.wrong}\nFix: ${row.fix}`).join('\n\n');
     const hidden = document.getElementById('findings');
     if (hidden) hidden.value = r.findings;
+    if (!r.server) { try { sessionStorage.setItem('redpen:active:' + locale, JSON.stringify(r)); } catch (_) {} }
     remember(r.server ? r.id : r.worksheet_id + (r.mode === 'blind' ? ':blind' : ''),r.findings);
     const preview = document.getElementById('math-preview');
     if (preview) {
       preview.textContent = active.map(row => row.wrong + '\n' + row.fix).join('\n');
-      typeset();
+      typeset(preview);
     }
   }
 
@@ -519,6 +534,7 @@
           ${error.comment ? `<dt>${esc(text.grader)}</dt><dd>${esc(error.comment)}</dd>` : ""}
         </dl>
       </article>`).join("");
+    const bounties = (debrief.bounty_details || []).map(b => `<li>${esc(text.alarmItem(b.step, b.description || ''))}</li>`).join('');
     const alarms = (debrief.false_alarm_details || []).map((alarm) =>
       `<li>${esc(text.alarmItem(alarm.step, alarm.why_correct || ""))}</li>`).join("");
     const practice = (debrief.errors || []).map((error) =>
@@ -543,6 +559,8 @@
         <p class="breakdown">${esc(who)} ${esc(hashLine)}</p>
         <p class="coach">${esc(debrief.feedback || "")}</p>
         ${errors || (debrief.planted === 0 ? `<p>${text.cleanRound}</p>` : "")}
+        ${bounties ? `<h2>${locale === 'zh' ? '额外发现（未预设的真实错误）' : 'Bounties (genuine unplanted errors)'}</h2><ul>${bounties}</ul>` : ''}
+        ${debrief.reference_check && debrief.reference_check !== 'none' ? `<p>${locale === 'zh' ? '参考答案核对' : 'Reference answer check'}: ${esc(debrief.reference_check)}</p>` : ''}
         ${alarms ? `<h2>${esc(text.falseAlarms)}</h2><ul>${alarms}</ul>` : ""}
         <div class="clean">
           <h2>${esc(text.cleanTitle)}</h2>
@@ -551,7 +569,7 @@
         </div>
         ${practice ? `<h2>${esc(text.practice)}</h2><ol>${practice}</ol>
           <details><summary>${esc(text.practiceAnswers)}</summary><ol>${practiceAnswers}</ol></details>` : ""}
-        ${debrief.next ? `<p class="meta">${esc(debrief.next)}</p>` : ""}
+
         <button class="btn secondary" data-act="ai" ${state.busy ? 'disabled' : ''}>${locale === 'zh' ? '让 AI 同台找错并对比' : 'Compare with AI hunter'}</button>
         ${state.round.ai ? `<p>${locale === 'zh' ? 'AI 得分' : 'AI score'}: ${esc(state.round.ai.debrief.score)}/100 · ${locale === 'zh' ? '你的得分' : 'Your score'}: ${esc(debrief.score)}/100</p><pre>${esc(state.round.ai.findings)}</pre>` : ''}
         <div class="actions"><button class="btn" type="button" data-home="1">${esc(text.another)}</button></div>
@@ -598,6 +616,7 @@
         state.round = null;
         state.error = "";
         location.hash = "";
+        try { sessionStorage.removeItem('redpen:active:' + locale); } catch (_) { /* private mode */ }
         render();
       });
     });
@@ -621,7 +640,9 @@
     if (file) file.onchange = async () => {
       if (file.files[0]) {
         if (file.files[0].size > 16000) { state.error = locale === 'zh' ? '文件过大，最多 16KB' : 'File too large; maximum 16KB'; render(); return; }
-        document.querySelector('[name=topic]').value = (await file.files[0].text()).slice(0,4000);
+        const uploaded = await file.files[0].text();
+        if (uploaded.length > 4000) { state.error = locale === 'zh' ? '题目最多 4000 字符，请缩短后重试。' : 'Problem text exceeds 4000 characters; shorten it and retry.'; render(); return; }
+        document.querySelector('[name=topic]').value = uploaded;
       }
     };
     const verify = app.querySelector('[data-act=verify]');
@@ -633,7 +654,8 @@
       form.addEventListener("submit", (event) => {
         event.preventDefault();
         const data = new FormData(form);
-        const focus = String(data.get('focus') || weakSpots().join(',')).split(',').map(s => s.trim()).filter(Boolean);
+        const selectedFocus = data.getAll('focus').map(String);
+        const focus = selectedFocus.length ? selectedFocus : weakSpots();
         startLive(String(data.get("topic") || ""), String(data.get("level") || "2"), {difficulty:String(data.get('difficulty')), answer:String(data.get('answer') || ''), focus});
       });
     }
@@ -705,6 +727,7 @@
   }
 
   async function startLive(topic, level, options = {difficulty:"standard", focus:[], answer:""}) {
+    if (state.busy) return;
     state.busy = true;
     state.error = "";
     render();
@@ -712,10 +735,10 @@
       if (RedPenAI.settings().key || state.kind === 'static' || !state.live) {
         const chosen = level === 'blind' ? [0,1,1,2,2][Math.floor(Math.random()*5)] : Number(level);
         const task = `MODE: CLI-SETTER\nTopic or problem: ${topic}\nError level: ${chosen}\nDifficulty: ${options.difficulty}\nFocus categories: ${options.focus.join(", ")}\nReference answer: ${options.answer || "none"}\nLanguage: ${locale}\nReturn JSON only. Corrupted fields must exactly match visible steps.`;
-        const draft = RedPenAI.validate(await RedPenAI.request(task, await protocol()), chosen);
+        const draft = await RedPenAI.checkedRequest(task, await protocol(), value => RedPenAI.validate(value, chosen));
         const commitment = await RedPenAI.hash(draft.key);
         state.round = {...draft, id:crypto.randomUUID(), worksheet_id:'browser-live', topic, lang:locale,
-          mode:level, level:level === 'blind' ? null : chosen, level_name:RedPenGrade.LEVELS[chosen],
+          mode:level, level:level === 'blind' ? null : chosen, level_name:locale === 'zh' ? ['无错','隐蔽','轻微','混杂','胡来'][chosen] : RedPenGrade.LEVELS[chosen],
           commitment, commitment_short:commitment.slice(0,12), hints_used:0, live:true, browserLive:true,
           secret:{key:draft.key}, verified:locale === 'zh' ? '模型生成，未经 SymPy 验算' : 'Model generated; not SymPy checked'};
         delete state.round.key;
@@ -754,6 +777,7 @@
   }
 
   async function grade(action, findings) {
+    if (state.busy) return;
     if (action === "submit") state.round.findings = findings;
     state.busy = true;
     state.error = "";
@@ -804,7 +828,8 @@
       <p>${locale === 'zh' ? '记录仅保存在当前浏览器。' : 'History is stored only in this browser.'}</p></section>`;
   }
   async function verifyRound() {
-    state.busy = true;
+    if (state.busy) return;
+    state.busy = true; render();
     try {
       const r = state.round;
       if (r.server) {
@@ -818,6 +843,7 @@
     finally { state.busy = false; render(); }
   }
   async function compareAI() {
+    if (state.busy) return;
     state.busy = true; state.error = ''; render();
     try {
       const r = state.round;
@@ -840,11 +866,16 @@
   }
 
   async function ensureSecret() {
-    if (state.round.secret) return state.round.secret;
+    if (state.round.secret) {
+      if (!await hashMatches(state.round.secret.key, state.round.commitment)) throw Error(text.hashBad);
+      return state.round.secret;
+    }
     const response = await fetch(`secrets/${state.round.worksheet_id}.json`);
     if (!response.ok) throw new Error(text.missingKey);
-    state.round.secret = await response.json();
-    return state.round.secret;
+    const secret = await response.json();
+    if (!await hashMatches(secret.key, state.round.commitment)) throw Error(text.hashBad);
+    state.round.secret = secret;
+    return secret;
   }
 
   function staticEntry(secret) {
@@ -888,9 +919,11 @@
   }
 
   async function takeHint() {
+    if (state.busy) return;
     state.busy = true;
     state.error = "";
     const findings = currentFindings();
+    render();
     try {
       if (state.round.server) {
         const data = await api(apiPath(`api/rounds/${state.round.id}/hint`), {});

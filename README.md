@@ -9,7 +9,7 @@ As AI advances, convincing explanations still need human checking. RedPen gives 
 ## Your first round
 
 1. Open the online demo above. No installation or account is needed for built-in rounds.
-2. Choose a worksheet. Start at level 3 for easier-to-spot mistakes, then work toward level 1; blind rounds hide whether any mistakes exist.
+2. Choose a built-in worksheet; level 2 is a good starting point. For custom rounds, level 3 has easier-to-spot mistakes. Work toward level 1, then try blind rounds that hide whether any mistakes exist.
 3. Select a step, describe what went wrong, and write a correction. Submit for a score and full debrief.
 
 Each error earns one point for locating it, one for diagnosis, and one for correction. False alarms cost one point; hints cost half a point. Level 0 is entirely correct. A wrong final answer alone does not locate the root error.
@@ -33,7 +33,7 @@ Built-in rounds work without a key or network after loading the local app. Formu
 You need Python 3.9 or newer (use `python3` if `python` isn't found).
 
 ```bash
-git clone https://github.com/<you>/redpen.git && cd redpen
+git clone https://github.com/xmtom111/redpen.git && cd redpen
 pip install sympy        # optional, recommended: machine-checks every answer key
 cp .env.example .env     # add your API key and model
 python redpen.py new "integration by parts" --level 2
@@ -107,7 +107,7 @@ Use the strongest reasoning model you have. The quality of the answer key depend
 
 **Won't I learn wrong math?** Every round ends with each error corrected and explained, and worksheets carry a warning banner. Keep `report.md` as your notes, not the worksheet.
 
-**What if the AI makes a mistake it didn't plant?** Answer keys are checked with SymPy whenever possible, and the worksheet is regenerated if a check fails. If you find a real unplanted error, you get a bounty.
+**What if the AI makes a mistake it didn't plant?** Server-generated keys run SymPy identities when provided; failed checks trigger a retry. Browser-generated keys do not run SymPy. Model grading can award a bounty for a real unplanted error; the built-in heuristic grader cannot independently establish arbitrary bounties.
 
 **Why not just paste `AGENTS.md` into a chat app?** A chat window can't keep a hidden answer key. Without one, the AI reconstructs "its" errors after the fact. RedPen seals the key in a file and publishes its hash before you start.
 

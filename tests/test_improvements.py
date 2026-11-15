@@ -56,3 +56,8 @@ console.log(JSON.stringify(data.cases.map(([id,f])=>g.gradeFindings(data.entries
 
     def test_browser_protocol_matches_repository_instructions(self):
         self.assertEqual((ROOT/'AGENTS.md').read_text(), (ROOT/'demo/static/protocol.txt').read_text())
+
+    def test_browser_model_schemas_and_commitments(self):
+        if not shutil.which('node'):
+            self.skipTest('node unavailable')
+        subprocess.run(['node', 'tests/browser-ai.cjs'], cwd=ROOT, check=True)
