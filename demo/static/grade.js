@@ -26,6 +26,7 @@
       stopwords: new Set(lexicon.stopwords),
       keep_short: new Set(lexicon.keep_short),
       cues: lexicon.cues,
+      math_equivalences: lexicon.math_equivalences || [],
     };
   }
 
@@ -158,7 +159,24 @@
     return false;
   }
 
+  function mathForm(text) {
+    FRAC.lastIndex = 0;
+    return String(text).toLowerCase().replace(FRAC, '($1)/($2)')
+      .replace(/\\(?:left|right)/g, '').replace(/\\(?:cdot|times)/g, '*')
+      .replace(/\\(cos|sin)/g, '$1').replace(/\\in/g, '∈')
+      .replace(/\*\*/g, '^').replace(/²/g, '^2').replace(/−/g, '-').replace(/×/g, '*').replace(/[\s${}\\]/g, '');
+  }
+  function equivalentFix(text, original) {
+    const student = mathForm(text);
+    const refs = [...original.matchAll(/\$([^$]+)\$/g)].map(m => mathForm(m[1]));
+    return lex().math_equivalences.some(group => {
+      const forms = new Set(group.map(mathForm));
+      return forms.has(student) && refs.some(ref => forms.has(ref) || forms.has(ref.split('=').pop()));
+    });
+  }
+
   function fixScore(text, error) {
+    if (equivalentFix(text, error.original)) return 1;
     const score = recall(tokens(text), tokens(error.original));
     let value = 0;
     if (score >= FIX_HIGH) value = 1;

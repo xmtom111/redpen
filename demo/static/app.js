@@ -461,8 +461,13 @@
     return `
       <aside class="panel">
         <h2>${esc(text.findingsTitle)}</h2>
-        <label class="sr" for="findings">${esc(text.findingsLabel)}</label>
-        <textarea id="findings" placeholder="${esc(text.placeholder)}">${esc(round.findings || "")}</textarea>
+        <p>${locale === 'zh' ? '定位、诊断、修正各 1 分。误报扣 1 分；提示每次扣 0.5 分。请解释违反的规则，不要只说答案错了。' : 'Locate, diagnose, and correct: 1 point each. False alarm: −1; hint: −0.5. Explain the violated rule, not just a wrong answer.'}</p>
+        ${findingRows(round)}
+        <button class="btn secondary" id="add-finding">${locale === 'zh' ? '再添加一处' : 'Add finding'}</button>
+        <p>${locale === 'zh' ? '点入输入框，再插入数学符号；可使用 $…$ 包围公式。' : 'Focus an input, then insert math. Wrap formulas in $…$.'}</p>
+        <div class="symbols">${[['分数 / fraction','\\frac{a}{b}'],['√','\\sqrt{x}'],['x²','x^{2}'],['x₁','x_{1}'],['d/dx','\\frac{d}{dx}'],['∫','\\int_{a}^{b}'],['α','\\alpha'],['θ','\\theta'],['π','\\pi']].map(([label,value]) => `<button type="button" data-symbol="${esc(value)}">${esc(label)}</button>`).join('')}</div>
+        <div id="math-preview" aria-live="polite"></div>
+        <textarea id="findings" hidden>${esc(round.findings || '')}</textarea>
         ${round.hintText ? `<p class="hint" role="status">${esc(round.hintText)}</p>` : ""}
         <div class="actions">
           <button class="btn" type="button" data-act="submit" ${state.busy ? "disabled" : ""}>${esc(text.submit)}</button>
@@ -470,6 +475,31 @@
           <button class="btn ghost" type="button" data-act="reveal" ${state.busy ? "disabled" : ""}>${esc(text.reveal)}</button>
         </div>
       </aside>`;
+  }
+
+  function findingRows(round) {
+    if (!round.rows) {
+      const parsed = RedPenGrade.parseFindings(round.findings || '');
+      round.rows = parsed.items.length ? parsed.items.map(r => ({step:String(r.step || 1),wrong:r.wrong,fix:r.fix})) : [{step:'',wrong:'',fix:''}];
+    }
+    return round.rows.map((row,i) => `<fieldset class="finding-row" data-row="${i}"><legend>${locale === 'zh' ? '发现' : 'Finding'} ${i+1}</legend>
+      <label>${locale === 'zh' ? '步骤（定位）' : 'Step (locate)'}<select data-field="step"><option value="">${locale === 'zh' ? '请选择' : 'Choose a step'}</option><option value="clean" ${row.step === 'clean' ? 'selected' : ''}>${locale === 'zh' ? '本题无错' : 'No errors found'}</option>${round.steps.map((_,n) => `<option value="${n+1}" ${String(row.step) === String(n+1) ? 'selected' : ''}>${locale === 'zh' ? '第 '+(n+1)+' 步' : 'Step '+(n+1)}</option>`).join('')}</select></label>
+      <label>${locale === 'zh' ? '哪里错了（诊断）' : "What's wrong (diagnosis)"}<textarea data-field="wrong" ${row.step === 'clean' ? 'disabled' : ''} placeholder="${locale === 'zh' ? '说明哪条规则不成立，为什么。' : 'Which rule fails, and why?'}">${esc(row.wrong)}</textarea></label>
+      <label>${locale === 'zh' ? '正确写法（修正）' : 'Correct version (fix)'}<textarea data-field="fix" ${row.step === 'clean' ? 'disabled' : ''} placeholder="${locale === 'zh' ? '写出改正后的步骤或结果。' : 'Write the corrected step or result.'}">${esc(row.fix)}</textarea></label>
+      <button type="button" data-remove="${i}">${locale === 'zh' ? '删除' : 'Remove'}</button></fieldset>`).join('');
+  }
+  function syncRows() {
+    const r = state.round;
+    const active = r.rows.filter(row => row.step);
+    r.findings = active.map(row => row.step === 'clean' ? 'No errors found.' : `Step ${row.step}\nWhat's wrong: ${row.wrong}\nFix: ${row.fix}`).join('\n\n');
+    const hidden = document.getElementById('findings');
+    if (hidden) hidden.value = r.findings;
+    remember(r.server ? r.id : r.worksheet_id + (r.mode === 'blind' ? ':blind' : ''),r.findings);
+    const preview = document.getElementById('math-preview');
+    if (preview) {
+      preview.textContent = active.map(row => row.wrong + '\n' + row.fix).join('\n');
+      typeset();
+    }
   }
 
   function debriefHtml(debrief) {
@@ -529,6 +559,32 @@
   }
 
   function bind() {
+    let target = null;
+    app.querySelectorAll('[data-row]').forEach(el => {
+      el.querySelectorAll('[data-field]').forEach(input => {
+        input.onfocus = () => { if(input.tagName === 'TEXTAREA') target = input; };
+        input.oninput = () => {
+          state.round.rows[Number(el.dataset.row)][input.dataset.field] = input.value;
+          if (input.dataset.field === 'step') {
+            el.querySelectorAll('textarea').forEach(t => t.disabled = input.value === 'clean');
+          }
+          syncRows();
+        };
+      });
+    });
+    app.querySelectorAll('[data-symbol]').forEach(b => b.onclick = () => {
+      if (!target || target.disabled) target = app.querySelector('[data-field=fix]:not(:disabled)');
+      if (!target) return;
+      const symbol = '$' + b.dataset.symbol + '$';
+      target.setRangeText(symbol,target.selectionStart,target.selectionEnd,'end');
+      target.dispatchEvent(new Event('input')); target.focus();
+    });
+    app.querySelectorAll('[data-remove]').forEach(b => b.onclick = () => {
+      state.round.rows.splice(Number(b.dataset.remove),1); syncRows(); render();
+    });
+    const add = document.getElementById('add-finding');
+    if (add) add.onclick = () => { state.round.rows.push({step:'',wrong:'',fix:''}); render(); };
+
     const settings = document.getElementById('ai-settings');
     if (settings) settings.onclick = showSettings;
     app.querySelectorAll("[data-id]").forEach((button) => {
@@ -683,6 +739,9 @@
   }
 
   async function submitFindings() {
+    if (state.round.rows && (state.round.rows.some(r => !r.step && (r.wrong || r.fix)) || (state.round.rows.some(r => r.step === 'clean') && state.round.rows.some(r => r.step && r.step !== 'clean')))) {
+      state.error = locale === 'zh' ? '请选择步骤；“本题无错”不能与报错同时提交。' : 'Choose a step. A clean claim cannot be combined with error findings.'; render(); return;
+    }
     const findings = currentFindings();
     const empty = RedPenGrade.parseFindings(findings).clean_claim;
     if (empty && !window.confirm(text.confirmEmpty)) return;

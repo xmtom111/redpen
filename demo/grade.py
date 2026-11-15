@@ -177,7 +177,26 @@ def longest_common_run(left: list[str], right: list[str]) -> int:
     return best
 
 
+def math_form(text: str) -> str:
+    text = FRAC.sub(r"(\1)/(\2)", text.lower())
+    for a, b in [("\\left", ""), ("\\right", ""), ("\\cdot", "*"), ("\\times", "*"), ("\\cos", "cos"), ("\\sin", "sin"), ("\\in", "∈"), ("**", "^"), ("²", "^2"), ("−", "-"), ("×", "*")]:
+        text = text.replace(a, b)
+    return re.sub(r"[\s${}\\]", "", text)
+
+
+def equivalent_fix(text: str, original: str, lexicon: dict) -> bool:
+    student = math_form(text)
+    reference = [math_form(m) for m in re.findall(r"\$([^$]+)\$", original)]
+    for group in lexicon.get("math_equivalences", []):
+        forms = {math_form(item) for item in group}
+        if student in forms and any(ref in forms or ref.split("=")[-1] in forms for ref in reference):
+            return True
+    return False
+
+
 def fix_score(text: str, error: dict, lexicon: dict | None = None) -> float:
+    if equivalent_fix(text, error["original"], lexicon or LEXICON):
+        return 1.0
     score = recall(tokens(text, lexicon), tokens(error["original"], lexicon))
     if score >= FIX_HIGH:
         value = 1.0
