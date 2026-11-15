@@ -7,7 +7,7 @@
   const locale = (document.documentElement.lang || "en").toLowerCase().startsWith("zh") ? "zh" : "en";
   const UI = {
     en: {
-      homeTitle: "Check the work.",
+      homeTitle: "Practice math. Spot AI mistakes.",
       lede: "Read a solution that may contain planted mistakes. Name the step, the rule that failed, and a correction. You get a score and a debrief of every error.",
       rules: [
         "<strong>3</strong> points for each error you find, diagnose, and fix",
@@ -19,7 +19,7 @@
       blindTitle: "Hidden level",
       blindBlurb: "A round from levels 0–2. You are not told which, until the debrief.",
       liveTitle: "Live round",
-      liveBody: "The model named in your environment writes a new worksheet and grades it. The key stays on the server. This can take a minute.",
+      liveBody: "Choose AI model settings and add your key to generate and grade custom practice. Built-in rounds below need no key.",
       topicLabel: "Topic or problem",
       topicPlaceholder: "integration by parts",
       levelLabel: "Level",
@@ -82,7 +82,7 @@
       categories: {},
     },
     zh: {
-      homeTitle: "检查这份解答。",
+      homeTitle: "练扎实的数学，看穿 AI 错误。",
       lede: "阅读一份可能埋有错误的解答。指出步骤、失效的规则，并给出改正。你会得到分数，以及每一处错误的复盘。",
       rules: [
         "每找出、诊断并改正一处错误，得 <strong>3</strong> 分",
@@ -94,7 +94,7 @@
       blindTitle: "隐藏级别",
       blindBlurb: "从级别 0–2 中抽一份解答。在复盘之前，不会告诉你是哪一级。",
       liveTitle: "现场出题",
-      liveBody: "你环境里配置的模型会写一份新的解答并评分。答案钥匙留在服务器上。这可能需要大约一分钟。",
+      liveBody: "在 AI 模型设置中填入自己的 Key，即可自定义出题和智能判分。内置题目无需 Key。",
       topicLabel: "题目或知识点",
       topicPlaceholder: "分部积分",
       levelLabel: "级别",
@@ -384,7 +384,7 @@
       </button>`).join("");
     const options = text.levels.map(([value, label, selected]) =>
       `<option value="${esc(value)}"${selected ? " selected" : ""}>${esc(label)}</option>`).join("");
-    const live = state.live ? `
+    const live = true ? `
       <section class="live">
         <h2>${esc(text.liveTitle)}</h2>
         <p>${esc(text.liveBody)}</p>
@@ -402,6 +402,7 @@
       </section>` : "";
     const rules = text.rules.map((rule) => `<li>${rule}</li>`).join("");
     return `
+      <button class="btn secondary" id="ai-settings">${locale === "zh" ? "AI 模型设置" : "AI model settings"}</button>
       <h1>${esc(text.homeTitle)}</h1>
       <p class="lede">${esc(text.lede)}</p>
       <ul class="rules">
@@ -519,6 +520,8 @@
   }
 
   function bind() {
+    const settings = document.getElementById('ai-settings');
+    if (settings) settings.onclick = showSettings;
     app.querySelectorAll("[data-id]").forEach((button) => {
       button.addEventListener("click", () => begin({ worksheet_id: button.dataset.id }));
     });
@@ -586,11 +589,62 @@
     render();
   }
 
+  async function protocol() {
+    const response = await fetch(apiPath('protocol.txt'));
+    if (!response.ok) throw Error('Missing AI protocol');
+    return response.text();
+  }
+
+  function showSettings() {
+    const config = RedPenAI.settings();
+    const dialog = document.createElement('dialog');
+    const zh = locale === 'zh';
+    dialog.innerHTML = `<form method="dialog"><h2>${zh ? 'AI 模型设置' : 'AI model settings'}</h2>
+      <p>${zh ? 'Key 仅存于当前浏览器；请求直达所选平台，可能收费。部分接口限制浏览器跨域调用。' : 'Key stays in this browser. Requests go directly to the provider and may incur charges. Some endpoints block browser CORS.'}</p>
+      <label>${zh ? '平台' : 'Provider'}<select id="provider">${Object.keys(RedPenAI.providers).map(p => `<option>${p}</option>`).join('')}</select></label>
+      <label>Base URL<input id="base" required value="${esc(config.base || RedPenAI.providers.OpenAI[0])}"></label>
+      <label>${zh ? '模型（可修改）' : 'Model (editable)'}<input id="model" required value="${esc(config.model || 'o3')}"></label>
+      <label>API Key<input id="key" type="password" autocomplete="off" required value="${esc(config.key || '')}"></label>
+      <p role="alert" id="settings-error"></p>
+      <button type="button" id="save">${zh ? '保存' : 'Save'}</button>
+      <button type="button" id="clear">${zh ? '清除 Key' : 'Clear key'}</button>
+      <button>${zh ? '关闭' : 'Close'}</button></form>`;
+    document.body.append(dialog);
+    dialog.querySelector('#provider').value = config.provider || 'OpenAI';
+    dialog.querySelector('#provider').onchange = e => {
+      const [base, model] = RedPenAI.providers[e.target.value];
+      dialog.querySelector('#base').value = base;
+      dialog.querySelector('#model').value = model;
+    };
+    dialog.querySelector('#save').onclick = () => {
+      try {
+        RedPenAI.save(Object.fromEntries(['provider','base','model','key'].map(k => [k,dialog.querySelector('#'+k).value.trim()])));
+        dialog.close();
+      } catch (e) { dialog.querySelector('#settings-error').textContent = e.message; }
+    };
+    dialog.querySelector('#clear').onclick = () => { localStorage.removeItem('redpen:ai'); dialog.querySelector('#key').value = ''; };
+    dialog.onclose = () => dialog.remove();
+    dialog.showModal();
+  }
+
   async function startLive(topic, level) {
     state.busy = true;
     state.error = "";
     render();
     try {
+      if (RedPenAI.settings().key || state.kind === 'static' || !state.live) {
+        const chosen = level === 'blind' ? [0,1,1,2,2][Math.floor(Math.random()*5)] : Number(level);
+        const task = `MODE: CLI-SETTER\nTopic or problem: ${topic}\nError level: ${chosen}\nDifficulty: standard\nLanguage: ${locale}\nReturn JSON only. Corrupted fields must exactly match visible steps.`;
+        const draft = RedPenAI.validate(await RedPenAI.request(task, await protocol()), chosen);
+        const commitment = await RedPenAI.hash(draft.key);
+        state.round = {...draft, id:crypto.randomUUID(), worksheet_id:'browser-live', topic, lang:locale,
+          mode:level, level:level === 'blind' ? null : chosen, level_name:RedPenGrade.LEVELS[chosen],
+          commitment, commitment_short:commitment.slice(0,12), hints_used:0, live:true, browserLive:true,
+          secret:{key:draft.key}, verified:locale === 'zh' ? '模型生成，未经 SymPy 验算' : 'Model generated; not SymPy checked'};
+        delete state.round.key;
+        location.hash = '';
+        return;
+      }
       const round = await api(apiPath("api/live"), { topic, level, difficulty: "standard", lang: locale });
       adoptServerRound(round);
       location.hash = "r=" + round.id;
@@ -653,6 +707,7 @@
   }
 
   function staticEntry(secret) {
+    if (state.round.browserLive) return {...state.round, level:secret.key.level, key:secret.key};
     const card = state.catalog.worksheets.find((item) => item.id === state.round.worksheet_id);
     return {
       id: card.id,
@@ -679,11 +734,13 @@
   async function staticDebrief(findings, revealed) {
     const secret = await ensureSecret();
     const entry = staticEntry(secret);
-    const grade = revealed
+    const grade = state.round.browserLive && !revealed
+      ? RedPenAI.validateGrade(await RedPenAI.request(`MODE: CLI-GRADER\nWORKSHEET: ${JSON.stringify({problem:entry.problem,steps:entry.steps,final_answer:entry.final_answer})}\nANSWER KEY: ${JSON.stringify(secret.key)}\nSTUDENT FINDINGS: ${findings}\nLanguage: ${locale}`, await protocol()), secret.key.errors.length)
+      : revealed
       ? RedPenGrade.blankGrade(secret.key.errors.length, entry.lang)
       : RedPenGrade.gradeFindings(entry, findings);
     const debrief = RedPenGrade.buildDebrief(
-      entry, state.round.mode, state.round.hints_used, grade, revealed, revealed ? "reveal" : "auto"
+      entry, state.round.mode, state.round.hints_used, grade, revealed, revealed ? "reveal" : state.round.browserLive ? "model" : "auto"
     );
     debrief.commitment_ok = await hashMatches(secret.key, entry.commitment);
     return debrief;

@@ -31,7 +31,7 @@ ZH_BANNER = "RedPen 习题：这份解答可能含有故意埋入的错误。不
 NO_HINTS = {"en": "This round has no hints.", "zh": "这一轮没有提示。"}
 HINTS_DONE = {"en": "No hints left.", "zh": "没有更多提示了。"}
 # Files the Chinese page loads from /zh/ that live next to the English page.
-ZH_SHARED_ASSETS = ("app.js", "grade.js", "style.css", "grade_lexicon.json", "favicon.svg")
+ZH_SHARED_ASSETS = ("app.js", "browser-ai.js", "protocol.txt", "grade.js", "style.css", "grade_lexicon.json", "favicon.svg")
 MIME = {
     ".html": "text/html; charset=utf-8",
     ".css": "text/css; charset=utf-8",
