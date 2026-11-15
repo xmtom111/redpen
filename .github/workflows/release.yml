@@ -1,0 +1,81 @@
+name: Build desktop releases
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            asset: RedPen-Windows-x64
+          - os: macos-14
+            asset: RedPen-macOS-arm64
+          - os: macos-15-intel
+            asset: RedPen-macOS-x64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install build dependencies
+        run: python -m pip install sympy==1.14.0 pyinstaller==6.16.0
+      - name: Test
+        run: python -m unittest discover tests
+      - name: Build standalone app
+        run: >-
+          python -m PyInstaller --noconfirm --clean --onefile --name RedPen
+          --collect-all sympy --collect-all mpmath
+          --add-data "demo/static:demo/static"
+          --add-data "demo/bank:demo/bank"
+          --add-data "AGENTS.md:." --add-data "LICENSE:." --add-data "NOTICE:."
+          desktop.py
+      - name: Verify Windows bundle
+        if: runner.os == 'Windows'
+        run: ./dist/RedPen.exe --self-test
+      - name: Verify macOS bundle
+        if: runner.os == 'macOS'
+        run: ./dist/RedPen --self-test
+      - name: Package Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Compress-Archive -Path dist/RedPen.exe,LICENSE,NOTICE,docs/DESKTOP.txt -DestinationPath ${{ matrix.asset }}.zip
+      - name: Package macOS (preserve executable permission)
+        if: runner.os == 'macOS'
+        run: tar -czf ${{ matrix.asset }}.tar.gz -C dist RedPen -C .. LICENSE NOTICE docs/DESKTOP.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset }}
+          path: |
+            RedPen-*.zip
+            RedPen-*.tar.gz
+          if-no-files-found: error
+
+  publish:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+      - name: Draft release with checksums
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          cd artifacts
+          sha256sum RedPen-* > SHA256SUMS.txt
+          gh release create "$RELEASE_TAG" --draft --generate-notes --title "RedPen $RELEASE_TAG" ./*

@@ -1,0 +1,16 @@
+RedPen local web app / RedPen 本地网页版
+
+Extract the archive. Double-click RedPen.exe (Windows) or RedPen (macOS).
+Your default browser opens automatically. Keep the application window running;
+close it to stop the local server. No Python, Git, or Docker installation needed.
+Use built-in rounds without a key. Custom AI rounds need your key and network.
+MathJax rendering uses an online CDN; math text still works offline.
+
+解压后双击 RedPen.exe（Windows）或 RedPen（macOS），浏览器自动打开。
+保持应用窗口运行，关闭窗口即可停止本地服务。无需安装 Python、Git 或 Docker。
+内置题目无需密钥，自定义 AI 出题需要自己的 Key 和网络。
+公式渲染使用在线 CDN，离线仍可用纯文本数学。
+
+Builds are unsigned unless the owner adds signing. macOS may require the
+owner-documented Open action in Privacy & Security after verifying the download.
+Do not disable system security globally. Choose the correct CPU architecture.
