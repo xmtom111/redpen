@@ -291,7 +291,7 @@ def live_enabled() -> bool:
     return bool(os.environ.get("REDPEN_MODEL"))
 
 
-def generate_live(topic: str, mode: str, difficulty: str, lang: str = "en") -> dict:
+def generate_live(topic: str, mode: str, difficulty: str, lang: str = "en", focus: list[str] | None = None, answer: str | None = None) -> dict:
     if not live_enabled():
         raise DemoError("Live rounds need REDPEN_MODEL in the environment. Canned rounds work with no key.")
     topic = " ".join(topic.split())
@@ -311,7 +311,7 @@ def generate_live(topic: str, mode: str, difficulty: str, lang: str = "en") -> d
             raise ValueError(f"'key.level' must be {level}")
         draft["_verified"] = check_key(draft["key"])
 
-    task = redpen.setter_task(topic, level, difficulty, [], None)
+    task = redpen.setter_task(topic, level, difficulty, focus or [], answer)
     if lang == "zh":
         task += "\nLanguage for all text: zh-Hans. Category ids stay in English."
     try:
@@ -435,6 +435,8 @@ class DemoHandler(BaseHTTPRequestHandler):
                 str(body.get("level") or "2"),
                 str(body.get("difficulty") or "standard"),
                 self._body_lang(body),
+                body.get("focus") or [],
+                body.get("answer") or None,
             )
             with self.server.lock:
                 self.server.rounds[rnd["id"]] = rnd
@@ -443,6 +445,17 @@ class DemoHandler(BaseHTTPRequestHandler):
         if len(parts) == 4 and parts[0] == "api" and parts[1] == "rounds":
             rnd = self._round(parts[2])
             action = parts[3]
+            if action == "verify":
+                self._json({"commitment_ok": redpen.commitment(rnd["entry"]["key"]) == rnd["entry"]["commitment"],
+                            "checks": check_key(dict(rnd["entry"]["key"]))})
+                return
+            if action == "ai":
+                if not rnd["graded"]:
+                    raise DemoError("Submit your findings before comparing with AI.", 409)
+                task = redpen.hunter_task({"worksheet": {k: rnd["entry"][k] for k in ("title", "problem", "steps", "final_answer")}})
+                findings = redpen.strip_thinking(redpen.llm(task, "REDPEN_HUNTER_MODEL"))
+                self._json({"findings": findings, "debrief": grade_round(rnd, findings)})
+                return
             if action == "hint":
                 self._json(self._hint(rnd))
                 return

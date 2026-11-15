@@ -389,8 +389,12 @@
         <h2>${esc(text.liveTitle)}</h2>
         <p>${esc(text.liveBody)}</p>
         <form id="live-form">
+          <label>${locale === 'zh' ? '上传题目文本（可选）' : 'Upload problem text (optional)'}<input id="problem-file" type="file" accept=".txt,.md,text/plain,text/markdown"></label>
+          <label>${locale === 'zh' ? '教材标准答案（可选）' : 'Reference answer (optional)'}<textarea name="answer" maxlength="4000"></textarea></label>
+          <label>${locale === 'zh' ? '难度' : 'Difficulty'}<select name="difficulty"><option value="intro">${locale === 'zh' ? '入门' : 'Intro'}</option><option value="standard" selected>${locale === 'zh' ? '标准' : 'Standard'}</option><option value="advanced">${locale === 'zh' ? '进阶' : 'Advanced'}</option><option value="competition">${locale === 'zh' ? '竞赛' : 'Competition'}</option></select></label>
+          <label>${locale === 'zh' ? '错误侧重点（英文类别，逗号分隔；留空则参考薄弱项）' : 'Focus categories (comma-separated; blank uses weak spots)'}<input name="focus" placeholder="domain, division-by-zero"></label>
           <label>${esc(text.topicLabel)}
-            <input name="topic" required maxlength="500" placeholder="${esc(text.topicPlaceholder)}">
+            <input name="topic" required maxlength="4000" placeholder="${esc(text.topicPlaceholder)}">
           </label>
           <label>${esc(text.levelLabel)}
             <select name="level">
@@ -417,7 +421,8 @@
           <p class="blurb">${esc(text.blindBlurb)}</p>
         </button>
       </div>
-      ${live}`;
+      ${live}
+      ${statsHtml()}`;
   }
 
   function roundHtml() {
@@ -435,6 +440,8 @@
     const side = debrief ? debriefHtml(debrief) : composerHtml(round);
     return `
       <p><button class="linkish" type="button" data-home="1">${esc(text.allRounds)}</button></p>
+      <button class="btn secondary" data-act="verify">${locale === 'zh' ? '校验答案承诺' : 'Verify commitment'}</button>
+      ${round.verifyText ? `<p role="status">${esc(round.verifyText)}</p>` : ''}
       <p class="pill">${esc(level)}${round.live ? esc(text.liveSuffix) : ""}</p>
       <h1>${esc(round.title)}</h1>
       <div class="banner">${esc(round.banner || state.catalog.banner || "")}</div>
@@ -515,6 +522,8 @@
         ${practice ? `<h2>${esc(text.practice)}</h2><ol>${practice}</ol>
           <details><summary>${esc(text.practiceAnswers)}</summary><ol>${practiceAnswers}</ol></details>` : ""}
         ${debrief.next ? `<p class="meta">${esc(debrief.next)}</p>` : ""}
+        <button class="btn secondary" data-act="ai" ${state.busy ? 'disabled' : ''}>${locale === 'zh' ? '让 AI 同台找错并对比' : 'Compare with AI hunter'}</button>
+        ${state.round.ai ? `<p>${locale === 'zh' ? 'AI 得分' : 'AI score'}: ${esc(state.round.ai.debrief.score)}/100 · ${locale === 'zh' ? '你的得分' : 'Your score'}: ${esc(debrief.score)}/100</p><pre>${esc(state.round.ai.findings)}</pre>` : ''}
         <div class="actions"><button class="btn" type="button" data-home="1">${esc(text.another)}</button></div>
       </aside>`;
   }
@@ -552,12 +561,24 @@
     if (hint) hint.addEventListener("click", () => takeHint());
     const reveal = app.querySelector("[data-act=reveal]");
     if (reveal) reveal.addEventListener("click", () => revealKey());
+    const file = document.getElementById('problem-file');
+    if (file) file.onchange = async () => {
+      if (file.files[0]) {
+        if (file.files[0].size > 16000) { state.error = locale === 'zh' ? '文件过大，最多 16KB' : 'File too large; maximum 16KB'; render(); return; }
+        document.querySelector('[name=topic]').value = (await file.files[0].text()).slice(0,4000);
+      }
+    };
+    const verify = app.querySelector('[data-act=verify]');
+    if (verify) verify.onclick = verifyRound;
+    const ai = app.querySelector('[data-act=ai]');
+    if (ai) ai.onclick = compareAI;
     const form = document.getElementById("live-form");
     if (form) {
       form.addEventListener("submit", (event) => {
         event.preventDefault();
         const data = new FormData(form);
-        startLive(String(data.get("topic") || ""), String(data.get("level") || "2"));
+        const focus = String(data.get('focus') || weakSpots().join(',')).split(',').map(s => s.trim()).filter(Boolean);
+        startLive(String(data.get("topic") || ""), String(data.get("level") || "2"), {difficulty:String(data.get('difficulty')), answer:String(data.get('answer') || ''), focus});
       });
     }
   }
@@ -627,14 +648,14 @@
     dialog.showModal();
   }
 
-  async function startLive(topic, level) {
+  async function startLive(topic, level, options = {difficulty:"standard", focus:[], answer:""}) {
     state.busy = true;
     state.error = "";
     render();
     try {
       if (RedPenAI.settings().key || state.kind === 'static' || !state.live) {
         const chosen = level === 'blind' ? [0,1,1,2,2][Math.floor(Math.random()*5)] : Number(level);
-        const task = `MODE: CLI-SETTER\nTopic or problem: ${topic}\nError level: ${chosen}\nDifficulty: standard\nLanguage: ${locale}\nReturn JSON only. Corrupted fields must exactly match visible steps.`;
+        const task = `MODE: CLI-SETTER\nTopic or problem: ${topic}\nError level: ${chosen}\nDifficulty: ${options.difficulty}\nFocus categories: ${options.focus.join(", ")}\nReference answer: ${options.answer || "none"}\nLanguage: ${locale}\nReturn JSON only. Corrupted fields must exactly match visible steps.`;
         const draft = RedPenAI.validate(await RedPenAI.request(task, await protocol()), chosen);
         const commitment = await RedPenAI.hash(draft.key);
         state.round = {...draft, id:crypto.randomUUID(), worksheet_id:'browser-live', topic, lang:locale,
@@ -645,7 +666,7 @@
         location.hash = '';
         return;
       }
-      const round = await api(apiPath("api/live"), { topic, level, difficulty: "standard", lang: locale });
+      const round = await api(apiPath("api/live"), { topic, level, ...options, lang: locale });
       adoptServerRound(round);
       location.hash = "r=" + round.id;
     } catch (err) {
@@ -690,12 +711,73 @@
         state.round.debrief = await staticDebrief("", true);
         state.round.graded = true;
       }
+      saveHistory(state.round);
     } catch (err) {
       state.error = err.message;
     } finally {
       state.busy = false;
       render();
     }
+  }
+
+  function history() {
+    try { return JSON.parse(localStorage.getItem('redpen:history') || '[]'); } catch (_) { return []; }
+  }
+  function saveHistory(round) {
+    const rows = history().filter(r => r.id !== round.id);
+    rows.push({id:round.id, date:new Date().toISOString(), title:round.title, ...round.debrief});
+    try { localStorage.setItem('redpen:history', JSON.stringify(rows.slice(-200))); } catch (_) { /* storage full */ }
+  }
+  function categoryStats() {
+    const stats = {};
+    for (const row of history()) for (const e of row.errors || []) {
+      const item = stats[e.category] ||= {total:0,found:0}; item.total++; if(e.found) item.found++;
+    }
+    return Object.entries(stats).sort((a,b) => (a[1].found/a[1].total) - (b[1].found/b[1].total));
+  }
+  function weakSpots() { return categoryStats().filter(([,v]) => v.found < v.total).slice(0,3).map(([k]) => k); }
+  function statsHtml() {
+    const rows = history();
+    return `<section class="panel"><h2>${locale === 'zh' ? '练习记录与薄弱项' : 'Practice history and weak spots'}</h2>
+      <p>${locale === 'zh' ? '本浏览器已完成' : 'Completed in this browser'}: ${rows.length}</p>
+      <table><thead><tr><th>${locale === 'zh' ? '类别' : 'Category'}</th><th>${locale === 'zh' ? '找到 / 遇到' : 'Found / encountered'}</th></tr></thead><tbody>${categoryStats().map(([k,v]) => `<tr><td>${esc(categoryLabel(k))}</td><td>${v.found}/${v.total}</td></tr>`).join('')}</tbody></table>
+      ${rows.slice(-5).reverse().map(r => `<p>${esc(r.title)} · ${r.revealed ? esc(text.revealed) : esc(r.score)+'/100'}</p>`).join('')}
+      <p>${locale === 'zh' ? '记录仅保存在当前浏览器。' : 'History is stored only in this browser.'}</p></section>`;
+  }
+  async function verifyRound() {
+    state.busy = true;
+    try {
+      const r = state.round;
+      if (r.server) {
+        const result = await api(apiPath(`api/rounds/${r.id}/verify`), {});
+        r.verifyText = (result.commitment_ok ? text.hashOk(r.commitment_short) : text.hashBad) + ' ' + result.checks;
+      } else {
+        const secret = await ensureSecret();
+        r.verifyText = (await hashMatches(secret.key, r.commitment) ? text.hashOk(r.commitment_short) : text.hashBad) + (locale === 'zh' ? ' 浏览器不执行 SymPy 验算。' : ' Browser does not run SymPy checks.');
+      }
+    } catch(e) { state.error = e.message; }
+    finally { state.busy = false; render(); }
+  }
+  async function compareAI() {
+    state.busy = true; state.error = ''; render();
+    try {
+      const r = state.round;
+      if (r.server && !RedPenAI.settings().key) {
+        r.ai = await api(apiPath(`api/rounds/${r.id}/ai`), {});
+      } else {
+        const visible = {title:r.title,problem:r.problem,steps:r.steps,final_answer:r.final_answer};
+        const rules = await protocol();
+        const findings = await RedPenAI.request(`MODE: CLI-HUNTER\nWORKSHEET: ${JSON.stringify(visible)}\nLanguage: ${locale}`, rules, false);
+        // The hunter receives only the visible worksheet. Load the key afterwards.
+        let entry;
+        if (r.server) {
+          entry = {...r, level:r.debrief.level, key:{level:r.debrief.level, clean_steps:r.debrief.clean_steps,clean_final_answer:r.debrief.clean_final_answer,errors:r.debrief.errors.map(e => ({step:e.step,category:e.category,original:e.correct,corrupted:e.shown,why_wrong:e.why_wrong,why_tempting:e.why_tempting,catch_rule:e.catch_rule,practice:{problem:e.practice_problem,answer:e.practice_answer}}))}};
+        } else entry = staticEntry(await ensureSecret());
+        const g = RedPenAI.validateGrade(await RedPenAI.request(`MODE: CLI-GRADER\nWORKSHEET: ${JSON.stringify(visible)}\nANSWER KEY: ${JSON.stringify(entry.key)}\nSTUDENT FINDINGS: ${findings}\nLanguage: ${locale}`,rules),entry.key.errors.length);
+        r.ai = {findings, debrief:RedPenGrade.buildDebrief(entry,r.mode,0,g,false,'model')};
+      }
+    } catch(e) { state.error = e.message; }
+    finally { state.busy = false; render(); }
   }
 
   async function ensureSecret() {
