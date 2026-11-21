@@ -1,0 +1,63 @@
+{
+  "schema_version": 2,
+  "id": "code-mutable-default",
+  "domain": "code",
+  "renderer": "code",
+  "code_language": "python",
+  "lang": "en",
+  "title": "Shopping cart helper",
+  "topic": "Python mutable default arguments",
+  "blurb": "A 5-line cart helper that looks clean on the first call.",
+  "difficulty": "intro",
+  "level": 1,
+  "estimated_seconds": 45,
+  "prompt": "An AI assistant wrote this Python helper to add an item to a shopping cart. Spot any bug before merging.",
+  "segments": [
+    { "id": 1, "label": "L1", "text": "def add_item(item, cart=[]):" },
+    { "id": 2, "label": "L2", "text": "    if not isinstance(item, str) or not item.strip():" },
+    { "id": 3, "label": "L3", "text": "        raise ValueError(\"item must be a non-empty string\")" },
+    { "id": 4, "label": "L4", "text": "    cart.append(item.strip())" },
+    { "id": 5, "label": "L5", "text": "    return cart" }
+  ],
+  "conclusion": "AI summary: Calling add_item('apple') and then add_item('tea') creates two separate single-item carts.",
+  "flaws": [
+    {
+      "segment_id": 1,
+      "error_type": "mutable-default",
+      "original": "def add_item(item, cart=None):  # then: if cart is None: cart = []",
+      "corrupted": "def add_item(item, cart=[]):",
+      "diagnosis_choices": [
+        { "id": "d1", "label": "Mutable default `cart=[]` is created once at definition time and shared across all calls." },
+        { "id": "d2", "label": "Python does not allow a default value on a second parameter unless the first also has one." },
+        { "id": "d3", "label": "The parameter name `cart` collides with a built-in Python keyword." },
+        { "id": "d4", "label": "Lists cannot be returned from a function unless copied with `list()`." }
+      ],
+      "diagnosis_answer": "d1",
+      "fix_choices": [
+        { "id": "f1", "label": "Default to `cart=None` and initialize `if cart is None: cart = []` inside the function." },
+        { "id": "f2", "label": "Write `cart=list()` in the signature so Python allocates a new list on every call." },
+        { "id": "f3", "label": "Use `cart += [item.strip()]` instead of `append` while keeping `cart=[]`." },
+        { "id": "f4", "label": "Add `global cart` at the top of the function body." }
+      ],
+      "fix_answer": "f1",
+      "explanation": "Python evaluates default argument expressions once when `def` executes, not on each call. Calling `add_item('apple')` then `add_item('tea')` mutates the same list and returns `['apple', 'tea']`.",
+      "why_tempting": "A single unit test passes, and in languages like JavaScript a default `= []` does run on every call.",
+      "catch_rule": "Never put a mutable literal (`[]`, `{}`, `set()`) in a Python `def` signature; default to `None` and allocate inside.",
+      "hint": "Trace what `cart` holds on the second call when no second argument is passed.",
+      "practice": {
+        "problem": "What does `f('a'); f('b')` return for `def f(k, d={}): d[k] = 1; return d`?",
+        "answer": "`{'a': 1, 'b': 1}` because both calls share one default dict."
+      }
+    }
+  ],
+  "clean_segments": [
+    "def add_item(item, cart=None):",
+    "    if cart is None:",
+    "        cart = []",
+    "    if not isinstance(item, str) or not item.strip():",
+    "        raise ValueError(\"item must be a non-empty string\")",
+    "    cart.append(item.strip())",
+    "    return cart"
+  ],
+  "clean_conclusion": "Each call without an explicit cart allocates a fresh list, so separate calls never leak state."
+}

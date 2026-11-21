@@ -2,21 +2,22 @@
 
 [**免安装在线体验 · 简体中文**](https://xmtom111.github.io/redpen/zh/) · [**Try online · English**](https://xmtom111.github.io/redpen/) · [中文说明](README_zh.md)
 
-**Practice solid math skills. Learn to spot mistakes in AI reasoning.**
+**Spot the flaw. Beat the AI.** *(Code · Math · Logic)*
 
-As AI advances, convincing explanations still need human checking. RedPen gives you worked math solutions with deliberately planted mistakes. Find the faulty step, explain the violated rule, and correct it. The debrief explains every planted error so you leave with correct mathematics.
+Convincing AI explanations still need human verification. RedPen drops you straight into a short, checkable puzzle — code snippets, logic & statistics briefs, or worked math solutions — with deliberately planted flaws (or none at all). Tap the broken line, pick what went wrong and how to fix it, and get instant red-pen feedback.
 
-## Your first round
+## Web-first play
 
-1. Open the online demo above. No installation or account is needed for built-in rounds.
-2. Choose a built-in worksheet; level 2 is a good starting point. For custom rounds, level 3 has easier-to-spot mistakes. Work toward level 1, then try blind rounds that hide whether any mistakes exist.
-3. Select a step, describe what went wrong, and write a correction. Submit for a score and full debrief.
+1. **Open and play immediately.** Visiting `/` or `/zh/` starts today's **Daily RedPen** (3 deterministic puzzles across Logic, Code, and Math) with no login, backend, or API key.
+2. **Tap & pick (default) or free-text.** Tap any flawed line/claim/step to mark it in red and pick the diagnosis and fix, or mark the item clean. Switch to **Free text** any time to write explanations by hand.
+3. **Track streaks & share without spoilers.** Progress and streaks stay in your browser (`localStorage`), and finishing Daily RedPen generates a Wordle-style spoiler-free score card.
+4. **Explore packs or build custom rounds.** Browse Logic, Code, Math, and Blind rounds under **Packs**. **Workshop** (optional, secondary) lets you plug in your own API key to generate custom AI rounds.
 
-Each error earns one point for locating it, one for diagnosis, and one for correction. False alarms cost one point; hints cost half a point. Level 0 is entirely correct. A wrong final answer alone does not locate the root error.
+Scoring: each planted flaw is worth 3 points (1 locate, 1 diagnosis, 1 fix); extra flags on valid lines lower accuracy (−1); hints cost 0.5. Level 0 items are completely clean.
 
-## Custom practice
+## Custom practice (Workshop)
 
-Open **AI model settings**, choose a provider, and paste your own API key. Enter a topic or problem, choose level 0–4 or blind, and generate a round. You can upload problem text, supply a textbook answer, choose difficulty and focus categories, use hints, and compare your hunt with AI after submission. Browser history tracks your weak categories on this device.
+Open **Workshop** → **AI model settings**, choose a provider, and paste your own API key. Enter a topic or problem, choose level 0–4 or blind, and generate a custom round. You can upload problem text, supply a reference answer, choose difficulty and focus categories, use hints, and compare your hunt with AI after submission. Browser history tracks your weak categories on this device.
 
 The browser sends requests directly to your selected provider, which may charge for usage. Keys stay in this browser's local storage until cleared; use your own device. Some providers block browser requests through CORS: choose a browser-compatible endpoint or use the local server with environment configuration. Browser-generated solutions are model-checked, not SymPy-verified. A commitment hash detects changes to the sealed key; it does not prove mathematical correctness or hide a key from browser developer tools.
 

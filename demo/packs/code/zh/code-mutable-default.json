@@ -1,0 +1,63 @@
+{
+  "schema_version": 2,
+  "id": "code-mutable-default",
+  "domain": "code",
+  "renderer": "code",
+  "code_language": "python",
+  "lang": "zh",
+  "title": "购物车添加函数",
+  "topic": "Python 可变默认参数",
+  "blurb": "只有 5 行代码，第一次调用完全正常，第二次就串味了。",
+  "difficulty": "intro",
+  "level": 1,
+  "estimated_seconds": 45,
+  "prompt": "AI 助手写了这个 Python 购物车辅助函数。合并代码前，请检查有没有隐藏的坑。",
+  "segments": [
+    { "id": 1, "label": "L1", "text": "def add_item(item, cart=[]):" },
+    { "id": 2, "label": "L2", "text": "    if not isinstance(item, str) or not item.strip():" },
+    { "id": 3, "label": "L3", "text": "        raise ValueError(\"item must be a non-empty string\")" },
+    { "id": 4, "label": "L4", "text": "    cart.append(item.strip())" },
+    { "id": 5, "label": "L5", "text": "    return cart" }
+  ],
+  "conclusion": "AI 说明：先后调用 add_item('apple') 和 add_item('tea')，会分别返回两个互不干扰的单商品购物车。",
+  "flaws": [
+    {
+      "segment_id": 1,
+      "error_type": "mutable-default",
+      "original": "def add_item(item, cart=None):  # 函数内写 if cart is None: cart = []",
+      "corrupted": "def add_item(item, cart=[]):",
+      "diagnosis_choices": [
+        { "id": "d1", "label": "可变默认参数 `cart=[]` 只在函数定义时创建一次，所有不传 `cart` 的调用都会共用同一个列表。" },
+        { "id": "d2", "label": "Python 不允许只给第二个参数设默认值，必须第一个参数也给默认值。" },
+        { "id": "d3", "label": "参数名 `cart` 与 Python 内置保留关键字冲突。" },
+        { "id": "d4", "label": "函数不能直接 `return` 列表，必须先用 `list()` 转换。" }
+      ],
+      "diagnosis_answer": "d1",
+      "fix_choices": [
+        { "id": "f1", "label": "改为 `cart=None`，并在函数体开头写 `if cart is None: cart = []`。" },
+        { "id": "f2", "label": "在函数签名中把 `cart=[]` 改成 `cart=list()`，这样每次调用都会新建。" },
+        { "id": "f3", "label": "保留 `cart=[]`，把 `cart.append(...)` 改成 `cart += [...]`。" },
+        { "id": "f4", "label": "在函数体第一行加上 `global cart`。" }
+      ],
+      "fix_answer": "f1",
+      "explanation": "Python 的默认参数表达式只在 `def` 执行时求值一次，而不是每次调用重新创建。连续调用 `add_item('apple')` 和 `add_item('tea')` 会往同一个列表里追加，结果变成 `['apple', 'tea']`。",
+      "why_tempting": "只测一次单测完全通过，而且在 JS 等语言里默认参数 `= []` 确实是每次调用重新求值的。",
+      "catch_rule": "Python 函数签名里绝不写 `=[]`、`={}` 等可变默认值；统一用 `None` 占位并在函数体内初始化。",
+      "hint": "跟踪一下：不传第二个参数连续调用两次，`cart` 指向的是同一个对象吗？",
+      "practice": {
+        "problem": "对于 `def f(k, d={}): d[k] = 1; return d`，先后调用 `f('a')` 和 `f('b')` 会返回什么？",
+        "answer": "`{'a': 1, 'b': 1}`，因为两次调用共用了同一个默认字典。"
+      }
+    }
+  ],
+  "clean_segments": [
+    "def add_item(item, cart=None):",
+    "    if cart is None:",
+    "        cart = []",
+    "    if not isinstance(item, str) or not item.strip():",
+    "        raise ValueError(\"item must be a non-empty string\")",
+    "    cart.append(item.strip())",
+    "    return cart"
+  ],
+  "clean_conclusion": "每次未传入 `cart` 时都会创建全新的列表，不同调用之间绝不会串状态。"
+}

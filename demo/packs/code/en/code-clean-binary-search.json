@@ -1,0 +1,38 @@
+{
+  "schema_version": 2,
+  "id": "code-clean-binary-search",
+  "domain": "code",
+  "renderer": "code",
+  "code_language": "python",
+  "lang": "en",
+  "title": "Sorted binary search",
+  "topic": "Binary search loop invariants",
+  "blurb": "Check the bounds and termination carefully — is anything actually broken?",
+  "difficulty": "standard",
+  "level": 0,
+  "estimated_seconds": 50,
+  "prompt": "Review this Python binary search for a sorted ascending list `nums`. Flag any bug, or mark it clean if it holds up.",
+  "segments": [
+    { "id": 1, "label": "L1", "text": "def binary_search(nums, target):" },
+    { "id": 2, "label": "L2", "text": "    lo, hi = 0, len(nums) - 1" },
+    { "id": 3, "label": "L3", "text": "    while lo <= hi:" },
+    { "id": 4, "label": "L4", "text": "        mid = lo + (hi - lo) // 2" },
+    { "id": 5, "label": "L5", "text": "        if nums[mid] == target: return mid" },
+    { "id": 6, "label": "L6", "text": "        if nums[mid] < target: lo = mid + 1" },
+    { "id": 7, "label": "L7", "text": "        else: hi = mid - 1" },
+    { "id": 8, "label": "L8", "text": "    return -1" }
+  ],
+  "conclusion": "AI summary: Returns the index of `target` in sorted `nums`, or -1 if absent (including empty and 1-element lists).",
+  "flaws": [],
+  "clean_segments": [
+    "def binary_search(nums, target):",
+    "    lo, hi = 0, len(nums) - 1",
+    "    while lo <= hi:",
+    "        mid = lo + (hi - lo) // 2",
+    "        if nums[mid] == target: return mid",
+    "        if nums[mid] < target: lo = mid + 1",
+    "        else: hi = mid - 1",
+    "    return -1"
+  ],
+  "clean_conclusion": "The inclusive `[lo, hi]` invariant holds on every iteration: empty lists exit immediately, 1-element lists check index 0, and every branch strictly shrinks the interval."
+}

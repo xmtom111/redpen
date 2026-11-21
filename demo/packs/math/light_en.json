@@ -1,0 +1,138 @@
+{
+  "cubic-lost-root": {
+    "estimated_seconds": 50,
+    "flaws": {
+      "2": {
+        "diagnosis_choices": [
+          { "id": "d1", "label": "Dividing both sides by $x$ silently assumes $x \\neq 0$, dropping the solution $x = 0$." },
+          { "id": "d2", "label": "Dividing $x^3$ by $x$ gives $x^3$, not $x^2$." },
+          { "id": "d3", "label": "You cannot divide an equation by a variable when the right side is positive." },
+          { "id": "d4", "label": "Dividing by $x$ flips the sign of $4x$ to $-4$." }
+        ],
+        "diagnosis_answer": "d1",
+        "fix_choices": [
+          { "id": "f1", "label": "Move terms to one side and factor: $x(x^2 - 4) = 0$, giving $x \\in \\{-2, 0, 2\\}$." },
+          { "id": "f2", "label": "Divide by $x^2$ instead to get $x = 4$." },
+          { "id": "f3", "label": "Take cube roots of both sides to get $x = \\sqrt[3]{4}$." },
+          { "id": "f4", "label": "Keep dividing by $x$, then discard $x = -2$ because $x$ must be positive." }
+        ],
+        "fix_answer": "f1"
+      }
+    }
+  },
+  "chain-and-square": {
+    "estimated_seconds": 65,
+    "flaws": {
+      "2": {
+        "diagnosis_choices": [
+          { "id": "d1", "label": "Missing the chain-rule inner factor: $\\frac{d}{dx}\\sin(x^2)$ must multiply by $(x^2)' = 2x$." },
+          { "id": "d2", "label": "The derivative of $\\sin u$ is $-\\cos u$, so the sign is flipped." },
+          { "id": "d3", "label": "The sum rule does not apply when one term is trigonometric and one is polynomial." },
+          { "id": "d4", "label": "The derivative of $\\sin(x^2)$ is $\\cos(2x)$, replacing $x^2$ inside cosine." }
+        ],
+        "diagnosis_answer": "d1",
+        "fix_choices": [
+          { "id": "f1", "label": "Apply the chain rule: $\\frac{d}{dx}\\sin(x^2) = 2x\\cos(x^2)$." },
+          { "id": "f2", "label": "Flip the sign: $\\frac{d}{dx}\\sin(x^2) = -\\cos(x^2)$." },
+          { "id": "f3", "label": "Differentiate inside only: $\\frac{d}{dx}\\sin(x^2) = \\cos(2x)$." },
+          { "id": "f4", "label": "Keep the power: $\\frac{d}{dx}\\sin(x^2) = x^2\\cos(x^2)$." }
+        ],
+        "fix_answer": "f1"
+      },
+      "3": {
+        "diagnosis_choices": [
+          { "id": "d1", "label": "Expanding $(x+1)^2$ dropped the middle cross term $2x$." },
+          { "id": "d2", "label": "Squaring $1$ gives $2$, so the constant term should be $2$." },
+          { "id": "d3", "label": "You cannot expand $(x+1)^2$ before differentiating." },
+          { "id": "d4", "label": "The cross term should be $-2x$, not $+2x$." }
+        ],
+        "diagnosis_answer": "d1",
+        "fix_choices": [
+          { "id": "f1", "label": "Expand fully as $(x+1)^2 = x^2 + 2x + 1$ (derivative $2x + 2$)." },
+          { "id": "f2", "label": "Expand as $(x+1)^2 = x^2 + x + 1$." },
+          { "id": "f3", "label": "Expand as $(x+1)^2 = x^2 + 2$." },
+          { "id": "f4", "label": "Expand as $(x+1)^2 = x^2 - 2x + 1$." }
+        ],
+        "fix_answer": "f1"
+      }
+    }
+  },
+  "log-equation": {
+    "estimated_seconds": 70,
+    "flaws": {
+      "1": {
+        "diagnosis_choices": [
+          { "id": "d1", "label": "$\\ln t$ requires $t > 0$; both $x > 0$ and $x - 2 > 0$ restrict the domain to $x > 2$." },
+          { "id": "d2", "label": "$\\ln t$ only excludes $t = 0$, so negative inputs are still valid over the reals." },
+          { "id": "d3", "label": "Only the sum $x + (x - 2)$ needs to be positive, giving $x > 1$." },
+          { "id": "d4", "label": "Logarithms are only defined for integers $x \\ge 1$." }
+        ],
+        "diagnosis_answer": "d1",
+        "fix_choices": [
+          { "id": "f1", "label": "Require $x > 0$ and $x - 2 > 0$, so the domain is $x > 2$." },
+          { "id": "f2", "label": "Require only $x \\neq 0$ and $x \\neq 2$." },
+          { "id": "f3", "label": "Require $x \\ge 0$ so $x = 0$ stays allowed." },
+          { "id": "f4", "label": "Require $x > 3$ because the right-hand side is $\\ln 3$." }
+        ],
+        "fix_answer": "f1"
+      },
+      "2": {
+        "diagnosis_choices": [
+          { "id": "d1", "label": "A sum of logs is the log of a product, $\\ln a + \\ln b = \\ln(ab)$, not $\\ln(a+b)$." },
+          { "id": "d2", "label": "Combining two logs divides their arguments: $\\ln a + \\ln b = \\ln(a/b)$." },
+          { "id": "d3", "label": "Two logarithms with the same base cannot be combined into one term." },
+          { "id": "d4", "label": "$\\ln x + \\ln(x-2)$ equals $(\\ln x)(\\ln(x-2))$." }
+        ],
+        "diagnosis_answer": "d1",
+        "fix_choices": [
+          { "id": "f1", "label": "Combine as a product: $\\ln x + \\ln(x-2) = \\ln(x(x-2))$, yielding $x = 3$." },
+          { "id": "f2", "label": "Combine as a quotient: $\\ln\\frac{x}{x-2} = \\ln 3$." },
+          { "id": "f3", "label": "Exponentiate term-by-term: $x + (x - 2) = 3$." },
+          { "id": "f4", "label": "Combine as a power: $\\ln(x^{x-2}) = \\ln 3$." }
+        ],
+        "fix_answer": "f1"
+      }
+    }
+  },
+  "sine-substitution": {
+    "estimated_seconds": 70,
+    "flaws": {
+      "3": {
+        "diagnosis_choices": [
+          { "id": "d1", "label": "Dropped the differential factor $\\frac{1}{2}$ from $dx = \\frac{1}{2}\\,du$ when rewriting the integral." },
+          { "id": "d2", "label": "The upper bound should stay $\\frac{\\pi}{2}$ instead of changing to $\\pi$." },
+          { "id": "d3", "label": "When $u = 2x$, the integral should be multiplied by $2$, not $\\frac{1}{2}$." },
+          { "id": "d4", "label": "Linear substitution is invalid for trigonometric integrands." }
+        ],
+        "diagnosis_answer": "d1",
+        "fix_choices": [
+          { "id": "f1", "label": "Include the $\\frac{1}{2}$ factor: $\\frac{1}{2}\\int_0^{\\pi} \\sin u\\, du$." },
+          { "id": "f2", "label": "Multiply by $2$: $2\\int_0^{\\pi} \\sin u\\, du$." },
+          { "id": "f3", "label": "Keep the original bounds: $\\int_0^{\\pi/2} \\sin u\\, du$." },
+          { "id": "f4", "label": "Change $\\sin u$ to $\\sin(u/2)$ inside the integral." }
+        ],
+        "fix_answer": "f1"
+      },
+      "4": {
+        "diagnosis_choices": [
+          { "id": "d1", "label": "Sign error: $\\frac{d}{du}(\\cos u) = -\\sin u$, so an antiderivative of $\\sin u$ is $-\\cos u$." },
+          { "id": "d2", "label": "An antiderivative of $\\sin u$ is $\\sin u$, not $\\cos u$." },
+          { "id": "d3", "label": "Definite integrals require keeping an arbitrary constant $+C$ in the final number." },
+          { "id": "d4", "label": "An antiderivative of $\\sin u$ is $-\\sin u$." }
+        ],
+        "diagnosis_answer": "d1",
+        "fix_choices": [
+          { "id": "f1", "label": "Use $-\\cos u$ as the antiderivative, giving $\\frac{1}{2}[-\\cos u]_0^{\\pi} = 1$." },
+          { "id": "f2", "label": "Use $\\cos(2u)$ as the antiderivative." },
+          { "id": "f3", "label": "Use $-\\sin u$ as the antiderivative." },
+          { "id": "f4", "label": "Swap the evaluation order to $\\cos 0 - \\cos \\pi$ while keeping $\\cos u$." }
+        ],
+        "fix_answer": "f1"
+      }
+    }
+  },
+  "definite-integral": {
+    "estimated_seconds": 45,
+    "flaws": {}
+  }
+}

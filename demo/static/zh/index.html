@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RedPen 演示</title>
-<meta name="description" content="锻炼扎实的数学能力，学会识别 AI 推理错误与幻觉。">
+<title>RedPen · 红笔抓错：专治一本正经的胡说八道</title>
+<meta name="description" content="红笔抓错：专治一本正经的胡说八道。覆盖代码、数学、逻辑的网页抓错小游戏，点开即玩，无需登录与 API Key。">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <script>
 window.MathJax = {
@@ -24,24 +24,27 @@ window.MathJax = {
       <path d="M11.2 24.5 9.4 29l4.2-2.2-2.4-2.3z" fill="#1f2328"/>
     </svg>
     <div>
-      <p class="mark">RedPen</p>
-      <p class="sub">练数学，看穿 AI 错误。</p>
+      <p class="mark">RedPen <span class="domain-tags">代码 · 数学 · 逻辑</span></p>
+      <p class="sub">红笔抓错：专治一本正经的胡说八道</p>
     </div>
   </div>
   <div class="top-tools">
-    <nav class="lang-switch" aria-label="语言">
-      <span aria-current="page" lang="zh-Hans">中文</span>
-      <a href="../" hreflang="en" lang="en">English</a>
-    </nav>
-    <p id="mode-note" class="mode-note"></p>
+    <div class="top-bar-row">
+      <nav id="top-nav" class="top-nav" aria-label="导航"></nav>
+      <nav class="lang-switch" aria-label="语言">
+        <span aria-current="page" lang="zh-Hans">中文</span>
+        <a href="../" hreflang="en" lang="en">EN</a>
+      </nav>
+    </div>
   </div>
 </header>
 <main id="app" class="wrap"></main>
 <footer class="wrap foot">
-  <p>习题解答可能含有故意埋入的错误。复盘才是参考，解答本身不是。</p>
-  <p><a href="https://github.com/xmtom111/redpen">RedPen 的 GitHub 仓库</a></p>
+  <p id="mode-note" class="mode-note"></p>
+  <p>题目内容可能含有故意埋入的错误，请以批改复盘为准。· <a href="https://github.com/xmtom111/redpen">RedPen GitHub 仓库</a></p>
 </footer>
 <script src="grade.js"></script>
+<script src="daily.js"></script>
 <script src="browser-ai.js"></script>
 <script src="app.js"></script>
 </body>

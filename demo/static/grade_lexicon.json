@@ -239,6 +239,143 @@
     "quantifier": [
       "for all",
       "there exists"
+    ],
+    "mutable-default": [
+      "mutable",
+      "default",
+      "shared",
+      "definition",
+      "可变",
+      "默认参数",
+      "共用",
+      "同一个列表"
+    ],
+    "security-injection": [
+      "injection",
+      "sql",
+      "interpolat",
+      "parameter",
+      "注入",
+      "拼接",
+      "参数化",
+      "占位符"
+    ],
+    "shallow-copy": [
+      "shallow",
+      "nested",
+      "reference",
+      "mutat",
+      "浅拷贝",
+      "嵌套",
+      "引用",
+      "同一个对象"
+    ],
+    "off-by-one": [
+      "off-by-one",
+      "last",
+      "range",
+      "skip",
+      "drop",
+      "差一",
+      "最后一件",
+      "漏掉",
+      "越界"
+    ],
+    "branch-order": [
+      "unreachable",
+      "dead",
+      "order",
+      "elif",
+      "shadow",
+      "死分支",
+      "不可达",
+      "顺序",
+      "截胡"
+    ],
+    "concurrency": [
+      "race",
+      "concurrent",
+      "atomic",
+      "toctou",
+      "double",
+      "竞态",
+      "并发",
+      "原子",
+      "双重扣款",
+      "事务"
+    ],
+    "selection-bias": [
+      "survivor",
+      "selection",
+      "bias",
+      "churn",
+      "renew",
+      "幸存者",
+      "抽样偏差",
+      "流失",
+      "续费"
+    ],
+    "base-rate": [
+      "base rate",
+      "bayes",
+      "rare",
+      "false positive",
+      "基率",
+      "贝叶斯",
+      "罕见",
+      "误报",
+      "条件概率"
+    ],
+    "percentage-base": [
+      "base",
+      "percent",
+      "96",
+      "80",
+      "multiply",
+      "基数",
+      "百分比",
+      "底数",
+      "相乘"
+    ],
+    "correlation-causation": [
+      "correlat",
+      "causat",
+      "confound",
+      "相关",
+      "因果",
+      "混杂",
+      "第三方"
+    ],
+    "misleading-chart": [
+      "axis",
+      "truncat",
+      "baseline",
+      "zero",
+      "48",
+      "纵轴",
+      "截断",
+      "坐标轴",
+      "起点"
+    ],
+    "simpson-paradox": [
+      "simpson",
+      "weight",
+      "segment",
+      "subgroup",
+      "辛普森",
+      "权重",
+      "分流",
+      "分组"
+    ],
+    "small-sample": [
+      "sample",
+      "two",
+      "noise",
+      "small",
+      "样本量",
+      "极小样本",
+      "2 名",
+      "巧合"
     ]
   },
   "math_equivalences": [

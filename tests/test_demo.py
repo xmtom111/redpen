@@ -419,7 +419,7 @@ class ServerAndExportTest(unittest.TestCase):
         self.assertFalse(catalog["static"])
 
         status, health = self.json("GET", "/api/health")
-        self.assertEqual(health["worksheets"], 5)
+        self.assertEqual(health["worksheets"], 17)
         self.assertTrue(health["ok"])
 
         status, rnd = self.json("POST", "/api/rounds", {"worksheet_id": "cubic-lost-root"})
@@ -603,7 +603,7 @@ class ServerAndExportTest(unittest.TestCase):
         self.assertEqual(status, 200)
         text = page.decode("utf-8")
         self.assertIn("zh-Hans", text)
-        self.assertIn("练数学，看穿 AI 错误", text)
+        self.assertIn("红笔抓错：专治一本正经的胡说八道", text)
         for marker in SECRET_MARKERS:
             self.assertNotIn(marker, text)
         status, direct = self.request("GET", "/zh")
@@ -623,7 +623,7 @@ class ServerAndExportTest(unittest.TestCase):
             self.assertNotIn(marker, encoded)
         self.assertEqual(catalog["lang"], "zh")
         self.assertIn("全部实数解", encoded)
-        self.assertEqual(len(catalog["worksheets"]), 5)
+        self.assertEqual(len(catalog["worksheets"]), 17)
         self.assertIn(catalog["worksheets"][0]["level_name"], ("无错", "隐蔽", "轻微", "混杂", "胡来"))
 
         status, english = self.json("GET", "/api/catalog")
