@@ -5,22 +5,46 @@
   "renderer": "code",
   "code_language": "javascript",
   "lang": "zh",
-  "title": "配置覆盖工具",
-  "topic": "JavaScript 浅拷贝修改嵌套对象",
-  "blurb": "用了展开运算符看起来像不可变拷贝，其实悄悄改了全局默认配置。",
+  "title": "改一个人的重试次数，所有人的默认值被改了",
+  "topic": "看起来像拷贝的对象展开",
+  "blurb": "AI 用 `{ ...obj }` 复制了默认配置。一次覆盖，却悄悄改掉了原件。",
   "difficulty": "standard",
   "level": 1,
   "estimated_seconds": 55,
-  "prompt": "AI 写了这段 JS 函数，声称可以生成自定义重试次数的配置，且不影响 `DEFAULT_CONFIG`。请找错。",
+  "prompt": "这个函数本该只给某次请求加多重试次数，而不动 `DEFAULT_CONFIG`。AI 说对象展开就是一次干净的克隆。检查一下。",
   "segments": [
-    { "id": 1, "label": "L1", "text": "const DEFAULT_CONFIG = { timeout: 3000, limits: { retries: 2 } };" },
-    { "id": 2, "label": "L2", "text": "function withRetries(retries) {" },
-    { "id": 3, "label": "L3", "text": "  const cfg = { ...DEFAULT_CONFIG };" },
-    { "id": 4, "label": "L4", "text": "  cfg.limits.retries = retries;" },
-    { "id": 5, "label": "L5", "text": "  return cfg;" },
-    { "id": 6, "label": "L6", "text": "}" }
+    {
+      "id": 1,
+      "label": "L1",
+      "text": "const DEFAULT_CONFIG = { timeout: 3000, limits: { retries: 2 } };"
+    },
+    {
+      "id": 2,
+      "label": "L2",
+      "text": "function withRetries(retries) {"
+    },
+    {
+      "id": 3,
+      "label": "L3",
+      "text": "  const cfg = { ...DEFAULT_CONFIG };"
+    },
+    {
+      "id": 4,
+      "label": "L4",
+      "text": "  cfg.limits.retries = retries;"
+    },
+    {
+      "id": 5,
+      "label": "L5",
+      "text": "  return cfg;"
+    },
+    {
+      "id": 6,
+      "label": "L6",
+      "text": "}"
+    }
   ],
-  "conclusion": "AI 说明：用对象展开复制了 `DEFAULT_CONFIG`，因此 `DEFAULT_CONFIG.limits.retries` 仍保持为 2。",
+  "conclusion": "AI 说明：展开 `DEFAULT_CONFIG` 就是克隆，因此无论谁调用 `withRetries`，`DEFAULT_CONFIG.limits.retries` 都还是 2。每次请求都安全。",
   "flaws": [
     {
       "segment_id": 3,
@@ -28,26 +52,50 @@
       "original": "  const cfg = { ...DEFAULT_CONFIG, limits: { ...DEFAULT_CONFIG.limits } };",
       "corrupted": "  const cfg = { ...DEFAULT_CONFIG };",
       "diagnosis_choices": [
-        { "id": "d1", "label": "`{ ...DEFAULT_CONFIG }` 只是浅拷贝，`cfg.limits` 和 `DEFAULT_CONFIG.limits` 指向同一个嵌套对象。" },
-        { "id": "d2", "label": "`const` 会深度冻结对象，第 4 行修改属性会直接抛出 TypeError。" },
-        { "id": "d3", "label": "展开运算符只拷贝数字字段，会直接忽略嵌套对象。" },
-        { "id": "d4", "label": "严格模式下函数返回 `cfg` 时会自动剥离嵌套键。" }
+        {
+          "id": "d1",
+          "label": "`{ ...DEFAULT_CONFIG }` 只是浅拷贝，`cfg.limits` 和 `DEFAULT_CONFIG.limits` 指向同一个嵌套对象。"
+        },
+        {
+          "id": "d2",
+          "label": "`const` 会深度冻结对象，第 4 行修改属性会直接抛出 TypeError。"
+        },
+        {
+          "id": "d3",
+          "label": "展开运算符只拷贝数字字段，会直接忽略嵌套对象。"
+        },
+        {
+          "id": "d4",
+          "label": "严格模式下函数返回 `cfg` 时会自动剥离嵌套键。"
+        }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
-        { "id": "f1", "label": "连同嵌套对象一起拷贝：`{ ...DEFAULT_CONFIG, limits: { ...DEFAULT_CONFIG.limits, retries } }`（或用 `structuredClone`）。" },
-        { "id": "f2", "label": "把 `{ ...DEFAULT_CONFIG }` 换成 `Object.assign({}, DEFAULT_CONFIG)`。" },
-        { "id": "f3", "label": "把 `const cfg` 改成 `let cfg` 避免引用共享。" },
-        { "id": "f4", "label": "在第 3 行之后加上 `Object.freeze(cfg)`。" }
+        {
+          "id": "f1",
+          "label": "连同嵌套对象一起拷贝：`{ ...DEFAULT_CONFIG, limits: { ...DEFAULT_CONFIG.limits, retries } }`（或用 `structuredClone`）。"
+        },
+        {
+          "id": "f2",
+          "label": "把 `{ ...DEFAULT_CONFIG }` 换成 `Object.assign({}, DEFAULT_CONFIG)`。"
+        },
+        {
+          "id": "f3",
+          "label": "把 `const cfg` 改成 `let cfg` 避免引用共享。"
+        },
+        {
+          "id": "f4",
+          "label": "在第 3 行之后加上 `Object.freeze(cfg)`。"
+        }
       ],
       "fix_answer": "f1",
       "explanation": "对象展开 `{ ...obj }` 只复制第一层属性。`cfg.limits` 依然引用 `DEFAULT_CONFIG.limits`，所以第 4 行赋值会把全局默认配置也一起改掉。",
       "why_tempting": "用 `{ ...obj }` 避免原地修改是常见写法，对 `timeout` 这类平铺字段也确实有效，很容易忽略里面还有一层对象。",
       "catch_rule": "看到 `{ ...obj }` 或 `Object.assign` 时，立刻检查后面有没有修改第二层的对象或数组。",
-      "hint": "`{ ...DEFAULT_CONFIG }` 到底有没有为 `limits` 创建一个新对象？",
+      "hint": "`{ ...DEFAULT_CONFIG }` 有没有也新建一个 `limits` 对象，还是仍然指向原来那个？",
       "practice": {
-        "problem": "执行 `const a = { tags: ['x'] }; const b = { ...a }; b.tags.push('y');` 后，`a.tags` 是什么？",
-        "answer": "`['x', 'y']`——两个对象共享了同一个 `tags` 数组引用。"
+        "problem": "执行 `const a = { tags: ['x'] }; const b = { ...a }; b.tags.push('y');` 之后，`a.tags` 是什么？",
+        "answer": "`['x', 'y']`——两个对象仍然共用同一个 `tags` 数组。"
       }
     }
   ],
@@ -57,5 +105,5 @@
     "  return { ...DEFAULT_CONFIG, limits: { ...DEFAULT_CONFIG.limits, retries } };",
     "}"
   ],
-  "clean_conclusion": "外层对象与内层 `limits` 都分配了新对象，`DEFAULT_CONFIG` 保持原样。"
+  "clean_conclusion": "外层配置和嵌套的 `limits` 都是新分配的，默认值不会被改掉。"
 }

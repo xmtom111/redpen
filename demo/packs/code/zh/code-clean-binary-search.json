@@ -5,24 +5,56 @@
   "renderer": "code",
   "code_language": "python",
   "lang": "zh",
-  "title": "有序数组二分查找",
-  "topic": "二分查找循环不变量",
-  "blurb": "仔细核对边界和终止条件——这段代码真的有 bug 吗？",
+  "title": "这段票号查找，真的有坑吗？",
+  "topic": "一段看起来像经典陷阱的短查找",
+  "blurb": "AI 给今天的闪购订单号（已排序）写了二分查找。边界看起来很刺激——但真有错吗？",
   "difficulty": "standard",
   "level": 0,
   "estimated_seconds": 50,
-  "prompt": "审查这段针对升序列表 `nums` 的 Python 二分查找。如果发现漏洞就标红；如果完全正确，选择「本题无错」。",
+  "prompt": "这个函数要在今天已排序的闪购票号列表里查找某个票号。看到漏洞就标红；如果代码站得住，就选「本题无错」。",
   "segments": [
-    { "id": 1, "label": "L1", "text": "def binary_search(nums, target):" },
-    { "id": 2, "label": "L2", "text": "    lo, hi = 0, len(nums) - 1" },
-    { "id": 3, "label": "L3", "text": "    while lo <= hi:" },
-    { "id": 4, "label": "L4", "text": "        mid = lo + (hi - lo) // 2" },
-    { "id": 5, "label": "L5", "text": "        if nums[mid] == target: return mid" },
-    { "id": 6, "label": "L6", "text": "        if nums[mid] < target: lo = mid + 1" },
-    { "id": 7, "label": "L7", "text": "        else: hi = mid - 1" },
-    { "id": 8, "label": "L8", "text": "    return -1" }
+    {
+      "id": 1,
+      "label": "L1",
+      "text": "def binary_search(nums, target):"
+    },
+    {
+      "id": 2,
+      "label": "L2",
+      "text": "    lo, hi = 0, len(nums) - 1"
+    },
+    {
+      "id": 3,
+      "label": "L3",
+      "text": "    while lo <= hi:"
+    },
+    {
+      "id": 4,
+      "label": "L4",
+      "text": "        mid = lo + (hi - lo) // 2"
+    },
+    {
+      "id": 5,
+      "label": "L5",
+      "text": "        if nums[mid] == target: return mid"
+    },
+    {
+      "id": 6,
+      "label": "L6",
+      "text": "        if nums[mid] < target: lo = mid + 1"
+    },
+    {
+      "id": 7,
+      "label": "L7",
+      "text": "        else: hi = mid - 1"
+    },
+    {
+      "id": 8,
+      "label": "L8",
+      "text": "    return -1"
+    }
   ],
-  "conclusion": "AI 说明：返回 `target` 在升序列表 `nums` 中的下标，未找到则返回 -1（兼容空列表和单元素列表）。",
+  "conclusion": "AI 说明：返回 `target` 在有序列表中的下标，找不到则返回 -1——空列表和只有一张票的列表也包括在内。",
   "flaws": [],
   "clean_segments": [
     "def binary_search(nums, target):",
@@ -34,5 +66,5 @@
     "        else: hi = mid - 1",
     "    return -1"
   ],
-  "clean_conclusion": "闭区间 `[lo, hi]` 的循环不变量全程成立：空数组直接返回 -1，单元素数组会检查下标 0，每次分支都严格缩小区间且不会死循环。"
+  "clean_conclusion": "闭区间 `[lo, hi]` 在每一轮都成立：空列表立刻退出，单元素列表会检查下标 0，每个分支都会缩小区间。"
 }

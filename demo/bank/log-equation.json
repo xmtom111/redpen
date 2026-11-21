@@ -1,6 +1,6 @@
 {
-  "title": "A logarithmic equation",
-  "problem": "Solve $\\ln x + \\ln(x - 2) = \\ln 3$ over the reals.",
+  "title": "One confident log equation",
+  "problem": "Asked to solve $\\ln x + \\ln(x - 2) = \\ln 3$ over the reals, an AI tutor produced this confident solution.",
   "steps": [
     "Logarithms accept every real input, so no domain restriction is required.",
     "Apply the sum rule $\\ln a + \\ln b = \\ln(a+b)$: $\\ln x + \\ln(x-2) = \\ln(2x-2)$.",
@@ -59,10 +59,10 @@
     "reference_check": "none"
   },
   "meta": {
-    "topic": "logarithmic equations",
+    "topic": "An AI tutor solving a log equation",
     "mode": "2",
     "difficulty": "standard",
     "focus": [],
-    "blurb": "Solve an equation that adds two logarithms."
+    "blurb": "It combines the logs in one neat step and names a single answer."
   }
 }

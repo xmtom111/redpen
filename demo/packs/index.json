@@ -11,8 +11,8 @@
         "zh": "逻辑与统计"
       },
       "tagline": {
-        "en": "Fallacies, base rates, and slick chart tricks.",
-        "zh": "谬误、统计陷阱与一本正经的文字把戏。"
+        "en": "Money, charts, and surveys said with a straight face.",
+        "zh": "薪资、图表、调研里一本正经的结论，专挖那个破绽。"
       },
       "files": {
         "en": "logic/en",
@@ -29,8 +29,8 @@
         "zh": "代码找茬"
       },
       "tagline": {
-        "en": "Short Python & JS snippets with classic AI bugs.",
-        "zh": "一眼看完的 Python / JS 短代码与经典 AI 坑。"
+        "en": "Tiny AI PRs that sound finished — until you tap the bad line.",
+        "zh": "AI 刚写完就敢合并的短代码，点出那一行就赢。"
       },
       "files": {
         "en": "code/en",
@@ -47,8 +47,8 @@
         "zh": "数学推理"
       },
       "tagline": {
-        "en": "Worked solutions with subtle algebra and calculus traps.",
-        "zh": "代数与微积分里的隐蔽漏洞与跳步。"
+        "en": "An AI tutor's polished write-up, with a slip hiding in plain sight.",
+        "zh": "AI 助教写得漂亮的解题过程，破绽就在某一步。"
       },
       "legacy_bank": {
         "en": "../bank",

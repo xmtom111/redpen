@@ -1,6 +1,6 @@
 {
-  "title": "A substituted definite integral",
-  "problem": "Evaluate $\\int_0^{\\pi/2} \\sin(2x)\\, dx$.",
+  "title": "The substitution that ends at −2",
+  "problem": "An AI calculator evaluated $\\int_0^{\\pi/2} \\sin(2x)\\, dx$ with a substitution, then announced a crisp final value.",
   "steps": [
     "Substitute $u = 2x$. Then $du = 2\\, dx$, so $dx = \\frac{1}{2}\\, du$.",
     "Change the limits: $x = 0$ gives $u = 0$, and $x = \\frac{\\pi}{2}$ gives $u = \\pi$.",
@@ -59,10 +59,10 @@
     "reference_check": "none"
   },
   "meta": {
-    "topic": "substitution in a definite integral",
+    "topic": "An AI write-up of a definite integral",
     "mode": "2",
     "difficulty": "standard",
     "focus": [],
-    "blurb": "Evaluate a definite integral with a linear substitution."
+    "blurb": "The substitution looks official. The last line is a clean −2. Check the work."
   }
 }

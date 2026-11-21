@@ -5,24 +5,56 @@
   "renderer": "code",
   "code_language": "python",
   "lang": "en",
-  "title": "Tiered checkout discount",
-  "topic": "Off-by-one range and shadowed branch order",
-  "blurb": "A checkout calculator with two classic boundary & branch bugs.",
+  "title": "The flash-sale checkout that never hits 25% off",
+  "topic": "A holiday discount the AI 'finished' in one sitting",
+  "blurb": "Spec says $500+ gets 25% off. The AI's function is very sure it does. Big carts will disagree.",
   "difficulty": "standard",
   "level": 2,
   "estimated_seconds": 75,
-  "prompt": "Spec: sum all item prices, apply 25% off for orders $500+ or 10% off for orders $100+, and return the final total. Review the AI's code.",
+  "prompt": "Spec: sum every item, take 25% off at $500+ or 10% off at $100+, return the total. An AI intern shipped this for the flash sale. Review it.",
   "segments": [
-    { "id": 1, "label": "L1", "text": "def checkout_total(prices):" },
-    { "id": 2, "label": "L2", "text": "    subtotal = sum(prices[i] for i in range(len(prices) - 1))" },
-    { "id": 3, "label": "L3", "text": "    if subtotal >= 100:" },
-    { "id": 4, "label": "L4", "text": "        discount = 0.10" },
-    { "id": 5, "label": "L5", "text": "    elif subtotal >= 500:" },
-    { "id": 6, "label": "L6", "text": "        discount = 0.25" },
-    { "id": 7, "label": "L7", "text": "    else: discount = 0.0" },
-    { "id": 8, "label": "L8", "text": "    return round(subtotal * (1 - discount), 2)" }
+    {
+      "id": 1,
+      "label": "L1",
+      "text": "def checkout_total(prices):"
+    },
+    {
+      "id": 2,
+      "label": "L2",
+      "text": "    subtotal = sum(prices[i] for i in range(len(prices) - 1))"
+    },
+    {
+      "id": 3,
+      "label": "L3",
+      "text": "    if subtotal >= 100:"
+    },
+    {
+      "id": 4,
+      "label": "L4",
+      "text": "        discount = 0.10"
+    },
+    {
+      "id": 5,
+      "label": "L5",
+      "text": "    elif subtotal >= 500:"
+    },
+    {
+      "id": 6,
+      "label": "L6",
+      "text": "        discount = 0.25"
+    },
+    {
+      "id": 7,
+      "label": "L7",
+      "text": "    else: discount = 0.0"
+    },
+    {
+      "id": 8,
+      "label": "L8",
+      "text": "    return round(subtotal * (1 - discount), 2)"
+    }
   ],
-  "conclusion": "AI summary: Sums all prices and applies 10% off at $100+ or 25% off at $500+.",
+  "conclusion": "AI summary: Sums all prices and applies 10% off at $100+ or 25% off at $500+. Ready for the sale.",
   "flaws": [
     {
       "segment_id": 2,
@@ -30,26 +62,50 @@
       "original": "    subtotal = sum(prices)",
       "corrupted": "    subtotal = sum(prices[i] for i in range(len(prices) - 1))",
       "diagnosis_choices": [
-        { "id": "d1", "label": "Off-by-one: `range(len(prices) - 1)` stops before the last index, silently dropping the last item." },
-        { "id": "d2", "label": "`range(len(prices) - 1)` raises IndexError on non-empty lists." },
-        { "id": "d3", "label": "Python's `sum()` cannot accept a generator expression." },
-        { "id": "d4", "label": "`range` starts at 1 in Python, skipping `prices[0]`." }
+        {
+          "id": "d1",
+          "label": "Off-by-one: `range(len(prices) - 1)` stops before the last index, silently dropping the last item."
+        },
+        {
+          "id": "d2",
+          "label": "`range(len(prices) - 1)` raises IndexError on non-empty lists."
+        },
+        {
+          "id": "d3",
+          "label": "Python's `sum()` cannot accept a generator expression."
+        },
+        {
+          "id": "d4",
+          "label": "`range` starts at 1 in Python, skipping `prices[0]`."
+        }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
-        { "id": "f1", "label": "Sum every item directly: `subtotal = sum(prices)` (or `range(len(prices))`)." },
-        { "id": "f2", "label": "Use `range(1, len(prices))` to include the last item." },
-        { "id": "f3", "label": "Use `range(len(prices) + 1)` so the last index is included." },
-        { "id": "f4", "label": "Replace `sum(...)` with `len(prices)`." }
+        {
+          "id": "f1",
+          "label": "Sum every item directly: `subtotal = sum(prices)` (or `range(len(prices))`)."
+        },
+        {
+          "id": "f2",
+          "label": "Use `range(1, len(prices))` to include the last item."
+        },
+        {
+          "id": "f3",
+          "label": "Use `range(len(prices) + 1)` so the last index is included."
+        },
+        {
+          "id": "f4",
+          "label": "Replace `sum(...)` with `len(prices)`."
+        }
       ],
       "fix_answer": "f1",
       "explanation": "`range(n)` generates `0 .. n-1`. Subtracting 1 cuts off the final element of `prices` (and gives 0 for a single-item cart!).",
       "why_tempting": "People remember 'last index is `len - 1`' and forget that `range()` already excludes its stop value.",
       "catch_rule": "Test loops on a 1-element list: if `range(len(xs) - 1)` runs 0 times, it's off by one.",
-      "hint": "What does `subtotal` equal when `prices = [200]`?",
+      "hint": "What's `subtotal` when the cart is just `prices = [200]`?",
       "practice": {
-        "problem": "Which elements of `xs = [10, 20, 30]` does `xs[i]` visit for `i in range(len(xs) - 1)`?",
-        "answer": "Only `10` and `20`; `30` is skipped."
+        "problem": "For `xs = [10, 20, 30]`, which values does `xs[i]` hit when `i` runs through `range(len(xs) - 1)`?",
+        "answer": "Only `10` and `20`. The last item, `30`, never gets added."
       }
     },
     {
@@ -58,26 +114,50 @@
       "original": "    if subtotal >= 500: discount = 0.25  # check the higher threshold first",
       "corrupted": "    elif subtotal >= 500:",
       "diagnosis_choices": [
-        { "id": "d1", "label": "Unreachable branch: any `subtotal >= 500` already matched `if subtotal >= 100` on L3." },
-        { "id": "d2", "label": "`elif` cannot compare the same variable twice in Python." },
-        { "id": "d3", "label": "`>= 500` should be `> 500` because $500 orders only get 10%." },
-        { "id": "d4", "label": "Discount should be `25` instead of `0.25`." }
+        {
+          "id": "d1",
+          "label": "Unreachable branch: any `subtotal >= 500` already matched `if subtotal >= 100` on L3."
+        },
+        {
+          "id": "d2",
+          "label": "`elif` cannot compare the same variable twice in Python."
+        },
+        {
+          "id": "d3",
+          "label": "`>= 500` should be `> 500` because $500 orders only get 10%."
+        },
+        {
+          "id": "d4",
+          "label": "Discount should be `25` instead of `0.25`."
+        }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
-        { "id": "f1", "label": "Check the stricter condition first: `if subtotal >= 500:` (0.25), then `elif subtotal >= 100:` (0.10)." },
-        { "id": "f2", "label": "Change `elif subtotal >= 500:` to `elif subtotal <= 500:`." },
-        { "id": "f3", "label": "Remove the `else` branch so Python evaluates both `if` and `elif`." },
-        { "id": "f4", "label": "Swap `0.10` and `0.25` while keeping the same threshold order." }
+        {
+          "id": "f1",
+          "label": "Check the stricter condition first: `if subtotal >= 500:` (0.25), then `elif subtotal >= 100:` (0.10)."
+        },
+        {
+          "id": "f2",
+          "label": "Change `elif subtotal >= 500:` to `elif subtotal <= 500:`."
+        },
+        {
+          "id": "f3",
+          "label": "Remove the `else` branch so Python evaluates both `if` and `elif`."
+        },
+        {
+          "id": "f4",
+          "label": "Swap `0.10` and `0.25` while keeping the same threshold order."
+        }
       ],
       "fix_answer": "f1",
       "explanation": "In an `if / elif` chain, only the first true branch runs. Because every number `>= 500` is also `>= 100`, the 25% tier is dead code.",
       "why_tempting": "Listing tiers from smallest ($100) to largest ($500) reads naturally in English, even though `if/elif` requires the reverse.",
       "catch_rule": "In threshold `if/elif` chains, always order conditions from most restrictive to least restrictive (highest to lowest for `>=`).",
-      "hint": "Trace a $600 order through lines 3–6: which branch actually executes?",
+      "hint": "Walk a $600 order through lines 3–6. Which branch actually runs?",
       "practice": {
         "problem": "In `if score >= 60: g='D' elif score >= 90: g='A'`, what grade does 95 get?",
-        "answer": "`'D'` — the `>= 90` branch is unreachable."
+        "answer": "`'D'` — the A-tier branch never runs."
       }
     }
   ],
@@ -92,5 +172,5 @@
     "        discount = 0.0",
     "    return round(subtotal * (1 - discount), 2)"
   ],
-  "clean_conclusion": "All items are summed and orders at $500+ properly receive the 25% tier."
+  "clean_conclusion": "Every item is summed, and a $500+ cart actually gets the 25% tier."
 }

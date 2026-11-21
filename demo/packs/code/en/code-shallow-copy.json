@@ -5,22 +5,46 @@
   "renderer": "code",
   "code_language": "javascript",
   "lang": "en",
-  "title": "Config override helper",
-  "topic": "JavaScript shallow copy mutating nested state",
-  "blurb": "Object spread looks immutable, until a nested field gets written.",
+  "title": "Change one user's retries, rewrite everyone's",
+  "topic": "A spread that looks like a clone",
+  "blurb": "The AI copied the default config with `{ ...obj }`. Then one override quietly edits the original.",
   "difficulty": "standard",
   "level": 1,
   "estimated_seconds": 55,
-  "prompt": "An AI wrote this JavaScript helper to create a custom request config without modifying `DEFAULT_CONFIG`.",
+  "prompt": "This helper is supposed to give one request more retries without touching `DEFAULT_CONFIG`. The AI says the object spread makes a clean clone. Check it.",
   "segments": [
-    { "id": 1, "label": "L1", "text": "const DEFAULT_CONFIG = { timeout: 3000, limits: { retries: 2 } };" },
-    { "id": 2, "label": "L2", "text": "function withRetries(retries) {" },
-    { "id": 3, "label": "L3", "text": "  const cfg = { ...DEFAULT_CONFIG };" },
-    { "id": 4, "label": "L4", "text": "  cfg.limits.retries = retries;" },
-    { "id": 5, "label": "L5", "text": "  return cfg;" },
-    { "id": 6, "label": "L6", "text": "}" }
+    {
+      "id": 1,
+      "label": "L1",
+      "text": "const DEFAULT_CONFIG = { timeout: 3000, limits: { retries: 2 } };"
+    },
+    {
+      "id": 2,
+      "label": "L2",
+      "text": "function withRetries(retries) {"
+    },
+    {
+      "id": 3,
+      "label": "L3",
+      "text": "  const cfg = { ...DEFAULT_CONFIG };"
+    },
+    {
+      "id": 4,
+      "label": "L4",
+      "text": "  cfg.limits.retries = retries;"
+    },
+    {
+      "id": 5,
+      "label": "L5",
+      "text": "  return cfg;"
+    },
+    {
+      "id": 6,
+      "label": "L6",
+      "text": "}"
+    }
   ],
-  "conclusion": "AI summary: Spreading `DEFAULT_CONFIG` clones it cleanly, leaving `DEFAULT_CONFIG.limits.retries` at 2.",
+  "conclusion": "AI summary: Spreading `DEFAULT_CONFIG` clones it, so `DEFAULT_CONFIG.limits.retries` stays at 2 no matter who calls `withRetries`. Safe for every request.",
   "flaws": [
     {
       "segment_id": 3,
@@ -28,26 +52,50 @@
       "original": "  const cfg = { ...DEFAULT_CONFIG, limits: { ...DEFAULT_CONFIG.limits } };",
       "corrupted": "  const cfg = { ...DEFAULT_CONFIG };",
       "diagnosis_choices": [
-        { "id": "d1", "label": "Object spread `{ ...obj }` is a shallow copy, so `cfg.limits` still references `DEFAULT_CONFIG.limits`." },
-        { "id": "d2", "label": "`const` freezes `DEFAULT_CONFIG` deeply, so line 4 will throw a TypeError." },
-        { "id": "d3", "label": "Spread syntax only copies numeric fields and skips nested objects entirely." },
-        { "id": "d4", "label": "Returning `cfg` inside a function strips nested keys in strict mode." }
+        {
+          "id": "d1",
+          "label": "Object spread `{ ...obj }` is a shallow copy, so `cfg.limits` still references `DEFAULT_CONFIG.limits`."
+        },
+        {
+          "id": "d2",
+          "label": "`const` freezes `DEFAULT_CONFIG` deeply, so line 4 will throw a TypeError."
+        },
+        {
+          "id": "d3",
+          "label": "Spread syntax only copies numeric fields and skips nested objects entirely."
+        },
+        {
+          "id": "d4",
+          "label": "Returning `cfg` inside a function strips nested keys in strict mode."
+        }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
-        { "id": "f1", "label": "Clone the nested object too (e.g. `{ ...DEFAULT_CONFIG, limits: { ...DEFAULT_CONFIG.limits, retries } }` or `structuredClone`)." },
-        { "id": "f2", "label": "Replace `{ ...DEFAULT_CONFIG }` with `Object.assign({}, DEFAULT_CONFIG)`." },
-        { "id": "f3", "label": "Change `const cfg` to `let cfg` so the copy is mutable." },
-        { "id": "f4", "label": "Use `Object.freeze(cfg)` on line 3 before setting `retries`." }
+        {
+          "id": "f1",
+          "label": "Clone the nested object too (e.g. `{ ...DEFAULT_CONFIG, limits: { ...DEFAULT_CONFIG.limits, retries } }` or `structuredClone`)."
+        },
+        {
+          "id": "f2",
+          "label": "Replace `{ ...DEFAULT_CONFIG }` with `Object.assign({}, DEFAULT_CONFIG)`."
+        },
+        {
+          "id": "f3",
+          "label": "Change `const cfg` to `let cfg` so the copy is mutable."
+        },
+        {
+          "id": "f4",
+          "label": "Use `Object.freeze(cfg)` on line 3 before setting `retries`."
+        }
       ],
       "fix_answer": "f1",
       "explanation": "Spread (`{ ...DEFAULT_CONFIG }`) only copies top-level properties. `cfg.limits` and `DEFAULT_CONFIG.limits` point to the exact same object, so assigning `cfg.limits.retries` silently mutates the global default.",
       "why_tempting": "Using `{ ...obj }` is the standard idiom for avoiding mutation, and it works fine for flat objects like `timeout`.",
       "catch_rule": "Whenever you write `{ ...obj }` or `Object.assign`, check whether later lines mutate any nested object or array.",
-      "hint": "Does `{ ...DEFAULT_CONFIG }` create a brand-new `limits` object, or share the existing reference?",
+      "hint": "Does `{ ...DEFAULT_CONFIG }` also make a new `limits` object, or does it keep pointing at the same one?",
       "practice": {
         "problem": "After `const a = { tags: ['x'] }; const b = { ...a }; b.tags.push('y');`, what is `a.tags`?",
-        "answer": "`['x', 'y']` — both objects share the same `tags` array."
+        "answer": "`['x', 'y']` — both objects still share the same `tags` array."
       }
     }
   ],
@@ -57,5 +105,5 @@
     "  return { ...DEFAULT_CONFIG, limits: { ...DEFAULT_CONFIG.limits, retries } };",
     "}"
   ],
-  "clean_conclusion": "Both the outer config and nested `limits` object are newly allocated, keeping `DEFAULT_CONFIG` untouched."
+  "clean_conclusion": "The outer config and the nested `limits` object are both newly allocated, so the default stays untouched."
 }

@@ -5,24 +5,56 @@
   "renderer": "code",
   "code_language": "python",
   "lang": "en",
-  "title": "Sorted binary search",
-  "topic": "Binary search loop invariants",
-  "blurb": "Check the bounds and termination carefully — is anything actually broken?",
+  "title": "Is this ticket-ID search actually broken?",
+  "topic": "A short lookup that looks like a classic trap",
+  "blurb": "The AI wrote a binary search over today's sorted flash-sale ticket IDs. The bounds look spicy — but are they?",
   "difficulty": "standard",
   "level": 0,
   "estimated_seconds": 50,
-  "prompt": "Review this Python binary search for a sorted ascending list `nums`. Flag any bug, or mark it clean if it holds up.",
+  "prompt": "This helper finds a ticket ID in a sorted list of today's flash-sale orders. Flag a bug if you see one, or mark it clean if the code holds up.",
   "segments": [
-    { "id": 1, "label": "L1", "text": "def binary_search(nums, target):" },
-    { "id": 2, "label": "L2", "text": "    lo, hi = 0, len(nums) - 1" },
-    { "id": 3, "label": "L3", "text": "    while lo <= hi:" },
-    { "id": 4, "label": "L4", "text": "        mid = lo + (hi - lo) // 2" },
-    { "id": 5, "label": "L5", "text": "        if nums[mid] == target: return mid" },
-    { "id": 6, "label": "L6", "text": "        if nums[mid] < target: lo = mid + 1" },
-    { "id": 7, "label": "L7", "text": "        else: hi = mid - 1" },
-    { "id": 8, "label": "L8", "text": "    return -1" }
+    {
+      "id": 1,
+      "label": "L1",
+      "text": "def binary_search(nums, target):"
+    },
+    {
+      "id": 2,
+      "label": "L2",
+      "text": "    lo, hi = 0, len(nums) - 1"
+    },
+    {
+      "id": 3,
+      "label": "L3",
+      "text": "    while lo <= hi:"
+    },
+    {
+      "id": 4,
+      "label": "L4",
+      "text": "        mid = lo + (hi - lo) // 2"
+    },
+    {
+      "id": 5,
+      "label": "L5",
+      "text": "        if nums[mid] == target: return mid"
+    },
+    {
+      "id": 6,
+      "label": "L6",
+      "text": "        if nums[mid] < target: lo = mid + 1"
+    },
+    {
+      "id": 7,
+      "label": "L7",
+      "text": "        else: hi = mid - 1"
+    },
+    {
+      "id": 8,
+      "label": "L8",
+      "text": "    return -1"
+    }
   ],
-  "conclusion": "AI summary: Returns the index of `target` in sorted `nums`, or -1 if absent (including empty and 1-element lists).",
+  "conclusion": "AI summary: Returns the index of `target` in the sorted list, or -1 if it's missing — including empty lists and one-ticket lists.",
   "flaws": [],
   "clean_segments": [
     "def binary_search(nums, target):",
@@ -34,5 +66,5 @@
     "        else: hi = mid - 1",
     "    return -1"
   ],
-  "clean_conclusion": "The inclusive `[lo, hi]` invariant holds on every iteration: empty lists exit immediately, 1-element lists check index 0, and every branch strictly shrinks the interval."
+  "clean_conclusion": "The inclusive `[lo, hi]` range holds on every loop: an empty list exits immediately, a one-item list checks index 0, and every branch shrinks the interval."
 }

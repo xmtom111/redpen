@@ -5,23 +5,51 @@
   "renderer": "code",
   "code_language": "javascript",
   "lang": "en",
-  "title": "Wallet withdrawal check",
-  "topic": "Async TOCTOU race condition (double spend)",
-  "blurb": "Works for one click, breaks when two requests hit at once.",
+  "title": "Double-tap Withdraw: 'you can't go negative'",
+  "topic": "A wallet check that only works one click at a time",
+  "blurb": "The user has $100 and mashes Withdraw $80 twice. The AI says the balance check makes that impossible.",
   "difficulty": "standard",
   "level": 1,
   "estimated_seconds": 60,
-  "prompt": "An AI wrote this Node.js wallet withdrawal handler. A user with $100 double-clicks 'Withdraw $80'. Find the bug.",
+  "prompt": "An AI wrote this Node.js withdrawal handler for a wallet app. A user with $100 double-taps 'Withdraw $80'. Find the bug before it ships.",
   "segments": [
-    { "id": 1, "label": "L1", "text": "async function withdraw(userId, amount, db) {" },
-    { "id": 2, "label": "L2", "text": "  if (amount <= 0) throw new Error(\"Invalid amount\");" },
-    { "id": 3, "label": "L3", "text": "  const balance = await db.getBalance(userId);" },
-    { "id": 4, "label": "L4", "text": "  if (balance < amount) return { ok: false };" },
-    { "id": 5, "label": "L5", "text": "  await db.setBalance(userId, balance - amount);" },
-    { "id": 6, "label": "L6", "text": "  return { ok: true, balance: balance - amount };" },
-    { "id": 7, "label": "L7", "text": "}" }
+    {
+      "id": 1,
+      "label": "L1",
+      "text": "async function withdraw(userId, amount, db) {"
+    },
+    {
+      "id": 2,
+      "label": "L2",
+      "text": "  if (amount <= 0) throw new Error(\"Invalid amount\");"
+    },
+    {
+      "id": 3,
+      "label": "L3",
+      "text": "  const balance = await db.getBalance(userId);"
+    },
+    {
+      "id": 4,
+      "label": "L4",
+      "text": "  if (balance < amount) return { ok: false };"
+    },
+    {
+      "id": 5,
+      "label": "L5",
+      "text": "  await db.setBalance(userId, balance - amount);"
+    },
+    {
+      "id": 6,
+      "label": "L6",
+      "text": "  return { ok: true, balance: balance - amount };"
+    },
+    {
+      "id": 7,
+      "label": "L7",
+      "text": "}"
+    }
   ],
-  "conclusion": "AI summary: Checking `balance < amount` before writing guarantees the balance can never go negative.",
+  "conclusion": "AI summary: We check `balance < amount` before writing, so the balance can never go negative. Ship it.",
   "flaws": [
     {
       "segment_id": 5,
@@ -29,26 +57,50 @@
       "original": "  const updated = await db.atomicDebitIfEnough(userId, amount); // atomic conditional update / transaction",
       "corrupted": "  await db.setBalance(userId, balance - amount);",
       "diagnosis_choices": [
-        { "id": "d1", "label": "Race condition (TOCTOU): two concurrent calls both read $100, pass L4, and overwrite with $20 — withdrawing $160." },
-        { "id": "d2", "label": "JavaScript is single-threaded, so `await` blocks all other requests until `withdraw` finishes." },
-        { "id": "d3", "label": "`balance - amount` uses string concatenation instead of subtraction in JS." },
-        { "id": "d4", "label": "Missing `try/catch` around `setBalance` causes the balance to double." }
+        {
+          "id": "d1",
+          "label": "Race condition (TOCTOU): two concurrent calls both read $100, pass L4, and overwrite with $20 — withdrawing $160."
+        },
+        {
+          "id": "d2",
+          "label": "JavaScript is single-threaded, so `await` blocks all other requests until `withdraw` finishes."
+        },
+        {
+          "id": "d3",
+          "label": "`balance - amount` uses string concatenation instead of subtraction in JS."
+        },
+        {
+          "id": "d4",
+          "label": "Missing `try/catch` around `setBalance` causes the balance to double."
+        }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
-        { "id": "f1", "label": "Use an atomic DB update/transaction (e.g. `UPDATE ... SET balance = balance - ? WHERE id = ? AND balance >= ?`)." },
-        { "id": "f2", "label": "Remove `await` on line 5 so the write happens synchronously." },
-        { "id": "f3", "label": "Change `if (balance < amount)` to `if (balance <= amount)`." },
-        { "id": "f4", "label": "Re-read `db.getBalance` a second time before `setBalance` without a lock." }
+        {
+          "id": "f1",
+          "label": "Use an atomic DB update/transaction (e.g. `UPDATE ... SET balance = balance - ? WHERE id = ? AND balance >= ?`)."
+        },
+        {
+          "id": "f2",
+          "label": "Remove `await` on line 5 so the write happens synchronously."
+        },
+        {
+          "id": "f3",
+          "label": "Change `if (balance < amount)` to `if (balance <= amount)`."
+        },
+        {
+          "id": "f4",
+          "label": "Re-read `db.getBalance` a second time before `setBalance` without a lock."
+        }
       ],
       "fix_answer": "f1",
       "explanation": "Each `await` yields back to the event loop. Two simultaneous $80 withdrawals both read `balance = 100`, both pass the check, and both write `20` — letting the user spend $160 from a $100 wallet.",
       "why_tempting": "Developers assume 'Node.js is single-threaded' means no race conditions, forgetting that async I/O interleaves between `await` points.",
       "catch_rule": "Whenever you see `read -> await -> check -> await -> write` on shared money or quota, demand an atomic conditional update or DB transaction.",
-      "hint": "Trace two concurrent calls pausing at line 3 before either reaches line 5.",
+      "hint": "Imagine both taps pausing after they read the balance, before either one writes.",
       "practice": {
-        "problem": "If a coupon has `uses_left = 1` and two users redeem at the same millisecond using `get` then `set(uses_left - 1)`, what goes wrong?",
-        "answer": "Both read `1`, both succeed, and `uses_left` ends up at `0` after 2 redemptions."
+        "problem": "A drop has `left = 1`. Two fans hit Buy at the same instant using `get` then `set(left - 1)`. What happens?",
+        "answer": "Both read `1`, both succeed, and two people just bought the last item."
       }
     }
   ],
@@ -60,5 +112,5 @@
     "  return { ok: true, balance: updated.balance };",
     "}"
   ],
-  "clean_conclusion": "Checking and decrementing atomically in the database prevents concurrent double-spends."
+  "clean_conclusion": "The database checks and deducts in one step, so two taps can't both sneak through."
 }

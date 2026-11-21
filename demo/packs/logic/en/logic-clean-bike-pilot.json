@@ -4,28 +4,48 @@
   "domain": "logic",
   "renderer": "prose",
   "lang": "en",
-  "title": "The city bike-lane pilot",
-  "topic": "Controlled before-and-after evaluation",
-  "blurb": "Check the controls, measurements, and scope — is there actually a fallacy here?",
+  "title": "Did the bike lane actually ruin the shops?",
+  "topic": "A viral complaint vs. a careful year-long check",
+  "blurb": "Merchants said the new lane would kill the street. The city's write-up looks confident — is it actually crooked?",
   "difficulty": "intro",
   "level": 0,
   "estimated_seconds": 45,
-  "prompt": "Read this municipal transit brief carefully. Flag any logical or statistical flaw, or mark it clean if the reasoning holds up.",
+  "prompt": "This city brief went around after a heated local debate. Flag a hole if you see one, or mark it clean if the reasoning holds.",
   "segments": [
-    { "id": 1, "label": "Claim 1", "text": "The city installed a protected bike lane on Oak Avenue and tracked weekday traffic for 12 full months before and 12 months after." },
-    { "id": 2, "label": "Claim 2", "text": "Over the exact same period, planners also monitored Pine Avenue — a nearby commercial street with similar traffic that did not get a bike lane." },
-    { "id": 3, "label": "Claim 3", "text": "Daily bike trips rose 35% on Oak Avenue versus only 5% on Pine Avenue, suggesting a roughly 30-point gain beyond citywide seasonal trends." },
-    { "id": 4, "label": "Claim 4", "text": "Local card-payment totals along Oak Avenue stayed flat (+1.2% vs +0.9% on Pine), rather than relying only on informal merchant surveys." },
-    { "id": 5, "label": "Claim 5", "text": "The pilot supports a net rise in cycling on flat commercial corridors like Oak Avenue, though steeper or suburban roads may behave differently." }
+    {
+      "id": 1,
+      "label": "The window",
+      "text": "The city installed a protected bike lane on Oak Avenue and tracked weekday traffic for 12 full months before and 12 months after."
+    },
+    {
+      "id": 2,
+      "label": "The comparison",
+      "text": "Over the same period, planners also watched Pine Avenue — a nearby commercial street with similar traffic that did not get a bike lane."
+    },
+    {
+      "id": 3,
+      "label": "The cycling change",
+      "text": "Daily bike trips rose 35% on Oak Avenue versus only 5% on Pine Avenue, a roughly 30-point gain beyond citywide seasonal trends."
+    },
+    {
+      "id": 4,
+      "label": "The shop question",
+      "text": "Card-payment totals along Oak Avenue stayed essentially flat (+1.2% vs +0.9% on Pine), rather than relying only on informal merchant surveys."
+    },
+    {
+      "id": 5,
+      "label": "The scope",
+      "text": "The pilot supports a net rise in cycling on flat commercial streets like Oak Avenue, though steeper or suburban roads may behave differently."
+    }
   ],
-  "conclusion": "Verdict: Controlled data supports a real cycling increase on Oak Avenue without measurable harm to local card sales, with scope limits noted.",
+  "conclusion": "City verdict: After a controlled year-long comparison, cycling rose on Oak Avenue without a measurable hit to card sales, with the limits of that claim spelled out.",
   "flaws": [],
   "clean_segments": [
     "The city installed a protected bike lane on Oak Avenue and tracked weekday traffic for 12 full months before and 12 months after.",
-    "Over the exact same period, planners also monitored Pine Avenue — a nearby commercial street with similar traffic that did not get a bike lane.",
-    "Daily bike trips rose 35% on Oak Avenue versus only 5% on Pine Avenue, suggesting a roughly 30-point gain beyond citywide seasonal trends.",
-    "Local card-payment totals along Oak Avenue stayed flat (+1.2% vs +0.9% on Pine), rather than relying only on informal merchant surveys.",
-    "The pilot supports a net rise in cycling on flat commercial corridors like Oak Avenue, though steeper or suburban roads may behave differently."
+    "Over the same period, planners also watched Pine Avenue — a nearby commercial street with similar traffic that did not get a bike lane.",
+    "Daily bike trips rose 35% on Oak Avenue versus only 5% on Pine Avenue, a roughly 30-point gain beyond citywide seasonal trends.",
+    "Card-payment totals along Oak Avenue stayed essentially flat (+1.2% vs +0.9% on Pine), rather than relying only on informal merchant surveys.",
+    "The pilot supports a net rise in cycling on flat commercial streets like Oak Avenue, though steeper or suburban roads may behave differently."
   ],
-  "clean_conclusion": "The evaluation controls for seasonality (full 12-month windows), uses a matched control street, checks objective sales data, and carefully scopes its conclusion."
+  "clean_conclusion": "The write-up uses a full-year window, a matched control street, actual card sales instead of vibes, and a carefully scoped conclusion."
 }

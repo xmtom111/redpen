@@ -1,6 +1,6 @@
 {
-  "title": "求复合函数的导数",
-  "problem": "设 $f(x) = \\sin(x^2) + (x+1)^2$，求 $f'(x)$。",
+  "title": "一段写得很流畅的求导过程",
+  "problem": "有人请 AI 作业助手求 $f'(x)$，其中 $f(x) = \\sin(x^2) + (x+1)^2$。下面是它写得漂漂亮亮的解答。",
   "steps": [
     "和的导数可以逐项求导：$f'(x) = \\frac{d}{dx}\\sin(x^2) + \\frac{d}{dx}(x+1)^2$。",
     "$\\sin u$ 的导数是 $\\cos u$，取 $u = x^2$，得到 $\\frac{d}{dx}\\sin(x^2) = \\cos(x^2)$。",
@@ -56,10 +56,10 @@
     "reference_check": "none"
   },
   "meta": {
-    "topic": "链式法则",
+    "topic": "AI 写的一道求导",
     "mode": "2",
     "difficulty": "standard",
     "focus": [],
-    "blurb": "对正弦套平方、再加上一个二项式的平方求导。"
+    "blurb": "行文顺滑，最后一行也很干净。这道微积分真的做对了吗？"
   }
 }
