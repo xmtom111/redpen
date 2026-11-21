@@ -121,7 +121,7 @@ class BankAndGraderTest(unittest.TestCase):
     def test_bank_matches_the_level_rules_and_checks(self):
         self.assertEqual(
             [entry["id"] for entry in self.bank],
-            ["definite-integral", "cubic-lost-root", "log-equation", "sine-substitution", "chain-and-square"],
+            ["definite-integral", "cubic-lost-root", "chain-and-square", "log-equation", "sine-substitution"],
         )
         for entry in self.bank:
             self.assertEqual(redpen.commitment(entry["key"]), entry["commitment"])

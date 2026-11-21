@@ -5,21 +5,41 @@
   "renderer": "code",
   "code_language": "python",
   "lang": "zh",
-  "title": "用户邮箱查询",
-  "topic": "字符串拼接导致的 SQL 注入",
-  "blurb": "做了去空格和小写化，就把邮箱直接拼进了 SQL。",
+  "title": "邮箱都「清洗」过了，所以这条 SQL 很安全？",
+  "topic": "一个把清理当成防注入的客服查询",
+  "blurb": "AI 先把邮箱转成小写，再直接拼进查询，还把这叫做脱敏。",
   "difficulty": "intro",
   "level": 1,
   "estimated_seconds": 45,
-  "prompt": "审查这段 AI 生成的 Python 数据库查询函数，它按邮箱查找单个用户记录。",
+  "prompt": "这段 AI 写的函数，给客服按邮箱查找顾客。作者认为 `.strip().lower()` 已经让 SQL 安全了。找出漏洞。",
   "segments": [
-    { "id": 1, "label": "L1", "text": "def find_user(conn, email):" },
-    { "id": 2, "label": "L2", "text": "    cleaned = email.strip().lower()" },
-    { "id": 3, "label": "L3", "text": "    sql = f\"SELECT id, role FROM users WHERE email = '{cleaned}'\"" },
-    { "id": 4, "label": "L4", "text": "    cursor = conn.execute(sql)" },
-    { "id": 5, "label": "L5", "text": "    return cursor.fetchone()" }
+    {
+      "id": 1,
+      "label": "L1",
+      "text": "def find_user(conn, email):"
+    },
+    {
+      "id": 2,
+      "label": "L2",
+      "text": "    cleaned = email.strip().lower()"
+    },
+    {
+      "id": 3,
+      "label": "L3",
+      "text": "    sql = f\"SELECT id, role FROM users WHERE email = '{cleaned}'\""
+    },
+    {
+      "id": 4,
+      "label": "L4",
+      "text": "    cursor = conn.execute(sql)"
+    },
+    {
+      "id": 5,
+      "label": "L5",
+      "text": "    return cursor.fetchone()"
+    }
   ],
-  "conclusion": "AI 说明：对邮箱标准化后再执行单条 SELECT，就能安全返回对应用户行或 None。",
+  "conclusion": "AI 说明：先规范化邮箱再执行单条 SELECT，就只会返回该顾客的那一行。可以放心给客服用。",
   "flaws": [
     {
       "segment_id": 3,
@@ -27,26 +47,50 @@
       "original": "sql = \"SELECT id, role FROM users WHERE email = ?\"  # 执行时传参 (cleaned,)",
       "corrupted": "sql = f\"SELECT id, role FROM users WHERE email = '{cleaned}'\"",
       "diagnosis_choices": [
-        { "id": "d1", "label": "把外部输入直接用 f-string 拼进 SQL，存在 SQL 注入漏洞（如输入 `' OR '1'='1`）。" },
-        { "id": "d2", "label": "SQL 字符串必须使用双引号，单引号会直接触发语法错误。" },
-        { "id": "d3", "label": "Python 的 f-string 不能作为参数传给 `conn.execute`。" },
-        { "id": "d4", "label": "查询语句必须写 `SELECT *`，只查两列会报错。" }
+        {
+          "id": "d1",
+          "label": "把外部输入直接用 f-string 拼进 SQL，存在 SQL 注入漏洞（如输入 `' OR '1'='1`）。"
+        },
+        {
+          "id": "d2",
+          "label": "SQL 字符串必须使用双引号，单引号会直接触发语法错误。"
+        },
+        {
+          "id": "d3",
+          "label": "Python 的 f-string 不能作为参数传给 `conn.execute`。"
+        },
+        {
+          "id": "d4",
+          "label": "查询语句必须写 `SELECT *`，只查两列会报错。"
+        }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
-        { "id": "f1", "label": "改用参数化查询：`conn.execute(\"SELECT id, role FROM users WHERE email = ?\", (cleaned,))`。" },
-        { "id": "f2", "label": "在拼接前调用 `cleaned.replace(' ', '')` 去掉空格。" },
-        { "id": "f3", "label": "放弃 f-string，改用 `\"...\" + cleaned + \"...\"` 字符串拼接。" },
-        { "id": "f4", "label": "在 SQL 末尾加上 `LIMIT 1` 限制返回行数。" }
+        {
+          "id": "f1",
+          "label": "改用参数化查询：`conn.execute(\"SELECT id, role FROM users WHERE email = ?\", (cleaned,))`。"
+        },
+        {
+          "id": "f2",
+          "label": "在拼接前调用 `cleaned.replace(' ', '')` 去掉空格。"
+        },
+        {
+          "id": "f3",
+          "label": "放弃 f-string，改用 `\"...\" + cleaned + \"...\"` 字符串拼接。"
+        },
+        {
+          "id": "f4",
+          "label": "在 SQL 末尾加上 `LIMIT 1` 限制返回行数。"
+        }
       ],
       "fix_answer": "f1",
       "explanation": "用 f-string 拼 SQL 会把用户数据当成 SQL 代码解析。攻击者只需传入 `' OR '1'='1` 就能跳出引号，查出别人的账号信息。",
-      "why_tempting": "上一行写了 `.strip().lower()`，看起来像是做过输入清洗，普通邮箱测试也都能跑通。",
+      "why_tempting": "`.strip().lower()` 看起来像做了安全处理，而且正常邮箱在快速测试里完全没问题。",
       "catch_rule": "凡是用 f-string、`%` 或 `+` 拼出来的 SQL 一律标红；用户输入必须通过占位符参数绑定。",
-      "hint": "如果 `email` 里包含一个单引号 `'` 和一段 SQL 条件，数据库会怎么执行？",
+      "hint": "如果这个「邮箱」里先出现一个单引号，再跟一段 SQL，会怎样？",
       "practice": {
-        "problem": "为什么给 `WHERE email = '{cleaned}'` 加上 `LIMIT 1` 依然挡不住 SQL 注入？",
-        "answer": "攻击者仍可注入 `' OR role='admin' --`，让查询精准返回第一条管理员记录。"
+        "problem": "作者给 `WHERE email = '{cleaned}'` 加上 `LIMIT 1`，宣称修好了。为什么还不行？",
+        "answer": "攻击者仍可传入 `' OR role='admin' --`，拿到的就是第一行管理员记录。"
       }
     }
   ],
@@ -57,5 +101,5 @@
     "    cursor = conn.execute(sql, (cleaned,))",
     "    return cursor.fetchone()"
   ],
-  "clean_conclusion": "数据库驱动会把 `cleaned` 严格作为数据值绑定，彻底隔绝 SQL 注入。"
+  "clean_conclusion": "数据库驱动会把邮箱当作数据而不是 SQL 来绑定，精心构造的地址改不了查询。"
 }

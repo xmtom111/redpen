@@ -1,6 +1,6 @@
 {
-  "title": "A definite integral",
-  "problem": "Evaluate $\\int_0^1 (3x^2 + 2x)\\, dx$.",
+  "title": "A tidy little integral from 0 to 1",
+  "problem": "An AI tutor evaluated $\\int_0^1 (3x^2 + 2x)\\, dx$. Flag a slip if you see one, or mark it clean if the work holds.",
   "steps": [
     "The integrand $3x^2 + 2x$ is a polynomial, so it is continuous on $[0, 1]$ and the definite integral exists.",
     "An antiderivative is $F(x) = x^3 + x^2$, because the power rule gives $F'(x) = 3x^2 + 2x$.",
@@ -29,10 +29,10 @@
     "reference_check": "none"
   },
   "meta": {
-    "topic": "definite integral of a polynomial",
+    "topic": "An AI tutor evaluating a definite integral",
     "mode": "0",
     "difficulty": "standard",
     "focus": [],
-    "blurb": "Evaluate a polynomial integral from 0 to 1."
+    "blurb": "Short, neat, and very sure of itself — is anything actually off?"
   }
 }

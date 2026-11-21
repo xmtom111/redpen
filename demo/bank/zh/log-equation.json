@@ -1,6 +1,6 @@
 {
-  "title": "一个对数方程",
-  "problem": "在实数范围内解 $\\ln x + \\ln(x - 2) = \\ln 3$。",
+  "title": "一道被 AI 解得很满的对数方程",
+  "problem": "题目是在实数范围内解 $\\ln x + \\ln(x - 2) = \\ln 3$。AI 助教给出了这份非常自信的解答。",
   "steps": [
     "对数可以接受任意实数，因此不需要限制定义域。",
     "使用和的法则 $\\ln a + \\ln b = \\ln(a+b)$：$\\ln x + \\ln(x-2) = \\ln(2x-2)$。",
@@ -59,10 +59,10 @@
     "reference_check": "none"
   },
   "meta": {
-    "topic": "对数方程",
+    "topic": "AI 助教解对数方程",
     "mode": "2",
     "difficulty": "standard",
     "focus": [],
-    "blurb": "解一个把两个对数相加的方程。"
+    "blurb": "它把对数利落地合在一起，并给出了唯一答案。"
   }
 }

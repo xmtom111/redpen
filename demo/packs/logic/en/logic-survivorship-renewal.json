@@ -4,57 +4,101 @@
   "domain": "logic",
   "renderer": "prose",
   "lang": "en",
-  "title": "The 96% satisfied redesign",
-  "topic": "Survivorship and selection bias",
-  "blurb": "A glowing customer satisfaction survey with a missing audience.",
+  "title": "96% love the new dating app",
+  "topic": "A glowing survey that skipped everyone who left",
+  "blurb": "They only asked people who just paid for another month. The score looks incredible.",
   "difficulty": "intro",
   "level": 1,
   "estimated_seconds": 45,
-  "prompt": "Read this product launch memo written by an AI analyst. Spot the flaw in the reasoning.",
+  "prompt": "An AI analyst wrote this launch recap for a dating-app redesign. Tap the line that overreaches.",
   "segments": [
-    { "id": 1, "label": "Claim 1", "text": "Three months ago, our coffee chain rolled out a redesigned mobile ordering app." },
-    { "id": 2, "label": "Claim 2", "text": "Last week, we surveyed 1,200 customers who just renewed their annual VIP pass." },
-    { "id": 3, "label": "Claim 3", "text": "96% of those respondents rated the new ordering experience 4 or 5 stars." },
-    { "id": 4, "label": "Claim 4", "text": "Therefore, the app redesign was an overwhelming success across our entire customer base." },
-    { "id": 5, "label": "Claim 5", "text": "No further usability fixes are needed before expanding the layout to our web store." }
+    {
+      "id": 1,
+      "label": "The rollout",
+      "text": "Three months ago, the dating app launched a new matching algorithm and a redesigned profile layout."
+    },
+    {
+      "id": 2,
+      "label": "Who they asked",
+      "text": "Last week we surveyed 1,200 people who had just renewed their monthly subscription."
+    },
+    {
+      "id": 3,
+      "label": "The score",
+      "text": "96% of those respondents rated the new experience 4 or 5 stars."
+    },
+    {
+      "id": 4,
+      "label": "The leap",
+      "text": "So the redesign was an overwhelming success across the entire user base."
+    },
+    {
+      "id": 5,
+      "label": "The plan",
+      "text": "No further changes are needed before we roll the same layout out worldwide."
+    }
   ],
-  "conclusion": "Verdict: 96% satisfaction proves almost all customers love the new app.",
+  "conclusion": "AI verdict: 96% satisfaction proves almost everyone loves the new app. Ship it globally.",
   "flaws": [
     {
       "segment_id": 4,
       "error_type": "selection-bias",
-      "original": "Therefore, among customers who chose to renew their VIP pass, satisfaction is high — but we cannot generalize to all customers without checking churned users.",
-      "corrupted": "Therefore, the app redesign was an overwhelming success across our entire customer base.",
+      "original": "Among people who chose to pay for another month, satisfaction is high — but that says nothing about everyone who quietly cancelled.",
+      "corrupted": "So the redesign was an overwhelming success across the entire user base.",
       "diagnosis_choices": [
-        { "id": "d1", "label": "Survivorship / selection bias: surveying only renewing VIPs excludes everyone who quit because they hated the new app." },
-        { "id": "d2", "label": "1,200 people is always too small a sample to measure satisfaction." },
-        { "id": "d3", "label": "Four-star ratings should never be grouped together with five-star ratings." },
-        { "id": "d4", "label": "Three months is too long after a launch to collect any user feedback." }
+        {
+          "id": "d1",
+          "label": "They only asked people who stayed and paid again, so anyone who hated the app and cancelled never got a vote."
+        },
+        {
+          "id": "d2",
+          "label": "1,200 responses is always too small to measure how people feel about an app."
+        },
+        {
+          "id": "d3",
+          "label": "Four-star ratings should never be counted together with five-star ratings."
+        },
+        {
+          "id": "d4",
+          "label": "Three months is too long after a launch to collect any user feedback."
+        }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
-        { "id": "f1", "label": "Limit the claim to renewing VIPs, and check renewal rates plus feedback from churned and casual customers." },
-        { "id": "f2", "label": "Survey 10,000 more renewing VIPs to make the 96% estimate even tighter." },
-        { "id": "f3", "label": "Switch from a 5-star scale to a 10-point scale for renewing members." },
-        { "id": "f4", "label": "Average the 4-star and 5-star responses separately without checking non-renewers." }
+        {
+          "id": "f1",
+          "label": "Limit the claim to renewing subscribers, and check cancellation rates plus feedback from people who left."
+        },
+        {
+          "id": "f2",
+          "label": "Survey 10,000 more renewing subscribers so the 96% number is even more precise."
+        },
+        {
+          "id": "f3",
+          "label": "Switch from a 5-star scale to a 10-point scale for people who already renewed."
+        },
+        {
+          "id": "f4",
+          "label": "Report 4-star and 5-star scores separately, still without asking anyone who cancelled."
+        }
       ],
       "fix_answer": "f1",
-      "explanation": "Customers who hated the redesign are the most likely to cancel instead of renewing. Polling only people who stayed guarantees a rosy score and tells you nothing about total satisfaction.",
-      "why_tempting": "1,200 responses and 96% look authoritative and statistically solid until you notice who wasn't in the room.",
-      "catch_rule": "Whenever you see a glowing survey stat, ask: 'Who already left and never got asked?'",
-      "hint": "Who is missing from the group surveyed in Claim 2?",
+      "explanation": "The people most likely to hate a redesign are also the most likely to cancel instead of paying again. Polling only those who stayed almost guarantees a rosy score, and tells you nothing about the whole audience.",
+      "why_tempting": "1,200 responses and 96% look solid and scientific — until you notice who was never in the room.",
+      "catch_rule": "Whenever a survey looks unbelievably glowing, ask: who already left and never got asked?",
+      "hint": "Look at who was invited to the survey — and who wasn't.",
       "practice": {
-        "problem": "A gym asks members who have attended 50+ times this year if the gym is welcoming, and 98% say yes. What is missing?",
-        "answer": "Members who felt unwelcome stopped coming long before 50 visits and were excluded from the survey."
+        "problem": "A gym asks members who showed up 50+ times this year whether the place feels welcoming, and 98% say yes. What's missing?",
+        "answer": "Anyone who felt unwelcome likely stopped coming long before visit 50, so they never got the survey."
       }
     }
   ],
   "clean_segments": [
-    "Three months ago, our coffee chain rolled out a redesigned mobile ordering app.",
-    "Last week, we surveyed 1,200 customers who just renewed their annual VIP pass.",
-    "96% of those respondents rated the new ordering experience 4 or 5 stars.",
-    "This shows high satisfaction among renewing VIPs, though we must check overall renewal rates and churned users before calling the redesign a broad success.",
-    "Before rolling the layout to the web store, we should review feedback from non-renewing and first-time users."
+    "Three months ago, the dating app launched a new matching algorithm and a redesigned profile layout.",
+    "Last week we surveyed 1,200 people who had just renewed their monthly subscription.",
+    "96% of those respondents rated the new experience 4 or 5 stars.",
+    "That shows high satisfaction among people who chose to stay — not proof that the whole user base loves the redesign.",
+    "Before a worldwide rollout, check cancellation rates and talk to people who left or never subscribed."
   ],
-  "clean_conclusion": "High scores among loyal renewers are encouraging, but not proof of overall customer satisfaction."
+  "clean_conclusion": "A 96% score among loyal renewers is encouraging, not proof that almost everyone loves the app."
 }

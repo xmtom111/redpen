@@ -9,8 +9,8 @@ Convincing AI explanations still need human verification. RedPen drops you strai
 ## Web-first play
 
 1. **Open and play immediately.** Visiting `/` or `/zh/` starts today's **Daily RedPen** (3 deterministic puzzles across Logic, Code, and Math) with no login, backend, or API key.
-2. **Tap & pick (default) or free-text.** Tap any flawed line/claim/step to mark it in red and pick the diagnosis and fix, or mark the item clean. Switch to **Free text** any time to write explanations by hand.
-3. **Track streaks & share without spoilers.** Progress and streaks stay in your browser (`localStorage`), and finishing Daily RedPen generates a Wordle-style spoiler-free score card.
+2. **Tap & pick (default) or free-text.** Tap the suspicious line and the diagnosis/fix choices open right underneath — or mark the item clean if nothing is wrong. Switch to free text from **Stuck?** if you want to write the diagnosis yourself.
+3. **Track streaks & share without spoilers.** Progress and streaks stay in your browser (`localStorage`). Finishing Daily RedPen reveals a spoiler-free, screenshot-friendly score card you can share or copy (Wordle-style, no step numbers or answers).
 4. **Explore packs or build custom rounds.** Browse Logic, Code, Math, and Blind rounds under **Packs**. **Workshop** (optional, secondary) lets you plug in your own API key to generate custom AI rounds.
 
 Scoring: each planted flaw is worth 3 points (1 locate, 1 diagnosis, 1 fix); extra flags on valid lines lower accuracy (−1); hints cost 0.5. Level 0 items are completely clean.

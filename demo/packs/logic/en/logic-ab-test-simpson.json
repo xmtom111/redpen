@@ -4,85 +4,153 @@
   "domain": "logic",
   "renderer": "prose",
   "lang": "en",
-  "title": "Which checkout page won?",
-  "topic": "Simpson's paradox and tiny-sample overclaiming",
-  "blurb": "Version B wins on mobile AND wins on desktop — yet loses overall.",
+  "title": "Ship the checkout that 'won' overall?",
+  "topic": "A headline average that disagrees with every breakdown",
+  "blurb": "The new page wins on phones and wins on laptops — and the AI still wants to ship the old one.",
   "difficulty": "standard",
   "level": 2,
   "estimated_seconds": 75,
-  "prompt": "An AI product analyst reviewed an A/B test between checkout designs A and B. Find the two reasoning mistakes.",
+  "prompt": "An AI product analyst just Slack'd this A/B-test recap. Catch the two leaps.",
   "segments": [
-    { "id": 1, "label": "Claim 1", "text": "On mobile, Version B beat Version A (12% conversion vs 10%)." },
-    { "id": 2, "label": "Claim 2", "text": "On desktop, Version B also beat Version A (32% conversion vs 30%)." },
-    { "id": 3, "label": "Claim 3", "text": "However, due to a routing bug, 80% of A's visitors were on desktop while 80% of B's visitors were on mobile, giving overall averages of 26% for A and 16% for B." },
-    { "id": 4, "label": "Claim 4", "text": "Because Version A's combined conversion rate is 10 points higher (26% vs 16%), shipping Version A to all users will increase conversions." },
-    { "id": 5, "label": "Claim 5", "text": "In addition, Version A achieved 100% conversion in our VIP tier (2 purchases out of 2 visitors), proving VIP users strongly prefer A." }
+    {
+      "id": 1,
+      "label": "On phones",
+      "text": "On mobile, the new checkout (B) beat the old one (A): 12% conversion vs 10%."
+    },
+    {
+      "id": 2,
+      "label": "On laptops",
+      "text": "On desktop, B also beat A: 32% conversion vs 30%."
+    },
+    {
+      "id": 3,
+      "label": "The messy split",
+      "text": "A routing bug sent 80% of A's visitors to desktop, while 80% of B's visitors landed on mobile, so the pooled averages come out 26% for A and 16% for B."
+    },
+    {
+      "id": 4,
+      "label": "The call",
+      "text": "Because A's combined conversion is 10 points higher (26% vs 16%), shipping the old checkout A to everyone will increase conversions."
+    },
+    {
+      "id": 5,
+      "label": "The VIP kicker",
+      "text": "On top of that, A hit 100% conversion with VIPs (2 purchases out of 2 visitors), proving VIPs strongly prefer the old page."
+    }
   ],
-  "conclusion": "Verdict: Ship Version A globally — it leads overall (26% vs 16%) and has 100% VIP conversion.",
+  "conclusion": "AI verdict: Ship old checkout A everywhere — it leads overall (26% vs 16%) and has 100% VIP conversion.",
   "flaws": [
     {
       "segment_id": 4,
       "error_type": "simpson-paradox",
-      "original": "Version B actually wins on both mobile and desktop; A's higher combined average is a Simpson's paradox artifact of A getting far more high-converting desktop traffic.",
-      "corrupted": "Because Version A's combined conversion rate is 10 points higher (26% vs 16%), shipping Version A to all users will increase conversions.",
+      "original": "B actually wins on both mobile and desktop. A's higher combined average is an artifact of A getting most of the high-converting desktop traffic.",
+      "corrupted": "Because A's combined conversion is 10 points higher (26% vs 16%), shipping the old checkout A to everyone will increase conversions.",
       "diagnosis_choices": [
-        { "id": "d1", "label": "Simpson's paradox: A only looks better overall because it got 80% desktop traffic, even though B beats A on every device." },
-        { "id": "d2", "label": "You cannot compare conversion percentages between mobile and desktop users." },
-        { "id": "d3", "label": "26% minus 16% is a 62.5-point gap, not a 10-point gap." },
-        { "id": "d4", "label": "The overall average of 10% and 30% must always be 20% regardless of traffic split." }
+        {
+          "id": "d1",
+          "label": "A only looks better overall because it got almost all the high-converting desktop traffic. B actually beats A on every device."
+        },
+        {
+          "id": "d2",
+          "label": "You cannot compare conversion rates between mobile and desktop users at all."
+        },
+        {
+          "id": "d3",
+          "label": "26% minus 16% is a 62.5-point gap, not a 10-point gap."
+        },
+        {
+          "id": "d4",
+          "label": "The overall average of 10% and 30% must always be 20%, no matter how traffic is split."
+        }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
-        { "id": "f1", "label": "Compare within matched segments (or re-run with balanced randomization): B wins on both mobile and desktop, so B is better." },
-        { "id": "f2", "label": "Ignore device type because total averages always override subgroup results." },
-        { "id": "f3", "label": "Ship Version A on desktop and Version A on mobile to preserve the 26% overall rate." },
-        { "id": "f4", "label": "Average the mobile and desktop rates of A and B without checking sample splits." }
+        {
+          "id": "f1",
+          "label": "Compare like with like (or re-run with a fair traffic split): B wins on both mobile and desktop, so B is the better page."
+        },
+        {
+          "id": "f2",
+          "label": "Ignore the device breakdown, because the combined average always overrides the subgroups."
+        },
+        {
+          "id": "f3",
+          "label": "Ship A on desktop and A on mobile to lock in that 26% overall rate."
+        },
+        {
+          "id": "f4",
+          "label": "Average each page's mobile and desktop rates with equal weights and skip the traffic split."
+        }
       ],
       "fix_answer": "f1",
-      "explanation": "Desktop naturally converts ~3× higher than mobile. Giving Version A mostly desktop traffic inflates its pooled average even though Version B outperforms A on BOTH mobile (12% > 10%) and desktop (32% > 30%).",
-      "why_tempting": "The headline combined number (26% vs 16%) feels more authoritative than subgroup breakdowns — until you look at the traffic weights.",
-      "catch_rule": "When a pooled average contradicts every subgroup, check for imbalanced group weights (Simpson's paradox).",
-      "hint": "Why did Version A average 26% overall when it lost on both mobile and desktop?",
+      "explanation": "Desktop already converts about 3× better than mobile. Giving the old page mostly desktop traffic inflates its pooled average, even though the new page beats it on both mobile (12% > 10%) and desktop (32% > 30%).",
+      "why_tempting": "The big combined number (26% vs 16%) feels more 'official' than the device breakdown — until you look at who was sent where.",
+      "catch_rule": "When a combined average contradicts every subgroup, check whether the groups were mixed in very different proportions.",
+      "hint": "If B won on phones and won on laptops, how did A end up with the better overall rate?",
       "practice": {
-        "problem": "Hospital X has a higher survival rate than Hospital Y for both mild cases and severe cases, yet a lower overall survival rate. How is that possible?",
-        "answer": "Hospital X treats a much larger share of severe cases than Hospital Y."
+        "problem": "A new tutoring app beats the old one in every city, but the old app still has a higher overall pass rate. How is that possible?",
+        "answer": "The old app was mostly used in cities that already had high pass rates, so its combined average looks better even though it loses everywhere you compare fairly."
       }
     },
     {
       "segment_id": 5,
       "error_type": "small-sample",
-      "original": "With only 2 VIP visitors, 2/2 conversions is far too small a sample to draw any reliable conclusion about VIP preference.",
-      "corrupted": "In addition, Version A achieved 100% conversion in our VIP tier (2 purchases out of 2 visitors), proving VIP users strongly prefer A.",
+      "original": "With only 2 VIP visitors, 2-for-2 is just a coin flip — far too little data to claim VIPs prefer A.",
+      "corrupted": "On top of that, A hit 100% conversion with VIPs (2 purchases out of 2 visitors), proving VIPs strongly prefer the old page.",
       "diagnosis_choices": [
-        { "id": "d1", "label": "Tiny sample fallacy: 2 out of 2 visitors is just random noise and cannot prove VIPs prefer Version A." },
-        { "id": "d2", "label": "100% conversion is mathematically impossible in an A/B test." },
-        { "id": "d3", "label": "VIP users should never be included in checkout experiments." },
-        { "id": "d4", "label": "2 out of 2 equals 50% conversion, not 100%." }
+        {
+          "id": "d1",
+          "label": "2 out of 2 visitors is just noise. That '100%' proves nothing about what VIPs prefer."
+        },
+        {
+          "id": "d2",
+          "label": "A 100% conversion rate is mathematically impossible in an A/B test."
+        },
+        {
+          "id": "d3",
+          "label": "VIP users should never be included in a checkout experiment."
+        },
+        {
+          "id": "d4",
+          "label": "2 out of 2 equals a 50% conversion rate, not 100%."
+        }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
-        { "id": "f1", "label": "Treat `n = 2` as inconclusive and collect a much larger randomized VIP sample before deciding." },
-        { "id": "f2", "label": "Report it as 'nearly 100%' (95%) to look more conservative." },
-        { "id": "f3", "label": "Drop one of the two VIP users to reduce variance." },
-        { "id": "f4", "label": "Assume VIPs behave identically to mobile users instead of collecting data." }
+        {
+          "id": "f1",
+          "label": "Treat n = 2 as inconclusive and collect a much larger, randomized VIP sample before making a call."
+        },
+        {
+          "id": "f2",
+          "label": "Report it as 'nearly 100%' (say 95%) so it sounds more conservative."
+        },
+        {
+          "id": "f3",
+          "label": "Drop one of the two VIP visitors to reduce variance."
+        },
+        {
+          "id": "f4",
+          "label": "Assume VIPs behave like mobile users and skip collecting more data."
+        }
       ],
       "fix_answer": "f1",
-      "explanation": "A headline '100%' hides a denominator of 2. Even a fair coin lands heads twice in a row 25% of the time — `n = 2` proves nothing.",
-      "why_tempting": "Extreme percentages like '100%' grab attention and sound decisive when the tiny denominator is tucked in parentheses.",
-      "catch_rule": "Whenever you see an eye-popping percentage ('100%', 'doubled!'), immediately check the raw count `n` behind it.",
-      "hint": "Look at the numbers in parentheses in Claim 5.",
+      "explanation": "A headline '100%' can hide a denominator of 2. A fair coin comes up heads twice in a row 25% of the time — two lucky visitors prove nothing.",
+      "why_tempting": "Extreme percentages like '100%' sound decisive, especially when the tiny count is tucked into parentheses.",
+      "catch_rule": "Whenever you see an eye-popping percentage, immediately check the raw count behind it.",
+      "hint": "Look at the numbers in parentheses after that 100%.",
       "practice": {
-        "problem": "A new café gets 5.0 stars from 2 reviews while an older café has 4.7 stars from 1,400 reviews. Why isn't 5.0 clearly better?",
-        "answer": "With only 2 reviews, the 5.0 average has huge uncertainty and could easily come from friends or luck."
+        "problem": "A new cafe has 5.0 stars from 2 reviews; the place next door has 4.7 stars from 1,400 reviews. Why isn't 5.0 the obvious winner?",
+        "answer": "With only 2 reviews, 5.0 can be two friends or two lucky nights — the number is too shaky to trust."
       }
     }
   ],
   "clean_segments": [
-    "On mobile, Version B beat Version A (12% vs 10%).",
-    "On desktop, Version B also beat Version A (32% vs 30%).",
-    "A routing bug sent 80% desktop traffic to A and 80% mobile traffic to B, distorting the pooled averages (26% vs 16%).",
-    "Because B wins within every device segment, the pooled lead for A is a Simpson's paradox artifact; we should fix randomization or favor B.",
-    "The VIP tier only had 2 visitors, which is far too small to draw any conclusion."
+    "On mobile, the new checkout (B) beat the old one (A): 12% vs 10%.",
+    "On desktop, B also beat A: 32% vs 30%.",
+    "A routing bug sent 80% desktop traffic to A and 80% mobile traffic to B, which distorts the pooled averages (26% vs 16%).",
+    "Because B wins on every device, A's overall lead is an artifact of the traffic mix; fix the split or ship B.",
+    "The VIP '100%' is 2 out of 2 visitors — far too small to support any claim."
   ],
-  "clean_conclusion": "Version B outperforms A on both mobile and desktop; fix the traffic split rather than shipping A."
+  "clean_conclusion": "The new page wins on both phones and laptops. Don't ship the old one just because a broken traffic split padded its average."
 }
