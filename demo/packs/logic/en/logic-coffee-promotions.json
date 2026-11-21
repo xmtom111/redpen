@@ -1,0 +1,88 @@
+{
+  "schema_version": 2,
+  "id": "logic-coffee-promotions",
+  "domain": "logic",
+  "renderer": "prose",
+  "lang": "en",
+  "title": "Espresso & fast promotions",
+  "topic": "Correlation vs causation and truncated chart axis",
+  "blurb": "An HR memo tries to prove office espresso machines double your promotion odds.",
+  "difficulty": "standard",
+  "level": 2,
+  "estimated_seconds": 70,
+  "prompt": "An AI drafted this internal HR pitch for buying expensive espresso machines. Spot the two reasoning flaws.",
+  "segments": [
+    { "id": 1, "label": "Claim 1", "text": "We analyzed badge swipes and café receipts from 800 employees over the past year." },
+    { "id": 2, "label": "Claim 2", "text": "Staff who bought 3+ espressos a day at the office café were promoted more often than remote or tea-drinking staff." },
+    { "id": 3, "label": "Claim 3", "text": "Therefore, drinking more office espresso directly boosts employee performance and causes faster promotions." },
+    { "id": 4, "label": "Claim 4", "text": "In our summary bar chart (y-axis starting at 48% and ending at 52%), the espresso group's bar (51%) is three times taller than the other group's bar (49%), proving a massive 3× promotion advantage." },
+    { "id": 5, "label": "Claim 5", "text": "Installing free espresso bars on every floor will triple company-wide promotion readiness." }
+  ],
+  "conclusion": "Verdict: Espresso drives a 3× jump in promotions, so free espresso bars will transform productivity.",
+  "flaws": [
+    {
+      "segment_id": 3,
+      "error_type": "correlation-causation",
+      "original": "This shows an association, not causation — confounding factors like working longer on-site hours or holding client-facing roles could drive both café visits and promotions.",
+      "corrupted": "Therefore, drinking more office espresso directly boosts employee performance and causes faster promotions.",
+      "diagnosis_choices": [
+        { "id": "d1", "label": "Confuses correlation with causation: confounders (like in-office visibility or long hours) may drive both café receipts and promotions." },
+        { "id": "d2", "label": "Badge swipes cannot be matched to receipts for groups of 800 people." },
+        { "id": "d3", "label": "Tea contains caffeine too, so tea drinkers must always get promoted faster." },
+        { "id": "d4", "label": "Observational data can never show a correlation between two variables." }
+      ],
+      "diagnosis_answer": "d1",
+      "fix_choices": [
+        { "id": "f1", "label": "State only a correlation and control for confounders (office attendance, role, tenure) instead of claiming coffee causes promotions." },
+        { "id": "f2", "label": "Raise the threshold from 3 espressos to 5 espressos to prove causation." },
+        { "id": "f3", "label": "Drop remote workers from the dataset and keep claiming espresso causes promotions." },
+        { "id": "f4", "label": "Claim that promotions cause people to hate tea." }
+      ],
+      "fix_answer": "f1",
+      "explanation": "Observing that frequent café buyers get promoted more often does not mean caffeine caused the promotion. Employees spending long hours in the office or meeting clients on-site both buy more café drinks and get higher visibility.",
+      "why_tempting": "Coffee is associated with alertness, so a plausible story makes the leap from 'associated with' to 'causes' feel effortless.",
+      "catch_rule": "When a study says 'people who do X get more Y, therefore X causes Y', immediately hunt for a hidden third factor causing both.",
+      "hint": "Could a third variable explain both why someone visits the office café often and why they get promoted?",
+      "practice": {
+        "problem": "Cities with more fire trucks have more fire damage. Does buying fewer fire trucks reduce fire damage?",
+        "answer": "No — larger fires cause both more damage and more fire trucks to be dispatched."
+      }
+    },
+    {
+      "segment_id": 4,
+      "error_type": "misleading-chart",
+      "original": "Starting the bar chart's y-axis at 0% shows 51% vs 49% — only a 2-percentage-point difference, nowhere near a 3× advantage.",
+      "corrupted": "In our summary bar chart (y-axis starting at 48% and ending at 52%), the espresso group's bar (51%) is three times taller than the other group's bar (49%), proving a massive 3× promotion advantage.",
+      "diagnosis_choices": [
+        { "id": "d1", "label": "Truncated y-axis trick: cropping the axis at 48% makes a tiny 51% vs 49% gap look 3× taller visually." },
+        { "id": "d2", "label": "Bar charts are not allowed to display percentages; only pie charts can." },
+        { "id": "d3", "label": "51% is actually smaller than 49% when adjusted for sample size." },
+        { "id": "d4", "label": "The y-axis should end at 1000% to compare two groups." }
+      ],
+      "diagnosis_answer": "d1",
+      "fix_choices": [
+        { "id": "f1", "label": "Anchor bar charts at 0% and report the actual ratio (51% vs 49%, a +2 percentage-point gap, ~1.04×)." },
+        { "id": "f2", "label": "Crop the y-axis even tighter (48.5% to 51.5%) to make the difference clearer." },
+        { "id": "f3", "label": "Remove axis labels completely so the bars speak for themselves." },
+        { "id": "f4", "label": "Convert the bar chart into a 3D pie chart." }
+      ],
+      "fix_answer": "f1",
+      "explanation": "Bar height encodes magnitude relative to zero. Starting the axis at 48% makes `51 - 48 = 3` look three times bigger than `49 - 48 = 1`, even though 51% vs 49% is just a 2-point difference (1.04×).",
+      "why_tempting": "Readers glance at bar heights and repeat the visual ratio ('3× taller!') without checking where the axis starts.",
+      "catch_rule": "Always check the baseline of a bar chart: if the y-axis doesn't start at 0, bar-height ratios are meaningless.",
+      "hint": "Compare the actual numbers 51% and 49% against the claimed '3× advantage'.",
+      "practice": {
+        "problem": "A bar chart starts at 90% and shows Brand A at 96% and Brand B at 92%. How many times taller is A's bar, vs the real ratio?",
+        "answer": "The bar looks 3× taller (6 vs 2), while the real difference is only 4 percentage points (96/92 ≈ 1.04×)."
+      }
+    }
+  ],
+  "clean_segments": [
+    "We analyzed badge swipes and café receipts from 800 employees over the past year.",
+    "Staff who bought 3+ espressos a day had a 51% promotion rate vs 49% for others.",
+    "This small correlation does not prove espresso causes promotions, because in-office presence and role mix confound the comparison.",
+    "On a zero-based bar chart, 51% vs 49% is only a 2-percentage-point gap (about 1.04×), not a 3× jump.",
+    "Espresso bars may be a nice perk, but the data does not show they drive promotions."
+  ],
+  "clean_conclusion": "The data shows only a tiny 2-point correlation with clear confounders, not a 3× causal boost."
+}

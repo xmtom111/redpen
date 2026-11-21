@@ -19,7 +19,14 @@ from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
 
 import redpen
-from demo.grade import blank_grade, grade_findings
+from demo.grade import blank_grade, grade_findings, grade_selections
+from demo.packs import (
+    PACKS_DIR,
+    attach_math_light,
+    load_math_light_data,
+    load_registry,
+    load_v2_pack_dir,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 BANK = Path(__file__).resolve().parent / "bank"
@@ -31,7 +38,7 @@ ZH_BANNER = "RedPen 习题：这份解答可能含有故意埋入的错误。不
 NO_HINTS = {"en": "This round has no hints.", "zh": "这一轮没有提示。"}
 HINTS_DONE = {"en": "No hints left.", "zh": "没有更多提示了。"}
 # Files the Chinese page loads from /zh/ that live next to the English page.
-ZH_SHARED_ASSETS = ("app.js", "browser-ai.js", "protocol.txt", "grade.js", "style.css", "grade_lexicon.json", "favicon.svg")
+ZH_SHARED_ASSETS = ("app.js", "browser-ai.js", "daily.js", "protocol.txt", "grade.js", "style.css", "grade_lexicon.json", "favicon.svg")
 MIME = {
     ".html": "text/html; charset=utf-8",
     ".css": "text/css; charset=utf-8",
@@ -86,21 +93,102 @@ def localize_verified(summary: str, lang: str) -> str:
     return summary
 
 
+def load_pack_catalog(lang: str = "en") -> dict:
+    """Load all registered packs (logic, code, math) for one language."""
+    lang = "zh" if lang == "zh" else "en"
+    registry = load_registry()
+    pack_defs = sorted(registry.get("packs") or [], key=lambda item: item.get("order", 99))
+    packs_meta = []
+    all_entries: list[dict] = []
+    seen_ids: set[str] = set()
+
+    for pack_def in pack_defs:
+        pack_id = str(pack_def["id"])
+        if "legacy_bank" in pack_def:
+            rel = pack_def["legacy_bank"].get(lang)
+            if not rel:
+                continue
+            directory = (PACKS_DIR / rel).resolve()
+            if not any(directory.glob("*.json")):
+                continue
+            entries = load_bank(directory, lang)
+        else:
+            rel = (pack_def.get("files") or {}).get(lang)
+            if not rel:
+                continue
+            directory = (PACKS_DIR / rel).resolve()
+            if not directory.is_dir() or not any(directory.glob("*.json")):
+                continue
+            entries = load_v2_pack_dir(directory, pack_id)
+
+        for entry in entries:
+            if entry["id"] in seen_ids:
+                raise DemoError(f"duplicate worksheet id '{entry['id']}' in pack '{pack_id}'", 500)
+            seen_ids.add(entry["id"])
+        all_entries.extend(entries)
+        packs_meta.append({
+            "id": pack_id,
+            "domain": str(pack_def.get("domain") or pack_id),
+            "renderer": str(pack_def.get("renderer") or "prose"),
+            "order": int(pack_def.get("order") or 99),
+            "title": str((pack_def.get("title") or {}).get(lang) or pack_id),
+            "tagline": str((pack_def.get("tagline") or {}).get(lang) or ""),
+            "count": len(entries),
+            "worksheet_ids": [entry["id"] for entry in entries],
+            "file": f"packs/{pack_id}.json",
+        })
+
+    if not all_entries:
+        # Fallback if registry is empty.
+        entries = load_bank(BANK / "zh" if lang == "zh" else BANK, lang)
+        all_entries.extend(entries)
+        packs_meta = synthesize_packs_meta(entries, lang)
+    return {"version": int(registry.get("version") or 1), "lang": lang, "packs": packs_meta, "entries": all_entries}
+
+
+def synthesize_packs_meta(entries: list[dict], lang: str = "en") -> list[dict]:
+    titles = {
+        "en": {"logic": "Logic & Stats", "code": "Code Review", "math": "Math"},
+        "zh": {"logic": "逻辑与统计", "code": "代码找茬", "math": "数学推理"},
+    }
+    lang_key = "zh" if lang == "zh" else "en"
+    grouped: dict[str, list[dict]] = {}
+    for entry in entries:
+        pid = entry.get("pack_id") or entry.get("domain") or "math"
+        grouped.setdefault(pid, []).append(entry)
+    order_map = {"logic": 1, "code": 2, "math": 3}
+    packs = []
+    for pid, items in sorted(grouped.items(), key=lambda pair: order_map.get(pair[0], 99)):
+        packs.append({
+            "id": pid,
+            "domain": items[0].get("domain") or pid,
+            "renderer": items[0].get("renderer") or "math",
+            "order": order_map.get(pid, 99),
+            "title": titles[lang_key].get(pid, pid),
+            "tagline": "",
+            "count": len(items),
+            "worksheet_ids": [item["id"] for item in items],
+            "file": f"packs/{pid}.json",
+        })
+    return packs
+
+
 def load_banks() -> dict[str, list[dict]]:
-    banks = {"en": load_bank()}
+    banks = {"en": load_pack_catalog("en")["entries"]}
     zh_dir = BANK / "zh"
     if any(zh_dir.glob("*.json")):
-        banks["zh"] = load_bank(zh_dir, "zh")
+        banks["zh"] = load_pack_catalog("zh")["entries"]
     return banks
 
 
 def load_bank(directory: Path | None = None, lang: str = "en") -> list[dict]:
-    """Validate every canned worksheet and seal its key."""
+    """Validate every canned math worksheet and seal its key."""
     directory = BANK if directory is None else Path(directory)
     entries = []
     paths = sorted(directory.glob("*.json"))
     if not paths:
         raise DemoError(f"no worksheets in {directory}", 500)
+    light_map = load_math_light_data(lang)
     for path in paths:
         draft = json.loads(path.read_text(encoding="utf-8"))
         redpen.validate_draft(draft)
@@ -112,7 +200,7 @@ def load_bank(directory: Path | None = None, lang: str = "en") -> list[dict]:
             raise DemoError(f"{path.name}: meta.mode must match key.level for a canned worksheet", 500)
         verified = localize_verified(check_key(draft["key"]), lang)
         steps = [redpen.STEP_PREFIX.sub("", step).strip() for step in draft["steps"]]
-        entries.append({
+        entry = {
             "id": path.stem,
             "title": draft["title"],
             "problem": draft["problem"],
@@ -128,7 +216,9 @@ def load_bank(directory: Path | None = None, lang: str = "en") -> list[dict]:
             "verified": verified,
             "live": False,
             "lang": lang,
-        })
+        }
+        attach_math_light(entry, lang, light_map)
+        entries.append(entry)
     entries.sort(key=lambda entry: (entry["level"], entry["title"]))
     return entries
 
@@ -138,6 +228,11 @@ def card(entry: dict) -> dict:
     lang = sheet_lang(entry)
     return {
         "id": entry["id"],
+        "pack_id": entry.get("pack_id") or entry.get("domain") or "math",
+        "domain": entry.get("domain") or "math",
+        "renderer": entry.get("renderer") or "math",
+        "code_language": entry.get("code_language") or "",
+        "estimated_seconds": int(entry.get("estimated_seconds") or 60),
         "title": entry["title"],
         "topic": entry["topic"],
         "blurb": entry["blurb"],
@@ -145,8 +240,13 @@ def card(entry: dict) -> dict:
         "level_name": level_names(lang)[entry["level"]],
         "difficulty": entry["difficulty"],
         "problem": entry["problem"],
+        "segments": entry.get("segments") or [
+            {"id": idx, "label": f"{'步骤' if lang == 'zh' else 'Step'} {idx}", "text": step}
+            for idx, step in enumerate(entry["steps"], 1)
+        ],
         "steps": entry["steps"],
         "final_answer": entry["final_answer"],
+        "light_choices": entry.get("light_choices") or {},
         "commitment": entry["commitment"],
         "commitment_short": entry["commitment"][:12],
         "verified": entry["verified"],
@@ -174,17 +274,28 @@ def hint_list(entry: dict, mode: str) -> list[str]:
 def public_round(rnd: dict) -> dict:
     entry, mode = rnd["entry"], rnd["mode"]
     blind = mode == "blind"
+    lang = sheet_lang(entry)
     payload = {
         "id": rnd["id"],
         "worksheet_id": entry["id"],
+        "pack_id": entry.get("pack_id") or entry.get("domain") or "math",
+        "domain": entry.get("domain") or "math",
+        "renderer": entry.get("renderer") or "math",
+        "code_language": entry.get("code_language") or "",
+        "estimated_seconds": int(entry.get("estimated_seconds") or 60),
         "title": entry["title"],
         "topic": entry["topic"],
         "problem": entry["problem"],
+        "segments": entry.get("segments") or [
+            {"id": idx, "label": f"{'步骤' if lang == 'zh' else 'Step'} {idx}", "text": step}
+            for idx, step in enumerate(entry["steps"], 1)
+        ],
         "steps": entry["steps"],
         "final_answer": entry["final_answer"],
+        "light_choices": entry.get("light_choices") or {},
         "mode": mode,
         "level": None if blind else entry["level"],
-        "level_name": None if blind else level_names(sheet_lang(entry))[entry["level"]],
+        "level_name": None if blind else level_names(lang)[entry["level"]],
         "difficulty": entry["difficulty"],
         "commitment": entry["commitment"],
         "commitment_short": entry["commitment"][:12],
@@ -192,8 +303,8 @@ def public_round(rnd: dict) -> dict:
         "hints_used": rnd["hints_used"],
         "graded": rnd["graded"],
         "live": bool(entry.get("live")),
-        "banner": banner_for(sheet_lang(entry)),
-        "lang": sheet_lang(entry),
+        "banner": banner_for(lang),
+        "lang": lang,
     }
     if rnd.get("debrief"):
         payload["debrief"] = rnd["debrief"]
@@ -411,16 +522,45 @@ class DemoHandler(BaseHTTPRequestHandler):
             return
         if path == "/api/catalog":
             lang = self._requested_lang(urlparse(self.path).query)
-            entries = self._entries(lang)
+            actual_lang = lang if lang in self.server.banks else "en"
+            entries = self._entries(actual_lang)
             self._json({
                 "worksheets": [card(entry) for entry in entries],
+                "packs": self.server.packs_for(actual_lang),
                 "live": live_enabled(),
                 "static": False,
-                "banner": banner_for(lang if lang in self.server.banks else "en"),
-                "lang": lang if lang in self.server.banks else "en",
+                "banner": banner_for(actual_lang),
+                "lang": actual_lang,
+            })
+            return
+        if path == "/api/packs":
+            lang = self._requested_lang(urlparse(self.path).query)
+            actual_lang = lang if lang in self.server.banks else "en"
+            self._json({
+                "version": 1,
+                "lang": actual_lang,
+                "live": live_enabled(),
+                "static": False,
+                "banner": banner_for(actual_lang),
+                "packs": self.server.packs_for(actual_lang),
             })
             return
         parts = [unquote(part) for part in path.split("/") if part]
+        if len(parts) == 3 and parts[0] == "api" and parts[1] == "packs":
+            lang = self._requested_lang(urlparse(self.path).query)
+            actual_lang = lang if lang in self.server.banks else "en"
+            pack_id = parts[2]
+            pack_meta = next((p for p in self.server.packs_for(actual_lang) if p["id"] == pack_id), None)
+            if pack_meta is None:
+                raise DemoError("Unknown pack.", 404)
+            entries = [e for e in self._entries(actual_lang) if (e.get("pack_id") or e.get("domain") or "math") == pack_id]
+            self._json({
+                "pack": pack_meta,
+                "worksheets": [card(entry) for entry in entries],
+                "lang": actual_lang,
+                "static": False,
+            })
+            return
         if len(parts) == 3 and parts[0] == "api" and parts[1] == "rounds":
             self._json(public_round(self._round(parts[2])))
             return
@@ -540,6 +680,18 @@ class DemoHandler(BaseHTTPRequestHandler):
     def _submit(self, rnd: dict, body: dict) -> dict:
         if rnd["graded"]:
             raise DemoError("This round is already graded.", 409)
+        if "selections" in body or body.get("mode") == "light":
+            selections = body.get("selections")
+            if selections is None:
+                selections = []
+            if not isinstance(selections, list) or len(selections) > 60:
+                raise DemoError("Send selections as a list.")
+            clean_claim = bool(body.get("clean_claim"))
+            grade = grade_selections(rnd["entry"], selections, clean_claim=clean_claim)
+            debrief = build_debrief(rnd["entry"], rnd["mode"], rnd["hints_used"], grade, grader="auto")
+            rnd["graded"] = True
+            rnd["debrief"] = debrief
+            return debrief
         findings = body.get("findings")
         if not isinstance(findings, str):
             raise DemoError("Send findings as a string.")
@@ -639,8 +791,29 @@ class DemoServer(ThreadingHTTPServer):
         else:
             self.banks = {"en": bank}
             self.bank = bank
+        self.packs_by_lang: dict[str, list[dict]] = {}
+        for lang, entries in self.banks.items():
+            try:
+                catalog = load_pack_catalog(lang)
+                reg_by_id = {p["id"]: p for p in catalog["packs"]}
+            except Exception:
+                reg_by_id = {}
+            synth = synthesize_packs_meta(entries, lang)
+            merged = []
+            for item in synth:
+                meta = dict(item)
+                if item["id"] in reg_by_id:
+                    meta["title"] = reg_by_id[item["id"]]["title"]
+                    meta["tagline"] = reg_by_id[item["id"]]["tagline"]
+                    meta["order"] = reg_by_id[item["id"]]["order"]
+                merged.append(meta)
+            merged.sort(key=lambda p: p.get("order", 99))
+            self.packs_by_lang[lang] = merged
         self.rounds = {}
         self.lock = threading.Lock()
+
+    def packs_for(self, lang: str) -> list[dict]:
+        return self.packs_by_lang.get(lang) or self.packs_by_lang.get("en") or []
 
 
 def copy_static(dest: Path) -> None:
@@ -657,10 +830,13 @@ def copy_static(dest: Path) -> None:
         shutil.copy2(STATIC / name, zh_root / name)
 
 
-def write_catalog(dest: Path, entries: list[dict], lang: str) -> None:
+def write_catalog(dest: Path, entries: list[dict], lang: str, packs_meta: list[dict] | None = None) -> None:
     dest.mkdir(parents=True, exist_ok=True)
+    packs_meta = synthesize_packs_meta(entries, lang) if packs_meta is None else packs_meta
+    cards = [card(entry) for entry in entries]
     catalog = {
-        "worksheets": [card(entry) for entry in entries],
+        "worksheets": cards,
+        "packs": packs_meta,
         "live": False,
         "static": True,
         "banner": banner_for(lang),
@@ -669,6 +845,35 @@ def write_catalog(dest: Path, entries: list[dict], lang: str) -> None:
     (dest / "catalog.json").write_text(
         json.dumps(catalog, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
+    packs_dir = dest / "packs"
+    packs_dir.mkdir(exist_ok=True)
+    keep_packs = {"index.json"} | {f"{p['id']}.json" for p in packs_meta}
+    for stale in packs_dir.glob("*.json"):
+        if stale.name not in keep_packs:
+            stale.unlink()
+    pack_index = {
+        "version": 1,
+        "lang": lang,
+        "live": False,
+        "static": True,
+        "banner": banner_for(lang),
+        "packs": packs_meta,
+    }
+    (packs_dir / "index.json").write_text(
+        json.dumps(pack_index, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    for pack_meta in packs_meta:
+        pid = pack_meta["id"]
+        pack_cards = [c for c in cards if (c.get("pack_id") or c.get("domain") or "math") == pid]
+        pack_payload = {
+            "pack": pack_meta,
+            "worksheets": pack_cards,
+            "lang": lang,
+            "static": True,
+        }
+        (packs_dir / f"{pid}.json").write_text(
+            json.dumps(pack_payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        )
     secret_dir = dest / "secrets"
     secret_dir.mkdir(exist_ok=True)
     keep = {f"{entry['id']}.json" for entry in entries}
@@ -688,12 +893,17 @@ def export_site(dest: Path, bank: list[dict] | None = None) -> Path:
     if dest.exists() and any(dest.iterdir()) and not (dest / "catalog.json").exists():
         raise DemoError(f"{dest} is not empty and is not a previous export")
     dest.mkdir(parents=True, exist_ok=True)
-    english = bank if bank is not None else load_bank()
     copy_static(dest)
-    write_catalog(dest, english, sheet_lang(english[0]) if english else "en")
+    if bank is not None:
+        lang = sheet_lang(bank[0]) if bank else "en"
+        write_catalog(dest, bank, lang)
+    else:
+        en_cat = load_pack_catalog("en")
+        write_catalog(dest, en_cat["entries"], "en", en_cat["packs"])
     zh_dir = BANK / "zh"
     if any(zh_dir.glob("*.json")):
-        write_catalog(dest / "zh", load_bank(zh_dir, "zh"), "zh")
+        zh_cat = load_pack_catalog("zh")
+        write_catalog(dest / "zh", zh_cat["entries"], "zh", zh_cat["packs"])
     (dest / ".nojekyll").write_text("", encoding="utf-8")
     return dest
 

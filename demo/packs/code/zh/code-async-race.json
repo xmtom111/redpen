@@ -1,0 +1,64 @@
+{
+  "schema_version": 2,
+  "id": "code-async-race",
+  "domain": "code",
+  "renderer": "code",
+  "code_language": "javascript",
+  "lang": "zh",
+  "title": "钱包余额扣款",
+  "topic": "异步并发竞态（双重扣款 / TOCTOU）",
+  "blurb": "点一次完全没问题，用户连点两下就能超额提现。",
+  "difficulty": "standard",
+  "level": 1,
+  "estimated_seconds": 60,
+  "prompt": "AI 写了这段 Node.js 钱包提现函数。账户余额 100 元的用户同时连点两次“提现 80 元”，找出漏洞。",
+  "segments": [
+    { "id": 1, "label": "L1", "text": "async function withdraw(userId, amount, db) {" },
+    { "id": 2, "label": "L2", "text": "  if (amount <= 0) throw new Error(\"Invalid amount\");" },
+    { "id": 3, "label": "L3", "text": "  const balance = await db.getBalance(userId);" },
+    { "id": 4, "label": "L4", "text": "  if (balance < amount) return { ok: false };" },
+    { "id": 5, "label": "L5", "text": "  await db.setBalance(userId, balance - amount);" },
+    { "id": 6, "label": "L6", "text": "  return { ok: true, balance: balance - amount };" },
+    { "id": 7, "label": "L7", "text": "}" }
+  ],
+  "conclusion": "AI 说明：写入前已经检查了 `balance < amount`，因此账户余额绝不会变成负数。",
+  "flaws": [
+    {
+      "segment_id": 5,
+      "error_type": "concurrency",
+      "original": "  const updated = await db.atomicDebitIfEnough(userId, amount); // 原子条件扣减或数据库事务",
+      "corrupted": "  await db.setBalance(userId, balance - amount);",
+      "diagnosis_choices": [
+        { "id": "d1", "label": "存在异步竞态（TOCTOU）：两个并发请求都会读到 100 并通过检查，随后各自写入 20，相当于提走 160 元。" },
+        { "id": "d2", "label": "JavaScript 是单线程的，`await` 会锁死其他请求直到 `withdraw` 执行完毕。" },
+        { "id": "d3", "label": "JS 里的 `balance - amount` 会执行字符串拼接而不是减法。" },
+        { "id": "d4", "label": "因为没加 `try/catch`，`setBalance` 会自动把余额翻倍。" }
+      ],
+      "diagnosis_answer": "d1",
+      "fix_choices": [
+        { "id": "f1", "label": "使用数据库原子条件更新或事务（如 `UPDATE ... SET balance = balance - ? WHERE id = ? AND balance >= ?`）。" },
+        { "id": "f2", "label": "去掉第 5 行的 `await`，让写入变成同步执行。" },
+        { "id": "f3", "label": "把第 4 行的 `balance < amount` 改成 `balance <= amount`。" },
+        { "id": "f4", "label": "在第 5 行之前再不加锁地调用一次 `db.getBalance`。" }
+      ],
+      "fix_answer": "f1",
+      "explanation": "每个 `await` 都会把控制权交回事件循环。两个并发的 80 元提现请求都读到 `balance = 100`，都通过余额检查，然后都写入 `20`——用户只花了 80 元余额却拿走了 160 元。",
+      "why_tempting": "很多人以为“Node.js 单线程就没有并发问题”，却忘了异步 I/O 在 `await` 之间是交错执行的。",
+      "catch_rule": "凡是涉及余额、库存、名额的“先读 → await → 判断 → await → 写回”，都必须改成原子条件更新或事务锁。",
+      "hint": "想象两个并发请求同时停在第 3 行，再一起往下走到第 5 行会发生什么。",
+      "practice": {
+        "problem": "一张仅剩 1 次核销机会的优惠券，若用先 `get` 再 `set(uses - 1)` 处理两个同时到达的请求，会发生什么？",
+        "answer": "两个请求都读到 1 次并同时核销成功，最后剩余次数写成 0，实际超发了 1 张。"
+      }
+    }
+  ],
+  "clean_segments": [
+    "async function withdraw(userId, amount, db) {",
+    "  if (amount <= 0) throw new Error(\"Invalid amount\");",
+    "  const updated = await db.atomicDebitIfEnough(userId, amount);",
+    "  if (!updated) return { ok: false };",
+    "  return { ok: true, balance: updated.balance };",
+    "}"
+  ],
+  "clean_conclusion": "把余额校验和扣减放进数据库的原子操作中，并发请求也绝不会双重扣款。"
+}

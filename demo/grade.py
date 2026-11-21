@@ -494,3 +494,137 @@ def grade_findings(entry: dict, findings: str, lexicon: dict | None = None) -> d
         "bounties": [],
         "feedback": make_feedback(errors, rows, false_alarms, lang=lang),
     }
+
+
+def light_row_comment(found: bool, diagnosis: float, fix: float, lang: str = "en") -> str:
+    if lang == "zh":
+        if not found:
+            return "这一处没有被标红。"
+        if diagnosis == 1 and fix == 1:
+            return "定位、错因和改法全部命中！"
+        if diagnosis == 1 and fix == 0:
+            return "定位和错因都对，改法可以再核对一下。"
+        if diagnosis == 0 and fix == 1:
+            return "定位和改法对了，错因选偏了一点。"
+        return "标红位置对了，错因和改法还可以再对照复盘。"
+    if not found:
+        return "This flaw was not flagged."
+    if diagnosis == 1 and fix == 1:
+        return "Spot-on: right location, diagnosis, and fix."
+    if diagnosis == 1 and fix == 0:
+        return "Right location and diagnosis; check the fix."
+    if diagnosis == 0 and fix == 1:
+        return "Right location and fix; check the diagnosis."
+    return "You flagged the right spot — review the diagnosis and fix below."
+
+
+def light_why_correct(step: int, level: int, errors: list[dict], lang: str = "en") -> str:
+    earlier = [error["step"] for error in errors if error["step"] < step]
+    if lang == "zh":
+        if level == 0:
+            return f"本题其实完全正确，第 {step} 处并没有错误。"
+        if earlier:
+            return f"第 {step} 处不是错误的源头，真正的漏洞出在更前面的第 {earlier[0]} 处。"
+        return f"第 {step} 处本身没有问题，可以放心通过。"
+    if level == 0:
+        return f"This item is completely clean, so item {step} has no flaw."
+    if earlier:
+        return f"Item {step} is not the root flaw — the real break happened earlier at item {earlier[0]}."
+    return f"Item {step} is valid as written."
+
+
+def light_feedback(errors: list[dict], rows: list[dict], false_alarms: list[dict], lang: str = "en") -> str:
+    missed = [error for error, row in zip(errors, rows) if not row["found"]]
+    if lang == "zh":
+        if not errors:
+            if not false_alarms:
+                return "判断精准：这道题确实没毛病，你没有被带偏。"
+            return "这道题本身没有错误。高准确度的秘诀是只标红真正站不住脚的那一行。"
+        parts = []
+        if not missed and not false_alarms:
+            parts.append("全中且零误报！抓错非常利落。")
+        elif not missed:
+            parts.append("所有隐藏错误都被你抓出来了，顺手少标几处正确步骤就更稳。")
+        else:
+            parts.append(f"漏掉了 {len(missed)} 处错误。{missed[0]['catch_rule']}")
+        if false_alarms and missed:
+            parts.append("不确定时先只标最可疑的第一处断裂，保持高准确度。")
+        return " ".join(parts)
+    if not errors:
+        if not false_alarms:
+            return "Sharp judgment: this one had no flaws, and you trusted valid reasoning."
+        return "This item was actually clean. High accuracy comes from flagging only lines that genuinely break."
+    parts = []
+    if not missed and not false_alarms:
+        parts.append("Clean sweep with 100% precision — every flaw caught and zero false alarms.")
+    elif not missed:
+        parts.append("You caught every flaw! Trim the extra flags on valid lines for even higher precision.")
+    else:
+        parts.append(f"Missed {len(missed)} flaw(s). {missed[0]['catch_rule']}")
+    if false_alarms and missed:
+        parts.append("When unsure, flag only the first clear break to keep your accuracy high.")
+    return " ".join(parts)
+
+
+def grade_selections(entry: dict, selections: list[dict], clean_claim: bool = False) -> dict:
+    """Grade tap-to-flag light-mode selections deterministically. Passes redpen.validate_grade."""
+    lang = entry_lang(entry)
+    errors = entry["key"]["errors"]
+    level = entry["key"]["level"]
+    n_steps = len(entry["steps"])
+
+    by_step: dict[int, dict] = {}
+    if not clean_claim and isinstance(selections, list):
+        for item in selections:
+            if not isinstance(item, dict):
+                continue
+            step = item.get("step")
+            if isinstance(step, bool) or not isinstance(step, int) or not 1 <= step <= n_steps:
+                continue
+            by_step[step] = {
+                "step": step,
+                "diagnosis_id": str(item.get("diagnosis_id") or "").strip(),
+                "fix_id": str(item.get("fix_id") or "").strip(),
+                "diagnosis_label": str(item.get("diagnosis_label") or "").strip(),
+            }
+
+    rows = []
+    flaw_steps = set()
+    for error in errors:
+        flaw_steps.add(error["step"])
+        picked = by_step.get(error["step"])
+        if not picked:
+            rows.append({
+                "found": False,
+                "diagnosis": 0,
+                "fix": 0,
+                "comment": light_row_comment(False, 0, 0, lang),
+            })
+            continue
+        diag = 1 if (picked["diagnosis_id"] and picked["diagnosis_id"] == error.get("diagnosis_answer")) else 0
+        fix = 1 if (picked["fix_id"] and picked["fix_id"] == error.get("fix_answer")) else 0
+        rows.append({
+            "found": True,
+            "diagnosis": diag,
+            "fix": fix,
+            "comment": light_row_comment(True, diag, fix, lang),
+        })
+
+    false_alarms = []
+    for step in sorted(by_step):
+        if step in flaw_steps:
+            continue
+        picked = by_step[step]
+        claim = (picked["diagnosis_label"] or picked["diagnosis_id"] or "")[:140]
+        false_alarms.append({
+            "step": step,
+            "claim": claim,
+            "why_correct": light_why_correct(step, level, errors, lang),
+        })
+
+    return {
+        "errors": rows,
+        "false_alarms": false_alarms,
+        "bounties": [],
+        "feedback": light_feedback(errors, rows, false_alarms, lang),
+    }

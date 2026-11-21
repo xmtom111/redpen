@@ -1,0 +1,60 @@
+{
+  "schema_version": 2,
+  "id": "logic-base-rate-fraud",
+  "domain": "logic",
+  "renderer": "prose",
+  "lang": "en",
+  "title": "The 99% accurate fraud alert",
+  "topic": "Base-rate fallacy in rare-event detection",
+  "blurb": "A detector is 99% accurate — so an alert means 99% chance of fraud, right?",
+  "difficulty": "standard",
+  "level": 1,
+  "estimated_seconds": 60,
+  "prompt": "An AI explainer summarized a bank's fraud-detection stats. Find the step where the probability jumps off the rails.",
+  "segments": [
+    { "id": 1, "label": "Claim 1", "text": "Only 1 in every 1,000 card transactions on this network is actually fraudulent." },
+    { "id": 2, "label": "Claim 2", "text": "Our AI detector flags 99% of genuine fraud cases (99% true positive rate)." },
+    { "id": 3, "label": "Claim 3", "text": "On legitimate transactions, it raises a false alert only 1% of the time." },
+    { "id": 4, "label": "Claim 4", "text": "Therefore, whenever the AI flags your card, there is a 99% chance the charge is real fraud." },
+    { "id": 5, "label": "Claim 5", "text": "Agents can immediately freeze any flagged account without waiting for user confirmation." }
+  ],
+  "conclusion": "Verdict: A flagged transaction has a 99% probability of being genuine fraud.",
+  "flaws": [
+    {
+      "segment_id": 4,
+      "error_type": "base-rate",
+      "original": "Out of 1,000 transactions, roughly 1 real fraud and ~10 legitimate charges get flagged, so an alert is real fraud only about 9% of the time.",
+      "corrupted": "Therefore, whenever the AI flags your card, there is a 99% chance the charge is real fraud.",
+      "diagnosis_choices": [
+        { "id": "d1", "label": "Base-rate fallacy: it confuses P(alert | fraud) = 99% with P(fraud | alert); rare fraud means false alarms vastly outnumber true hits." },
+        { "id": "d2", "label": "The true positive rate and false positive rate must add up to 50%, not 100%." },
+        { "id": "d3", "label": "1 in 1,000 is 1%, so there should be 10 fraudulent transactions per 1,000." },
+        { "id": "d4", "label": "AI detectors cannot have the same sensitivity and specificity percentage." }
+      ],
+      "diagnosis_answer": "d1",
+      "fix_choices": [
+        { "id": "f1", "label": "Count out of 1,000 charges: ~1 true fraud alert vs ~10 false alerts, so P(fraud | alert) ≈ 1/11 (~9%)." },
+        { "id": "f2", "label": "Subtract the 1% false-positive rate from 99% to get a 98% chance of fraud." },
+        { "id": "f3", "label": "Multiply 99% × 99% to get a 98.01% chance of fraud." },
+        { "id": "f4", "label": "Claim a 50% chance because every alert is either fraud or legitimate." }
+      ],
+      "fix_answer": "f1",
+      "explanation": "Because legitimate charges outnumber fraud 999 to 1, even a tiny 1% false-alarm rate generates ~10 false alerts per 1,000 charges — ten times more than the ~1 real fraud caught. So ~91% of alerts are actually innocent customers!",
+      "why_tempting": "Our brains intuitively equate 'catches 99% of fraud' with '99% of alerts are fraud', ignoring how rare fraud is to begin with.",
+      "catch_rule": "For any rare event + high-accuracy test, convert percentages into concrete counts out of 1,000 before trusting the conclusion.",
+      "hint": "Out of 1,000 transactions, how many legitimate ones trigger the 1% false alarm?",
+      "practice": {
+        "problem": "A rare disease affects 1 in 1,000 people. A test has 100% sensitivity and 1% false positives. Roughly what fraction of positive tests are truly sick?",
+        "answer": "About 1 in 11 (~9%): 1 true positive and ~10 false positives per 1,000 people."
+      }
+    }
+  ],
+  "clean_segments": [
+    "Only 1 in every 1,000 card transactions on this network is actually fraudulent.",
+    "Our AI detector flags 99% of genuine fraud cases.",
+    "On legitimate transactions, it raises a false alert 1% of the time.",
+    "Out of 1,000 transactions, about 1 real fraud and ~10 legitimate charges are flagged, so an alert means roughly a 9% chance of real fraud.",
+    "Because most alerts are false positives, agents should ask for quick user confirmation rather than auto-freezing accounts."
+  ],
+  "clean_conclusion": "Even with 99% accuracy, roughly 9 out of 10 alerts on a 0.1%-prevalence event are false alarms."
+}

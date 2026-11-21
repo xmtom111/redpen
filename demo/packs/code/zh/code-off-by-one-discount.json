@@ -1,0 +1,96 @@
+{
+  "schema_version": 2,
+  "id": "code-off-by-one-discount",
+  "domain": "code",
+  "renderer": "code",
+  "code_language": "python",
+  "lang": "zh",
+  "title": "阶梯满减计算器",
+  "topic": "循环越界少算一项与条件分支顺序错误",
+  "blurb": "8 行结账代码里藏着边界漏算和死分支两个经典坑。",
+  "difficulty": "standard",
+  "level": 2,
+  "estimated_seconds": 75,
+  "prompt": "需求：汇总所有商品价格，满 500 打 75 折（减 25%），满 100 打 9 折（减 10%），返回最终金额。审查 AI 写的代码。",
+  "segments": [
+    { "id": 1, "label": "L1", "text": "def checkout_total(prices):" },
+    { "id": 2, "label": "L2", "text": "    subtotal = sum(prices[i] for i in range(len(prices) - 1))" },
+    { "id": 3, "label": "L3", "text": "    if subtotal >= 100:" },
+    { "id": 4, "label": "L4", "text": "        discount = 0.10" },
+    { "id": 5, "label": "L5", "text": "    elif subtotal >= 500:" },
+    { "id": 6, "label": "L6", "text": "        discount = 0.25" },
+    { "id": 7, "label": "L7", "text": "    else: discount = 0.0" },
+    { "id": 8, "label": "L8", "text": "    return round(subtotal * (1 - discount), 2)" }
+  ],
+  "conclusion": "AI 说明：先对全部商品求和，再按满 100 减 10%、满 500 减 25% 计算折后价。",
+  "flaws": [
+    {
+      "segment_id": 2,
+      "error_type": "off-by-one",
+      "original": "    subtotal = sum(prices)",
+      "corrupted": "    subtotal = sum(prices[i] for i in range(len(prices) - 1))",
+      "diagnosis_choices": [
+        { "id": "d1", "label": "边界差一错误：`range(len(prices) - 1)` 漏掉了最后一件商品（只有 1 件商品时总价甚至是 0）。" },
+        { "id": "d2", "label": "`range(len(prices) - 1)` 在非空列表上会触发 IndexError 越界。" },
+        { "id": "d3", "label": "Python 的 `sum()` 不支持接收生成器表达式。" },
+        { "id": "d4", "label": "`range` 默认从 1 开始，所以会漏掉第一件商品 `prices[0]`。" }
+      ],
+      "diagnosis_answer": "d1",
+      "fix_choices": [
+        { "id": "f1", "label": "直接对列表求和：`subtotal = sum(prices)`（或用 `range(len(prices))`）。" },
+        { "id": "f2", "label": "改成 `range(1, len(prices))` 把最后一项算进去。" },
+        { "id": "f3", "label": "改成 `range(len(prices) + 1)` 保证覆盖末尾元素。" },
+        { "id": "f4", "label": "把 `sum(...)` 替换成 `len(prices)`。" }
+      ],
+      "fix_answer": "f1",
+      "explanation": "`range(n)` 本身就只到 `n - 1` 为止。再减 1 会把 `prices[-1]` 悄悄丢掉，单商品订单甚至会算成 0 元。",
+      "why_tempting": "写代码时想到“最后一个下标是 `len - 1`”，一顺手就把它填进了左闭右开的 `range()` 里。",
+      "catch_rule": "拿一个只有 1 个元素的列表心算一遍循环：如果 `range(len(xs) - 1)` 一次都不跑，就是差一错误。",
+      "hint": "试试代入 `prices = [200]`，第 2 行算出来的 `subtotal` 是多少？",
+      "practice": {
+        "problem": "当 `xs = [10, 20, 30]` 时，`[xs[i] for i in range(len(xs) - 1)]` 会得到什么？",
+        "answer": "`[10, 20]`，最后一个元素 `30` 被漏掉了。"
+      }
+    },
+    {
+      "segment_id": 5,
+      "error_type": "branch-order",
+      "original": "    if subtotal >= 500: discount = 0.25  # 先判断更高的门槛",
+      "corrupted": "    elif subtotal >= 500:",
+      "diagnosis_choices": [
+        { "id": "d1", "label": "死分支：所有 `>= 500` 的金额在第 3 行 `>= 100` 时就已经被截胡，永远走不到 25% 折扣。" },
+        { "id": "d2", "label": "Python 不允许在同一个 `if/elif` 里两次比较同一个变量。" },
+        { "id": "d3", "label": "满 500 不包含 500，这里必须写成 `> 500`。" },
+        { "id": "d4", "label": "折扣应该写成 `25` 而不是 `0.25`。" }
+      ],
+      "diagnosis_answer": "d1",
+      "fix_choices": [
+        { "id": "f1", "label": "先判断高门槛：`if subtotal >= 500:` 给 0.25，再 `elif subtotal >= 100:` 给 0.10。" },
+        { "id": "f2", "label": "把第 5 行改成 `elif subtotal <= 500:`。" },
+        { "id": "f3", "label": "删掉 `else` 分支，让 Python 同时执行 `if` 和 `elif`。" },
+        { "id": "f4", "label": "保持门槛顺序不变，直接对调 `0.10` 和 `0.25`。" }
+      ],
+      "fix_answer": "f1",
+      "explanation": "`if / elif` 只会命中第一个为真的条件。因为大于等于 500 的数必然大于等于 100，所以 25% 折扣分支永远不会被执行。",
+      "why_tempting": "按“满 100、满 500”从小到大写很符合自然语言习惯，却忘了 `if/elif` 必须先写更严格的条件。",
+      "catch_rule": "阶梯阈值用 `if/elif` 判断时，用 `>=` 就必须从高到低排，用 `<=` 就必须从低到高排。",
+      "hint": "带入一个 600 元的订单走一遍第 3–6 行，看看最后拿到了几折？",
+      "practice": {
+        "problem": "在 `if score >= 60: g='D' elif score >= 90: g='A'` 里，95 分会拿到什么等级？",
+        "answer": "`'D'`，因为 `>= 90` 分支永远不可达。"
+      }
+    }
+  ],
+  "clean_segments": [
+    "def checkout_total(prices):",
+    "    subtotal = sum(prices)",
+    "    if subtotal >= 500:",
+    "        discount = 0.25",
+    "    elif subtotal >= 100:",
+    "        discount = 0.10",
+    "    else:",
+    "        discount = 0.0",
+    "    return round(subtotal * (1 - discount), 2)"
+  ],
+  "clean_conclusion": "全部商品都会计入小计，且满 500 的订单能正确命中 25% 折扣。"
+}

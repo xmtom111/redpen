@@ -1,0 +1,138 @@
+{
+  "cubic-lost-root": {
+    "estimated_seconds": 50,
+    "flaws": {
+      "2": {
+        "diagnosis_choices": [
+          { "id": "d1", "label": "两边同除以 $x$ 隐含假设了 $x \\neq 0$，导致遗漏了 $x = 0$ 这个解。" },
+          { "id": "d2", "label": "$x^3$ 除以 $x$ 应该得到 $x^3$，而不是 $x^2$。" },
+          { "id": "d3", "label": "等式右边是正系数时，两边不能除以未知数。" },
+          { "id": "d4", "label": "两边除以 $x$ 后，右边的 $4x$ 应该变成 $-4$。" }
+        ],
+        "diagnosis_answer": "d1",
+        "fix_choices": [
+          { "id": "f1", "label": "移项后因式分解为 $x(x^2 - 4) = 0$，得到全部解 $x \\in \\{-2, 0, 2\\}$。" },
+          { "id": "f2", "label": "改用两边除以 $x^2$，得到 $x = 4$。" },
+          { "id": "f3", "label": "两边直接开立方根，得到 $x = \\sqrt[3]{4}$。" },
+          { "id": "f4", "label": "继续除以 $x$，并舍去负根 $x = -2$。" }
+        ],
+        "fix_answer": "f1"
+      }
+    }
+  },
+  "chain-and-square": {
+    "estimated_seconds": 65,
+    "flaws": {
+      "2": {
+        "diagnosis_choices": [
+          { "id": "d1", "label": "链式法则漏乘了内层导数：$\\frac{d}{dx}\\sin(x^2)$ 还需乘以 $(x^2)' = 2x$。" },
+          { "id": "d2", "label": "$\\sin u$ 的导数是 $-\\cos u$，这里少了一个负号。" },
+          { "id": "d3", "label": "三角函数与多项式相加时不能逐项求导。" },
+          { "id": "d4", "label": "$\\sin(x^2)$ 的导数应为 $\\cos(2x)$，把内层导数放进括号里。" }
+        ],
+        "diagnosis_answer": "d1",
+        "fix_choices": [
+          { "id": "f1", "label": "按链式法则补上内层导数：$\\frac{d}{dx}\\sin(x^2) = 2x\\cos(x^2)$。" },
+          { "id": "f2", "label": "补上负号：$\\frac{d}{dx}\\sin(x^2) = -\\cos(x^2)$。" },
+          { "id": "f3", "label": "把括号内求导：$\\frac{d}{dx}\\sin(x^2) = \\cos(2x)$。" },
+          { "id": "f4", "label": "乘上原内层：$\\frac{d}{dx}\\sin(x^2) = x^2\\cos(x^2)$。" }
+        ],
+        "fix_answer": "f1"
+      },
+      "3": {
+        "diagnosis_choices": [
+          { "id": "d1", "label": "展开完全平方 $(x+1)^2$ 时漏掉了中间交叉项 $2x$。" },
+          { "id": "d2", "label": "$1$ 的平方是 $2$，常数项写错了。" },
+          { "id": "d3", "label": "求导前不允许先把 $(x+1)^2$ 展开。" },
+          { "id": "d4", "label": "中间交叉项的符号应该是 $-2x$ 而不是 $+2x$。" }
+        ],
+        "diagnosis_answer": "d1",
+        "fix_choices": [
+          { "id": "f1", "label": "正确展开为 $(x+1)^2 = x^2 + 2x + 1$（导数为 $2x + 2$）。" },
+          { "id": "f2", "label": "展开为 $(x+1)^2 = x^2 + x + 1$。" },
+          { "id": "f3", "label": "展开为 $(x+1)^2 = x^2 + 2$。" },
+          { "id": "f4", "label": "展开为 $(x+1)^2 = x^2 - 2x + 1$。" }
+        ],
+        "fix_answer": "f1"
+      }
+    }
+  },
+  "log-equation": {
+    "estimated_seconds": 70,
+    "flaws": {
+      "1": {
+        "diagnosis_choices": [
+          { "id": "d1", "label": "$\\ln t$ 要求真数 $t > 0$，需同时满足 $x > 0$ 且 $x - 2 > 0$，即 $x > 2$。" },
+          { "id": "d2", "label": "$\\ln t$ 只要求 $t \\neq 0$，负数真数在实数范围内依然有效。" },
+          { "id": "d3", "label": "只需两项之和 $x + (x - 2) > 0$，即 $x > 1$ 即可。" },
+          { "id": "d4", "label": "对数方程只允许正整数解 $x \\ge 1$。" }
+        ],
+        "diagnosis_answer": "d1",
+        "fix_choices": [
+          { "id": "f1", "label": "限定两个真数都为正：$x > 0$ 且 $x - 2 > 0$，定义域为 $x > 2$。" },
+          { "id": "f2", "label": "只限定 $x \\neq 0$ 且 $x \\neq 2$。" },
+          { "id": "f3", "label": "限定 $x \\ge 0$，允许真数为零。" },
+          { "id": "f4", "label": "因为右边是 $\\ln 3$，限定 $x > 3$。" }
+        ],
+        "fix_answer": "f1"
+      },
+      "2": {
+        "diagnosis_choices": [
+          { "id": "d1", "label": "对数之和等于乘积的对数：$\\ln a + \\ln b = \\ln(ab)$，不能把真数相加。" },
+          { "id": "d2", "label": "两个对数相加应该把真数相除：$\\ln a + \\ln b = \\ln(a/b)$。" },
+          { "id": "d3", "label": "同底对数相加无法合并成一个对数。" },
+          { "id": "d4", "label": "$\\ln x + \\ln(x-2)$ 应该等于 $(\\ln x)\\cdot(\\ln(x-2))$。" }
+        ],
+        "diagnosis_answer": "d1",
+        "fix_choices": [
+          { "id": "f1", "label": "改用乘积公式：$\\ln x + \\ln(x-2) = \\ln(x(x-2))$，最终解得 $x = 3$。" },
+          { "id": "f2", "label": "改用商公式：$\\ln\\frac{x}{x-2} = \\ln 3$。" },
+          { "id": "f3", "label": "直接去对数：$x + (x - 2) = 3$。" },
+          { "id": "f4", "label": "改用幂公式：$\\ln(x^{x-2}) = \\ln 3$。" }
+        ],
+        "fix_answer": "f1"
+      }
+    }
+  },
+  "sine-substitution": {
+    "estimated_seconds": 70,
+    "flaws": {
+      "3": {
+        "diagnosis_choices": [
+          { "id": "d1", "label": "把 $dx$ 换成 $du$ 时漏乘了常数因子 $\\frac{1}{2}$（来自 $dx = \\frac{1}{2}\\,du$）。" },
+          { "id": "d2", "label": "换元后积分上限应该保持 $\\frac{\\pi}{2}$，不该改成 $\\pi$。" },
+          { "id": "d3", "label": "令 $u = 2x$ 时积分前面应该乘以 $2$，而不是 $\\frac{1}{2}$。" },
+          { "id": "d4", "label": "三角函数的定积分不能使用线性换元。" }
+        ],
+        "diagnosis_answer": "d1",
+        "fix_choices": [
+          { "id": "f1", "label": "补上 $\\frac{1}{2}$ 因子：$\\frac{1}{2}\\int_0^{\\pi} \\sin u\\, du$。" },
+          { "id": "f2", "label": "在积分前乘以 $2$：$2\\int_0^{\\pi} \\sin u\\, du$。" },
+          { "id": "f3", "label": "恢复原积分限：$\\int_0^{\\pi/2} \\sin u\\, du$。" },
+          { "id": "f4", "label": "把被积函数改成 $\\sin(u/2)$。" }
+        ],
+        "fix_answer": "f1"
+      },
+      "4": {
+        "diagnosis_choices": [
+          { "id": "d1", "label": "符号错了：$\\cos u$ 的导数是 $-\\sin u$，所以 $\\sin u$ 的原函数是 $-\\cos u$。" },
+          { "id": "d2", "label": "$\\sin u$ 的原函数就是 $\\sin u$ 本身。" },
+          { "id": "d3", "label": "定积分结果里必须保留任意常数 $+C$。" },
+          { "id": "d4", "label": "$\\sin u$ 的原函数是 $-\\sin u$。" }
+        ],
+        "diagnosis_answer": "d1",
+        "fix_choices": [
+          { "id": "f1", "label": "把原函数改为 $-\\cos u$，配合 $\\frac{1}{2}$ 因子得最终结果 $1$。" },
+          { "id": "f2", "label": "把原函数改为 $\\cos(2u)$。" },
+          { "id": "f3", "label": "把原函数改为 $-\\sin u$。" },
+          { "id": "f4", "label": "保留 $\\cos u$，但调换上下限计算 $\\cos 0 - \\cos \\pi$。" }
+        ],
+        "fix_answer": "f1"
+      }
+    }
+  },
+  "definite-integral": {
+    "estimated_seconds": 45,
+    "flaws": {}
+  }
+}

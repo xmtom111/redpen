@@ -454,6 +454,125 @@
     };
   }
 
+  function lightRowComment(found, diagnosis, fix, lang) {
+    if (lang === "zh") {
+      if (!found) return "这一处没有被标红。";
+      if (diagnosis === 1 && fix === 1) return "定位、错因和改法全部命中！";
+      if (diagnosis === 1 && fix === 0) return "定位和错因都对，改法可以再核对一下。";
+      if (diagnosis === 0 && fix === 1) return "定位和改法对了，错因选偏了一点。";
+      return "标红位置对了，错因和改法还可以再对照复盘。";
+    }
+    if (!found) return "This flaw was not flagged.";
+    if (diagnosis === 1 && fix === 1) return "Spot-on: right location, diagnosis, and fix.";
+    if (diagnosis === 1 && fix === 0) return "Right location and diagnosis; check the fix.";
+    if (diagnosis === 0 && fix === 1) return "Right location and fix; check the diagnosis.";
+    return "You flagged the right spot — review the diagnosis and fix below.";
+  }
+
+  function lightWhyCorrect(step, level, errors, lang) {
+    const earlier = errors.filter((error) => error.step < step).map((error) => error.step);
+    if (lang === "zh") {
+      if (level === 0) return `本题其实完全正确，第 ${step} 处并没有错误。`;
+      if (earlier.length) return `第 ${step} 处不是错误的源头，真正的漏洞出在更前面的第 ${earlier[0]} 处。`;
+      return `第 ${step} 处本身没有问题，可以放心通过。`;
+    }
+    if (level === 0) return `This item is completely clean, so item ${step} has no flaw.`;
+    if (earlier.length) return `Item ${step} is not the root flaw — the real break happened earlier at item ${earlier[0]}.`;
+    return `Item ${step} is valid as written.`;
+  }
+
+  function lightFeedback(errors, rows, falseAlarms, lang) {
+    const missed = errors.filter((error, index) => !rows[index].found);
+    if (lang === "zh") {
+      if (!errors.length) {
+        if (!falseAlarms.length) return "判断精准：这道题确实没毛病，你没有被带偏。";
+        return "这道题本身没有错误。高准确度的秘诀是只标红真正站不住脚的那一行。";
+      }
+      const parts = [];
+      if (!missed.length && !falseAlarms.length) {
+        parts.push("全中且零误报！抓错非常利落。");
+      } else if (!missed.length) {
+        parts.push("所有隐藏错误都被你抓出来了，顺手少标几处正确步骤就更稳。");
+      } else {
+        parts.push(`漏掉了 ${missed.length} 处错误。${missed[0].catch_rule}`);
+      }
+      if (falseAlarms.length && missed.length) {
+        parts.push("不确定时先只标最可疑的第一处断裂，保持高准确度。");
+      }
+      return parts.join(" ");
+    }
+    if (!errors.length) {
+      if (!falseAlarms.length) return "Sharp judgment: this one had no flaws, and you trusted valid reasoning.";
+      return "This item was actually clean. High accuracy comes from flagging only lines that genuinely break.";
+    }
+    const parts = [];
+    if (!missed.length && !falseAlarms.length) {
+      parts.push("Clean sweep with 100% precision — every flaw caught and zero false alarms.");
+    } else if (!missed.length) {
+      parts.push("You caught every flaw! Trim the extra flags on valid lines for even higher precision.");
+    } else {
+      parts.push(`Missed ${missed.length} flaw(s). ${missed[0].catch_rule}`);
+    }
+    if (falseAlarms.length && missed.length) {
+      parts.push("When unsure, flag only the first clear break to keep your accuracy high.");
+    }
+    return parts.join(" ");
+  }
+
+  function gradeSelections(entry, selections, cleanClaim) {
+    const lang = sheetLang(entry);
+    const errors = entry.key.errors;
+    const level = entry.key.level;
+    const nSteps = entry.steps.length;
+
+    const byStep = new Map();
+    if (!cleanClaim && Array.isArray(selections)) {
+      for (const item of selections) {
+        if (!item || typeof item !== "object") continue;
+        const step = item.step;
+        if (typeof step === "boolean" || !Number.isInteger(step) || step < 1 || step > nSteps) continue;
+        byStep.set(step, {
+          step,
+          diagnosis_id: String(item.diagnosis_id || "").trim(),
+          fix_id: String(item.fix_id || "").trim(),
+          diagnosis_label: String(item.diagnosis_label || "").trim(),
+        });
+      }
+    }
+
+    const flawSteps = new Set();
+    const rows = errors.map((error) => {
+      flawSteps.add(error.step);
+      const picked = byStep.get(error.step);
+      if (!picked) {
+        return { found: false, diagnosis: 0, fix: 0, comment: lightRowComment(false, 0, 0, lang) };
+      }
+      const diag = picked.diagnosis_id && picked.diagnosis_id === error.diagnosis_answer ? 1 : 0;
+      const fix = picked.fix_id && picked.fix_id === error.fix_answer ? 1 : 0;
+      return { found: true, diagnosis: diag, fix, comment: lightRowComment(true, diag, fix, lang) };
+    });
+
+    const falseAlarms = [];
+    const sortedSteps = [...byStep.keys()].sort((a, b) => a - b);
+    for (const step of sortedSteps) {
+      if (flawSteps.has(step)) continue;
+      const picked = byStep.get(step);
+      const claim = (picked.diagnosis_label || picked.diagnosis_id || "").slice(0, 140);
+      falseAlarms.push({
+        step,
+        claim,
+        why_correct: lightWhyCorrect(step, level, errors, lang),
+      });
+    }
+
+    return {
+      errors: rows,
+      false_alarms: falseAlarms,
+      bounties: [],
+      feedback: lightFeedback(errors, rows, falseAlarms, lang),
+    };
+  }
+
   function pyRound(value) {
     const sign = value < 0 ? -1 : 1;
     const magnitude = Math.abs(value);
@@ -603,6 +722,7 @@
     init,
     parseFindings,
     gradeFindings,
+    gradeSelections,
     blankGrade,
     scoreRound,
     hintLadder,

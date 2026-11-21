@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RedPen demo</title>
-<meta name="description" content="Practice solid math skills and learn to spot mistakes in AI reasoning.">
+<title>RedPen — Spot the flaw. Beat the AI.</title>
+<meta name="description" content="Spot the flaw. Beat the AI. A quick red-pen error-hunting game across Code, Math, and Logic — no login or API key needed.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <script>
 window.MathJax = {
@@ -24,24 +24,27 @@ window.MathJax = {
       <path d="M11.2 24.5 9.4 29l4.2-2.2-2.4-2.3z" fill="#1f2328"/>
     </svg>
     <div>
-      <p class="mark">RedPen</p>
-      <p class="sub">Practice math. Spot AI mistakes.</p>
+      <p class="mark">RedPen <span class="domain-tags">Code · Math · Logic</span></p>
+      <p class="sub">Spot the flaw. Beat the AI.</p>
     </div>
   </div>
   <div class="top-tools">
-    <nav class="lang-switch" aria-label="Language">
-      <a href="zh/" hreflang="zh-Hans" lang="zh-Hans">中文</a>
-      <span aria-current="page">English</span>
-    </nav>
-    <p id="mode-note" class="mode-note"></p>
+    <div class="top-bar-row">
+      <nav id="top-nav" class="top-nav" aria-label="Views"></nav>
+      <nav class="lang-switch" aria-label="Language">
+        <a href="zh/" hreflang="zh-Hans" lang="zh-Hans">中文</a>
+        <span aria-current="page">EN</span>
+      </nav>
+    </div>
   </div>
 </header>
 <main id="app" class="wrap"></main>
 <footer class="wrap foot">
-  <p>A worksheet can contain planted errors. The debrief is the reference, not the worksheet.</p>
-  <p><a href="https://github.com/xmtom111/redpen">RedPen on GitHub</a></p>
+  <p id="mode-note" class="mode-note"></p>
+  <p>Worksheets can contain planted flaws — the debrief is the reference. · <a href="https://github.com/xmtom111/redpen">RedPen on GitHub</a></p>
 </footer>
 <script src="grade.js"></script>
+<script src="daily.js"></script>
 <script src="browser-ai.js"></script>
 <script src="app.js"></script>
 </body>
