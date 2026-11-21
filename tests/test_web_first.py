@@ -262,5 +262,46 @@ console.log('PASS daily determinism, fallback, streaks, isolation, spoiler-free 
         self.assertEqual(completed.returncode, 0, completed.stderr.decode("utf-8", "replace"))
 
 
+class PlayFeelExportTest(unittest.TestCase):
+    def test_exported_first_screens_are_playable_not_worksheets(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dest = Path(tmp) / "site"
+            export_site(dest)
+            en_index = (dest / "index.html").read_text(encoding="utf-8")
+            zh_index = (dest / "zh" / "index.html").read_text(encoding="utf-8")
+            self.assertNotIn("Worksheets can contain planted flaws", en_index)
+            self.assertNotIn("请以批改复盘为准", zh_index)
+            self.assertIn("spotting confident AI nonsense", en_index)
+            self.assertIn("每天三题，专治一本正经的胡说八道", zh_index)
+
+            for prefix in (dest, dest / "zh"):
+                app_js = (prefix / "app.js").read_text(encoding="utf-8")
+                css = (prefix / "style.css").read_text(encoding="utf-8")
+                self.assertIn("function pickDefaultPuzzle", app_js)
+                self.assertIn("First-screen instant play", app_js)
+                self.assertIn("Score it", app_js)
+                self.assertIn("看打得准不准", app_js)
+                self.assertIn("Tap the line that sounds too sure of itself.", app_js)
+                self.assertIn("点出那句说得太满的话。", app_js)
+                self.assertIn("Share today's RedPen", app_js)
+                self.assertIn("分享今日战绩", app_js)
+                self.assertIn("function playDockHtml", app_js)
+                self.assertIn("function shareCardVisualHtml", app_js)
+                self.assertIn("choice-drawer", app_js)
+                self.assertIn("canNativeShare", app_js)
+                # Commitment verification stays in the post-round details, not the play surface.
+                start = app_js.index("function roundHtml()")
+                mid = app_js.index("function debriefHtml(")
+                self.assertNotIn('data-act="verify"', app_js[start:mid])
+                self.assertIn('data-act="verify"', app_js[mid:])
+                self.assertIn("@keyframes ink-flag", css)
+                self.assertIn("@keyframes score-pop", css)
+                self.assertIn(".play-dock", css)
+                self.assertIn(".share-card", css)
+                self.assertIn(".choice-drawer", css)
+
+
+
+
 if __name__ == "__main__":
     unittest.main()
