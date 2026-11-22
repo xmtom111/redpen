@@ -7,8 +7,6 @@
 })(typeof globalThis !== "undefined" ? globalThis : this, function () {
   const EPOCH_UTC = Date.UTC(2026, 0, 1);
   const DAY_MS = 24 * 60 * 60 * 1000;
-  const DEFAULT_DOMAINS = ["logic", "code", "math"];
-
   function pad2(n) {
     return String(n).padStart(2, "0");
   }
@@ -66,11 +64,38 @@
     return copy;
   }
 
+  function isOpener(item) {
+    return item && item.opener === true;
+  }
+
+  function permuteCycle(pool, seedPrefix, cycle) {
+    const perm = shuffleDeterministic(pool, `${seedPrefix}:${cycle}`);
+    // If a new cycle would start with the previous cycle's last item,
+    // swap the first two so consecutive days never repeat across the seam.
+    if (cycle > 0 && perm.length > 1) {
+      const prev = shuffleDeterministic(pool, `${seedPrefix}:${cycle - 1}`);
+      if (perm[0].id === prev[prev.length - 1].id) {
+        const tmp = perm[0];
+        perm[0] = perm[1];
+        perm[1] = tmp;
+      }
+    }
+    return perm;
+  }
+
+  function pickFromPool(pool, dayIdx, seedPrefix) {
+    if (!pool.length) return null;
+    const cycle = Math.floor(dayIdx / pool.length);
+    const offset = dayIdx % pool.length;
+    return permuteCycle(pool, seedPrefix, cycle)[offset];
+  }
+
   /**
    * Deterministically pick `count` daily puzzles (default 3) for `dateStr`.
-   * Targets logic, code, math in order. Uses per-cycle permutation so puzzles
-   * do not repeat back-to-back, and falls back deterministically if any domain
-   * has fewer items or is absent.
+   * Slot 1 is drawn from everyday aha items tagged `opener: true` (falling
+   * back to the logic pack if none are tagged). Remaining slots target code
+   * then math. Uses per-cycle permutation so puzzles do not repeat
+   * back-to-back, and falls back deterministically if a pool is short.
    */
   function selectDaily(worksheets, dateStr, count = 3) {
     const items = (worksheets || []).slice().sort((a, b) => String(a.id).localeCompare(String(b.id)));
@@ -80,16 +105,24 @@
     const picked = [];
     const usedIds = new Set();
 
-    for (const domain of DEFAULT_DOMAINS) {
+    const openerPool = items.filter((item) => isOpener(item) && !usedIds.has(item.id));
+    const slot1Pool = openerPool.length
+      ? openerPool
+      : items.filter((item) => (item.domain || "math") === "logic" && !usedIds.has(item.id));
+    const first = pickFromPool(slot1Pool, dayIdx, "redpen:daily:v2:opener");
+    if (first) {
+      picked.push(first);
+      usedIds.add(first.id);
+    }
+
+    for (const domain of ["code", "math"]) {
       if (picked.length >= targetCount) break;
       const pool = items.filter((item) => (item.domain || "math") === domain && !usedIds.has(item.id));
-      if (!pool.length) continue;
-      const cycle = Math.floor(dayIdx / pool.length);
-      const offset = dayIdx % pool.length;
-      const perm = shuffleDeterministic(pool, `redpen:daily:v1:${domain}:${cycle}`);
-      const chosen = perm[offset];
-      picked.push(chosen);
-      usedIds.add(chosen.id);
+      const chosen = pickFromPool(pool, dayIdx, `redpen:daily:v1:${domain}`);
+      if (chosen) {
+        picked.push(chosen);
+        usedIds.add(chosen.id);
+      }
     }
 
     if (picked.length < targetCount) {

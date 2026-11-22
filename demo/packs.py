@@ -259,6 +259,8 @@ def validate_pack_puzzle(raw: dict) -> None:
     est = raw.get("estimated_seconds")
     if isinstance(est, bool) or not isinstance(est, int) or not 15 <= est <= 600:
         raise ValueError("'estimated_seconds' must be an integer 15-600")
+    if "opener" in raw and not isinstance(raw["opener"], bool):
+        raise ValueError("'opener' must be a boolean if present")
     segments = raw.get("segments")
     if not isinstance(segments, list) or not 3 <= len(segments) <= 30:
         raise ValueError("'segments' must be a list of 3-30 objects")
@@ -378,6 +380,7 @@ def normalize_v2_puzzle(raw: dict, pack_id: str) -> dict:
         "mode": str(raw["level"]),
         "difficulty": str(raw.get("difficulty") or "standard"),
         "blurb": str(raw.get("blurb") or ""),
+        "opener": bool(raw.get("opener")),
         "level": raw["level"],
         "commitment": redpen.commitment(key),
         "verified": verified,

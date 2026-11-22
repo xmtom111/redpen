@@ -239,6 +239,7 @@ def card(entry: dict) -> dict:
         "level": entry["level"],
         "level_name": level_names(lang)[entry["level"]],
         "difficulty": entry["difficulty"],
+        "opener": bool(entry.get("opener")),
         "problem": entry["problem"],
         "segments": entry.get("segments") or [
             {"id": idx, "label": f"{'步骤' if lang == 'zh' else 'Step'} {idx}", "text": step}

@@ -4,23 +4,24 @@
   "domain": "logic",
   "renderer": "prose",
   "lang": "en",
-  "title": "96% love the new dating app",
-  "topic": "A glowing survey that skipped everyone who left",
-  "blurb": "They only asked people who just paid for another month. The score looks incredible.",
+  "opener": true,
+  "title": "Q3 Member Feedback Recap",
+  "topic": "A satisfaction score collected only from people who just renewed",
+  "blurb": "The product team shared this recap after the dating-app redesign.",
   "difficulty": "intro",
   "level": 1,
-  "estimated_seconds": 45,
-  "prompt": "An AI analyst wrote this launch recap for a dating-app redesign. Tap the line that overreaches.",
+  "estimated_seconds": 60,
+  "prompt": "An AI analyst wrote this launch recap. If a line reaches further than the evidence, tap it.",
   "segments": [
     {
       "id": 1,
-      "label": "The rollout",
-      "text": "Three months ago, the dating app launched a new matching algorithm and a redesigned profile layout."
+      "label": "The launch",
+      "text": "Three months ago the app launched a new matching algorithm and redesigned profile pages."
     },
     {
       "id": 2,
-      "label": "Who they asked",
-      "text": "Last week we surveyed 1,200 people who had just renewed their monthly subscription."
+      "label": "Who we asked",
+      "text": "Last week we ran a satisfaction survey with 1,200 members as they completed their monthly renewal."
     },
     {
       "id": 3,
@@ -29,76 +30,76 @@
     },
     {
       "id": 4,
-      "label": "The leap",
-      "text": "So the redesign was an overwhelming success across the entire user base."
+      "label": "The takeaway",
+      "text": "This shows the redesign has been an overwhelming success with users overall."
     },
     {
       "id": 5,
-      "label": "The plan",
-      "text": "No further changes are needed before we roll the same layout out worldwide."
+      "label": "Next step",
+      "text": "We can roll the same design out globally without further changes."
     }
   ],
-  "conclusion": "AI verdict: 96% satisfaction proves almost everyone loves the new app. Ship it globally.",
+  "conclusion": "AI recap: a 96% satisfaction score shows users overall love the redesign. Ship it globally.",
   "flaws": [
     {
       "segment_id": 4,
       "error_type": "selection-bias",
-      "original": "Among people who chose to pay for another month, satisfaction is high — but that says nothing about everyone who quietly cancelled.",
-      "corrupted": "So the redesign was an overwhelming success across the entire user base.",
+      "original": "The 96% score only describes members who just paid for another month. People who disliked the redesign were more likely to cancel and never saw the survey, so this cannot be read as a result for users overall.",
+      "corrupted": "This shows the redesign has been an overwhelming success with users overall.",
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "They only asked people who stayed and paid again, so anyone who hated the app and cancelled never got a vote."
+          "label": "The survey only reached people who had just renewed, so it leaves out everyone who already left."
         },
         {
           "id": "d2",
-          "label": "1,200 responses is always too small to measure how people feel about an app."
+          "label": "1,200 is too small a sample to say anything about an app with many users."
         },
         {
           "id": "d3",
-          "label": "Four-star ratings should never be counted together with five-star ratings."
+          "label": "A 4-star rating is not high enough to count as a success."
         },
         {
           "id": "d4",
-          "label": "Three months is too long after a launch to collect any user feedback."
+          "label": "Three months is too soon; satisfaction scores are only valid after a full year."
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Limit the claim to renewing subscribers, and check cancellation rates plus feedback from people who left."
+          "label": "Report the 96% as the view of renewing members only, and also measure people who cancelled or never renewed."
         },
         {
           "id": "f2",
-          "label": "Survey 10,000 more renewing subscribers so the 96% number is even more precise."
+          "label": "Raise the cutoff to 5 stars only, then the 96% can stand for all users."
         },
         {
           "id": "f3",
-          "label": "Switch from a 5-star scale to a 10-point scale for people who already renewed."
+          "label": "Repeat the same renewal-day survey in every country, which turns it into a global result."
         },
         {
           "id": "f4",
-          "label": "Report 4-star and 5-star scores separately, still without asking anyone who cancelled."
+          "label": "Weight the 96% by the app's star rating in the store, which already includes everyone."
         }
       ],
       "fix_answer": "f1",
-      "explanation": "The people most likely to hate a redesign are also the most likely to cancel instead of paying again. Polling only those who stayed almost guarantees a rosy score, and tells you nothing about the whole audience.",
-      "why_tempting": "1,200 responses and 96% look solid and scientific — until you notice who was never in the room.",
-      "catch_rule": "Whenever a survey looks unbelievably glowing, ask: who already left and never got asked?",
-      "hint": "Look at who was invited to the survey — and who wasn't.",
+      "explanation": "The people who hated the redesign were also the most likely to cancel instead of renewing. Asking only the people who stayed almost guarantees a glowing score, and it tells you almost nothing about users overall.",
+      "why_tempting": "A huge sample and a 96% score look like proof. It's easy to skip past who was in the room when the question was asked.",
+      "catch_rule": "Before you trust a satisfaction number, ask who never got the survey — especially anyone who already left.",
+      "hint": "Look again at who was holding the phone when they were asked. Who is missing?",
       "practice": {
-        "problem": "A gym asks members who showed up 50+ times this year whether the place feels welcoming, and 98% say yes. What's missing?",
-        "answer": "Anyone who felt unwelcome likely stopped coming long before visit 50, so they never got the survey."
+        "problem": "A gym texts a smiley-face survey to everyone who swipes in this month, and 94% say they love it. What's the catch?",
+        "answer": "People who already cancelled their membership never swipe in, so they never see the survey."
       }
     }
   ],
   "clean_segments": [
-    "Three months ago, the dating app launched a new matching algorithm and a redesigned profile layout.",
-    "Last week we surveyed 1,200 people who had just renewed their monthly subscription.",
+    "Three months ago the app launched a new matching algorithm and redesigned profile pages.",
+    "Last week we ran a satisfaction survey with 1,200 members as they completed their monthly renewal.",
     "96% of those respondents rated the new experience 4 or 5 stars.",
-    "That shows high satisfaction among people who chose to stay — not proof that the whole user base loves the redesign.",
-    "Before a worldwide rollout, check cancellation rates and talk to people who left or never subscribed."
+    "That figure describes renewing members only. It cannot be read as a result for users overall, because people who cancelled were never asked.",
+    "Before a global rollout, we should also hear from members who left or did not renew."
   ],
-  "clean_conclusion": "A 96% score among loyal renewers is encouraging, not proof that almost everyone loves the app."
+  "clean_conclusion": "96% of renewing members were happy — not 96% of users overall."
 }

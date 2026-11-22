@@ -4,13 +4,13 @@
   "domain": "logic",
   "renderer": "prose",
   "lang": "en",
-  "title": "Did the bike lane actually ruin the shops?",
-  "topic": "A viral complaint vs. a careful year-long check",
-  "blurb": "Merchants said the new lane would kill the street. The city's write-up looks confident — is it actually crooked?",
+  "title": "Bike Lane Pilot Brief",
+  "topic": "A year-long comparison of a new protected lane",
+  "blurb": "The city circulated this note after a year of the new lane.",
   "difficulty": "intro",
   "level": 0,
   "estimated_seconds": 45,
-  "prompt": "This city brief went around after a heated local debate. Flag a hole if you see one, or mark it clean if the reasoning holds.",
+  "prompt": "This city brief went around after a year of the new lane. Flag a hole if you see one, or mark it clean if the reasoning holds.",
   "segments": [
     {
       "id": 1,
@@ -47,5 +47,6 @@
     "Card-payment totals along Oak Avenue stayed essentially flat (+1.2% vs +0.9% on Pine), rather than relying only on informal merchant surveys.",
     "The pilot supports a net rise in cycling on flat commercial streets like Oak Avenue, though steeper or suburban roads may behave differently."
   ],
-  "clean_conclusion": "The write-up uses a full-year window, a matched control street, actual card sales instead of vibes, and a carefully scoped conclusion."
+  "clean_conclusion": "The write-up uses a full-year window, a matched control street, actual card sales instead of vibes, and a carefully scoped conclusion.",
+  "opener": false
 }
