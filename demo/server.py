@@ -26,6 +26,7 @@ from demo.packs import (
     load_math_light_data,
     load_registry,
     load_v2_pack_dir,
+    worksheet_kind,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -47,6 +48,7 @@ MIME = {
     ".svg": "image/svg+xml",
     ".png": "image/png",
     ".txt": "text/plain; charset=utf-8",
+    ".woff2": "font/woff2",
     ".ico": "image/x-icon",
 }
 
@@ -212,11 +214,15 @@ def load_bank(directory: Path | None = None, lang: str = "en") -> list[dict]:
             "difficulty": str(info.get("difficulty") or "standard"),
             "blurb": str(info.get("blurb") or ""),
             "level": draft["key"]["level"],
+            "kind": worksheet_kind(draft, draft["key"]["level"]),
+            "opener": bool(draft.get("opener")),
             "commitment": redpen.commitment(draft["key"]),
             "verified": verified,
             "live": False,
             "lang": lang,
         }
+        if draft.get("explanation"):
+            entry["key"]["explanation"] = draft["explanation"]
         attach_math_light(entry, lang, light_map)
         entries.append(entry)
     entries.sort(key=lambda entry: (entry["level"], entry["title"]))
@@ -247,6 +253,7 @@ def card(entry: dict) -> dict:
         ],
         "steps": entry["steps"],
         "final_answer": entry["final_answer"],
+        "light_play": "light_choices" in entry,
         "light_choices": entry.get("light_choices") or {},
         "commitment": entry["commitment"],
         "commitment_short": entry["commitment"][:12],
@@ -293,6 +300,7 @@ def public_round(rnd: dict) -> dict:
         ],
         "steps": entry["steps"],
         "final_answer": entry["final_answer"],
+        "light_play": "light_choices" in entry,
         "light_choices": entry.get("light_choices") or {},
         "mode": mode,
         "level": None if blind else entry["level"],
@@ -378,6 +386,7 @@ def build_debrief(entry: dict, mode: str, hints_used: int, grade: dict, *, revea
         "next": result["next"],
         "clean_steps": list(key["clean_steps"]),
         "clean_final_answer": key["clean_final_answer"],
+        "explanation": key.get("explanation", ""),
         "errors": errors,
         "false_alarm_details": list(grade.get("false_alarms") or []),
         "bounty_details": list(grade.get("bounties") or []),
@@ -431,6 +440,7 @@ def generate_live(topic: str, mode: str, difficulty: str, lang: str = "en", focu
         draft["_verified"] = check_key(draft["key"])
 
     task = redpen.setter_task(topic, level, difficulty, focus or [], answer)
+    task += r" For this browser worksheet, use only \(…\) and \[…\] as math delimiters."
     if lang == "zh":
         task += "\nLanguage for all text: zh-Hans. Category ids stay in English."
     try:

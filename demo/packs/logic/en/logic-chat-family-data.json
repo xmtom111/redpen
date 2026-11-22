@@ -53,10 +53,6 @@
         {
           "id": "d3",
           "label": "Unused data expires halfway through the month, so their leftover 10GB is already gone."
-        },
-        {
-          "id": "d4",
-          "label": "Your 30GB already went past a 33GB cap, so the plan may have already slowed you down."
         }
       ],
       "diagnosis_answer": "d1",
@@ -72,10 +68,6 @@
         {
           "id": "f3",
           "label": "Wait until next month, and also stop using data now so you don't go past 33."
-        },
-        {
-          "id": "f4",
-          "label": "Delete 8GB of old photos on the phone so the download will fit under 33."
         }
       ],
       "fix_answer": "f1",
@@ -95,5 +87,32 @@
     "It's one 100GB pot. We've used about 40 together, so there's about 60 left — plenty for an 8GB download.",
     "Text me if you need me to stay off it tonight."
   ],
-  "clean_conclusion": "You've used about 40 of a shared 100GB. The 8GB download still fits."
+  "clean_conclusion": "You've used about 40 of a shared 100GB. The 8GB download still fits.",
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "100GB is the allowance for each person.",
+        "The shared data resets every day.",
+        "Only whoever opened the plan gets the 100GB."
+      ],
+      "fix": [
+        "Give each of the three people 100GB.",
+        "Reset the 100GB allowance each night.",
+        "Count only the account holder’s usage."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "The other two users each used 10GB.",
+        "The speaker’s 30GB already includes the other two.",
+        "The 10GB represents unused data."
+      ],
+      "fix": [
+        "Count 30 + 10 + 10GB of usage.",
+        "Count only 30GB for all three users.",
+        "Treat 10GB as the family’s remaining allowance."
+      ]
+    }
+  }
 }

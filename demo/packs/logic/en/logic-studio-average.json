@@ -58,10 +58,6 @@
         {
           "id": "d3",
           "label": "A class of 10 is already crowded, so the quiet-workout claim is wrong for that reason alone."
-        },
-        {
-          "id": "d4",
-          "label": "Daytime classes of 5 are too empty to count, so they should be dropped from the average."
         }
       ],
       "diagnosis_answer": "d1",
@@ -77,10 +73,6 @@
         {
           "id": "f3",
           "label": "Because the average class is 10, report that every member gets a class of 10."
-        },
-        {
-          "id": "f4",
-          "label": "Count only the eight quiet classes, which already proves that most workouts are uncrowded."
         }
       ],
       "fix_answer": "f1",
@@ -101,5 +93,56 @@
     "The average class size is 10, but 60 of the 100 daily riders are in a room of 30, so most members experience a packed class.",
     "The evening slots need more capacity or a split session; a quiet average does not fix a crowded 7 p.m."
   ],
-  "clean_conclusion": "Average class size is 10, but most riders are in a room of 30 — the average class is not the average experience."
+  "clean_conclusion": "Average class size is 10, but most riders are in a room of 30 — the average class is not the average experience.",
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "Ten daily sessions means ten sessions across the entire month.",
+        "First-hand reports counted every seat already.",
+        "The audit covered only the evening sessions."
+      ],
+      "fix": [
+        "Use ten total observations for the month.",
+        "Replace the attendance audit with the initial comments.",
+        "Remove daytime sessions from the audit description."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "Five riders was the daytime total across all eight classes.",
+        "All eight classes should be assumed to have forty people each.",
+        "The eight daytime classes are two classes split over four weeks."
+      ],
+      "fix": [
+        "Divide five by eight to report daytime attendance per class.",
+        "Treat 40 as the daytime attendance per class.",
+        "Use two as the number of daytime classes in the daily total."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "Thirty riders was the total for both evening classes together.",
+        "The two evening sessions should also use the daytime average.",
+        "Each evening class should count as 60 riders."
+      ],
+      "fix": [
+        "Use 15 riders per evening class.",
+        "Use 5 riders per evening class.",
+        "Use 120 riders total across the two evening classes."
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "An evening wait-list reminder requires cancelling both evening sessions.",
+        "Keeping the timetable means the reminder must go on daytime classes instead.",
+        "A reminder automatically adds two evening classes to the timetable."
+      ],
+      "fix": [
+        "Cancel the two 7 p.m. sessions.",
+        "Restrict the reminder to the eight daytime classes.",
+        "Schedule two more 7 p.m. sessions just by adding the reminder."
+      ]
+    }
+  }
 }

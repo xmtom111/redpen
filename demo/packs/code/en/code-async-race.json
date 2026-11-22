@@ -68,10 +68,6 @@
         {
           "id": "d3",
           "label": "`balance - amount` uses string concatenation instead of subtraction in JS."
-        },
-        {
-          "id": "d4",
-          "label": "Missing `try/catch` around `setBalance` causes the balance to double."
         }
       ],
       "diagnosis_answer": "d1",
@@ -87,10 +83,6 @@
         {
           "id": "f3",
           "label": "Change `if (balance < amount)` to `if (balance <= amount)`."
-        },
-        {
-          "id": "f4",
-          "label": "Re-read `db.getBalance` a second time before `setBalance` without a lock."
         }
       ],
       "fix_answer": "f1",
@@ -112,5 +104,68 @@
     "  return { ok: true, balance: updated.balance };",
     "}"
   ],
-  "clean_conclusion": "The database checks and deducts in one step, so two taps can't both sneak through."
+  "clean_conclusion": "The database checks and deducts in one step, so two taps can't both sneak through.",
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "The withdrawal does not need a user ID.",
+        "The amount belongs in the database object.",
+        "An asynchronous withdrawal must take a callback argument."
+      ],
+      "fix": [
+        "Remove userId from withdraw.",
+        "Accept (userId, db) and read the amount from db.",
+        "Add a callback parameter to withdraw."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "The positivity check rejects valid zero withdrawals.",
+        "A negative amount should be accepted as a withdrawal.",
+        "Validation should reject every amount below one unit."
+      ],
+      "fix": [
+        "Reject only amounts below zero.",
+        "Normalize a negative amount by taking its absolute value.",
+        "Change the cutoff from 0 to 1."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "getBalance expects the withdrawal amount as its lookup key.",
+        "The balance should be read for the entire database.",
+        "The current withdrawal amount already serves as the balance."
+      ],
+      "fix": [
+        "Call getBalance(amount).",
+        "Read the database-wide balance instead of the user balance.",
+        "Assign balance = amount."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "A withdrawal equal to the available balance should be declined.",
+        "The comparison should only check whether the balance is zero.",
+        "Insufficient funds should be reported as a missing user."
+      ],
+      "fix": [
+        "Decline when balance <= amount.",
+        "Check only balance === 0.",
+        "Describe this early return as “user not found”."
+      ]
+    },
+    "6": {
+      "diagnosis": [
+        "The returned balance should add the withdrawal amount.",
+        "The returned balance should be the amount withdrawn.",
+        "The response should report the pre-withdrawal balance."
+      ],
+      "fix": [
+        "Return balance + amount.",
+        "Return amount in the balance field.",
+        "Return the unchanged balance variable."
+      ]
+    }
+  }
 }

@@ -58,10 +58,6 @@
         {
           "id": "d3",
           "label": "Wholesale cost should have been $150, so the markup was calculated on the wrong number."
-        },
-        {
-          "id": "d4",
-          "label": "Taking 40% off $150 leaves $110, which is still a thin profit."
         }
       ],
       "diagnosis_answer": "d1",
@@ -77,10 +73,6 @@
         {
           "id": "f3",
           "label": "Take 40% off the $100 cost instead, leaving a $60 sale price and a healthy margin."
-        },
-        {
-          "id": "f4",
-          "label": "Average 50% and 40% to get a 45% margin at the sale price."
         }
       ],
       "fix_answer": "f1",
@@ -101,5 +93,32 @@
     "The aim is to move the remaining sizes before the fall shipment arrives on Monday.",
     "The owner can still approve a clearance, but not on the claim that the sale is profitable."
   ],
-  "clean_conclusion": "40% off a 50% markup is $90 on a $100 cost: a 10% loss, not a 10% profit."
+  "clean_conclusion": "40% off a 50% markup is $90 on a $100 cost: a 10% loss, not a 10% profit.",
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "The markup is measured against the price tag.",
+        "A 50% markup doubles the wholesale cost.",
+        "The markup adds a fixed $50 to any wholesale cost."
+      ],
+      "fix": [
+        "Use $50 / $150 as the stated markup.",
+        "Change the ticket price to $200.",
+        "Describe the policy as a flat $50 surcharge at every cost."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "The 40% discount should be applied to wholesale cost.",
+        "40% off means the customer pays 40% of the ticket price.",
+        "The markdown applies only to the markup amount."
+      ],
+      "fix": [
+        "Take 40% of $100 off the ticket price.",
+        "Charge 40% of $150.",
+        "Apply the 40% discount only to the $50 difference."
+      ]
+    }
+  }
 }

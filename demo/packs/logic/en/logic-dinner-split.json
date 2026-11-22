@@ -58,10 +58,6 @@
         {
           "id": "d3",
           "label": "A work-issued ticket has no cash value, so only the dinner needs to be settled."
-        },
-        {
-          "id": "d4",
-          "label": "You actually owe $120 more, because concert tickets can be resold."
         }
       ],
       "diagnosis_answer": "d1",
@@ -77,10 +73,6 @@
         {
           "id": "f3",
           "label": "Split both bills in half, so each person owes $120 and the transfer is $0."
-        },
-        {
-          "id": "f4",
-          "label": "Ignore the ticket and split only the hotpot, which already makes the $120 charges even."
         }
       ],
       "fix_answer": "f1",
@@ -101,5 +93,32 @@
     "Thanks again for a fun Saturday; let's do another night next month.",
     "I'll send a $60 transfer request in the chat."
   ],
-  "clean_conclusion": "Matching $120 charges are not an even split: one bill was personal, the other was shared. $60 is still owed."
+  "clean_conclusion": "Matching $120 charges are not an even split: one bill was personal, the other was shared. $60 is still owed.",
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "The ticket payment was for two seats.",
+        "The company ticket should be added to the other person’s debt.",
+        "Buying a ticket for a friend makes the ticket company-funded."
+      ],
+      "fix": [
+        "Split the $120 payment into two $60 shares.",
+        "Add the cost of the company ticket to the friend’s bill.",
+        "Set the friend’s ticket debt to zero."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "The payer is the only diner whose share counts.",
+        "$120 is the cost for each of the two diners.",
+        "The hotpot bill should be credited to the person who paid for the ticket."
+      ],
+      "fix": [
+        "Charge the payer the entire $120 and allocate zero to the other diner.",
+        "Record a $240 dinner total.",
+        "Record the ticket buyer as the person who paid for hotpot."
+      ]
+    }
+  }
 }

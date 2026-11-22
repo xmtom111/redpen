@@ -53,10 +53,6 @@
         {
           "id": "d3",
           "label": "Jake still owes $10, because $600 plus $90 is $690, and $230 plus $170 is only $400."
-        },
-        {
-          "id": "d4",
-          "label": "Mia already paid $90, so she shouldn't have sent you anything else."
         }
       ],
       "diagnosis_answer": "d1",
@@ -72,10 +68,6 @@
         {
           "id": "f3",
           "label": "Let Mia keep a larger share of the cabin, which cancels the groceries on her side only."
-        },
-        {
-          "id": "f4",
-          "label": "Split the $90 groceries again from scratch and leave the $170 and $230 as they are."
         }
       ],
       "fix_answer": "f1",
@@ -95,5 +87,32 @@
     "Jake's $30 for groceries should go to Mia, not me. Mia should send me $140 for the room, not $170.",
     "I'll drop the receipt in the chat in case anyone wants it."
   ],
-  "clean_conclusion": "Jake's grocery share should go to Mia. She owes you $140 for the room, not $170."
+  "clean_conclusion": "Jake's grocery share should go to Mia. She owes you $140 for the room, not $170.",
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "The room bill should be split only between the two people who did not pay up front.",
+        "Each guest owes the entire room price.",
+        "Mia’s groceries are included in the $600 room charge."
+      ],
+      "fix": [
+        "Use $300 as each guest’s room share.",
+        "Assign $600 of room cost to each guest.",
+        "Deduct the $90 groceries from the room price first."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "The $90 is already a per-person cost.",
+        "Mia’s grocery share is zero because she paid.",
+        "The groceries were bought for only the two people who did not pay."
+      ],
+      "fix": [
+        "Record total groceries as $270.",
+        "Exclude Mia from her own share of the groceries.",
+        "Divide the grocery cost between the other two guests only."
+      ]
+    }
+  }
 }

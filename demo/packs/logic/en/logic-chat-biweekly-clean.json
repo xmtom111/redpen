@@ -53,10 +53,6 @@
         {
           "id": "d3",
           "label": "Every two weeks is 24 visits, but they may skip holidays, so $1,440 is already on the high side."
-        },
-        {
-          "id": "d4",
-          "label": "The first visit is usually a trial, so the first month is only one visit and the year costs less than $1,440."
         }
       ],
       "diagnosis_answer": "d1",
@@ -72,10 +68,6 @@
         {
           "id": "f3",
           "label": "Pay $1,440 up front and ask them to skip two visits so the year lines up."
-        },
-        {
-          "id": "f4",
-          "label": "Switch to a weekly visit and keep the same yearly total."
         }
       ],
       "fix_answer": "f1",
@@ -95,5 +87,32 @@
     "Every two weeks is 26 visits a year, not 24. At $60 that's $1,560, not $1,440.",
     "If it works out, I'll send you their number."
   ],
-  "clean_conclusion": "Every two weeks is 26 visits a year, not 24. Budget $1,560, not $1,440."
+  "clean_conclusion": "Every two weeks is 26 visits a year, not 24. Budget $1,560, not $1,440.",
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "Every two weeks means two visits each week.",
+        "The $60 charge covers the entire year.",
+        "The cleaner visits every other month."
+      ],
+      "fix": [
+        "Budget $120 every week.",
+        "Budget just $60 for the year.",
+        "Schedule one visit every other month."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "Two $60 visits would cost $60 total.",
+        "The two visits should be charged at $120 each.",
+        "Twice a month should be counted as one visit every four months."
+      ],
+      "fix": [
+        "Use $60 for a month with two visits.",
+        "Use $240 for a month with two visits.",
+        "Use $15 a month as the cost of one $60 visit every four months."
+      ]
+    }
+  }
 }

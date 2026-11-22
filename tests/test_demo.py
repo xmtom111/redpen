@@ -129,6 +129,17 @@ class BankAndGraderTest(unittest.TestCase):
             self.assertNotIn("check_results", entry["key"])
             redpen.validate_grade(grade_findings(entry, CLEAN), len(entry["key"]["errors"]))
 
+    def test_demo_math_uses_explicit_delimiters(self):
+        paths = [
+            *(ROOT / "demo" / "bank").rglob("*.json"),
+            *(ROOT / "demo" / "packs" / "math").glob("light_*.json"),
+        ]
+        for path in paths:
+            with self.subTest(path=path):
+                source = path.read_text(encoding="utf-8")
+                self.assertNotIn("$", source)
+                self.assertIn(r"\\(", source)
+
     def test_clean_mathematics(self):
         x = sp.symbols("x")
         self.assertEqual(set(sp.solve(sp.Eq(x**3, 4 * x), x)), {0, -2, 2})
@@ -571,12 +582,17 @@ class ServerAndExportTest(unittest.TestCase):
             page = (dest / "index.html").read_text(encoding="utf-8")
             self.assertNotIn('src="/', page)
             self.assertNotIn("href=\"/", page)
+            for prefix, html in (("", page), ("../", (dest / "zh" / "index.html").read_text())):
+                self.assertIn(f'src="{prefix}vendor/katex/katex.min.js"', html)
+                self.assertIn(f'href="{prefix}vendor/katex/katex.min.css"', html)
+                self.assertNotIn("jsdelivr", html)
+            self.assertTrue((dest / "vendor/katex/fonts/KaTeX_Main-Regular.woff2").is_file())
             self.assertIn('href="zh/"', page)
             zh_page = (dest / "zh" / "index.html").read_text(encoding="utf-8")
             self.assertIn('lang="zh-Hans"', zh_page)
             self.assertIn('href="../"', zh_page)
-            self.assertIn('src="grade.js"', zh_page)
-            self.assertIn('href="style.css"', zh_page)
+            self.assertRegex(zh_page, r'src="grade\.js(?:\?v=\d+)?"')
+            self.assertRegex(zh_page, r'href="style\.css(?:\?v=\d+)?"')
             self.assertNotIn("../grade", zh_page)
             self.assertNotIn('src="/', zh_page)
             self.assertNotIn('href="/', zh_page)
@@ -603,7 +619,7 @@ class ServerAndExportTest(unittest.TestCase):
         self.assertEqual(status, 200)
         text = page.decode("utf-8")
         self.assertIn("zh-Hans", text)
-        self.assertIn("红笔抓错：专治一本正经的胡说八道", text)
+        self.assertIn("这段话站得住脚吗？", text)
         for marker in SECRET_MARKERS:
             self.assertNotIn(marker, text)
         status, direct = self.request("GET", "/zh")

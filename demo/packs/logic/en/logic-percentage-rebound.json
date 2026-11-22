@@ -58,10 +58,6 @@
         {
           "id": "d3",
           "label": "20% of $100,000 is $25,000, so the cut actually landed at $75,000."
-        },
-        {
-          "id": "d4",
-          "label": "A 20% cut then a 20% raise overshoots, landing above $100,000 at $104,000."
         }
       ],
       "diagnosis_answer": "d1",
@@ -77,10 +73,6 @@
         {
           "id": "f3",
           "label": "Apply both changes to the original $100,000 and add them, for a final salary of $100,000."
-        },
-        {
-          "id": "f4",
-          "label": "Keep $100,000 because multiplying by 0.80 and then 1.20 can be done in either order."
         }
       ],
       "fix_answer": "f1",
@@ -101,5 +93,44 @@
     "After the raise, the new salary is $80,000 × 1.20 = $96,000, which is still $4,000 short of $100,000. A 25% raise would be needed to restore the original pay.",
     "Whether you sign depends on the rest of the offer; this raise alone does not put you back to even."
   ],
-  "clean_conclusion": "The matching percentages do not cancel: the new salary is $96,000, not $100,000."
+  "clean_conclusion": "The matching percentages do not cancel: the new salary is $96,000, not $100,000.",
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "The $100,000 figure is the post-cut salary.",
+        "The stated annual salary should be treated as the monthly salary.",
+        "The original salary is already indexed to the new 20% raise."
+      ],
+      "fix": [
+        "Set the pre-cut base to $80,000.",
+        "Multiply $100,000 by 12 to get the pre-cut annual salary.",
+        "Use $120,000 as the salary before the downturn."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "A 20% cut leaves just 20% of the original salary.",
+        "The cut should be computed on the new salary.",
+        "A 20% cut subtracts $20 from the base."
+      ],
+      "fix": [
+        "Change the new salary to $20,000.",
+        "Subtract 20% of $80,000 from $100,000 for the new figure.",
+        "Report $99,980 after the cut."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "A raise based on the current salary should use last year’s pre-cut base.",
+        "A 20% raise means keeping only 20% of the current salary.",
+        "The letter adds a flat $20."
+      ],
+      "fix": [
+        "Apply the raise to $100,000.",
+        "Replace the salary with 20% of $80,000.",
+        "Add only $20 to the current salary."
+      ]
+    }
+  }
 }

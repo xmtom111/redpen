@@ -53,10 +53,6 @@
         {
           "id": "d3",
           "label": "You can put both loads in the washer at once, so the whole job is just 75 minutes."
-        },
-        {
-          "id": "d4",
-          "label": "Two hours is 120 minutes and 75 + 75 is 150, so you're only half an hour short if you start now."
         }
       ],
       "diagnosis_answer": "d1",
@@ -72,10 +68,6 @@
         {
           "id": "f3",
           "label": "Skip the dryer and hang both loads. They won't be dry in two hours, but you can still leave."
-        },
-        {
-          "id": "f4",
-          "label": "Run each machine for half as long to cut the 75 minutes down to a fit."
         }
       ],
       "fix_answer": "f1",
@@ -95,5 +87,32 @@
     "I can wash the second load while the first one dries: 30 plus 45 plus 45 is two hours. I can just make it.",
     "If anyone's nearby later, I may need to borrow a shirt."
   ],
-  "clean_conclusion": "Wash the second load while the first one dries. That's two hours, just in time."
+  "clean_conclusion": "Wash the second load while the first one dries. That's two hours, just in time.",
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "Two hours means 200 minutes are available.",
+        "The deadline is two hours per load.",
+        "Only one load needs both washing and drying."
+      ],
+      "fix": [
+        "Compare the laundry schedule to 200 minutes.",
+        "Give each load its own 120-minute deadline.",
+        "Plan to dry only one of the two loads."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "The washer takes 45 minutes and the dryer takes 30.",
+        "Each quoted time already covers both loads.",
+        "The washer and dryer are two names for the same machine here."
+      ],
+      "fix": [
+        "Swap the washer and dryer times.",
+        "Budget one 30-minute wash for both loads and one 45-minute dry for both.",
+        "Schedule all stages as jobs on a single machine."
+      ]
+    }
+  }
 }

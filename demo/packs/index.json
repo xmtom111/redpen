@@ -11,8 +11,8 @@
         "zh": "逻辑与统计"
       },
       "tagline": {
-        "en": "Everyday claims that sound perfectly reasonable — until they don't.",
-        "zh": "听起来处处顺眼的日常说法，破绽要到揭晓才见。"
+        "en": "Check the reasoning behind everyday claims.",
+        "zh": "给日常说法里的推理下个判词。"
       },
       "files": {
         "en": "logic/en",
@@ -29,8 +29,8 @@
         "zh": "代码找茬"
       },
       "tagline": {
-        "en": "Tiny AI PRs that sound finished — until you tap the bad line.",
-        "zh": "AI 刚写完就敢合并的短代码，点出那一行就赢。"
+        "en": "Review short snippets as if they landed in your inbox.",
+        "zh": "像审阅代码变更一样判断短代码片段。"
       },
       "files": {
         "en": "code/en",
@@ -47,8 +47,8 @@
         "zh": "数学推理"
       },
       "tagline": {
-        "en": "An AI tutor's polished write-up, with a slip hiding in plain sight.",
-        "zh": "AI 助教写得漂亮的解题过程，破绽就在某一步。"
+        "en": "Check each move in a worked solution.",
+        "zh": "逐步检查解题过程。"
       },
       "legacy_bank": {
         "en": "../bank",

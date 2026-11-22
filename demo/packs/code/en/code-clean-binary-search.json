@@ -66,5 +66,104 @@
     "        else: hi = mid - 1",
     "    return -1"
   ],
-  "clean_conclusion": "The inclusive `[lo, hi]` range holds on every loop: an empty list exits immediately, a one-item list checks index 0, and every branch shrinks the interval."
+  "clean_conclusion": "The inclusive `[lo, hi]` range holds on every loop: an empty list exits immediately, a one-item list checks index 0, and every branch shrinks the interval.",
+  "kind": "clean",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "The target must be passed before nums for comparison to work.",
+        "A binary search needs the length as a third argument.",
+        "The function should receive only the target."
+      ],
+      "fix": [
+        "Change the signature to binary_search(target, nums).",
+        "Require callers to pass the length separately.",
+        "Drop nums from the parameter list."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "The first candidate lives at index 1.",
+        "The inclusive upper bound should be len(nums).",
+        "The bounds should begin at the midpoint."
+      ],
+      "fix": [
+        "Initialize lo to 1.",
+        "Initialize hi to len(nums).",
+        "Initialize lo and hi to len(nums) // 2."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "With lo equal to hi, there are no candidates left.",
+        "The loop should continue after lo passes hi.",
+        "Two adjacent bounds always mean the range is exhausted."
+      ],
+      "fix": [
+        "Use while lo < hi.",
+        "Loop while lo <= hi + 1.",
+        "Stop whenever hi - lo is at most 1."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "The midpoint should be relative to zero on every iteration.",
+        "Rounding down requires subtracting one more from the midpoint.",
+        "The midpoint offset must be measured from hi."
+      ],
+      "fix": [
+        "Use (hi - lo) // 2 by itself.",
+        "Use lo + (hi - lo) // 2 - 1.",
+        "Use hi + (hi - lo) // 2."
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "A match should return the target value instead of its index.",
+        "The comparison should test the index against the target.",
+        "A match must skip the midpoint and return its right neighbor."
+      ],
+      "fix": [
+        "Return nums[mid] on a match.",
+        "Test mid == target.",
+        "Return mid + 1 on a match."
+      ]
+    },
+    "6": {
+      "diagnosis": [
+        "When nums[mid] is too small, candidates lie to the left.",
+        "The midpoint still belongs in the next interval.",
+        "Advancing lo by one must be measured from the old lo."
+      ],
+      "fix": [
+        "Move hi to mid - 1 in this branch.",
+        "Set lo = mid and keep the midpoint.",
+        "Use lo = lo + 1 instead of jumping to mid + 1."
+      ]
+    },
+    "7": {
+      "diagnosis": [
+        "A too-large midpoint sends the search right.",
+        "The discarded half should still include the midpoint as a candidate.",
+        "The upper bound should skip an extra index to ensure progress."
+      ],
+      "fix": [
+        "Set lo = mid + 1 in the else branch.",
+        "Set hi = mid and keep the midpoint.",
+        "Set hi = mid - 2."
+      ]
+    },
+    "8": {
+      "diagnosis": [
+        "Failure should return the first valid index 0.",
+        "The search must return the last midpoint even when it misses.",
+        "Failure should return the length as an index."
+      ],
+      "fix": [
+        "Return 0 when no match is found.",
+        "Return mid even if the comparison never matched.",
+        "Return len(nums) on failure."
+      ]
+    }
+  }
 }

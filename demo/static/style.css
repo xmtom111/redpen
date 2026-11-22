@@ -226,7 +226,7 @@ ol.segments-prose li.seg-item:not(:has(.seg-btn)) {
   margin-bottom: 4px;
   transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
 }
-ol.segments-prose .seg-btn:hover { background: #fff9f2; border-left-color: #e69b9b; }
+ol.segments-prose .seg-btn[data-seg]:hover { background: #fff9f2; border-left-color: #e69b9b; }
 ol.segments-prose li.seg-item.selected .seg-btn {
   background: var(--red-soft);
   border-color: #f3c4c4;
@@ -264,7 +264,7 @@ ol.segments-code li.seg-item:not(:has(.seg-btn)) {
   padding: 7px 12px;
   font: 13.5px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
-ol.segments-code .seg-btn:hover { background: rgba(255, 255, 255, 0.06); border-left-color: #ef9a9a; }
+ol.segments-code .seg-btn[data-seg]:hover { background: rgba(255, 255, 255, 0.06); border-left-color: #ef9a9a; }
 ol.segments-code li.seg-item.selected .seg-btn {
   background: rgba(198, 40, 40, 0.28);
   border-left-color: #ff6b6b;
@@ -648,7 +648,7 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; }
 
 /* Flagged line: ink slash + pop */
 ol.segments-prose li.seg-item { position: relative; border-bottom: 0; }
-ol.segments-prose .seg-btn { position: relative; overflow: hidden; }
+ol.segments-prose .seg-btn { position: relative; }
 ol.segments-prose li.seg-item.selected .seg-btn {
   background: var(--red-soft);
   border-color: #e8a0a0;
@@ -754,7 +754,7 @@ ol.segments-code .choice-drawer {
   color: var(--red);
 }
 
-/* Sticky play dock: Score it is the punchline, "looks clean" is secondary */
+/* Verdict dock */
 .play-dock {
   margin-top: 16px;
   padding: 12px 14px 14px;
@@ -911,3 +911,18 @@ ol.segments-code .choice-drawer {
     animation: none !important;
   }
 }
+
+.judge-prompt { margin: 14px 0 4px; font-size: 1.15rem; }
+.segments .seg-background { cursor: default; }
+.dock-actions .hold-up {
+  border: 1px solid #31704c;
+  background: #f0f8f2;
+  color: #205637;
+  font-weight: 700;
+}
+.dock-actions .hold-up[aria-pressed="true"] {
+  background: #205637;
+  color: white;
+  box-shadow: inset 0 0 0 2px #c3e5ce;
+}
+.katex-display { overflow-x: auto; overflow-y: hidden; padding-block: 0.25em; }

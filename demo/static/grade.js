@@ -161,14 +161,15 @@
 
   function mathForm(text) {
     FRAC.lastIndex = 0;
-    return String(text).toLowerCase().replace(FRAC, '($1)/($2)')
+    return String(text).toLowerCase().replace(/\\[()\[\]]/g, '').replace(FRAC, '($1)/($2)')
       .replace(/\\(?:left|right)/g, '').replace(/\\(?:cdot|times)/g, '*')
       .replace(/\\(cos|sin)/g, '$1').replace(/\\in/g, '∈')
       .replace(/\*\*/g, '^').replace(/²/g, '^2').replace(/−/g, '-').replace(/×/g, '*').replace(/[\s${}\\]/g, '');
   }
   function equivalentFix(text, original) {
     const student = mathForm(text);
-    const refs = [...original.matchAll(/\$([^$]+)\$/g)].map(m => mathForm(m[1]));
+    const refs = [...original.matchAll(/\\\((.*?)\\\)|\\\[(.*?)\\\]|\$([^$]+)\$/gs)]
+      .map(m => mathForm(m[1] || m[2] || m[3] || ""));
     return lex().math_equivalences.some(group => {
       const forms = new Set(group.map(mathForm));
       return forms.has(student) && refs.some(ref => forms.has(ref) || forms.has(ref.split('=').pop()));
@@ -711,6 +712,7 @@
       next: nextCommand(entry.topic, entry.title, mode, entry.level, score),
       clean_steps: key.clean_steps.slice(),
       clean_final_answer: key.clean_final_answer,
+      explanation: key.explanation || "",
       errors,
       false_alarm_details: (grade.false_alarms || []).slice(),
       bounty_details: (grade.bounties || []).slice(),

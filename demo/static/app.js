@@ -11,7 +11,7 @@
 
   const UI = {
     en: {
-      headline: "Spot the flaw. Beat the AI.",
+      headline: "Does this hold up?",
       navDaily: "Daily",
       navPacks: "Packs",
       navWorkshop: "Workshop",
@@ -26,12 +26,9 @@
       copied: "Copied — paste it anywhere.",
       shared: "Shared!",
       copyFallback: "Copy this card:",
-      dailyHook: "Three today. The first one is a message a friend just sent.",
       dailyLeft: (n) => (n === 1 ? "1 left today." : `${n} left today.`),
       openerProblem: "A friend just sent this",
       openerFinal: "Then they said",
-      openerTapHint: "Tap the line where it goes sideways.",
-      shareLocked: "Today's three aren't finished yet.",
       streakStart: "Start a streak",
       needPicks: "Now pick why it's wrong and how to fix it.",
       readyToScore: "Red pen is ready.",
@@ -48,16 +45,14 @@
       elapsedLine: (label) => `Solved in ${label}`,
       domains: { all: "All", logic: "Logic", code: "Code", math: "Math" },
       estSec: (s) => `~${s}s`,
-      levelPill: (n, name) => `L${n} · ${name}`,
       blindPill: "Blind",
       blindTitle: "Blind round",
       blindBlurb: "Random L0–L2 puzzle — could even be completely clean.",
-      tapHint: "Tap the line that sounds too sure of itself.",
+      tapHint: "Tap a shaky line to call it out, or clear it as solid.",
       tapHintDone: "Green = you caught it. Red = missed. Amber = false alarm.",
-      noFlawsBtn: "Looks clean to me",
-      noFlawsActive: "Marked as clean",
+      noFlawsBtn: "Holds up",
+      noFlawsActive: "SOLID",
       noFlawsNote: "You're saying this one has no flaws. Score it when you're sure.",
-      emptyLightPrompt: "Go on — tap a suspicious line.",
       modeLight: "Tap & pick",
       modeText: "Free text",
       panelTitle: "Red Pen",
@@ -82,7 +77,7 @@
       nextPuzzle: "Next puzzle →",
       keepPlaying: "Keep playing →",
       problem: "The setup",
-      finalAnswer: "The confident conclusion",
+      finalAnswer: "Conclusion",
       commitment: (short) => `commitment ${short}`,
       verifyBtn: "Verify commitment",
       hashBad: "The revealed key does not match the commitment shown at the start.",
@@ -91,7 +86,6 @@
       whoModel: "Graded by AI model.",
       whoReveal: "Answer key revealed.",
       whoAuto: "Graded deterministically in-page.",
-      errorHeading: (label, category) => `${label} · ${category}`,
       foundDetail: (d, f) => `Hit · diag ${d} · fix ${f}`,
       whyWrong: "Why it's wrong",
       theFix: "Fix",
@@ -155,7 +149,7 @@
       },
     },
     zh: {
-      headline: "红笔抓错：专治一本正经的胡说八道",
+      headline: "这段话站得住脚吗？",
       navDaily: "今日红笔",
       navPacks: "题库",
       navWorkshop: "出题工坊",
@@ -167,15 +161,12 @@
       shareSingle: "分享这题",
       copyDaily: "复制今日战绩卡",
       copySingle: "复制这题战绩",
-      copied: "已复制，发给朋友吧！",
+      copied: "已复制。",
       shared: "已分享！",
       copyFallback: "请复制以下战绩卡：",
-      dailyHook: "今天三题。第一题是朋友刚在群里发的。",
       dailyLeft: (n) => `今天还剩 ${n} 题。`,
       openerProblem: "朋友刚在群里发的",
       openerFinal: "然后他们说",
-      openerTapHint: "哪一句其实算岔了，就点它。",
-      shareLocked: "今天这三题还没做完。",
       streakStart: "从今天开始连胜",
       needPicks: "接着选出「错在哪」和「怎么改」。",
       readyToScore: "红笔已就位，可以看结果了。",
@@ -192,16 +183,14 @@
       elapsedLine: (label) => `用时 ${label}`,
       domains: { all: "全部", logic: "逻辑", code: "代码", math: "数学" },
       estSec: (s) => `约 ${s} 秒`,
-      levelPill: (n, name) => `级别 ${n} · ${name}`,
       blindPill: "盲测",
       blindTitle: "盲测挑战",
       blindBlurb: "从级别 0–2 随机抽一题——也可能完全无错。",
-      tapHint: "点出那句说得太满的话。",
+      tapHint: "点可疑的那句下判词，或直接判没毛病",
       tapHintDone: "绿=命中，红=漏报，黄=误报。",
-      noFlawsBtn: "我觉得没问题",
-      noFlawsActive: "已选：没问题",
+      noFlawsBtn: "没毛病，站得住",
+      noFlawsActive: "准",
       noFlawsNote: "你判断这题没有漏洞。确认后就可以交卷。",
-      emptyLightPrompt: "来，点出可疑的那一行。",
       modeLight: "点选模式",
       modeText: "自由输入",
       panelTitle: "红笔批注",
@@ -226,7 +215,7 @@
       nextPuzzle: "下一题 →",
       keepPlaying: "继续刷题 →",
       problem: "先看这段",
-      finalAnswer: "它斩钉截铁的结论",
+      finalAnswer: "结论",
       commitment: (short) => `承诺 ${short}`,
       verifyBtn: "校验承诺",
       hashBad: "揭晓的钥匙与开始时展示的承诺不一致。",
@@ -235,7 +224,6 @@
       whoModel: "由模型评分。",
       whoReveal: "已揭晓答案钥匙。",
       whoAuto: "本地自动批改。",
-      errorHeading: (label, category) => `${label} · ${category}`,
       foundDetail: (d, f) => `命中 · 诊断 ${d} · 修正 ${f}`,
       whyWrong: "错因",
       theFix: "正确改法",
@@ -416,28 +404,14 @@
   }
 
   function typeset(target = app) {
-    const run = () => {
-      if (MathJax.typesetClear) MathJax.typesetClear([target]);
-      return MathJax.typesetPromise([target]);
-    };
-    if (window.MathJax && MathJax.startup && MathJax.startup.promise) {
-      typeset.queue = (typeset.queue || MathJax.startup.promise).then(run).catch(() => {});
-      return;
-    }
-    if (window.MathJax && MathJax.typesetPromise) {
-      typeset.queue = (typeset.queue || Promise.resolve()).then(run).catch(() => {});
-      return;
-    }
-    if (typeset.waiting) return;
-    typeset.waiting = true;
-    const timer = setInterval(() => {
-      if (window.MathJax && MathJax.typesetPromise) {
-        clearInterval(timer);
-        typeset.waiting = false;
-        typeset();
-      }
-    }, 250);
-    setTimeout(() => { clearInterval(timer); typeset.waiting = false; }, 8000);
+    if (!window.renderMathInElement) return;
+    window.renderMathInElement(target, {
+      delimiters: [
+        { left: "\\(", right: "\\)", display: false },
+        { left: "\\[", right: "\\]", display: true },
+      ],
+      throwOnError: false,
+    });
   }
 
   function setNote() {
@@ -487,12 +461,12 @@
     return set;
   }
 
-  function hasLightChoices(round) {
-    return !!(round && round.light_choices && Object.keys(round.light_choices).length > 0);
+  function supportsLightPlay(round) {
+    return !!(round && round.light_play);
   }
 
   function isLightPlay(round) {
-    return !!(round && hasLightChoices(round) && round.inputMode !== "text");
+    return !!(round && supportsLightPlay(round) && round.inputMode !== "text");
   }
 
   function lightReady(round) {
@@ -607,14 +581,14 @@
 
   async function loadAllPacksStatic() {
     try {
-      const idxResp = await fetch("packs/index.json");
+      const idxResp = await fetch("packs/index.json?v=3");
       if (idxResp.ok) {
         const index = await idxResp.json();
         state.packs = index.packs || [];
         state.banner = index.banner || "";
         const loaded = await Promise.all(
           state.packs.map(async (p) => {
-            const resp = await fetch(p.file || `packs/${p.id}.json`);
+            const resp = await fetch(`${p.file || `packs/${p.id}.json`}?v=3`);
             return resp.ok ? resp.json() : { worksheets: [] };
           })
         );
@@ -623,7 +597,7 @@
         return true;
       }
     } catch (_) { /* fall back to catalog.json */ }
-    const catResp = await fetch("catalog.json");
+    const catResp = await fetch("catalog.json?v=3");
     if (!catResp.ok) return false;
     const catalog = await catResp.json();
     state.packs = catalog.packs || [];
@@ -695,7 +669,7 @@
     }
     const params = new URLSearchParams(hash);
     try {
-      const stored = JSON.parse(sessionStorage.getItem("redpen:active:" + locale) || "null");
+      const stored = JSON.parse(sessionStorage.getItem("redpen:active:v3:" + locale) || "null");
       if (stored && !stored.server && (
         (stored.browserLive && !hash) ||
         (params.get("w") && stored.worksheet_id === params.get("w") && (stored.mode === "blind") === (params.get("blind") === "1"))
@@ -735,10 +709,13 @@
   }
 
   function initRoundState(round) {
+    state.justFlagged = 0;
+    state.justPicked = null;
+    state.justGraded = false;
     round.segments = normalizeSegments(round);
     round.selections = Array.isArray(round.selections) ? round.selections : [];
     round.cleanClaim = !!round.cleanClaim;
-    round.inputMode = round.inputMode || (hasLightChoices(round) ? "light" : "text");
+    round.inputMode = round.inputMode || (supportsLightPlay(round) ? "light" : "text");
     round.startedAt = round.startedAt || Date.now();
     round.hintText = round.hintText || "";
     round.verifyText = round.verifyText || "";
@@ -771,6 +748,7 @@
       segments: entry.segments,
       steps: entry.steps,
       final_answer: entry.final_answer,
+      light_play: !!entry.light_play,
       light_choices: entry.light_choices || {},
       mode: blind ? "blind" : String(entry.level),
       level: blind ? null : entry.level,
@@ -796,9 +774,7 @@
     state.error = "";
     state.shareMessage = "";
     state.shareText = "";
-    state.justFlagged = 0;
-    state.justPicked = null;
-    state.justGraded = false;
+
     if (state.kind === "server") {
       try {
         const body = blind ? { blind: true, lang: locale } : { worksheet_id: entry.id, lang: locale };
@@ -815,7 +791,7 @@
 
   function persistActive() {
     if (state.round && !state.round.server) {
-      try { sessionStorage.setItem("redpen:active:" + locale, JSON.stringify(state.round)); } catch (_) {}
+      try { sessionStorage.setItem("redpen:active:v3:" + locale, JSON.stringify(state.round)); } catch (_) {}
     }
   }
 
@@ -911,12 +887,9 @@
         <span>${esc(mark)}</span> ${esc(domainLabel(item.domain))}
       </button>`;
     }).join("");
-    const hook = complete
-      ? ""
-      : remaining === (state.daily.length || 3)
-        ? `<p class="daily-hook">${esc(text.dailyHook)}</p>`
-        : `<p class="daily-hook">${esc(text.dailyLeft(remaining))}</p>`;
-    const shareBtnLabel = canNativeShare() ? text.shareDaily : text.copyDaily;
+    const hook = remaining > 0 && remaining < state.daily.length
+      ? `<p class="daily-hook">${esc(text.dailyLeft(remaining))}</p>`
+      : "";
     return `
       <div class="daily-strip ${complete ? "complete" : ""}">
         <div class="daily-left">
@@ -926,7 +899,6 @@
         ${complete ? `
           <div class="daily-complete-actions">
             <span class="daily-done-text">${esc(text.dailyDoneBanner(num, streak))}</span>
-            <button type="button" class="btn small primary-cta" data-share-daily="1">${esc(shareBtnLabel)}</button>
           </div>` : ""}
         ${hook}
       </div>`;
@@ -946,7 +918,7 @@
         return `
           <button class="card ${done ? "solved" : ""}" type="button" data-id="${esc(entry.id)}">
             <div class="card-top">
-              <span class="pill domain-${esc(entry.domain)}">${esc(domainLabel(entry.domain))} · ${esc(text.levelPill(entry.level, entry.level_name))}</span>
+              <span class="pill domain-${esc(entry.domain)}">${esc(domainLabel(entry.domain))}</span>
               <span class="card-time">${done ? `✓ ${esc(text.solvedTag)}` : esc(text.estSec(entry.estimated_seconds || 60))}</span>
             </div>
             <h2>${esc(entry.title)}</h2>
@@ -1034,7 +1006,7 @@
       ${statsHtml()}`;
   }
 
-  function shareCardVisualHtml({ kind, locked }) {
+  function shareCardVisualHtml(kind) {
     const ds = dailyState();
     const streak = RedPenDaily.currentStreak(ds, state.dateStr);
     if (kind === "daily") {
@@ -1049,19 +1021,17 @@
         : 0;
       const totalSec = completed.reduce((acc, res) => acc + (res.elapsedSec || 0), 0);
       const timeLabel = RedPenDaily.formatDuration(totalSec, locale);
-      const meta = locked
-        ? text.shareLocked
-        : (zh
+      const meta = zh
           ? `得分 ${avg}/100 · ${timeLabel}${streak > 0 ? ` · 🔥 连续 ${streak} 天` : ""}`
-          : `Score ${avg}/100 · ${timeLabel}${streak > 0 ? ` · 🔥 ${streak}-day streak` : ""}`);
+          : `Score ${avg}/100 · ${timeLabel}${streak > 0 ? ` · 🔥 ${streak}-day streak` : ""}`;
       const title = zh ? `🖍️ 今日红笔 #${num}` : `🖍️ RedPen Daily #${num}`;
-      const slogan = zh ? "专治一本正经的胡说八道" : "Spot the flaw. Beat the AI.";
+      const slogan = zh ? "这段话站得住脚吗？" : "Does this hold up?";
       return `
-        <aside class="share-card ${locked ? "locked" : ""}" aria-label="${esc(zh ? "今日战绩卡" : "Daily score card")}">
+        <aside class="share-card" aria-label="${esc(zh ? "今日战绩卡" : "Daily score card")}">
           <p class="share-card-kicker">${esc(title)}</p>
           <p class="share-card-tiles">${esc(tiles)}</p>
           <p class="share-card-meta">${esc(meta)}</p>
-          ${locked ? "" : `<p class="share-card-slogan">${esc(slogan)}</p>`}
+          <p class="share-card-slogan">${esc(slogan)}</p>
         </aside>`;
     }
     const round = state.round;
@@ -1074,7 +1044,7 @@
     const scoreText = round.debrief.revealed ? text.revealed : `${round.debrief.score}/100`;
     const timeLabel = RedPenDaily.formatDuration(elapsedSeconds(round), locale);
     const title = zh ? `🖍️ 红笔抓错 · ${domainLabel(round.domain)}` : `🖍️ RedPen · ${domainLabel(round.domain)}`;
-    const slogan = zh ? "专治一本正经的胡说八道" : "Spot the flaw. Beat the AI.";
+    const slogan = zh ? "这段话站得住脚吗？" : "Does this hold up?";
     return `
       <aside class="share-card" aria-label="${esc(zh ? "本题战绩卡" : "Result card")}">
         <p class="share-card-kicker">${esc(title)}</p>
@@ -1119,14 +1089,14 @@
         ? `<p class="dock-note">${esc(text.needPicks)}</p>`
         : ready
           ? `<p class="dock-note ready">${esc(text.readyToScore)}</p>`
-          : `<p class="dock-note">${esc(text.emptyLightPrompt)}</p>`;
+          : "";
     return `
       <div class="play-dock ${ready ? "is-ready" : ""}">
         ${note}
         ${round.hintText ? `<p class="hint" role="status">${esc(round.hintText)}</p>` : ""}
         ${state.error ? `<p class="error" role="alert">${esc(state.error)}</p>` : ""}
         <div class="dock-actions">
-          <button type="button" class="btn ghost ${round.cleanClaim ? "active" : ""}" data-act="toggle-clean" aria-pressed="${round.cleanClaim ? "true" : "false"}">
+          <button type="button" class="btn hold-up ${round.cleanClaim ? "active" : ""}" data-act="toggle-clean" aria-pressed="${round.cleanClaim ? "true" : "false"}">
             ✓ ${esc(round.cleanClaim ? text.noFlawsActive : text.noFlawsBtn)}
           </button>
           <details class="stuck-menu">
@@ -1179,6 +1149,15 @@
           ${badge}
         </li>`;
       }
+      const canFlag = !supportsLightPlay(round) || !!round.light_choices[id];
+      if (!canFlag) {
+        return `<li class="${cls}" data-seg-item="${id}">
+          <div class="seg-btn seg-background">
+            <span class="seg-label">${esc(seg.label)}</span>
+            <span class="seg-body">${renderer === "code" ? `<code>${esc(seg.text)}</code>` : esc(seg.text)}</span>
+          </div>
+        </li>`;
+      }
       const isSelected = selectedSteps.has(id);
       if (isSelected) {
         cls += " selected";
@@ -1214,7 +1193,8 @@
         </header>
         ${!debrief && state.error && !light ? `<p class="error" role="alert">${esc(state.error)}</p>` : ""}
         <div class="problem"><span class="box-kicker">${esc(isOpenerRound(round) ? text.openerProblem : text.problem)}</span> ${esc(round.problem)}</div>
-        <p class="tap-guide">${esc(debrief ? text.tapHintDone : (light ? (isOpenerRound(round) ? text.openerTapHint : text.tapHint) : text.emptyLightPrompt))}</p>
+        ${!debrief ? `<h2 class="judge-prompt">${esc(text.headline)}</h2>` : ""}
+        <p class="tap-guide">${esc(debrief ? text.tapHintDone : text.tapHint)}</p>
         <ol class="${listClass}">${segItems}</ol>
         <div class="final"><span class="box-kicker">${esc(isOpenerRound(round) ? text.openerFinal : text.finalAnswer)}</span> ${esc(round.final_answer)}</div>
         ${afterSheet}
@@ -1222,7 +1202,7 @@
   }
 
   function composerHtml(round) {
-    const canLight = hasLightChoices(round);
+    const canLight = supportsLightPlay(round);
     const body = textComposerBody(round);
     return `
       <aside class="panel">
@@ -1242,7 +1222,7 @@
 
   function textComposerBody(round) {
     const mathTools = (round.renderer || "math") === "math" ? `
-      <p class="small-muted">${zh ? "点入输入框可快捷插入符号，公式用 $…$ 包围。" : "Focus an input to insert symbols; wrap formulas in $…$."}</p>
+      <p class="small-muted">${zh ? "点入输入框可快捷插入符号，行内公式用 \\(…\\) 包围。" : "Focus an input to insert symbols; wrap inline formulas in \\(…\\)."}</p>
       <div class="symbols">${[["分数 / frac", "\\frac{a}{b}"], ["√", "\\sqrt{x}"], ["x²", "x^{2}"], ["x₁", "x_{1}"], ["d/dx", "\\frac{d}{dx}"], ["∫", "\\int_{a}^{b}"], ["α", "\\alpha"], ["θ", "\\theta"], ["π", "\\pi"]].map(([label, value]) => `<button type="button" data-symbol="${esc(value)}">${esc(label)}</button>`).join("")}</div>
       <div id="math-preview" aria-live="polite"></div>` : "";
     return `
@@ -1338,7 +1318,6 @@
     const acc = calcAccuracy(debrief);
     const missedCount = Math.max(0, debrief.planted - debrief.found);
     const nextInfo = nextPuzzleTarget();
-    const dailyComplete = isDailyComplete();
     const inDaily = dailyIds().includes(round.worksheet_id);
     const celebrate = celebrateCopy(debrief);
     const timeLabel = RedPenDaily.formatDuration(elapsedSeconds(round), locale);
@@ -1349,14 +1328,14 @@
       : "";
     const dailyShareLabel = canNativeShare() ? text.shareDaily : text.copyDaily;
     const singleShareLabel = canNativeShare() ? text.shareSingle : text.copySingle;
-    const shareCta = (dailyComplete && inDaily)
-      ? `<button class="btn ${nextInfo && nextInfo.isDaily ? "secondary" : "primary-cta"}" type="button" data-share-daily="1">${esc(dailyShareLabel)}</button>`
+    const shareCta = inDaily
+      ? `<button class="btn secondary" type="button" data-share-daily="1">${esc(dailyShareLabel)}</button>`
       : `<button class="btn secondary" type="button" data-share-single="1">${esc(singleShareLabel)}</button>`;
 
     const errors = (debrief.errors || []).map((error) => `
       <article class="debrief-error ${error.found ? "is-hit" : "is-missed"}">
         <h3>
-          <span>${esc(text.errorHeading(segmentLabel(round, error.step), categoryLabel(error.category)))}</span>
+          <span>${esc(segmentLabel(round, error.step))}</span>
           <span class="status-chip ${error.found ? "hit" : "missed"}">${error.found ? esc(text.foundDetail(error.diagnosis, error.fix)) : esc(text.missedTag)}</span>
         </h3>
         <p class="debrief-punch">${esc(error.why_wrong)}</p>
@@ -1384,11 +1363,7 @@
         ? text.whoReveal
         : text.whoAuto;
 
-    const cardKind = (dailyComplete && inDaily) ? "daily" : "single";
-    const progressCard = (inDaily && !dailyComplete)
-      ? shareCardVisualHtml({ kind: "daily", locked: true })
-      : "";
-    const resultCard = shareCardVisualHtml({ kind: cardKind, locked: false });
+    const resultCard = shareCardVisualHtml(inDaily ? "daily" : "single");
 
     return `
       <section class="results-stage ${missClass}" aria-live="polite">
@@ -1404,16 +1379,16 @@
           <span class="chip ${debrief.false_alarms > 0 ? "alarm" : ""}">${esc(text.alarmsChip(debrief.false_alarms))}</span>
           ${debrief.hints_used > 0 ? `<span class="chip">${esc(text.hintsChip(debrief.hints_used))}</span>` : ""}
         </div>
+        ${debrief.explanation ? `<p class="debrief-punch">${esc(debrief.explanation)}</p>` : ""}
         <p class="coach">${esc(debrief.feedback || "")}</p>
         ${resultCard}
-        ${progressCard}
         <div class="actions next-bar share-actions">
-          ${dailyComplete && inDaily ? shareCta + primaryCta : primaryCta + shareCta}
+          ${primaryCta + shareCta}
         </div>
         ${state.shareMessage ? `<p class="share-status" role="status">${esc(state.shareMessage)}</p>` : ""}
         ${state.shareText ? `<div class="share-preview"><p class="small-muted">${esc(text.copyFallback)}</p><pre>${esc(state.shareText)}</pre></div>` : ""}
         <div class="debrief-list">
-          ${errors || (debrief.planted === 0 ? `<p class="clean-msg">${text.cleanRound}</p>` : "")}
+          ${errors || (debrief.planted === 0 && !debrief.explanation ? `<p class="clean-msg">${esc(text.cleanRound)}</p>` : "")}
         </div>
         ${bounties ? `<h3 class="sub-head">${zh ? "额外发现" : "Bounties"}</h3><ul class="alarm-list">${bounties}</ul>` : ""}
         ${alarms ? `<h3 class="sub-head">${esc(text.falseAlarms)}</h3><ul class="alarm-list">${alarms}</ul>` : ""}
@@ -1440,8 +1415,8 @@
 
   function toggleSegment(stepNum) {
     const r = state.round;
-    if (!r || r.graded) return;
-    if (r.inputMode === "light" && hasLightChoices(r)) {
+    if (!r || r.graded || (supportsLightPlay(r) && !r.light_choices[stepNum])) return;
+    if (r.inputMode === "light" && supportsLightPlay(r)) {
       r.cleanClaim = false;
       const idx = (r.selections || []).findIndex((s) => s.step === stepNum);
       if (idx >= 0) {
@@ -1526,8 +1501,11 @@
     if (toggleClean) {
       toggleClean.addEventListener("click", () => {
         if (!state.round || state.round.graded) return;
+        state.error = "";
         state.round.cleanClaim = !state.round.cleanClaim;
-        if (state.round.cleanClaim) state.round.selections = [];
+        state.round.selections = [];
+        state.justFlagged = 0;
+        state.justPicked = null;
         render();
       });
     }
@@ -1574,7 +1552,7 @@
       b.onclick = () => {
         if (!target || target.disabled) target = app.querySelector("[data-field=fix]:not(:disabled)");
         if (!target) return;
-        const symbol = "$" + b.dataset.symbol + "$";
+        const symbol = "\\(" + b.dataset.symbol + "\\)";
         target.setRangeText(symbol, target.selectionStart, target.selectionEnd, "end");
         target.dispatchEvent(new Event("input"));
         target.focus();
@@ -1739,7 +1717,8 @@
   async function protocol() {
     const response = await fetch(apiPath("protocol.txt"));
     if (!response.ok) throw Error("Missing AI protocol");
-    return response.text();
+    const rules = await response.text();
+    return rules + "\nFor browser rounds, use only \\(…\\) and \\[…\\] for math in all JSON fields.";
   }
 
   function showSettings() {
@@ -1781,7 +1760,7 @@
     try {
       if (RedPenAI.settings().key || state.kind === "static" || !state.live) {
         const chosen = level === "blind" ? [0, 1, 1, 2, 2][Math.floor(Math.random() * 5)] : Number(level);
-        const task = `MODE: CLI-SETTER\nTopic or problem: ${topic}\nError level: ${chosen}\nDifficulty: ${options.difficulty}\nFocus categories: ${options.focus.join(", ")}\nReference answer: ${options.answer || "none"}\nLanguage: ${locale}\nReturn JSON only. Corrupted fields must exactly match visible steps.`;
+        const task = `MODE: CLI-SETTER\nTopic or problem: ${topic}\nError level: ${chosen}\nDifficulty: ${options.difficulty}\nFocus categories: ${options.focus.join(", ")}\nReference answer: ${options.answer || "none"}\nLanguage: ${locale}\nReturn JSON only. Corrupted fields must exactly match visible steps. Use only \\(…\\) and \\[ … \\] for math.`;
         const draft = await RedPenAI.checkedRequest(task, await protocol(), (value) => RedPenAI.validate(value, chosen));
         const commitment = await RedPenAI.hash(draft.key);
         state.round = initRoundState({
@@ -2025,7 +2004,7 @@
       if (!await hashMatches(state.round.secret.key, state.round.commitment)) throw Error(text.hashBad);
       return state.round.secret;
     }
-    const response = await fetch(`secrets/${state.round.worksheet_id}.json`);
+    const response = await fetch(`secrets/${state.round.worksheet_id}.json?v=3`);
     if (!response.ok) throw new Error(text.missingKey);
     const secret = await response.json();
     if (!await hashMatches(secret.key, state.round.commitment)) throw Error(text.hashBad);

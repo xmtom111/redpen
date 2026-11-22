@@ -57,10 +57,6 @@
         {
           "id": "d3",
           "label": "Tea has caffeine too, so tea drinkers must always get promoted faster."
-        },
-        {
-          "id": "d4",
-          "label": "Observational data can never show a relationship between two things."
         }
       ],
       "diagnosis_answer": "d1",
@@ -76,10 +72,6 @@
         {
           "id": "f3",
           "label": "Drop remote workers from the data and keep claiming espresso causes promotions."
-        },
-        {
-          "id": "f4",
-          "label": "Claim that promotions cause people to stop drinking tea."
         }
       ],
       "fix_answer": "f1",
@@ -109,10 +101,6 @@
         {
           "id": "d3",
           "label": "51% is actually smaller than 49% once you adjust for sample size."
-        },
-        {
-          "id": "d4",
-          "label": "The y-axis should go to 1000% whenever two groups are compared."
         }
       ],
       "diagnosis_answer": "d1",
@@ -128,10 +116,6 @@
         {
           "id": "f3",
           "label": "Remove the axis labels and let the bars speak for themselves."
-        },
-        {
-          "id": "f4",
-          "label": "Convert the bar chart into a 3D pie chart."
         }
       ],
       "fix_answer": "f1",
@@ -153,5 +137,44 @@
     "Espresso bars might be a nice perk, but this data does not show they drive promotions."
   ],
   "clean_conclusion": "The data shows a tiny 2-point correlation with obvious confounders, not a 3× career boost.",
-  "opener": false
+  "opener": false,
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "There were 800 employees sampled every day, all different people.",
+        "Each cafe receipt necessarily represents a different employee.",
+        "Badge swipes directly report the number of cups bought."
+      ],
+      "fix": [
+        "Multiply 800 by the number of days for the unique employee count.",
+        "Use receipt count as the unique employee count.",
+        "Use door entries instead of receipts to count cups."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "Three or more always excludes people who bought exactly three cups.",
+        "Remote and tea-drinking staff belong in the espresso group.",
+        "More frequent promotion means every espresso buyer was promoted."
+      ],
+      "fix": [
+        "Use a four-cup minimum for the espresso group.",
+        "Count the comparison groups as espresso buyers.",
+        "Report a 100% promotion rate for the espresso group."
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "Triple readiness means adding three percentage points.",
+        "Every floor should be counted as a promotion by itself.",
+        "Free espresso should be counted as three promotions per cup."
+      ],
+      "fix": [
+        "Translate triple into a flat three-point bump.",
+        "Add one promotion to the tally per new espresso bar.",
+        "Estimate promotions by multiplying cups served by three."
+      ]
+    }
+  }
 }

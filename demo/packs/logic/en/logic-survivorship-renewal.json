@@ -58,10 +58,6 @@
         {
           "id": "d3",
           "label": "A 4-star rating is not high enough to count as a success."
-        },
-        {
-          "id": "d4",
-          "label": "Three months is too soon; satisfaction scores are only valid after a full year."
         }
       ],
       "diagnosis_answer": "d1",
@@ -77,10 +73,6 @@
         {
           "id": "f3",
           "label": "Repeat the same renewal-day survey in every country, which turns it into a global result."
-        },
-        {
-          "id": "f4",
-          "label": "Weight the 96% by the app's star rating in the store, which already includes everyone."
         }
       ],
       "fix_answer": "f1",
@@ -101,5 +93,56 @@
     "That figure describes renewing members only. It cannot be read as a result for users overall, because people who cancelled were never asked.",
     "Before a global rollout, we should also hear from members who left or did not renew."
   ],
-  "clean_conclusion": "96% of renewing members were happy — not 96% of users overall."
+  "clean_conclusion": "96% of renewing members were happy — not 96% of users overall.",
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "The changes were scheduled for three months in the future.",
+        "Only profile pages changed, so the matching rollout should be dated later.",
+        "Profiles were redesigned before the old algorithm was first introduced."
+      ],
+      "fix": [
+        "Move both launches three months into the future.",
+        "Place the matching rollout after the profile launch.",
+        "Date the redesign before the original matching system."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "The survey recorded 1,200 renewals per day.",
+        "The 1,200 responses all came from members who cancelled.",
+        "The survey took place three months before the launch."
+      ],
+      "fix": [
+        "Multiply 1,200 by seven for the weekly sample.",
+        "Describe the sampled group as members who had already cancelled.",
+        "Move the survey to before the launch."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "A four-star rating should be counted as below four stars.",
+        "96% of 1,200 means 96 individual ratings.",
+        "The reported 96% consists exclusively of five-star ratings."
+      ],
+      "fix": [
+        "Count only ratings below four stars in the 96%.",
+        "Report 96 positive responses out of 1,200.",
+        "Relabel the 96% as five-star ratings only."
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "A global rollout means only serving the current survey respondents.",
+        "Keeping the design means restoring the previous profile pages.",
+        "Rolling it out now means first ending monthly renewals."
+      ],
+      "fix": [
+        "Define the global rollout as releasing to just the 1,200 people surveyed.",
+        "Put the old profile pages back for the rollout.",
+        "Cancel monthly renewals before any release."
+      ]
+    }
+  }
 }

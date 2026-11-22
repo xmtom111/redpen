@@ -6,6 +6,7 @@ const assert = require('assert/strict');
 const path = require('path');
 
 const root = path.resolve(__dirname, '..');
+const staticPath = process.env.REDPEN_STATIC_PATH || '/';
 const draft = JSON.parse(fs.readFileSync(path.join(root, 'demo/bank/cubic-lost-root.json')));
 
 (async () => {
@@ -20,23 +21,25 @@ const draft = JSON.parse(fs.readFileSync(path.join(root, 'demo/bank/cubic-lost-r
         const page = await browser.newPage();
         const errors = [];
         page.on('pageerror', (e) => errors.push(e.message));
-        await page.route('https://cdn.jsdelivr.net/**', (r) => r.abort());
+        await page.route('https://**', (r) => r.abort());
 
         // 1. First-screen instant play: lands directly on a playable Daily puzzle, no API key wall.
-        await page.goto(`http://127.0.0.1:${port}/${lang}`);
+        await page.goto(`http://127.0.0.1:${port}${port === 18972 ? staticPath : '/'}${lang}`);
         await page.locator('button.seg-btn[data-seg="1"]').waitFor();
         assert.equal(await page.locator('#live-form').count(), 0, 'API/live form must not block first screen');
         assert.equal(await page.locator('.daily-slot').count(), 3, 'Daily strip should show 3 slots');
 
         // Tap-to-flag light mode on the first Daily puzzle.
         await page.locator('button.seg-btn[data-seg="1"]').click();
-        await page.locator('.sel-card[data-sel-step="1"]').waitFor();
+        await page.locator('.choice-drawer[data-sel-step="1"]').waitFor();
         await page.locator('[data-pick-diag]').first().click();
         await page.locator('[data-pick-fix]').first().click();
         await page.locator('[data-act=submit]').click();
         await page.locator('.score').waitFor();
         assert.equal(await page.locator('.accuracy-pill').count(), 1);
         await page.locator('[data-next-id]').waitFor();
+
+        assert.equal(await page.locator('[data-share-daily]').count(), 1, 'Partial daily postcard is available');
 
         // Advance to Daily #2 and #3 via Next button and complete Daily.
         await page.locator('[data-next-id]').click();
@@ -56,21 +59,59 @@ const draft = JSON.parse(fs.readFileSync(path.join(root, 'demo/bank/cubic-lost-r
         assert.match(shareCard, lang ? /今日红笔 #\d+/ : /RedPen Daily #\d+/);
         assert.doesNotMatch(shareCard, /Step \d|步骤 \d/i);
 
+        // Math renders offline in the setup, steps, drawer, final answer and debrief.
+        await page.locator('[data-nav="packs"]').click();
+        await page.locator('[data-id="sine-substitution"]').click();
+        await page.locator('.problem .katex').first().waitFor();
+        await page.locator('.seg-body .katex').first().waitFor();
+        await page.locator('.final .katex').first().waitFor();
+        await page.locator('[data-seg="2"]').click();
+        await page.locator('[data-pick-fix] .katex').first().waitFor();
+        const oldLabels = await page.locator('[data-pick-diag]').allTextContents();
+        await page.locator('[data-pick-diag]').first().click();
+        await page.locator('[data-act="toggle-clean"]').click();
+        assert.equal(await page.locator('.choice-drawer').count(), 0);
+        assert.equal(await page.locator('[data-act="toggle-clean"]').getAttribute('aria-pressed'), 'true');
+
+        await page.locator('[data-nav="packs"]').click();
+        await page.locator('[data-id="cubic-lost-root"]').click();
+        assert.equal(await page.locator('[data-act="toggle-clean"]').getAttribute('aria-pressed'), 'false');
+        assert.equal(await page.locator('.choice-drawer').count(), 0);
+        await page.locator('[data-seg="1"]').click();
+        assert.notDeepEqual(await page.locator('[data-pick-diag]').allTextContents(), oldLabels);
+        await page.locator('.stuck-menu > summary').click();
+        page.once("dialog", dialog => dialog.accept());
+        await page.locator('[data-act="reveal"]').click();
+        await page.locator('.debrief-line .katex').first().waitFor();
+        assert.equal(await page.locator('.katex-error').count(), 0);
+
+        await page.locator('[data-nav="packs"]').click();
+        await page.locator('[data-id="logic-chat-cabin-split"]').click();
+        await page.locator('.seg-background').waitFor();
+        assert.equal(await page.locator('.seg-background').count(), 1);
+        assert.equal(await page.locator('[data-seg="4"]').count(), 0);
+        if (!lang) {
+          assert.match(await page.locator('[data-seg="1"]').textContent(), /\$600.*\$200/);
+          assert.equal(await page.locator('[data-seg="1"] .katex').count(), 0);
+        }
+
         // 2. Navigate to Packs -> open cubic-lost-root -> test Advanced Free-Text mode + verify + hint.
         await page.locator('[data-nav="packs"]').click();
         await page.locator('[data-id="cubic-lost-root"]').click();
+        await page.locator('.stuck-menu > summary').click();
         await page.locator('[data-input-mode="text"]').click();
         await page.locator('[data-field=step]').selectOption('2');
         await page.locator('[data-field=wrong]').fill('Dividing by x loses the zero solution.');
         await page.locator('[data-field=fix]').fill('x=0 or x=2 or x=-2');
-        await page.locator('[data-act=verify]').click();
-        await page.locator('.verify-status').waitFor();
-        assert.match(await page.locator('.verify-status').textContent(), /commitment|承诺/);
         await page.locator('[data-act=hint]').click();
         await page.locator('.hint').waitFor();
         await page.locator('[data-act=submit]').click();
         await page.locator('.score').waitFor();
         assert.equal(await page.locator('.score').textContent(), '83/100');
+        await page.locator('.more-details > summary').click();
+        await page.locator('[data-act=verify]').click();
+        await page.locator('.verify-status').waitFor({state: 'attached'});
+        assert.match(await page.locator('.verify-status').textContent(), /commitment|承诺/);
 
         // 3. Test clean Level 0 round in Light Mode (definite-integral).
         await page.locator('[data-nav="packs"]').click();
@@ -90,7 +131,7 @@ const draft = JSON.parse(fs.readFileSync(path.join(root, 'demo/bank/cubic-lost-r
     const page = await browser.newPage();
     const errors = [];
     page.on('pageerror', (e) => errors.push(e.message));
-    await page.route('https://cdn.jsdelivr.net/**', (r) => r.abort());
+    await page.route('https://**', (r) => r.abort());
     const calls = [];
     await page.route('https://mock.example/v1/chat/completions', async (route) => {
       const body = route.request().postDataJSON();
@@ -116,7 +157,7 @@ const draft = JSON.parse(fs.readFileSync(path.join(root, 'demo/bank/cubic-lost-r
       });
     });
 
-    await page.goto('http://127.0.0.1:18972/zh/');
+    await page.goto(`http://127.0.0.1:18972${staticPath}zh/`);
     await page.locator('[data-nav="workshop"]').click();
     await page.locator('#ai-settings').click();
     await page.locator('#provider').selectOption('DeepSeek');
@@ -147,8 +188,8 @@ const draft = JSON.parse(fs.readFileSync(path.join(root, 'demo/bank/cubic-lost-r
     await page.locator('[data-field=wrong]').fill('除以x漏解，零也可以');
     await page.locator('[data-field=fix]').focus();
     await page.locator('[data-symbol]').first().click();
-    assert.equal(await page.locator('[data-field=fix]').inputValue(), '$\\frac{a}{b}$');
-    assert.match(await page.locator('#math-preview').textContent(), /frac/);
+    assert.equal(await page.locator('[data-field=fix]').inputValue(), '\\(\\frac{a}{b}\\)');
+    await page.locator('#math-preview .katex .mfrac').waitFor();
     await page.locator('[data-field=fix]').fill('x=0,2,-2');
     await page.locator('[data-act=submit]').click();
     await page.locator('.score').waitFor();
@@ -164,21 +205,23 @@ const draft = JSON.parse(fs.readFileSync(path.join(root, 'demo/bank/cubic-lost-r
     // 5. Tamper rejection & mobile viewport (390x844) layout check (no horizontal overflow).
     const tamper = await browser.newPage({ viewport: { width: 390, height: 844 } });
     await tamper.route('https://cdn.jsdelivr.net/**', (r) => r.abort());
-    await tamper.route('**/secrets/cubic-lost-root.json', async (route) => {
+    await tamper.route('**/secrets/cubic-lost-root.json*', async (route) => {
       const data = { key: structuredClone(draft.key) };
       data.key.clean_final_answer += ' tampered';
       await route.fulfill({ contentType: 'application/json', body: JSON.stringify(data) });
     });
-    await tamper.goto('http://127.0.0.1:18972/zh/');
+    await tamper.goto(`http://127.0.0.1:18972${staticPath}zh/`);
     await tamper.locator('button.seg-btn[data-seg="1"]').waitFor();
     assert(await tamper.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'Mobile first screen overflowed');
     await tamper.locator('button.seg-btn[data-seg="1"]').click();
-    await tamper.locator('.sel-card[data-sel-step="1"]').waitFor();
+    await tamper.locator('.choice-drawer[data-sel-step="1"]').waitFor();
     assert(await tamper.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'Mobile light mode choices overflowed');
 
     await tamper.locator('[data-nav="packs"]').click();
     await tamper.locator('[data-id="cubic-lost-root"]').click();
     await tamper.locator('button.seg-btn[data-seg="2"]').click();
+    await tamper.locator('[data-pick-diag]').first().click();
+    await tamper.locator('[data-pick-fix]').first().click();
     await tamper.locator('[data-act=submit]').click();
     await tamper.locator('.error').waitFor();
     assert.match(await tamper.locator('.error').textContent(), /承诺/);

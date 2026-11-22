@@ -58,10 +58,6 @@
         {
           "id": "d3",
           "label": "The parameter name `cart` collides with a built-in Python keyword."
-        },
-        {
-          "id": "d4",
-          "label": "Lists cannot be returned from a function unless copied with `list()`."
         }
       ],
       "diagnosis_answer": "d1",
@@ -77,10 +73,6 @@
         {
           "id": "f3",
           "label": "Use `cart += [item.strip()]` instead of `append` while keeping `cart=[]`."
-        },
-        {
-          "id": "f4",
-          "label": "Add `global cart` at the top of the function body."
         }
       ],
       "fix_answer": "f1",
@@ -103,5 +95,56 @@
     "    cart.append(item.strip())",
     "    return cart"
   ],
-  "clean_conclusion": "If no cart is passed in, each call builds a brand-new list, so shoppers never leak into each other."
+  "clean_conclusion": "If no cart is passed in, each call builds a brand-new list, so shoppers never leak into each other.",
+  "kind": "planted",
+  "segment_distractors": {
+    "2": {
+      "diagnosis": [
+        "The condition rejects all strings because of isinstance.",
+        "Whitespace-only strings should pass the nonempty check.",
+        "The two rejection tests should both be true before rejecting."
+      ],
+      "fix": [
+        "Reject when isinstance(item, str) is true.",
+        "Treat a whitespace-only string as a valid item.",
+        "Join the two rejection tests with and."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "Invalid items belong in the cart as error-message strings.",
+        "The ValueError should fire after every append.",
+        "Invalid item validation should silently report a successful addition."
+      ],
+      "fix": [
+        "Append the validation message in place of the invalid item.",
+        "Move the raise below the append and remove the condition.",
+        "Return the unmodified cart as if the addition succeeded."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "strip should remove all spaces inside the item name.",
+        "append adds the string character by character.",
+        "Adding this item should replace the previous last item."
+      ],
+      "fix": [
+        "Remove interior spaces before appending the name.",
+        "Use extend(item.strip()) to append one name.",
+        "Assign the name to cart[-1] instead."
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "The function should return only the stripped item text.",
+        "The returned cart should omit the item just appended.",
+        "A boolean should replace the updated cart."
+      ],
+      "fix": [
+        "Return item.strip() instead of cart.",
+        "Return cart[:-1].",
+        "Return True in place of the cart."
+      ]
+    }
+  }
 }

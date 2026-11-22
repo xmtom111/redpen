@@ -68,10 +68,6 @@
         {
           "id": "d3",
           "label": "JS 里的 `balance - amount` 会执行字符串拼接而不是减法。"
-        },
-        {
-          "id": "d4",
-          "label": "因为没加 `try/catch`，`setBalance` 会自动把余额翻倍。"
         }
       ],
       "diagnosis_answer": "d1",
@@ -87,10 +83,6 @@
         {
           "id": "f3",
           "label": "把第 4 行的 `balance < amount` 改成 `balance <= amount`。"
-        },
-        {
-          "id": "f4",
-          "label": "在第 5 行之前再不加锁地调用一次 `db.getBalance`。"
         }
       ],
       "fix_answer": "f1",
@@ -112,5 +104,68 @@
     "  return { ok: true, balance: updated.balance };",
     "}"
   ],
-  "clean_conclusion": "数据库在同一步里完成检查和扣款，两次连点就钻不进去了。"
+  "clean_conclusion": "数据库在同一步里完成检查和扣款，两次连点就钻不进去了。",
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "取款函数不需要用户 ID。",
+        "取款金额应该从数据库对象本身读取。",
+        "异步取款必须接收回调参数。"
+      ],
+      "fix": [
+        "删掉 withdraw 的 userId 参数。",
+        "只接收 userId 和 db，从 db 取金额。",
+        "给 withdraw 添加回调参数。"
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "正数检查不该排除金额为零的取款。",
+        "负数金额也应该按取款处理。",
+        "不到一个整单位的金额都应该拒绝。"
+      ],
+      "fix": [
+        "只拒绝小于零的金额。",
+        "遇到负数时取绝对值。",
+        "把门槛从 0 改成 1。"
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "getBalance 应用取款金额做查询键。",
+        "应读整个数据库的余额。",
+        "本次取款金额可以直接当作余额。"
+      ],
+      "fix": [
+        "改用 getBalance(amount)。",
+        "用数据库总余额代替该用户余额。",
+        "赋值 balance = amount。"
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "取光余额也应该拒绝。",
+        "比较时只需检查余额是否为零。",
+        "余额不足应该解释成找不到用户。"
+      ],
+      "fix": [
+        "改为 balance <= amount 时拒绝。",
+        "只检查 balance === 0。",
+        "把这次提前返回解释成「用户不存在」。"
+      ]
+    },
+    "6": {
+      "diagnosis": [
+        "返回余额时应加回取款金额。",
+        "响应中的余额应该等于取款额。",
+        "响应应展示取款前的余额。"
+      ],
+      "fix": [
+        "返回 balance + amount。",
+        "把 amount 填入 balance 字段。",
+        "原样返回 balance 变量。"
+      ]
+    }
+  }
 }

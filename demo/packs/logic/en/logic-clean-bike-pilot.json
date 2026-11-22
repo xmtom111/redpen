@@ -48,5 +48,68 @@
     "The pilot supports a net rise in cycling on flat commercial streets like Oak Avenue, though steeper or suburban roads may behave differently."
   ],
   "clean_conclusion": "The write-up uses a full-year window, a matched control street, actual card sales instead of vibes, and a carefully scoped conclusion.",
-  "opener": false
+  "opener": false,
+  "kind": "clean",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "The before and after windows total 12 months combined.",
+        "Weekday tracking should be described as weekend-only tracking.",
+        "The protected lane was installed on Pine Avenue."
+      ],
+      "fix": [
+        "Count six months before and six months after.",
+        "Replace weekday counts with weekend counts.",
+        "Move the protected lane from Oak to Pine in the description."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "Pine also received the protected lane.",
+        "Pine is a distant rural road.",
+        "The comparison period for Pine was a different year."
+      ],
+      "fix": [
+        "Describe both streets as receiving the bike lane.",
+        "Replace Pine with a rural road in the comparison description.",
+        "Shift the Pine observation window one year later."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "The two growth rates should be added to isolate Oak’s gain.",
+        "Pine’s growth should be used as a divisor to express the gap in percentage points.",
+        "Oak grew by 5% and Pine by 35%."
+      ],
+      "fix": [
+        "Report a 40-point gap.",
+        "Report a 7-point gap by dividing 35 by 5.",
+        "Report a −30-point gap for Oak."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Oak’s 1.2% change was a decline.",
+        "The numbers report the share of transactions paid by card.",
+        "The only evidence was merchants’ recollection."
+      ],
+      "fix": [
+        "Write −1.2% for Oak.",
+        "Describe 1.2% and 0.9% as card payment shares.",
+        "Replace the card totals with a merchant opinion poll."
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "The pilot measured steep and suburban roads directly.",
+        "The growth on similar commercial streets should be attributed to Pine alone.",
+        "The conclusion should apply to every road regardless of slope."
+      ],
+      "fix": [
+        "Say that steeper roads were part of the pilot sample.",
+        "Rewrite the conclusion as growth only on the comparison street.",
+        "Extend the conclusion to all streets."
+      ]
+    }
+  }
 }

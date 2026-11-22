@@ -58,10 +58,6 @@
         {
           "id": "d3",
           "label": "Python 的 f-string 不能作为参数传给 `conn.execute`。"
-        },
-        {
-          "id": "d4",
-          "label": "查询语句必须写 `SELECT *`，只查两列会报错。"
         }
       ],
       "diagnosis_answer": "d1",
@@ -77,10 +73,6 @@
         {
           "id": "f3",
           "label": "放弃 f-string，改用 `\"...\" + cleaned + \"...\"` 字符串拼接。"
-        },
-        {
-          "id": "f4",
-          "label": "在 SQL 末尾加上 `LIMIT 1` 限制返回行数。"
         }
       ],
       "fix_answer": "f1",
@@ -101,5 +93,56 @@
     "    cursor = conn.execute(sql, (cleaned,))",
     "    return cursor.fetchone()"
   ],
-  "clean_conclusion": "数据库驱动会把邮箱当作数据而不是 SQL 来绑定，精心构造的地址改不了查询。"
+  "clean_conclusion": "数据库驱动会把邮箱当作数据而不是 SQL 来绑定，精心构造的地址改不了查询。",
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "email 参数也应该包含数据库连接。",
+        "查找函数应该接收一个数字，而非邮箱地址。",
+        "find_user 应把游标作为 email 参数。"
+      ],
+      "fix": [
+        "把连接和邮箱合成一个 email 字符串。",
+        "保留查找逻辑，把邮箱参数改成数字编号。",
+        "把游标对象用作 email 参数。"
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "查找邮箱时应保留首尾空白。",
+        "邮箱规范化后应转成大写。",
+        "查找键应该删掉域名部分。"
+      ],
+      "fix": [
+        "只用 email.lower()，保留首尾空白。",
+        "改用 email.strip().upper()。",
+        "只用 @ 前面的部分查找。"
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "要执行两次查询才能拿到可用游标。",
+        "数据库连接对象本身就该当游标。",
+        "执行查询的结果就是规范化后的邮箱地址。"
+      ],
+      "fix": [
+        "同一查询执行两次，保留第二个游标。",
+        "直接赋值 cursor = conn。",
+        "用 cleaned 代替返回的游标。"
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "查找单个用户应返回匹配行的整个列表。",
+        "函数应该直接返回游标本身。",
+        "不应该从游标读取任何行。"
+      ],
+      "fix": [
+        "改为返回 cursor.fetchall()。",
+        "直接返回 cursor。",
+        "不读取任何行，直接返回 None。"
+      ]
+    }
+  }
 }

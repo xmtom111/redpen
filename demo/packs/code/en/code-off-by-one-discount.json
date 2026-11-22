@@ -73,10 +73,6 @@
         {
           "id": "d3",
           "label": "Python's `sum()` cannot accept a generator expression."
-        },
-        {
-          "id": "d4",
-          "label": "`range` starts at 1 in Python, skipping `prices[0]`."
         }
       ],
       "diagnosis_answer": "d1",
@@ -92,10 +88,6 @@
         {
           "id": "f3",
           "label": "Use `range(len(prices) + 1)` so the last index is included."
-        },
-        {
-          "id": "f4",
-          "label": "Replace `sum(...)` with `len(prices)`."
         }
       ],
       "fix_answer": "f1",
@@ -125,10 +117,6 @@
         {
           "id": "d3",
           "label": "`>= 500` should be `> 500` because $500 orders only get 10%."
-        },
-        {
-          "id": "d4",
-          "label": "Discount should be `25` instead of `0.25`."
         }
       ],
       "diagnosis_answer": "d1",
@@ -144,10 +132,6 @@
         {
           "id": "f3",
           "label": "Remove the `else` branch so Python evaluates both `if` and `elif`."
-        },
-        {
-          "id": "f4",
-          "label": "Swap `0.10` and `0.25` while keeping the same threshold order."
         }
       ],
       "fix_answer": "f1",
@@ -172,5 +156,80 @@
     "        discount = 0.0",
     "    return round(subtotal * (1 - discount), 2)"
   ],
-  "clean_conclusion": "Every item is summed, and a $500+ cart actually gets the 25% tier."
+  "clean_conclusion": "Every item is summed, and a $500+ cart actually gets the 25% tier.",
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "checkout_total should receive one scalar rather than a list of prices.",
+        "The function needs a separate argument for every price.",
+        "The callable should take the discount instead of the prices."
+      ],
+      "fix": [
+        "Change prices to a single price argument.",
+        "Require separate price1 and price2 arguments.",
+        "Change the signature to checkout_total(discount)."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "Exactly 100 should miss the 10% threshold.",
+        "The threshold should be applied to the first price only.",
+        "Subtotals below 100 qualify for this branch."
+      ],
+      "fix": [
+        "Change >= 100 to > 100.",
+        "Compare prices[0] to 100.",
+        "Use subtotal < 100 for this branch."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "A 10% discount should be stored as 10.",
+        "The discount variable should contain the fraction the customer pays.",
+        "The lower bracket gives a fixed charge reduction of 0.10."
+      ],
+      "fix": [
+        "Set discount = 10.",
+        "Set discount = 0.90 before the final 1 - discount calculation.",
+        "Subtract 0.10 in cash instead of setting a rate."
+      ]
+    },
+    "6": {
+      "diagnosis": [
+        "The upper bracket needs 0.75 in the discount field.",
+        "The 25% discount requires storing 2.5.",
+        "The upper discount must be added to the subtotal as a surcharge."
+      ],
+      "fix": [
+        "Set discount = 0.75.",
+        "Set discount = 2.5.",
+        "Set discount = -0.25."
+      ]
+    },
+    "7": {
+      "diagnosis": [
+        "The no-discount case should store 1 in discount.",
+        "Below the cutoff there is still a 10% discount.",
+        "Below the cutoff the customer should pay nothing."
+      ],
+      "fix": [
+        "Change the default rate to 1.",
+        "Change the default rate to 0.10.",
+        "Return zero for the entire order in this branch."
+      ]
+    },
+    "8": {
+      "diagnosis": [
+        "The result should report the discount amount instead of the payable amount.",
+        "A percentage rate should be subtracted as a flat amount.",
+        "The checkout should round to two significant figures."
+      ],
+      "fix": [
+        "Return round(subtotal * discount, 2).",
+        "Return round(subtotal - discount, 2).",
+        "Round the final charge to two significant figures."
+      ]
+    }
+  }
 }

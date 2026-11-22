@@ -58,10 +58,6 @@
         {
           "id": "d3",
           "label": "The $20 pass already includes four free lattes, so the fifth drink is when you start saving."
-        },
-        {
-          "id": "d4",
-          "label": "Tax has to be added to the $20, which means you would need five drinks to break even."
         }
       ],
       "diagnosis_answer": "d1",
@@ -77,10 +73,6 @@
         {
           "id": "f3",
           "label": "Compare $20 with 20% of a $5 latte, which already shows a profit after the first drink."
-        },
-        {
-          "id": "f4",
-          "label": "Ten workday coffees at $5 already exceed $20, so the pass is automatically worth it."
         }
       ],
       "fix_answer": "f1",
@@ -101,5 +93,44 @@
     "Most people on our floor already grab a morning coffee on at least ten workdays.",
     "Ten drinks a month still leaves you $10 short of breaking even, so the pass is optional, not an obvious win."
   ],
-  "clean_conclusion": "The pass saves $1 a cup, not $5. You need 20 drinks a month to break even, not 4."
+  "clean_conclusion": "The pass saves $1 a cup, not $5. You need 20 drinks a month to break even, not 4.",
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "The $5 is the price of five lattes.",
+        "The $5 is already the member price.",
+        "The price is per week rather than per latte."
+      ],
+      "fix": [
+        "Budget $1 per latte.",
+        "Treat $5 as 80% of the ordinary latte price.",
+        "Budget $5 per week regardless of how many lattes are bought."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "20% off means the drink costs one fifth of its original price.",
+        "The pass is a credit automatically subtracted from the first order.",
+        "The discounted rate starts after the first drink each month."
+      ],
+      "fix": [
+        "Charge $1 instead of $4 for a $5 latte.",
+        "Apply the full $20 pass fee as a credit at checkout.",
+        "Charge full price for the first drink of the month."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Ten workdays means only ten visits across the whole floor.",
+        "At least ten means nobody buys coffee on an eleventh workday.",
+        "The count is ten days per week."
+      ],
+      "fix": [
+        "Split ten visits across all people on the floor.",
+        "Set every qualifying buyer’s frequency to exactly ten visits.",
+        "Use ten workdays of coffee purchases every week."
+      ]
+    }
+  }
 }

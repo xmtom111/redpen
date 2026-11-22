@@ -58,10 +58,6 @@
         {
           "id": "d3",
           "label": "Python f-strings cannot be passed into `conn.execute`."
-        },
-        {
-          "id": "d4",
-          "label": "Using `SELECT id, role` fails unless `SELECT *` is used."
         }
       ],
       "diagnosis_answer": "d1",
@@ -77,10 +73,6 @@
         {
           "id": "f3",
           "label": "Switch from an f-string to `\"...\" + cleaned + \"...\"` string concatenation."
-        },
-        {
-          "id": "f4",
-          "label": "Add `LIMIT 1` to the end of the f-string query."
         }
       ],
       "fix_answer": "f1",
@@ -101,5 +93,56 @@
     "    cursor = conn.execute(sql, (cleaned,))",
     "    return cursor.fetchone()"
   ],
-  "clean_conclusion": "The database driver binds the email as data, not as SQL, so a crafted address can't change the query."
+  "clean_conclusion": "The database driver binds the email as data, not as SQL, so a crafted address can't change the query.",
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "The email argument should contain the database connection too.",
+        "The lookup function should receive a number instead of an email.",
+        "find_user should take a cursor as the email argument."
+      ],
+      "fix": [
+        "Combine the connection and email into one email string.",
+        "Replace the email parameter with a numeric customer ID without changing the lookup.",
+        "Use a cursor object as the email argument."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "Whitespace padding should be kept during email lookup.",
+        "The normalized email must use uppercase.",
+        "The domain part should be removed from the lookup key."
+      ],
+      "fix": [
+        "Use email.lower() and leave surrounding whitespace.",
+        "Use email.strip().upper().",
+        "Look up only the part before @."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "This line should execute the lookup twice to obtain a usable cursor.",
+        "The database connection object should itself be the cursor.",
+        "The normalized email is the result of executing the lookup."
+      ],
+      "fix": [
+        "Execute the same lookup twice and keep the second cursor.",
+        "Assign cursor = conn directly.",
+        "Use cleaned in place of the returned cursor."
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "A user lookup should return every matching row as a list.",
+        "The function is supposed to return the cursor object.",
+        "No rows should be read from the cursor."
+      ],
+      "fix": [
+        "Return cursor.fetchall().",
+        "Return cursor directly.",
+        "Return None without fetching."
+      ]
+    }
+  }
 }

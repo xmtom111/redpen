@@ -57,10 +57,6 @@
         {
           "id": "d3",
           "label": "26% minus 16% is a 62.5-point gap, not a 10-point gap."
-        },
-        {
-          "id": "d4",
-          "label": "The overall average of 10% and 30% must always be 20%, no matter how traffic is split."
         }
       ],
       "diagnosis_answer": "d1",
@@ -76,10 +72,6 @@
         {
           "id": "f3",
           "label": "Ship A on desktop and A on mobile to lock in that 26% overall rate."
-        },
-        {
-          "id": "f4",
-          "label": "Average each page's mobile and desktop rates with equal weights and skip the traffic split."
         }
       ],
       "fix_answer": "f1",
@@ -109,10 +101,6 @@
         {
           "id": "d3",
           "label": "VIP users should never be included in a checkout experiment."
-        },
-        {
-          "id": "d4",
-          "label": "2 out of 2 equals a 50% conversion rate, not 100%."
         }
       ],
       "diagnosis_answer": "d1",
@@ -128,10 +116,6 @@
         {
           "id": "f3",
           "label": "Drop one of the two VIP visitors to reduce variance."
-        },
-        {
-          "id": "f4",
-          "label": "Assume VIPs behave like mobile users and skip collecting more data."
         }
       ],
       "fix_answer": "f1",
@@ -153,5 +137,44 @@
     "The VIP '100%' is 2 out of 2 visitors — far too small to support any claim."
   ],
   "clean_conclusion": "The new page wins on both phones and laptops. Don't ship the old one just because a broken traffic split padded its average.",
-  "opener": false
+  "opener": false,
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "The 10% mobile rate is higher than 12%.",
+        "The mobile rates belong to desktop traffic.",
+        "A two-point gap means mobile B converted twice as often as A."
+      ],
+      "fix": [
+        "Call A the mobile winner.",
+        "Move the 12% vs 10% figures to desktop.",
+        "Rewrite 12% as twice 10% when comparing mobile."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "A outperformed B on desktop because 30 is the smaller rate.",
+        "The desktop lift was 20 percentage points.",
+        "The desktop rate for B must be taken from mobile instead."
+      ],
+      "fix": [
+        "Give the desktop win to A.",
+        "Report a 20-point lift on desktop.",
+        "Use 12% for desktop B."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "A should weight mobile at 80% because B had that mix.",
+        "The pooled rates must average desktop and mobile equally.",
+        "Both versions should report their desktop rates as overall rates."
+      ],
+      "fix": [
+        "Compute A with 80% mobile and 20% desktop.",
+        "Use 20% overall for A and 22% for B.",
+        "Use 30% overall for A and 32% for B."
+      ]
+    }
+  }
 }

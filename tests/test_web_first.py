@@ -10,11 +10,17 @@ from pathlib import Path
 
 import redpen
 from demo.grade import grade_selections
-from demo.server import DemoServer, card, export_site, load_banks, load_pack_catalog
+from demo.packs import normalize_v2_puzzle, validate_pack_puzzle
+from demo.server import DemoServer, build_debrief, card, export_site, load_banks, load_pack_catalog
 
 ROOT = Path(__file__).resolve().parents[1]
 NODE = shutil.which("node")
 SECRET_MARKERS = ("why_wrong", "why_tempting", "catch_rule", "clean_final_answer", "clean_steps", "diagnosis_answer", "fix_answer")
+
+
+def clean_pack_fixture():
+    fixture = ROOT / "demo" / "packs" / "code" / "en" / "code-clean-binary-search.json"
+    return json.loads(fixture.read_text(encoding="utf-8"))
 
 
 class PackAndExportTest(unittest.TestCase):
@@ -40,6 +46,8 @@ class PackAndExportTest(unittest.TestCase):
         for lang_cat in (self.en, self.zh):
             for entry in lang_cat["entries"]:
                 public = card(entry)
+                self.assertNotIn("kind", public)
+                self.assertNotIn("explanation", public)
                 encoded = json.dumps(public, ensure_ascii=False)
                 for marker in SECRET_MARKERS:
                     self.assertNotIn(marker, encoded, f"secret marker {marker} leaked in {entry['id']}")
@@ -47,15 +55,52 @@ class PackAndExportTest(unittest.TestCase):
                 self.assertIn(public["domain"], ("logic", "code", "math"))
                 self.assertEqual(len(public["segments"]), len(public["steps"]))
                 # Every clickable segment has 3-4 diagnosis and 3-4 fix choices (no visual tells).
-                for seg in public["segments"]:
-                    choices = public["light_choices"][str(seg["id"])]
-                    self.assertTrue(3 <= len(choices["diagnosis"]) <= 4, f"{entry['id']} seg {seg['id']}")
-                    self.assertTrue(3 <= len(choices["fix"]) <= 4, f"{entry['id']} seg {seg['id']}")
+                self.assertTrue(public["light_play"])
+                self.assertLessEqual(
+                    set(public["light_choices"]), {str(seg["id"]) for seg in public["segments"]}
+                )
+                for step, choices in public["light_choices"].items():
+                    self.assertTrue(3 <= len(choices["diagnosis"]) <= 4, f"{entry['id']} seg {step}")
+                    self.assertTrue(3 <= len(choices["fix"]) <= 4, f"{entry['id']} seg {step}")
                 # Every planted error's answer id is present in the public choices for its segment.
                 for err in entry["key"]["errors"]:
                     choices = public["light_choices"][str(err["step"])]
                     self.assertIn(err["diagnosis_answer"], [c["id"] for c in choices["diagnosis"]])
                     self.assertIn(err["fix_answer"], [c["id"] for c in choices["fix"]])
+
+    def test_authored_choices_are_segment_specific(self):
+        for catalog in (self.en, self.zh):
+            entries = {entry["id"]: entry for entry in catalog["entries"]}
+            cabin = entries["logic-chat-cabin-split"]["light_choices"]
+            laundry = entries["logic-chat-laundry-queue"]["light_choices"]
+            self.assertTrue({"1", "2", "3"} <= set(cabin))
+            self.assertNotIn("4", cabin)  # Receipt housekeeping is background.
+            for group in ("diagnosis", "fix"):
+                labels = lambda choices: {choice["label"] for choice in choices[group]}
+                self.assertFalse(labels(cabin["1"]) & labels(laundry["1"]))
+                self.assertFalse(labels(cabin["1"]) & labels(cabin["2"]))
+            empty = clean_pack_fixture()
+            empty.pop("segment_distractors")
+            entry = normalize_v2_puzzle(empty, "code")
+            self.assertTrue(card(entry)["light_play"])
+            self.assertEqual(card(entry)["light_choices"], {})
+
+    def test_kind_and_segment_distractors_validation(self):
+        for changes, message in (
+            ({"kind": "unknown"}, "kind"),
+            ({"kind": "planted"}, "level"),
+            ({"kind": "clean", "level": 1}, "level"),
+            ({"kind": "trick_clean"}, "one-line"),
+            ({"kind": "trick_clean", "explanation": "  "}, "one-line"),
+            ({"kind": "trick_clean", "explanation": "One\nTwo"}, "one-line"),
+            ({"segment_distractors": {"99": {}}}, "segment_distractors"),
+            ({"segment_distractors": {"2": {"diagnosis": ["one"]}}}, "3-4 distinct"),
+        ):
+            with self.subTest(changes=changes), self.assertRaisesRegex(ValueError, message):
+                validate_pack_puzzle({**clean_pack_fixture(), **changes})
+        legacy = clean_pack_fixture()
+        legacy.pop("kind")
+        self.assertEqual(normalize_v2_puzzle(legacy, "code")["kind"], "clean")
 
     def test_export_writes_pack_manifests_and_per_domain_files(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -137,6 +182,16 @@ class LightGradingAndDailyTest(unittest.TestCase):
         cls.zh_by_id = {e["id"]: e for e in load_pack_catalog("zh")["entries"]}
 
     def test_light_mode_grading_python_and_js_parity(self):
+        trick = normalize_v2_puzzle({
+            **clean_pack_fixture(),
+            "id": "trick-clean-fixture",
+            "kind": "trick_clean",
+            "explanation": "When only one seat is left, you still have to check who's sitting in it.",
+        }, "code")
+        self.en_by_id[trick["id"]] = trick
+        reveal = build_debrief(trick, "0", 0, grade_selections(trick, []), revealed=True)
+        self.assertEqual(reveal["explanation"], trick["key"]["explanation"])
+        self.assertNotIn("explanation", card(trick))
         cases = [
             # Perfect hit on code L1
             ("en", "code-mutable-default", False, [{"step": 1, "diagnosis_id": "d1", "fix_id": "f1"}], 100, 1, 0),
@@ -151,6 +206,9 @@ class LightGradingAndDailyTest(unittest.TestCase):
             ("en", "code-clean-binary-search", True, [], 100, 0, 0),
             # Clean round flagged -> 67 (1 false alarm)
             ("en", "code-clean-binary-search", False, [{"step": 3, "diagnosis_id": "d1", "fix_id": "f1"}], 67, 0, 1),
+            ("en", "trick-clean-fixture", True, [], 100, 0, 0),
+            ("en", "trick-clean-fixture", False, [{"step": 3, "diagnosis_id": "d1", "fix_id": "f1"}], 67, 0, 1),
+            ("en", "code-mutable-default", True, [], 0, 0, 0),
             # Two-flaw logic round in Chinese: 1 perfect, 1 missed
             ("zh", "logic-coffee-promotions", False, [{"step": 3, "diagnosis_id": "d1", "fix_id": "f1"}], 50, 1, 0),
             # Math legacy round in light mode (Chinese)
@@ -220,6 +278,23 @@ for (let i = 0; i < 3; i++) {
   assert.notEqual(d1[i].id, d2[i].id);
 }
 
+// A mixed bank can start with either kind of correct puzzle and can draw
+// all correct, all planted, or a mix. Two-opener pools still alternate.
+const days = Array.from({length: 180}, (_, i) => new Date(Date.UTC(2026, 0, i + 1)).toISOString().slice(0, 10));
+const mixed = ['logic', 'code', 'math'].flatMap(domain =>
+  ['planted', 'clean', 'trick_clean', 'planted'].map((kind, i) =>
+    ({ id: domain + i, domain, kind, opener: domain === 'logic' })));
+const draws = days.map(date => Daily.selectDaily(mixed, date));
+for (const slot of [0, 1, 2]) {
+  assert.deepEqual(new Set(draws.map(row => row[slot].kind)), new Set(['planted', 'clean', 'trick_clean']));
+}
+assert.deepEqual(new Set(draws.map(row => row.filter(item => item.kind !== 'planted').length)),
+                 new Set([0, 1, 2, 3]));
+assert.ok(draws.slice(1).every((row, i) => row[0].id !== draws[i][0].id));
+const twoOpeners = mixed.filter(x => x.domain !== 'logic' || x.kind !== 'planted');
+const two = days.map(date => Daily.selectDaily(twoOpeners, date)[0].id);
+assert.ok(two.slice(1).every((id, i) => id !== two[i]));
+
 // 3. Fallback when one domain is missing still returns 3 deterministic unique puzzles.
 const noCode = enCards.filter(x => x.domain !== 'code');
 const fb1 = Daily.selectDaily(noCode, '2026-11-20', 3);
@@ -254,7 +329,7 @@ const cardEn = Daily.formatShareCard({
 assert.match(cardEn, /RedPen Daily #\d+/);
 assert.match(cardEn, /2026-11-21/);
 assert.match(cardEn, /2-day streak/);
-assert.match(cardEn, /Spot the flaw\. Beat the AI\./);
+assert.match(cardEn, /Does this hold up\?/);
 assert.doesNotMatch(cardEn, /Step \d|L\d|Claim \d/i);
 
 const cardZh = Daily.formatShareCard({
@@ -263,7 +338,7 @@ const cardZh = Daily.formatShareCard({
 });
 assert.match(cardZh, /今日红笔 #\d+/);
 assert.match(cardZh, /连续 2 天/);
-assert.match(cardZh, /红笔抓错：专治一本正经的胡说八道/);
+assert.match(cardZh, /红笔抓错：这段话站得住脚吗？/);
 assert.doesNotMatch(cardZh, /步骤\s*\d|第\s*\d|论点\s*\d/);
 console.log('PASS daily determinism, fallback, streaks, isolation, spoiler-free share');
 """
@@ -286,8 +361,8 @@ class PlayFeelExportTest(unittest.TestCase):
             zh_index = (dest / "zh" / "index.html").read_text(encoding="utf-8")
             self.assertNotIn("Worksheets can contain planted flaws", en_index)
             self.assertNotIn("请以批改复盘为准", zh_index)
-            self.assertIn("spotting confident AI nonsense", en_index)
-            self.assertIn("每天三题，专治一本正经的胡说八道", zh_index)
+            self.assertIn("Does this hold up?", en_index)
+            self.assertIn("这段话站得住脚吗？", zh_index)
 
             for prefix in (dest, dest / "zh"):
                 app_js = (prefix / "app.js").read_text(encoding="utf-8")
@@ -296,8 +371,8 @@ class PlayFeelExportTest(unittest.TestCase):
                 self.assertIn("First-screen instant play", app_js)
                 self.assertIn("Score it", app_js)
                 self.assertIn("看打得准不准", app_js)
-                self.assertIn("Tap the line that sounds too sure of itself.", app_js)
-                self.assertIn("点出那句说得太满的话。", app_js)
+                self.assertIn("Tap a shaky line to call it out, or clear it as solid.", app_js)
+                self.assertIn("点可疑的那句下判词，或直接判没毛病", app_js)
                 self.assertIn("Share today's RedPen", app_js)
                 self.assertIn("分享今日战绩", app_js)
                 self.assertIn("function playDockHtml", app_js)

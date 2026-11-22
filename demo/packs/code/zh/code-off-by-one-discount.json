@@ -73,10 +73,6 @@
         {
           "id": "d3",
           "label": "Python 的 `sum()` 不支持接收生成器表达式。"
-        },
-        {
-          "id": "d4",
-          "label": "`range` 默认从 1 开始，所以会漏掉第一件商品 `prices[0]`。"
         }
       ],
       "diagnosis_answer": "d1",
@@ -92,10 +88,6 @@
         {
           "id": "f3",
           "label": "改成 `range(len(prices) + 1)` 保证覆盖末尾元素。"
-        },
-        {
-          "id": "f4",
-          "label": "把 `sum(...)` 替换成 `len(prices)`。"
         }
       ],
       "fix_answer": "f1",
@@ -125,10 +117,6 @@
         {
           "id": "d3",
           "label": "满 500 不包含 500，这里必须写成 `> 500`。"
-        },
-        {
-          "id": "d4",
-          "label": "折扣应该写成 `25` 而不是 `0.25`。"
         }
       ],
       "diagnosis_answer": "d1",
@@ -144,10 +132,6 @@
         {
           "id": "f3",
           "label": "删掉 `else` 分支，让 Python 同时执行 `if` 和 `elif`。"
-        },
-        {
-          "id": "f4",
-          "label": "保持门槛顺序不变，直接对调 `0.10` 和 `0.25`。"
         }
       ],
       "fix_answer": "f1",
@@ -172,5 +156,80 @@
     "        discount = 0.0",
     "    return round(subtotal * (1 - discount), 2)"
   ],
-  "clean_conclusion": "所有商品都被加总，满 500 的订单也确实走到了 25% 那一档。"
+  "clean_conclusion": "所有商品都被加总，满 500 的订单也确实走到了 25% 那一档。",
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "checkout_total 应接收单个金额。",
+        "每个商品价格必须占一个参数。",
+        "参数应该是折扣率，不能是价格。"
+      ],
+      "fix": [
+        "把 prices 改成单个 price。",
+        "分别接收 price1 和 price2。",
+        "把签名改成 checkout_total(discount)。"
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "刚好 100 不该满足减 10% 的门槛。",
+        "只需用第一件商品的价格比门槛。",
+        "不到 100 才该进入这个分支。"
+      ],
+      "fix": [
+        "把 >= 100 改成 > 100。",
+        "用 prices[0] 与 100 比较。",
+        "把判断改为 subtotal < 100。"
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "减 10% 应存成 10。",
+        "discount 应存顾客实付的比例。",
+        "这一档只该固定减 0.10 元。"
+      ],
+      "fix": [
+        "设 discount = 10。",
+        "保持最后的 1 - discount 公式，把 discount 改为 0.90。",
+        "把这一档改为固定减 0.10 元。"
+      ]
+    },
+    "6": {
+      "diagnosis": [
+        "高档折扣的 discount 应存成 0.75。",
+        "减 25% 应存为 2.5。",
+        "高档折扣应该加价。"
+      ],
+      "fix": [
+        "设 discount = 0.75。",
+        "设 discount = 2.5。",
+        "设 discount = -0.25。"
+      ]
+    },
+    "7": {
+      "diagnosis": [
+        "无折扣时 discount 应记为 1。",
+        "低于门槛也有 10% 优惠。",
+        "低于门槛时整单应免费。"
+      ],
+      "fix": [
+        "默认折扣率改成 1。",
+        "默认折扣率改成 0.10。",
+        "在这个分支里直接把应付金额设为零。"
+      ]
+    },
+    "8": {
+      "diagnosis": [
+        "函数应该返回优惠金额。",
+        "应把折扣率当作固定金额从小计里减去。",
+        "结账应取两位有效数字。"
+      ],
+      "fix": [
+        "改为返回 round(subtotal * discount, 2)。",
+        "改为返回 round(subtotal - discount, 2)。",
+        "把应付款取两位有效数字。"
+      ]
+    }
+  }
 }

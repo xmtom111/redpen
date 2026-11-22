@@ -63,10 +63,6 @@
         {
           "id": "d3",
           "label": "展开运算符只拷贝数字字段，会直接忽略嵌套对象。"
-        },
-        {
-          "id": "d4",
-          "label": "严格模式下函数返回 `cfg` 时会自动剥离嵌套键。"
         }
       ],
       "diagnosis_answer": "d1",
@@ -82,10 +78,6 @@
         {
           "id": "f3",
           "label": "把 `const cfg` 改成 `let cfg` 避免引用共享。"
-        },
-        {
-          "id": "f4",
-          "label": "在第 3 行之后加上 `Object.freeze(cfg)`。"
         }
       ],
       "fix_answer": "f1",
@@ -105,5 +97,56 @@
     "  return { ...DEFAULT_CONFIG, limits: { ...DEFAULT_CONFIG.limits, retries } };",
     "}"
   ],
-  "clean_conclusion": "外层配置和嵌套的 `limits` 都是新分配的，默认值不会被改掉。"
+  "clean_conclusion": "外层配置和嵌套的 `limits` 都是新分配的，默认值不会被改掉。",
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "默认重试次数应该用超时数值来表示。",
+        "timeout 可以兼作重试次数，无需 limits 子对象。",
+        "模板一开始就不应该有 retries 字段。"
+      ],
+      "fix": [
+        "把默认重试次数设为 3000。",
+        "去掉 limits，重试次数改读 timeout。",
+        "从 DEFAULT_CONFIG 删去 retries。"
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "参数应是 timeout，与配置的第一个属性一致。",
+        "重试次数应该永远固定为两次。",
+        "每次调用都必须指定新超时值。"
+      ],
+      "fix": [
+        "把签名改成 withRetries(timeout)。",
+        "删除 retries 参数，固定为两次。",
+        "要求额外传入 timeout 参数。"
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "重试次数要写进 timeout 字段。",
+        "新次数应累加到默认次数上。",
+        "应拿一个数字替换整个 limits 对象。"
+      ],
+      "fix": [
+        "赋值 cfg.timeout = retries。",
+        "改为 cfg.limits.retries += retries。",
+        "赋值 cfg.limits = retries。"
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "这个函数应该只返回重试次数。",
+        "调用方只需要 limits 子对象。",
+        "返回值应直接用默认对象。"
+      ],
+      "fix": [
+        "改为返回 retries。",
+        "改为返回 cfg.limits。",
+        "返回 DEFAULT_CONFIG。"
+      ]
+    }
+  }
 }

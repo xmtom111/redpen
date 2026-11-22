@@ -53,10 +53,6 @@
         {
           "id": "d3",
           "label": "Closet doors need a full 2 feet to open, so even a 1.5-foot walkway would be too tight."
-        },
-        {
-          "id": "d4",
-          "label": "Half a foot off each side is only 6 inches total, so the walkway barely changes."
         }
       ],
       "diagnosis_answer": "d1",
@@ -72,10 +68,6 @@
         {
           "id": "f3",
           "label": "Keep the 5-foot bed; a 6-foot bed can never leave a walkway in this room."
-        },
-        {
-          "id": "f4",
-          "label": "Cut a half-foot recess into the window wall so both sides can share the extra width."
         }
       ],
       "fix_answer": "f1",
@@ -95,5 +87,32 @@
     "One side is already against the wall, so the whole extra foot comes out of the walkway — that's 1 foot left, not 1.5.",
     "I'll order it tonight before the weekend sale ends."
   ],
-  "clean_conclusion": "The extra foot all comes out of the walkway. You'll have 1 foot, not 1.5."
+  "clean_conclusion": "The extra foot all comes out of the walkway. You'll have 1 foot, not 1.5.",
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "Moving from a 5-foot bed to a 6-foot bed makes it narrower.",
+        "The new bed adds six feet to the old width.",
+        "Replacing the old bed means adding their widths."
+      ],
+      "fix": [
+        "Treat the new bed as saving one foot.",
+        "Plan for an 11-foot replacement bed.",
+        "Count both beds in the room after replacement."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "The 2-foot walkway is split between the sides of the bed.",
+        "The wall side is where the closet walkway sits.",
+        "The 2-foot figure is the width of the existing bed."
+      ],
+      "fix": [
+        "Use one foot of clearance on each side.",
+        "Put the walkway between the bed and window wall.",
+        "Use two feet as the current bed width."
+      ]
+    }
+  }
 }

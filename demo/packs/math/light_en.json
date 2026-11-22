@@ -4,19 +4,79 @@
     "flaws": {
       "2": {
         "diagnosis_choices": [
-          { "id": "d1", "label": "Dividing both sides by $x$ silently assumes $x \\neq 0$, dropping the solution $x = 0$." },
-          { "id": "d2", "label": "Dividing $x^3$ by $x$ gives $x^3$, not $x^2$." },
-          { "id": "d3", "label": "You cannot divide an equation by a variable when the right side is positive." },
-          { "id": "d4", "label": "Dividing by $x$ flips the sign of $4x$ to $-4$." }
+          { "id": "d1", "label": "Dividing both sides by \\(x\\) silently assumes \\(x \\neq 0\\), dropping the solution \\(x = 0\\)." },
+          { "id": "d2", "label": "Dividing \\(x^3\\) by \\(x\\) gives \\(x^3\\), not \\(x^2\\)." },
+          { "id": "d3", "label": "You cannot divide an equation by a variable when the right side is positive." }
         ],
         "diagnosis_answer": "d1",
         "fix_choices": [
-          { "id": "f1", "label": "Move terms to one side and factor: $x(x^2 - 4) = 0$, giving $x \\in \\{-2, 0, 2\\}$." },
-          { "id": "f2", "label": "Divide by $x^2$ instead to get $x = 4$." },
-          { "id": "f3", "label": "Take cube roots of both sides to get $x = \\sqrt[3]{4}$." },
-          { "id": "f4", "label": "Keep dividing by $x$, then discard $x = -2$ because $x$ must be positive." }
+          { "id": "f1", "label": "Move terms to one side and factor: \\(x(x^2 - 4) = 0\\), giving \\(x \\in \\{-2, 0, 2\\}\\)." },
+          { "id": "f2", "label": "Divide by \\(x^2\\) instead to get \\(x = 4\\)." },
+          { "id": "f3", "label": "Take cube roots of both sides to get \\(x = \\sqrt[3]{4}\\)." }
         ],
         "fix_answer": "f1"
+      }
+    },
+    "segment_distractors": {
+      "1": {
+        "diagnosis": [
+          "Cubing x on the left requires cubing the 4 too.",
+          "The coefficient 4 belongs inside the cube.",
+          "The equation requires x to be nonnegative."
+        ],
+        "fix": [
+          "Start with \\(x^3=4^3x\\).",
+          "Start with \\(x^3=(4x)^3\\).",
+          "Restrict the search to \\(x\\ge0\\)."
+        ]
+      },
+      "3": {
+        "diagnosis": [
+          "A square root gives only the positive solution of the squared equation.",
+          "The negative solution is −4 rather than −2.",
+          "Solving the square requires halving 4 twice."
+        ],
+        "fix": [
+          "Keep only \\(x=2\\).",
+          "Use \\(x=2\\) and \\(x=-4\\).",
+          "Use \\(x=1\\) and \\(x=-1\\)."
+        ]
+      },
+      "4": {
+        "diagnosis": [
+          "Cubing 2 gives 6.",
+          "The right-hand side uses 4 squared.",
+          "A positive substitution cannot satisfy a cubic."
+        ],
+        "fix": [
+          "Replace the left-hand value with 6.",
+          "Evaluate the right-hand side as \\(4^2=16\\).",
+          "Discard 2 from the checked roots."
+        ]
+      },
+      "5": {
+        "diagnosis": [
+          "An odd power removes the minus sign.",
+          "Multiplying 4 by −2 gives a positive product.",
+          "A negative value cannot satisfy an equation with a cube."
+        ],
+        "fix": [
+          "Use \\( (-2)^3=8 \\) for the left side.",
+          "Use \\(4\\cdot(-2)=8\\) for the right side.",
+          "Reject −2 without substitution."
+        ]
+      },
+      "6": {
+        "diagnosis": [
+          "The two checked roots should be added to make a single root.",
+          "Only the larger of two verified roots can be retained.",
+          "The verified roots should be reported as an interval."
+        ],
+        "fix": [
+          "Report only the sum −2 + 2.",
+          "Report 2 in place of both checked values.",
+          "Replace the braces with the closed interval from −2 to 2."
+        ]
       }
     }
   },
@@ -25,35 +85,69 @@
     "flaws": {
       "2": {
         "diagnosis_choices": [
-          { "id": "d1", "label": "Missing the chain-rule inner factor: $\\frac{d}{dx}\\sin(x^2)$ must multiply by $(x^2)' = 2x$." },
-          { "id": "d2", "label": "The derivative of $\\sin u$ is $-\\cos u$, so the sign is flipped." },
-          { "id": "d3", "label": "The sum rule does not apply when one term is trigonometric and one is polynomial." },
-          { "id": "d4", "label": "The derivative of $\\sin(x^2)$ is $\\cos(2x)$, replacing $x^2$ inside cosine." }
+          { "id": "d1", "label": "Missing the chain-rule inner factor: \\(\\frac{d}{dx}\\sin(x^2)\\) must multiply by \\((x^2)' = 2x\\)." },
+          { "id": "d2", "label": "The derivative of \\(\\sin u\\) is \\(-\\cos u\\), so the sign is flipped." },
+          { "id": "d3", "label": "The sum rule does not apply when one term is trigonometric and one is polynomial." }
         ],
         "diagnosis_answer": "d1",
         "fix_choices": [
-          { "id": "f1", "label": "Apply the chain rule: $\\frac{d}{dx}\\sin(x^2) = 2x\\cos(x^2)$." },
-          { "id": "f2", "label": "Flip the sign: $\\frac{d}{dx}\\sin(x^2) = -\\cos(x^2)$." },
-          { "id": "f3", "label": "Differentiate inside only: $\\frac{d}{dx}\\sin(x^2) = \\cos(2x)$." },
-          { "id": "f4", "label": "Keep the power: $\\frac{d}{dx}\\sin(x^2) = x^2\\cos(x^2)$." }
+          { "id": "f1", "label": "Apply the chain rule: \\(\\frac{d}{dx}\\sin(x^2) = 2x\\cos(x^2)\\)." },
+          { "id": "f2", "label": "Flip the sign: \\(\\frac{d}{dx}\\sin(x^2) = -\\cos(x^2)\\)." },
+          { "id": "f3", "label": "Differentiate inside only: \\(\\frac{d}{dx}\\sin(x^2) = \\cos(2x)\\)." }
         ],
         "fix_answer": "f1"
       },
       "3": {
         "diagnosis_choices": [
-          { "id": "d1", "label": "Expanding $(x+1)^2$ dropped the middle cross term $2x$." },
-          { "id": "d2", "label": "Squaring $1$ gives $2$, so the constant term should be $2$." },
-          { "id": "d3", "label": "You cannot expand $(x+1)^2$ before differentiating." },
-          { "id": "d4", "label": "The cross term should be $-2x$, not $+2x$." }
+          { "id": "d1", "label": "Expanding \\((x+1)^2\\) dropped the middle cross term \\(2x\\)." },
+          { "id": "d2", "label": "Squaring \\(1\\) gives \\(2\\), so the constant term should be \\(2\\)." },
+          { "id": "d3", "label": "You cannot expand \\((x+1)^2\\) before differentiating." }
         ],
         "diagnosis_answer": "d1",
         "fix_choices": [
-          { "id": "f1", "label": "Expand fully as $(x+1)^2 = x^2 + 2x + 1$ (derivative $2x + 2$)." },
-          { "id": "f2", "label": "Expand as $(x+1)^2 = x^2 + x + 1$." },
-          { "id": "f3", "label": "Expand as $(x+1)^2 = x^2 + 2$." },
-          { "id": "f4", "label": "Expand as $(x+1)^2 = x^2 - 2x + 1$." }
+          { "id": "f1", "label": "Expand fully as \\((x+1)^2 = x^2 + 2x + 1\\) (derivative \\(2x + 2\\))." },
+          { "id": "f2", "label": "Expand as \\((x+1)^2 = x^2 + x + 1\\)." },
+          { "id": "f3", "label": "Expand as \\((x+1)^2 = x^2 + 2\\)." }
         ],
         "fix_answer": "f1"
+      }
+    },
+    "segment_distractors": {
+      "1": {
+        "diagnosis": [
+          "The derivative of a sum multiplies the term derivatives.",
+          "The sine term must stay fixed while differentiating the square.",
+          "A sum inside the derivative turns into a difference."
+        ],
+        "fix": [
+          "Multiply the sine derivative by the square derivative.",
+          "Differentiate only the square and leave the sine unchanged.",
+          "Subtract the square derivative from the sine derivative."
+        ]
+      },
+      "4": {
+        "diagnosis": [
+          "Differentiating the constant 1 leaves a 1.",
+          "The derivative of the square is just x.",
+          "The derivative of the square is negative for every x."
+        ],
+        "fix": [
+          "Use \\(2x+1\\) for this derivative.",
+          "Use \\(x\\) for this derivative.",
+          "Use \\(-2x\\) for this derivative."
+        ]
+      },
+      "5": {
+        "diagnosis": [
+          "The cosine and linear derivatives must be multiplied when combined.",
+          "Adding a linear derivative to a cosine changes its argument.",
+          "Both derivatives must be divided by two before adding."
+        ],
+        "fix": [
+          "Use \\(2x\\cos(x^2)\\) when combining the terms.",
+          "Use \\(\\cos(x^2+2x)\\) when combining the terms.",
+          "Average the two derivatives."
+        ]
       }
     }
   },
@@ -62,35 +156,81 @@
     "flaws": {
       "1": {
         "diagnosis_choices": [
-          { "id": "d1", "label": "$\\ln t$ requires $t > 0$; both $x > 0$ and $x - 2 > 0$ restrict the domain to $x > 2$." },
-          { "id": "d2", "label": "$\\ln t$ only excludes $t = 0$, so negative inputs are still valid over the reals." },
-          { "id": "d3", "label": "Only the sum $x + (x - 2)$ needs to be positive, giving $x > 1$." },
-          { "id": "d4", "label": "Logarithms are only defined for integers $x \\ge 1$." }
+          { "id": "d1", "label": "\\(\\ln t\\) requires \\(t > 0\\); both \\(x > 0\\) and \\(x - 2 > 0\\) restrict the domain to \\(x > 2\\)." },
+          { "id": "d2", "label": "\\(\\ln t\\) only excludes \\(t = 0\\), so negative inputs are still valid over the reals." },
+          { "id": "d3", "label": "Only the sum \\(x + (x - 2)\\) needs to be positive, giving \\(x > 1\\)." }
         ],
         "diagnosis_answer": "d1",
         "fix_choices": [
-          { "id": "f1", "label": "Require $x > 0$ and $x - 2 > 0$, so the domain is $x > 2$." },
-          { "id": "f2", "label": "Require only $x \\neq 0$ and $x \\neq 2$." },
-          { "id": "f3", "label": "Require $x \\ge 0$ so $x = 0$ stays allowed." },
-          { "id": "f4", "label": "Require $x > 3$ because the right-hand side is $\\ln 3$." }
+          { "id": "f1", "label": "Require \\(x > 0\\) and \\(x - 2 > 0\\), so the domain is \\(x > 2\\)." },
+          { "id": "f2", "label": "Require only \\(x \\neq 0\\) and \\(x \\neq 2\\)." },
+          { "id": "f3", "label": "Require \\(x \\ge 0\\) so \\(x = 0\\) stays allowed." }
         ],
         "fix_answer": "f1"
       },
       "2": {
         "diagnosis_choices": [
-          { "id": "d1", "label": "A sum of logs is the log of a product, $\\ln a + \\ln b = \\ln(ab)$, not $\\ln(a+b)$." },
-          { "id": "d2", "label": "Combining two logs divides their arguments: $\\ln a + \\ln b = \\ln(a/b)$." },
-          { "id": "d3", "label": "Two logarithms with the same base cannot be combined into one term." },
-          { "id": "d4", "label": "$\\ln x + \\ln(x-2)$ equals $(\\ln x)(\\ln(x-2))$." }
+          { "id": "d1", "label": "A sum of logs is the log of a product, \\(\\ln a + \\ln b = \\ln(ab)\\), not \\(\\ln(a+b)\\)." },
+          { "id": "d2", "label": "Combining two logs divides their arguments: \\(\\ln a + \\ln b = \\ln(a/b)\\)." },
+          { "id": "d3", "label": "Two logarithms with the same base cannot be combined into one term." }
         ],
         "diagnosis_answer": "d1",
         "fix_choices": [
-          { "id": "f1", "label": "Combine as a product: $\\ln x + \\ln(x-2) = \\ln(x(x-2))$, yielding $x = 3$." },
-          { "id": "f2", "label": "Combine as a quotient: $\\ln\\frac{x}{x-2} = \\ln 3$." },
-          { "id": "f3", "label": "Exponentiate term-by-term: $x + (x - 2) = 3$." },
-          { "id": "f4", "label": "Combine as a power: $\\ln(x^{x-2}) = \\ln 3$." }
+          { "id": "f1", "label": "Combine as a product: \\(\\ln x + \\ln(x-2) = \\ln(x(x-2))\\), yielding \\(x = 3\\)." },
+          { "id": "f2", "label": "Combine as a quotient: \\(\\ln\\frac{x}{x-2} = \\ln 3\\)." },
+          { "id": "f3", "label": "Exponentiate term-by-term: \\(x + (x - 2) = 3\\)." }
         ],
         "fix_answer": "f1"
+      }
+    },
+    "segment_distractors": {
+      "3": {
+        "diagnosis": [
+          "The left logarithm needs base 2 because its argument starts with 2x.",
+          "The logarithm of 3 should be rewritten as three logarithms of 1.",
+          "Subtracting 2 inside the left logarithm subtracts 2 outside it."
+        ],
+        "fix": [
+          "Replace the left logarithm with \\(\\log_2(2x-2)\\).",
+          "Replace the right-hand side with \\(3\\ln 1\\).",
+          "Use \\(\\ln(2x)-2=\\ln 3\\)."
+        ]
+      },
+      "4": {
+        "diagnosis": [
+          "Equal natural logs require reciprocal arguments.",
+          "The left log needs an extra exponentiation after the logs are removed.",
+          "The argument on the right changes sign when the logs cancel."
+        ],
+        "fix": [
+          "Use \\(2x-2=1/3\\).",
+          "Use \\(e^{2x-2}=3\\).",
+          "Use \\(2x-2=-3\\)."
+        ]
+      },
+      "5": {
+        "diagnosis": [
+          "Moving −2 to the right keeps it negative.",
+          "The coefficient of 2 becomes a multiplier when isolating x.",
+          "The division by 2 applies to 3 alone."
+        ],
+        "fix": [
+          "Solve \\(2x=3-2\\) instead.",
+          "From 2x = 5, use x = 10.",
+          "Use \\(x=\\frac{3}{2}+2\\)."
+        ]
+      },
+      "6": {
+        "diagnosis": [
+          "The linear solution also has a negative branch.",
+          "A fractional x cannot solve an equation with logarithms.",
+          "The solution should be written as every x greater than 5/2."
+        ],
+        "fix": [
+          "Include \\(x=-\\frac52\\) alongside the positive value.",
+          "Round the answer to the nearest integer.",
+          "Use the interval \\( (\\frac52,\\infty) \\)."
+        ]
       }
     }
   },
@@ -99,40 +239,160 @@
     "flaws": {
       "3": {
         "diagnosis_choices": [
-          { "id": "d1", "label": "Dropped the differential factor $\\frac{1}{2}$ from $dx = \\frac{1}{2}\\,du$ when rewriting the integral." },
-          { "id": "d2", "label": "The upper bound should stay $\\frac{\\pi}{2}$ instead of changing to $\\pi$." },
-          { "id": "d3", "label": "When $u = 2x$, the integral should be multiplied by $2$, not $\\frac{1}{2}$." },
-          { "id": "d4", "label": "Linear substitution is invalid for trigonometric integrands." }
+          { "id": "d1", "label": "Dropped the differential factor \\(\\frac{1}{2}\\) from \\(dx = \\frac{1}{2}\\,du\\) when rewriting the integral." },
+          { "id": "d2", "label": "The upper bound should stay \\(\\frac{\\pi}{2}\\) instead of changing to \\(\\pi\\)." },
+          { "id": "d3", "label": "When \\(u = 2x\\), the integral should be multiplied by \\(2\\), not \\(\\frac{1}{2}\\)." }
         ],
         "diagnosis_answer": "d1",
         "fix_choices": [
-          { "id": "f1", "label": "Include the $\\frac{1}{2}$ factor: $\\frac{1}{2}\\int_0^{\\pi} \\sin u\\, du$." },
-          { "id": "f2", "label": "Multiply by $2$: $2\\int_0^{\\pi} \\sin u\\, du$." },
-          { "id": "f3", "label": "Keep the original bounds: $\\int_0^{\\pi/2} \\sin u\\, du$." },
-          { "id": "f4", "label": "Change $\\sin u$ to $\\sin(u/2)$ inside the integral." }
+          { "id": "f1", "label": "Include the \\(\\frac{1}{2}\\) factor: \\(\\frac{1}{2}\\int_0^{\\pi} \\sin u\\, du\\)." },
+          { "id": "f2", "label": "Multiply by \\(2\\): \\(2\\int_0^{\\pi} \\sin u\\, du\\)." },
+          { "id": "f3", "label": "Keep the original bounds: \\(\\int_0^{\\pi/2} \\sin u\\, du\\)." }
         ],
         "fix_answer": "f1"
       },
       "4": {
         "diagnosis_choices": [
-          { "id": "d1", "label": "Sign error: $\\frac{d}{du}(\\cos u) = -\\sin u$, so an antiderivative of $\\sin u$ is $-\\cos u$." },
-          { "id": "d2", "label": "An antiderivative of $\\sin u$ is $\\sin u$, not $\\cos u$." },
-          { "id": "d3", "label": "Definite integrals require keeping an arbitrary constant $+C$ in the final number." },
-          { "id": "d4", "label": "An antiderivative of $\\sin u$ is $-\\sin u$." }
+          { "id": "d1", "label": "Sign error: \\(\\frac{d}{du}(\\cos u) = -\\sin u\\), so an antiderivative of \\(\\sin u\\) is \\(-\\cos u\\)." },
+          { "id": "d2", "label": "An antiderivative of \\(\\sin u\\) is \\(\\sin u\\), not \\(\\cos u\\)." },
+          { "id": "d3", "label": "Definite integrals require keeping an arbitrary constant \\(+C\\) in the final number." }
         ],
         "diagnosis_answer": "d1",
         "fix_choices": [
-          { "id": "f1", "label": "Use $-\\cos u$ as the antiderivative, giving $\\frac{1}{2}[-\\cos u]_0^{\\pi} = 1$." },
-          { "id": "f2", "label": "Use $\\cos(2u)$ as the antiderivative." },
-          { "id": "f3", "label": "Use $-\\sin u$ as the antiderivative." },
-          { "id": "f4", "label": "Swap the evaluation order to $\\cos 0 - \\cos \\pi$ while keeping $\\cos u$." }
+          { "id": "f1", "label": "Use \\(-\\cos u\\) as the antiderivative, giving \\(\\frac{1}{2}[-\\cos u]_0^{\\pi} = 1\\)." },
+          { "id": "f2", "label": "Use \\(\\cos(2u)\\) as the antiderivative." },
+          { "id": "f3", "label": "Use \\(-\\sin u\\) as the antiderivative." }
         ],
         "fix_answer": "f1"
+      }
+    },
+    "segment_distractors": {
+      "1": {
+        "diagnosis": [
+          "Differentiating 2x with respect to x gives 1/2.",
+          "The 2 should stay attached to dx when expressing dx in terms of du.",
+          "The substitution makes du negative."
+        ],
+        "fix": [
+          "Use \\(du=\\frac12\\,dx\\).",
+          "Use \\(dx=2\\,du\\).",
+          "Use \\(du=-2\\,dx\\)."
+        ]
+      },
+      "2": {
+        "diagnosis": [
+          "The upper endpoint should be divided by two under u = 2x.",
+          "Changing variables shifts the lower endpoint to 2.",
+          "Multiplication by 2 reverses the order of the bounds."
+        ],
+        "fix": [
+          "Use the upper u-bound \\(\\frac{\\pi}{4}\\).",
+          "Set the lower u-bound to 2.",
+          "Integrate from \\(\\pi\\) down to 0."
+        ]
+      },
+      "5": {
+        "diagnosis": [
+          "Cosine at π is +1.",
+          "Cosine at 0 vanishes.",
+          "The second endpoint is added when evaluating cosine."
+        ],
+        "fix": [
+          "Evaluate the difference as 1 − 1.",
+          "Evaluate the difference as −1 − 0.",
+          "Evaluate the sum as −1 + 1."
+        ]
+      },
+      "6": {
+        "diagnosis": [
+          "The value must be averaged over the two endpoints.",
+          "A definite integral reports the square of the endpoint difference.",
+          "The result should be multiplied by the interval length after evaluation."
+        ],
+        "fix": [
+          "Report −1 by halving the endpoint result.",
+          "Report 4 by squaring the endpoint result.",
+          "Multiply −2 by the original interval length."
+        ]
       }
     }
   },
   "definite-integral": {
     "estimated_seconds": 45,
-    "flaws": {}
+    "flaws": {},
+    "segment_distractors": {
+      "1": {
+        "diagnosis": [
+          "The polynomial is undefined at x = 0.",
+          "Continuity of the polynomial only holds between integers.",
+          "The quadratic and linear terms must have the same degree to integrate."
+        ],
+        "fix": [
+          "Exclude zero from the interval.",
+          "Split the integral at every endpoint that is an integer and omit those points.",
+          "Drop the linear term before integrating."
+        ]
+      },
+      "2": {
+        "diagnosis": [
+          "The antiderivative should keep the coefficient 3 on the cubic.",
+          "Integrating 2x gives 2x squared.",
+          "The quadratic term in F should carry a minus sign."
+        ],
+        "fix": [
+          "Use \\(F(x)=3x^3+x^2\\).",
+          "Use \\(F(x)=x^3+2x^2\\).",
+          "Use \\(F(x)=x^3-x^2\\)."
+        ]
+      },
+      "3": {
+        "diagnosis": [
+          "The lower endpoint should come first in the subtraction.",
+          "The endpoint contributions should be added as a general rule.",
+          "The theorem uses the derivative of F at the endpoints."
+        ],
+        "fix": [
+          "Use \\(F(0)-F(1)\\).",
+          "Replace the difference with \\(F(1)+F(0)\\).",
+          "Use \\(F'(1)-F'(0)\\)."
+        ]
+      },
+      "4": {
+        "diagnosis": [
+          "The exponent 3 makes 1 cubed equal 3.",
+          "The powers of 1 should be multiplied to evaluate F(1).",
+          "The upper endpoint should be squared before substituting it into the derivative."
+        ],
+        "fix": [
+          "Use \\(F(1)=3+1=4\\).",
+          "Use \\(F(1)=1^3\\cdot 1^2=1\\).",
+          "Use \\(F'(1^2)=5\\) as the upper contribution."
+        ]
+      },
+      "5": {
+        "diagnosis": [
+          "Both positive powers of 0 should contribute 1.",
+          "The cubic and square of 0 make the lower value undefined.",
+          "The lower endpoint contribution should be 1 because the interval has length 1."
+        ],
+        "fix": [
+          "Use \\(F(0)=1+1=2\\).",
+          "Treat F(0) as undefined and use an improper integral.",
+          "Substitute the interval length for F(0)."
+        ]
+      },
+      "6": {
+        "diagnosis": [
+          "Subtracting the endpoint values gives a negative result.",
+          "An endpoint difference must be averaged over the two endpoints.",
+          "The zero endpoint makes the full result zero."
+        ],
+        "fix": [
+          "Report −2.",
+          "Divide 2 − 0 by two.",
+          "Replace the difference with the product 2 × 0."
+        ]
+      }
+    }
   }
 }
