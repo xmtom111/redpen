@@ -4,13 +4,13 @@
   "domain": "logic",
   "renderer": "prose",
   "lang": "en",
-  "title": "This chart 'proves' coffee triples promotions",
-  "topic": "A spicy workplace story plus a cropped chart",
-  "blurb": "An all-hands slide says the espresso bar is three times taller. The actual gap is 51% vs 49%.",
+  "title": "Espresso Bar Proposal",
+  "topic": "A procurement memo that reads a chart too eagerly",
+  "blurb": "The CEO asked for a memo on whether the office should buy new machines.",
   "difficulty": "standard",
   "level": 2,
   "estimated_seconds": 70,
-  "prompt": "An AI drafted this CEO memo to justify buying expensive espresso machines. Catch the two stretches.",
+  "prompt": "An AI drafted this internal memo about new espresso machines. If two lines overreach, tap them.",
   "segments": [
     {
       "id": 1,
@@ -152,5 +152,6 @@
     "On a chart that starts at zero, 51% vs 49% is a 2-point gap (about 1.04×), not a 3× jump.",
     "Espresso bars might be a nice perk, but this data does not show they drive promotions."
   ],
-  "clean_conclusion": "The data shows a tiny 2-point correlation with obvious confounders, not a 3× career boost."
+  "clean_conclusion": "The data shows a tiny 2-point correlation with obvious confounders, not a 3× career boost.",
+  "opener": false
 }

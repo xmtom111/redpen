@@ -1,0 +1,105 @@
+{
+  "schema_version": 2,
+  "id": "logic-dinner-split",
+  "domain": "logic",
+  "renderer": "prose",
+  "lang": "en",
+  "opener": true,
+  "title": "Saturday Expense Recap",
+  "topic": "Two equal card charges that were not an even split",
+  "blurb": "After the concert and hotpot, one friend sent a note to settle up.",
+  "difficulty": "intro",
+  "level": 1,
+  "estimated_seconds": 60,
+  "prompt": "A friend asked an AI to write this settle-up note. If a line doesn't add up, tap it.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The ticket",
+      "text": "I bought your $120 concert ticket online; I already had mine from work, so that charge was just for you."
+    },
+    {
+      "id": 2,
+      "label": "The dinner",
+      "text": "After the show you paid the $120 hotpot bill for the two of us."
+    },
+    {
+      "id": 3,
+      "label": "The settlement",
+      "text": "We each put $120 on our cards, so we're completely even — no transfer needed."
+    },
+    {
+      "id": 4,
+      "label": "The tone",
+      "text": "Thanks again for a fun Saturday; let's do another night next month."
+    },
+    {
+      "id": 5,
+      "label": "The close",
+      "text": "I'll mark the weekend as settled in our chat."
+    }
+  ],
+  "conclusion": "AI note: both people spent $120, so the weekend is already even. No transfer needed.",
+  "flaws": [
+    {
+      "segment_id": 3,
+      "error_type": "asymmetric-split",
+      "original": "The $120 ticket was entirely for you, while the $120 dinner was shared ($60 each). I covered $120 of your costs and you covered $60 of mine, so you still owe me $60.",
+      "corrupted": "We each put $120 on our cards, so we're completely even — no transfer needed.",
+      "diagnosis_choices": [
+        {
+          "id": "d1",
+          "label": "Equal card charges are not an even split when one bill was for one person and the other bill was shared."
+        },
+        {
+          "id": "d2",
+          "label": "The hotpot bill should have been split three ways, including the waiter."
+        },
+        {
+          "id": "d3",
+          "label": "A work-issued ticket has no cash value, so only the dinner needs to be settled."
+        },
+        {
+          "id": "d4",
+          "label": "You actually owe $120 more, because concert tickets can be resold."
+        }
+      ],
+      "diagnosis_answer": "d1",
+      "fix_choices": [
+        {
+          "id": "f1",
+          "label": "I covered your whole $120 ticket and half the dinner; you covered only $60 of my dinner. You still owe $60."
+        },
+        {
+          "id": "f2",
+          "label": "Keep it as even: matching totals on two cards always cancel."
+        },
+        {
+          "id": "f3",
+          "label": "Split both bills in half, so each person owes $120 and the transfer is $0."
+        },
+        {
+          "id": "f4",
+          "label": "Ignore the ticket and split only the hotpot, which already makes the $120 charges even."
+        }
+      ],
+      "fix_answer": "f1",
+      "explanation": "Spending the same amount only makes you even when you shared both bills. One friend covered the other's whole ticket ($120) and received only half a dinner ($60) in return — a $60 gap.",
+      "why_tempting": "Two identical $120 charges look like a clean swap, so it's easy to skip who each bill was actually for.",
+      "catch_rule": "Before calling a split even, check which costs were personal and which were shared — matching totals are not enough.",
+      "hint": "Of the $120 dinner, how much was for each person? What about the ticket?",
+      "practice": {
+        "problem": "You pay a $40 taxi for both of you; your friend pays a $40 museum ticket that is only for you. Even?",
+        "answer": "No. They covered $40 of your costs; you covered $20 of theirs. You still owe $20."
+      }
+    }
+  ],
+  "clean_segments": [
+    "I bought your $120 concert ticket online; I already had mine from work, so that charge was just for you.",
+    "After the show you paid the $120 hotpot bill for the two of us.",
+    "I covered your whole $120 ticket and $60 of the dinner; you covered $60 of my dinner. You still owe $60.",
+    "Thanks again for a fun Saturday; let's do another night next month.",
+    "I'll send a $60 transfer request in the chat."
+  ],
+  "clean_conclusion": "Matching $120 charges are not an even split: one bill was personal, the other was shared. $60 is still owed."
+}

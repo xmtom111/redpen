@@ -4,13 +4,13 @@
   "domain": "logic",
   "renderer": "prose",
   "lang": "en",
-  "title": "99% accurate — so your card is fraud?",
-  "topic": "A rare event dressed up as a sure thing",
-  "blurb": "Dinner gets declined. The bank's AI is '99% accurate,' so the charge must be fake — freeze it now.",
+  "title": "Card Security Alert",
+  "topic": "A freeze notice that treats a flag as near-certainty",
+  "blurb": "Dinner was declined. The bank's support AI drafted a freeze notice.",
   "difficulty": "standard",
   "level": 1,
   "estimated_seconds": 60,
-  "prompt": "A bank's support AI just auto-drafted this freeze notice. Find the line where the probability jumps the rails.",
+  "prompt": "A bank support AI auto-drafted this freeze notice. If a line doesn't follow from the facts, tap it.",
   "segments": [
     {
       "id": 1,
@@ -100,5 +100,6 @@
     "Out of 1,000 charges, about 1 real fraud and about 10 legitimate dinners are flagged, so an alert is real fraud only about 9% of the time.",
     "Because most alerts are false alarms, ping the customer before freezing the account."
   ],
-  "clean_conclusion": "Even a 99% accurate detector, on a 0.1%-prevalence event, is wrong about 9 times out of 10."
+  "clean_conclusion": "Even a 99% accurate detector, on a 0.1%-prevalence event, is wrong about 9 times out of 10.",
+  "opener": false
 }

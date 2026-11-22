@@ -4,13 +4,13 @@
   "domain": "logic",
   "renderer": "prose",
   "lang": "en",
-  "title": "Ship the checkout that 'won' overall?",
-  "topic": "A headline average that disagrees with every breakdown",
-  "blurb": "The new page wins on phones and wins on laptops — and the AI still wants to ship the old one.",
+  "title": "Checkout Test Recap",
+  "topic": "A pooled average that points the wrong way",
+  "blurb": "The product analyst dropped this A/B recap in the team channel.",
   "difficulty": "standard",
   "level": 2,
   "estimated_seconds": 75,
-  "prompt": "An AI product analyst just Slack'd this A/B-test recap. Catch the two leaps.",
+  "prompt": "An AI product analyst just shared this checkout-test recap. If two lines jump too far, tap them.",
   "segments": [
     {
       "id": 1,
@@ -152,5 +152,6 @@
     "Because B wins on every device, A's overall lead is an artifact of the traffic mix; fix the split or ship B.",
     "The VIP '100%' is 2 out of 2 visitors — far too small to support any claim."
   ],
-  "clean_conclusion": "The new page wins on both phones and laptops. Don't ship the old one just because a broken traffic split padded its average."
+  "clean_conclusion": "The new page wins on both phones and laptops. Don't ship the old one just because a broken traffic split padded its average.",
+  "opener": false
 }

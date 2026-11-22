@@ -1,0 +1,105 @@
+{
+  "schema_version": 2,
+  "id": "logic-coffee-pass",
+  "domain": "logic",
+  "renderer": "prose",
+  "lang": "en",
+  "opener": true,
+  "title": "Cafe Membership Note",
+  "topic": "A pass that does not break even at the full cup price",
+  "blurb": "A coworker wrote up whether the cafe's monthly pass is worth it.",
+  "difficulty": "intro",
+  "level": 1,
+  "estimated_seconds": 60,
+  "prompt": "A coworker asked an AI to check this cafe-pass note. If a line doesn't add up, tap it.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The usual price",
+      "text": "A latte at the cafe downstairs is $5."
+    },
+    {
+      "id": 2,
+      "label": "The pass",
+      "text": "The $20 monthly pass gives you 20% off every drink you order that month."
+    },
+    {
+      "id": 3,
+      "label": "The break-even",
+      "text": "The pass costs the same as four full-price lattes, so anyone who buys more than four coffees a month comes out ahead."
+    },
+    {
+      "id": 4,
+      "label": "The habit check",
+      "text": "Most people on our floor already grab a morning coffee on at least ten workdays."
+    },
+    {
+      "id": 5,
+      "label": "The suggestion",
+      "text": "The note recommends buying the pass before the first of the month."
+    }
+  ],
+  "conclusion": "AI check: the $20 pass equals four $5 lattes, so more than four drinks a month makes it worth it. Buy the pass.",
+  "flaws": [
+    {
+      "segment_id": 3,
+      "error_type": "break-even-base",
+      "original": "The pass only saves $1 per $5 latte (20% off), so you need 20 drinks a month — not 4 — to earn back the $20 fee.",
+      "corrupted": "The pass costs the same as four full-price lattes, so anyone who buys more than four coffees a month comes out ahead.",
+      "diagnosis_choices": [
+        {
+          "id": "d1",
+          "label": "The pass pays itself back at the $1 you save per cup, not at the $5 full price, so you need 20 drinks, not 4."
+        },
+        {
+          "id": "d2",
+          "label": "A 20% discount on a $5 latte is $2 off, so you break even after 10 drinks."
+        },
+        {
+          "id": "d3",
+          "label": "The $20 pass already includes four free lattes, so the fifth drink is when you start saving."
+        },
+        {
+          "id": "d4",
+          "label": "Tax has to be added to the $20, which means you would need five drinks to break even."
+        }
+      ],
+      "diagnosis_answer": "d1",
+      "fix_choices": [
+        {
+          "id": "f1",
+          "label": "Each latte costs $4 with the pass, a $1 saving. $20 ÷ $1 = 20 cups to break even."
+        },
+        {
+          "id": "f2",
+          "label": "Divide $20 by $5 and add one, so the pass pays off on the fifth coffee."
+        },
+        {
+          "id": "f3",
+          "label": "Compare $20 with 20% of a $5 latte, which already shows a profit after the first drink."
+        },
+        {
+          "id": "f4",
+          "label": "Ten workday coffees at $5 already exceed $20, so the pass is automatically worth it."
+        }
+      ],
+      "fix_answer": "f1",
+      "explanation": "A discount pass pays itself back at the amount you save per cup, not at the full cup price. $1 off a $5 latte means you need 20 cups, not 4, to earn back $20.",
+      "why_tempting": "Matching the pass price to four full $5 cups feels like a break-even point — as if each coffee you buy were a $5 credit against the fee.",
+      "catch_rule": "For a paid discount, break-even is fee ÷ amount saved per use, not fee ÷ full price.",
+      "hint": "With the pass, how much do you actually save on one $5 latte? How many of those savings add up to $20?",
+      "practice": {
+        "problem": "A $30 shop card gives 10% off $6 sandwiches. How many sandwiches to break even?",
+        "answer": "You save $0.60 each, so $30 ÷ $0.60 = 50 sandwiches."
+      }
+    }
+  ],
+  "clean_segments": [
+    "A latte at the cafe downstairs is $5.",
+    "The $20 monthly pass gives you 20% off every drink you order that month.",
+    "Each latte then costs $4, a $1 saving, so you need 20 drinks a month to earn back the $20 fee — not 4.",
+    "Most people on our floor already grab a morning coffee on at least ten workdays.",
+    "Ten drinks a month still leaves you $10 short of breaking even, so the pass is optional, not an obvious win."
+  ],
+  "clean_conclusion": "The pass saves $1 a cup, not $5. You need 20 drinks a month to break even, not 4."
+}

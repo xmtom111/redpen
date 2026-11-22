@@ -4,47 +4,48 @@
   "domain": "logic",
   "renderer": "prose",
   "lang": "en",
-  "title": "Down 20%, up 20% — back to even?",
-  "topic": "A raise that doesn't actually undo a cut",
-  "blurb": "They cut your pay 20%, then 'made it right' with a 20% raise. The AI says you're whole again.",
+  "opener": true,
+  "title": "Compensation Adjustment Notice",
+  "topic": "A raise that does not actually undo a cut",
+  "blurb": "HR sent the adjusted offer and said last year's change is now behind you.",
   "difficulty": "intro",
   "level": 1,
-  "estimated_seconds": 45,
-  "prompt": "You asked an AI to check your offer letter. Tap the line that sounds too sure of itself.",
+  "estimated_seconds": 60,
+  "prompt": "You asked an AI to summarize this HR memo. If a line doesn't add up, tap it.",
   "segments": [
     {
       "id": 1,
       "label": "The old salary",
-      "text": "Your salary was $100,000 a year before the downturn."
+      "text": "Before last year's downturn, your base salary was $100,000."
     },
     {
       "id": 2,
-      "label": "The cut",
-      "text": "Last year the company cut your pay by 20%."
+      "label": "Last year's change",
+      "text": "During the downturn, the company reduced your salary by 20%, to $80,000."
     },
     {
       "id": 3,
-      "label": "The raise",
-      "text": "This year's offer gives you a 20% raise on your current salary."
+      "label": "This year's letter",
+      "text": "This year's letter grants a 20% raise, calculated on your current salary."
     },
     {
       "id": 4,
-      "label": "The punchline",
-      "text": "A 20% cut and a 20% raise cancel out, so the new offer puts you right back at $100,000."
+      "label": "HR's reading",
+      "text": "Because the percentage reduction and the percentage raise are the same size, the new salary returns you to $100,000."
     },
     {
       "id": 5,
-      "label": "The closer",
-      "text": "You can sign today: the raise fully restores your original pay."
+      "label": "Next step",
+      "text": "HR recommends signing this week so the adjustment can take effect next month."
     }
   ],
-  "conclusion": "AI verdict: Down 20% then up 20% returns you exactly to $100,000. Take the offer.",
+  "conclusion": "AI summary: the raise matches last year's reduction, so the new salary is $100,000 again. Signing is fine.",
   "flaws": [
     {
       "segment_id": 4,
       "error_type": "percentage-base",
-      "original": "The 20% raise is applied to the reduced $80,000 salary ($80,000 × 1.20 = $96,000), so you're still $4,000 short of $100,000.",
-      "corrupted": "A 20% cut and a 20% raise cancel out, so the new offer puts you right back at $100,000.",
+      "original": "The 20% raise is applied to the reduced $80,000 salary ($80,000 × 1.20 = $96,000), so you are still $4,000 short of $100,000.",
+      "corrupted": "Because the percentage reduction and the percentage raise are the same size, the new salary returns you to $100,000.",
       "diagnosis_choices": [
         {
           "id": "d1",
@@ -67,7 +68,7 @@
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Do it in order: $100,000 × 0.80 = $80,000, then $80,000 × 1.20 = $96,000. You'd need a 25% raise to get back to $100,000."
+          "label": "Do it in order: $100,000 × 0.80 = $80,000, then $80,000 × 1.20 = $96,000. You would need a 25% raise to get back to $100,000."
         },
         {
           "id": "f2",
@@ -83,22 +84,22 @@
         }
       ],
       "fix_answer": "f1",
-      "explanation": "Percentages multiply, they don't cancel. A 20% cut drops $100,000 to $80,000; a 20% raise on $80,000 only adds $16,000, landing at $96,000. You need a 25% raise to recover from a 20% cut.",
+      "explanation": "A 20% cut and a 20% raise don't cancel. $100,000 falls to $80,000; 20% of $80,000 is only $16,000, so you land at $96,000. You need a 25% raise to get back.",
       "why_tempting": "Saying '−20% + 20% = 0' feels obviously right, because we treat percentages like dollar amounts.",
       "catch_rule": "Never add sequential percentage changes; multiply the factors (0.80 × 1.20 = 0.96).",
       "hint": "What's your actual salary after the cut? Now take 20% of that new number, not of $100,000.",
       "practice": {
-        "problem": "A stock you bragged about dropped 50% this month. What gain do you need next month just to get back to even?",
+        "problem": "A stock dropped 50% this month. What gain do you need next month just to get back to even?",
         "answer": "A 100% gain — it has to double from the bottom."
       }
     }
   ],
   "clean_segments": [
-    "Your salary was $100,000 a year before the downturn.",
-    "Last year the company cut your pay by 20%, to $80,000.",
-    "This year's offer gives you a 20% raise on that current salary.",
-    "Because 20% of $80,000 is $16,000, the new offer is $96,000 — still $4,000 short of $100,000.",
-    "Sign only if you're fine being 4% below your old pay; a 25% raise would be needed to restore it."
+    "Before last year's downturn, your base salary was $100,000.",
+    "During the downturn, the company reduced your salary by 20%, to $80,000.",
+    "This year's letter grants a 20% raise, calculated on your current salary.",
+    "After the raise, the new salary is $80,000 × 1.20 = $96,000, which is still $4,000 short of $100,000. A 25% raise would be needed to restore the original pay.",
+    "Whether you sign depends on the rest of the offer; this raise alone does not put you back to even."
   ],
-  "clean_conclusion": "Down 20% then up 20% leaves you at $96,000, not $100,000."
+  "clean_conclusion": "The matching percentages do not cancel: the new salary is $96,000, not $100,000."
 }

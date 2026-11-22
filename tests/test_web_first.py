@@ -79,7 +79,7 @@ class PackAndExportTest(unittest.TestCase):
                     for item in data["worksheets"]:
                         secret = json.loads((prefix / "secrets" / f"{item['id']}.json").read_text(encoding="utf-8"))
                         self.assertEqual(item["commitment"], redpen.commitment(secret["key"]))
-                self.assertEqual(total, 17)
+                self.assertEqual(total, 21)
 
     def test_server_pack_endpoints_and_light_mode_submit(self):
         banks = load_banks()
@@ -198,6 +198,21 @@ const d1Zh = Daily.selectDaily(zhCards, '2026-11-20', 3);
 assert.deepEqual(d1.map(x => x.id), d1Again.map(x => x.id));
 assert.deepEqual(d1.map(x => x.id), d1Zh.map(x => x.id));
 assert.deepEqual(d1.map(x => x.domain), ['logic', 'code', 'math']);
+assert.equal(d1[0].opener, true);
+assert.equal(d1Zh[0].opener, true);
+
+// First-slot rotation stays inside the opener pool and visits each opener once per cycle.
+// 2026-01-01 is dayIdx 0, so it starts a cycle for any pool length.
+const openers = enCards.filter(x => x.opener === true).map(x => x.id).sort();
+assert.ok(openers.length >= 6);
+const firstIds = [];
+for (let i = 0; i < openers.length; i++) {
+  const day = String(1 + i).padStart(2, '0');
+  const picked = Daily.selectDaily(enCards, `2026-01-${day}`, 3);
+  assert.equal(picked[0].opener, true);
+  firstIds.push(picked[0].id);
+}
+assert.deepEqual([...firstIds].sort(), openers);
 
 // 2. Consecutive days do not repeat puzzles within a domain cycle.
 const d2 = Daily.selectDaily(enCards, '2026-11-21', 3);

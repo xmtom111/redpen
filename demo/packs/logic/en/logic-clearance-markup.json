@@ -1,0 +1,105 @@
+{
+  "schema_version": 2,
+  "id": "logic-clearance-markup",
+  "domain": "logic",
+  "renderer": "prose",
+  "lang": "en",
+  "opener": true,
+  "title": "Weekend Sale Plan",
+  "topic": "A markup and a discount that do not leave the margin people think",
+  "blurb": "The shop manager drafted a weekend flyer to clear the summer jackets.",
+  "difficulty": "intro",
+  "level": 1,
+  "estimated_seconds": 60,
+  "prompt": "The manager asked an AI to check this weekend sale plan. If a line doesn't add up, tap it.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The jackets",
+      "text": "These jackets were bought at a wholesale cost of $100, then put on the rack at $150 — a 50% markup over cost."
+    },
+    {
+      "id": 2,
+      "label": "The weekend promo",
+      "text": "To clear the summer stock, the shop will take 40% off the ticket price this weekend."
+    },
+    {
+      "id": 3,
+      "label": "The margin note",
+      "text": "A 50% markup minus a 40% discount still leaves a 10% profit margin on every jacket, so the sale will not lose money."
+    },
+    {
+      "id": 4,
+      "label": "Inventory goal",
+      "text": "The aim is to move the remaining sizes before the fall shipment arrives on Monday."
+    },
+    {
+      "id": 5,
+      "label": "The ask",
+      "text": "The manager is asking the owner to approve the flyer this afternoon."
+    }
+  ],
+  "conclusion": "AI check: 50% markup then 40% off still leaves a 10% margin. The flyer is fine to print.",
+  "flaws": [
+    {
+      "segment_id": 3,
+      "error_type": "percentage-base",
+      "original": "The 40% discount comes off the $150 ticket price, not off the $100 cost: $150 × 0.60 = $90. That is $10 below cost, a 10% loss, not a 10% profit.",
+      "corrupted": "A 50% markup minus a 40% discount still leaves a 10% profit margin on every jacket, so the sale will not lose money.",
+      "diagnosis_choices": [
+        {
+          "id": "d1",
+          "label": "The 50% was added to cost, but the 40% is taken off the higher ticket price, so 50% − 40% is not a 10% profit."
+        },
+        {
+          "id": "d2",
+          "label": "A 40% discount is illegal on goods that were already marked up 50%."
+        },
+        {
+          "id": "d3",
+          "label": "Wholesale cost should have been $150, so the markup was calculated on the wrong number."
+        },
+        {
+          "id": "d4",
+          "label": "Taking 40% off $150 leaves $110, which is still a thin profit."
+        }
+      ],
+      "diagnosis_answer": "d1",
+      "fix_choices": [
+        {
+          "id": "f1",
+          "label": "Sale price is $150 × 0.60 = $90, which is $10 below the $100 cost — a 10% loss, not a 10% profit."
+        },
+        {
+          "id": "f2",
+          "label": "Subtract the percentages: 50 − 40 = 10, so each jacket still makes $10."
+        },
+        {
+          "id": "f3",
+          "label": "Take 40% off the $100 cost instead, leaving a $60 sale price and a healthy margin."
+        },
+        {
+          "id": "f4",
+          "label": "Average 50% and 40% to get a 45% margin at the sale price."
+        }
+      ],
+      "fix_answer": "f1",
+      "explanation": "A 50% markup is added to the cost, so 40% off the tag cuts from a higher number. $100 × 1.50 × 0.60 = $90: a 10% loss, not a 10% profit.",
+      "why_tempting": "Subtracting 50% − 40% = 10% feels like leftover margin, as if both percentages were taken from the same starting number.",
+      "catch_rule": "A markup and a discount use different bases: multiply the factors (1.50 × 0.60 = 0.90) instead of subtracting the percentages.",
+      "hint": "What is 40% off the $150 ticket price? Compare that sale price with the $100 cost.",
+      "practice": {
+        "problem": "A lamp costs $80 and is tagged at $120. If the shop takes 50% off the tag, does it break even?",
+        "answer": "No. $120 × 0.50 = $60, which is $20 below the $80 cost."
+      }
+    }
+  ],
+  "clean_segments": [
+    "These jackets were bought at a wholesale cost of $100, then put on the rack at $150 — a 50% markup over cost.",
+    "To clear the summer stock, the shop will take 40% off the ticket price this weekend.",
+    "The sale price is $150 × 0.60 = $90, which is $10 below cost — a 10% loss, not a 10% profit.",
+    "The aim is to move the remaining sizes before the fall shipment arrives on Monday.",
+    "The owner can still approve a clearance, but not on the claim that the sale is profitable."
+  ],
+  "clean_conclusion": "40% off a 50% markup is $90 on a $100 cost: a 10% loss, not a 10% profit."
+}

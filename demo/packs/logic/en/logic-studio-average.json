@@ -1,0 +1,105 @@
+{
+  "schema_version": 2,
+  "id": "logic-studio-average",
+  "domain": "logic",
+  "renderer": "prose",
+  "lang": "en",
+  "opener": true,
+  "title": "Studio Capacity Review",
+  "topic": "An average class size that hides where most people actually are",
+  "blurb": "The studio manager wrote this note after a few members said the rooms felt crowded.",
+  "difficulty": "intro",
+  "level": 1,
+  "estimated_seconds": 60,
+  "prompt": "The manager asked an AI to check this capacity review. If a line doesn't follow, tap it.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The complaint",
+      "text": "A few members said the spin studio has been feeling too crowded, so we audited all 10 daily sessions from last month."
+    },
+    {
+      "id": 2,
+      "label": "The daytime classes",
+      "text": "Our eight daytime classes averaged just 5 riders each."
+    },
+    {
+      "id": 3,
+      "label": "The evening classes",
+      "text": "The two 7 p.m. classes had 30 riders each."
+    },
+    {
+      "id": 4,
+      "label": "The average",
+      "text": "That puts our average class size at 10 people, so most members are getting quiet, uncrowded workouts."
+    },
+    {
+      "id": 5,
+      "label": "The plan",
+      "text": "We will keep the current timetable and add a waiting-list reminder only for the evening slots."
+    }
+  ],
+  "conclusion": "AI review: average class size is 10, so most members already get an uncrowded ride. Keep the timetable.",
+  "flaws": [
+    {
+      "segment_id": 4,
+      "error_type": "average-unit",
+      "original": "The average class has 10 riders, but 60 of the 100 daily riders are in the two 30-person evening classes. Most members experience a packed room, not a quiet one.",
+      "corrupted": "That puts our average class size at 10 people, so most members are getting quiet, uncrowded workouts.",
+      "diagnosis_choices": [
+        {
+          "id": "d1",
+          "label": "The average class is 10 people, but most of the people are in the two packed evening classes, so most members do not get a quiet room."
+        },
+        {
+          "id": "d2",
+          "label": "Five plus 30 cannot average to 10, so the 10-person figure is a calculation error."
+        },
+        {
+          "id": "d3",
+          "label": "A class of 10 is already crowded, so the quiet-workout claim is wrong for that reason alone."
+        },
+        {
+          "id": "d4",
+          "label": "Daytime classes of 5 are too empty to count, so they should be dropped from the average."
+        }
+      ],
+      "diagnosis_answer": "d1",
+      "fix_choices": [
+        {
+          "id": "f1",
+          "label": "8×5 + 2×30 = 100 daily riders; 60 of them are in a room of 30. Most members feel the crowd, even though the average class is 10."
+        },
+        {
+          "id": "f2",
+          "label": "Average 5 and 30 to get 17.5, and use that as the typical member experience."
+        },
+        {
+          "id": "f3",
+          "label": "Because the average class is 10, report that every member gets a class of 10."
+        },
+        {
+          "id": "f4",
+          "label": "Count only the eight quiet classes, which already proves that most workouts are uncrowded."
+        }
+      ],
+      "fix_answer": "f1",
+      "explanation": "The average class has 10 people, yet 60 of the 100 riders are squeezed into a room of 30. The average class is not the average member's experience.",
+      "why_tempting": "An average of 10 sounds like a typical, roomy class — as if most people were sitting in a typical class, rather than packed into the full ones.",
+      "catch_rule": "When some groups are much fuller than others, average the people, not just the rooms.",
+      "hint": "How many people rode today in total? How many of them were in the 30-person classes?",
+      "practice": {
+        "problem": "A bus route has 9 empty 10 a.m. trips with 2 riders and 1 packed 6 p.m. trip with 32 riders. What's the average trip size, and what do most riders see?",
+        "answer": "The average trip has 5 riders (50 / 10), but 32 of the 50 riders are on the packed 6 p.m. bus."
+      }
+    }
+  ],
+  "clean_segments": [
+    "A few members said the spin studio has been feeling too crowded, so we audited all 10 daily sessions from last month.",
+    "Our eight daytime classes averaged just 5 riders each.",
+    "The two 7 p.m. classes had 30 riders each.",
+    "The average class size is 10, but 60 of the 100 daily riders are in a room of 30, so most members experience a packed class.",
+    "The evening slots need more capacity or a split session; a quiet average does not fix a crowded 7 p.m."
+  ],
+  "clean_conclusion": "Average class size is 10, but most riders are in a room of 30 — the average class is not the average experience."
+}
