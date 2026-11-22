@@ -4,7 +4,7 @@
   "domain": "logic",
   "renderer": "prose",
   "lang": "zh",
-  "opener": true,
+  "opener": false,
   "title": "周末促销方案",
   "topic": "加价和折扣并不能留下人们以为的那点利润",
   "blurb": "店长起草了这份周末海报，想把夏季外套清掉。",

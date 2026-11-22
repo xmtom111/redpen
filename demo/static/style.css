@@ -468,6 +468,13 @@ ol.segments-code li.seg-alarm { background: rgba(217, 130, 0, 0.25); border-left
 .status-chip { font-size: 11px; padding: 2px 8px; border-radius: 999px; }
 .status-chip.hit { background: var(--good-bg); color: var(--good); }
 .status-chip.missed { background: var(--red-soft); color: var(--red); }
+.debrief-punch {
+  margin: 0 0 10px;
+  font-size: 1.08rem;
+  font-weight: 650;
+  line-height: 1.45;
+  color: var(--ink);
+}
 .debrief-line { margin: 0 0 5px; }
 .debrief-rule { margin: 0; padding: 6px 8px; border-radius: 6px; background: var(--paper); color: var(--ink); }
 .sub-head { margin: 12px 0 6px; font: 700 13px/1.2 system-ui, sans-serif; color: var(--amber); }

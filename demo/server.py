@@ -298,6 +298,7 @@ def public_round(rnd: dict) -> dict:
         "level": None if blind else entry["level"],
         "level_name": None if blind else level_names(lang)[entry["level"]],
         "difficulty": entry["difficulty"],
+        "opener": bool(entry.get("opener")),
         "commitment": entry["commitment"],
         "commitment_short": entry["commitment"][:12],
         "verified": entry["verified"],

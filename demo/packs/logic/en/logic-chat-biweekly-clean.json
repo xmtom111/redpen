@@ -1,0 +1,99 @@
+{
+  "schema_version": 2,
+  "domain": "logic",
+  "renderer": "prose",
+  "opener": true,
+  "difficulty": "intro",
+  "level": 1,
+  "estimated_seconds": 60,
+  "id": "logic-chat-biweekly-clean",
+  "lang": "en",
+  "title": "Housekeeping",
+  "topic": "A friend is putting a regular cleaner into the yearly budget",
+  "blurb": "A friend just booked a cleaner and is doing the yearly math in the chat.",
+  "prompt": "A friend just texted this in the group chat. If one line doesn't add up, tap it.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The booking",
+      "text": "Finally booked a cleaner — $60 a visit, coming every two weeks."
+    },
+    {
+      "id": 2,
+      "label": "The month",
+      "text": "That's twice a month, so $120 a month."
+    },
+    {
+      "id": 3,
+      "label": "The year",
+      "text": "I'll just set aside $1,440 for the year and not think about it again."
+    },
+    {
+      "id": 4,
+      "label": "The offer",
+      "text": "If it works out, I'll send you their number."
+    }
+  ],
+  "conclusion": "Every two weeks is twice a month, so $1,440 covers the year.",
+  "flaws": [
+    {
+      "segment_id": 3,
+      "error_type": "fortnight-vs-month",
+      "original": "Every two weeks is 26 visits a year, not 24. At $60 that's $1,560, not $1,440.",
+      "corrupted": "I'll just set aside $1,440 for the year and not think about it again.",
+      "diagnosis_choices": [
+        {
+          "id": "d1",
+          "label": "Every two weeks is 26 visits a year, not 24. That budget is short two visits."
+        },
+        {
+          "id": "d2",
+          "label": "Some months have five weeks, so those months should be budgeted at five visits, not two."
+        },
+        {
+          "id": "d3",
+          "label": "Every two weeks is 24 visits, but they may skip holidays, so $1,440 is already on the high side."
+        },
+        {
+          "id": "d4",
+          "label": "The first visit is usually a trial, so the first month is only one visit and the year costs less than $1,440."
+        }
+      ],
+      "diagnosis_answer": "d1",
+      "fix_choices": [
+        {
+          "id": "f1",
+          "label": "Budget 26 visits — 52 weeks divided by 2 — not 12 months times 2."
+        },
+        {
+          "id": "f2",
+          "label": "Have them come on the 1st and the 15th each month, so the $1,440 finally matches."
+        },
+        {
+          "id": "f3",
+          "label": "Pay $1,440 up front and ask them to skip two visits so the year lines up."
+        },
+        {
+          "id": "f4",
+          "label": "Switch to a weekly visit and keep the same yearly total."
+        }
+      ],
+      "fix_answer": "f1",
+      "explanation": "Every two weeks is 26 visits a year, not 24. That budget is short two cleanings.",
+      "why_tempting": "'Every two weeks' and 'twice a month' sound like the same sentence. The arithmetic from there is tidy — and already one step off.",
+      "catch_rule": "'Every two weeks' follows the calendar year, not the months: 52 ÷ 2 is 26, not 12 × 2.",
+      "hint": "If they come every two weeks for a whole year, how many visits is that — 24, or something else?",
+      "practice": {
+        "problem": "A friend gets paid $2,000 every two weeks and says, 'That's $4,000 a month, $48,000 a year.' What's off?",
+        "answer": "Every two weeks is 26 paychecks a year, not 24. That's $52,000, not $48,000."
+      }
+    }
+  ],
+  "clean_segments": [
+    "Finally booked a cleaner — $60 a visit, coming every two weeks.",
+    "That's twice a month, so $120 a month.",
+    "Every two weeks is 26 visits a year, not 24. At $60 that's $1,560, not $1,440.",
+    "If it works out, I'll send you their number."
+  ],
+  "clean_conclusion": "Every two weeks is 26 visits a year, not 24. Budget $1,560, not $1,440."
+}

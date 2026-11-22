@@ -4,7 +4,7 @@
   "domain": "logic",
   "renderer": "prose",
   "lang": "zh",
-  "opener": true,
+  "opener": false,
   "title": "三季度会员反馈简报",
   "topic": "一份只问了刚续费的人的满意度",
   "blurb": "交友 App 改版之后，产品组发了这份复盘。",

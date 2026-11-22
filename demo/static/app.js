@@ -26,8 +26,11 @@
       copied: "Copied — paste it anywhere.",
       shared: "Shared!",
       copyFallback: "Copy this card:",
-      dailyHook: "Three today. The first one looks perfectly reasonable.",
+      dailyHook: "Three today. The first one is a message a friend just sent.",
       dailyLeft: (n) => (n === 1 ? "1 left today." : `${n} left today.`),
+      openerProblem: "A friend just sent this",
+      openerFinal: "Then they said",
+      openerTapHint: "Tap the line where it goes sideways.",
       shareLocked: "Today's three aren't finished yet.",
       streakStart: "Start a streak",
       needPicks: "Now pick why it's wrong and how to fix it.",
@@ -144,6 +147,11 @@
         "misleading-chart": "Truncated axis",
         "simpson-paradox": "Simpson's paradox",
         "small-sample": "Tiny sample",
+        "calendar-midnight": "Wrong night",
+        "leftover-half": "The other half",
+        "parallel-time": "Same thirty days",
+        "already-yours": "Days you already had",
+        "forgotten-goods": "Forgot the goods",
       },
     },
     zh: {
@@ -162,12 +170,15 @@
       copied: "已复制，发给朋友吧！",
       shared: "已分享！",
       copyFallback: "请复制以下战绩卡：",
-      dailyHook: "今天三题。第一题咋看都顺眼。",
+      dailyHook: "今天三题。第一题是朋友刚在群里发的。",
       dailyLeft: (n) => `今天还剩 ${n} 题。`,
+      openerProblem: "朋友刚在群里发的",
+      openerFinal: "然后他们说",
+      openerTapHint: "哪一句其实算岔了，就点它。",
       shareLocked: "今天这三题还没做完。",
       streakStart: "从今天开始连胜",
       needPicks: "接着选出「错在哪」和「怎么改」。",
-      readyToScore: "红笔已就位，可以交卷了。",
+      readyToScore: "红笔已就位，可以看结果了。",
       stuck: "卡了？",
       writeOwn: "自己写诊断",
       backToTap: "返回点选",
@@ -298,6 +309,11 @@
         "misleading-chart": "截断坐标轴",
         "simpson-paradox": "辛普森悖论",
         "small-sample": "极小样本",
+        "calendar-midnight": "记错了那天晚上",
+        "leftover-half": "另外那一半",
+        "parallel-time": "其实是同一段时间",
+        "already-yours": "本来就有的假期",
+        "forgotten-goods": "漏算了那件东西",
       },
     },
   };
@@ -367,6 +383,12 @@
 
   function categoryLabel(id) {
     return text.categories[id] || id;
+  }
+
+  function isOpenerRound(round) {
+    if (round && round.opener) return true;
+    const entry = round && state.byId.get(round.worksheet_id);
+    return !!(entry && entry.opener);
   }
 
   function domainLabel(domain) {
@@ -757,6 +779,7 @@
       commitment: entry.commitment,
       commitment_short: entry.commitment_short,
       verified: entry.verified,
+      opener: !!entry.opener,
       hints_used: 0,
       graded: false,
       live: false,
@@ -1190,10 +1213,10 @@
           <h1 class="round-title">${esc(round.title)}</h1>
         </header>
         ${!debrief && state.error && !light ? `<p class="error" role="alert">${esc(state.error)}</p>` : ""}
-        <div class="problem"><span class="box-kicker">${esc(text.problem)}</span> ${esc(round.problem)}</div>
-        <p class="tap-guide">${esc(debrief ? text.tapHintDone : (light ? text.tapHint : text.emptyLightPrompt))}</p>
+        <div class="problem"><span class="box-kicker">${esc(isOpenerRound(round) ? text.openerProblem : text.problem)}</span> ${esc(round.problem)}</div>
+        <p class="tap-guide">${esc(debrief ? text.tapHintDone : (light ? (isOpenerRound(round) ? text.openerTapHint : text.tapHint) : text.emptyLightPrompt))}</p>
         <ol class="${listClass}">${segItems}</ol>
-        <div class="final"><span class="box-kicker">${esc(text.finalAnswer)}</span> ${esc(round.final_answer)}</div>
+        <div class="final"><span class="box-kicker">${esc(isOpenerRound(round) ? text.openerFinal : text.finalAnswer)}</span> ${esc(round.final_answer)}</div>
         ${afterSheet}
       </div>`;
   }
@@ -1336,9 +1359,9 @@
           <span>${esc(text.errorHeading(segmentLabel(round, error.step), categoryLabel(error.category)))}</span>
           <span class="status-chip ${error.found ? "hit" : "missed"}">${error.found ? esc(text.foundDetail(error.diagnosis, error.fix)) : esc(text.missedTag)}</span>
         </h3>
-        <p class="debrief-line"><strong>${esc(text.whyWrong)}:</strong> ${esc(error.why_wrong)}</p>
+        <p class="debrief-punch">${esc(error.why_wrong)}</p>
         <p class="debrief-line"><strong>${esc(text.theFix)}:</strong> ${esc(error.correct)}</p>
-        <p class="debrief-rule">💡 <strong>${esc(text.catchRule)}:</strong> ${esc(error.catch_rule)}</p>
+        <p class="debrief-rule">💡 ${esc(error.catch_rule)}</p>
       </article>`).join("");
 
     const alarms = (debrief.false_alarm_details || []).map((alarm) =>

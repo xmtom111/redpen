@@ -1,0 +1,99 @@
+{
+  "schema_version": 2,
+  "domain": "logic",
+  "renderer": "prose",
+  "opener": true,
+  "difficulty": "intro",
+  "level": 1,
+  "estimated_seconds": 60,
+  "id": "logic-chat-laundry-queue",
+  "lang": "en",
+  "title": "Two loads",
+  "topic": "A friend is timing two loads of laundry before heading out",
+  "blurb": "A friend is trying to wash and dry two loads before leaving the house.",
+  "prompt": "A friend just texted this in the group chat. If one line doesn't add up, tap it.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The deadline",
+      "text": "I have to leave in two hours, and I've still got two loads that need to be washed and dried."
+    },
+    {
+      "id": 2,
+      "label": "The machines",
+      "text": "The washer takes 30 minutes a load, and the dryer next to it takes 45."
+    },
+    {
+      "id": 3,
+      "label": "The sigh",
+      "text": "That's 75 minutes start to finish for one load, so two loads is two and a half hours. I'm not going to make it."
+    },
+    {
+      "id": 4,
+      "label": "The fallback",
+      "text": "If anyone's nearby later, I may need to borrow a shirt."
+    }
+  ],
+  "conclusion": "75 minutes a load times two is two and a half hours, so I won't be done before I leave.",
+  "flaws": [
+    {
+      "segment_id": 3,
+      "error_type": "machine-pipeline",
+      "original": "I can wash the second load while the first one dries: 30 plus 45 plus 45 is two hours. I can just make it.",
+      "corrupted": "That's 75 minutes start to finish for one load, so two loads is two and a half hours. I'm not going to make it.",
+      "diagnosis_choices": [
+        {
+          "id": "d1",
+          "label": "You can wash the second load while the first one dries: 30 + 45 + 45 is two hours. You'd finish on time."
+        },
+        {
+          "id": "d2",
+          "label": "The dryer is the slow step, so two loads only take 45 + 45 = 90 minutes. Plenty of time."
+        },
+        {
+          "id": "d3",
+          "label": "You can put both loads in the washer at once, so the whole job is just 75 minutes."
+        },
+        {
+          "id": "d4",
+          "label": "Two hours is 120 minutes and 75 + 75 is 150, so you're only half an hour short if you start now."
+        }
+      ],
+      "diagnosis_answer": "d1",
+      "fix_choices": [
+        {
+          "id": "f1",
+          "label": "Wash load two while load one is in the dryer. You'd be done in two hours."
+        },
+        {
+          "id": "f2",
+          "label": "Buy a second dryer so both loads can dry at the same time."
+        },
+        {
+          "id": "f3",
+          "label": "Skip the dryer and hang both loads. They won't be dry in two hours, but you can still leave."
+        },
+        {
+          "id": "f4",
+          "label": "Run each machine for half as long to cut the 75 minutes down to a fit."
+        }
+      ],
+      "fix_answer": "f1",
+      "explanation": "The washer doesn't have to sit and watch the dryer. Wash the second load while the first one dries — two hours on the dot.",
+      "why_tempting": "75 plus 75 is clean arithmetic. It's easy to line the two loads up end to end and forget the machines can work at the same time.",
+      "catch_rule": "When two machines can run at once, start the next wash while the first load dries — don't add the full cycles together.",
+      "hint": "When the first load moves into the dryer, what's the washer doing?",
+      "practice": {
+        "problem": "A printer takes 4 minutes a document, and the binder next to it takes 6. A friend says two documents will take 20 minutes because 10 × 2 = 20. What's wrong?",
+        "answer": "The second document can print while the first one is being bound: 4 + 6 + 6 = 16 minutes, not 20."
+      }
+    }
+  ],
+  "clean_segments": [
+    "I have to leave in two hours, and I've still got two loads that need to be washed and dried.",
+    "The washer takes 30 minutes a load, and the dryer next to it takes 45.",
+    "I can wash the second load while the first one dries: 30 plus 45 plus 45 is two hours. I can just make it.",
+    "If anyone's nearby later, I may need to borrow a shirt."
+  ],
+  "clean_conclusion": "Wash the second load while the first one dries. That's two hours, just in time."
+}

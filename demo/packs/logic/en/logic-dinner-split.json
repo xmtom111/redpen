@@ -4,7 +4,7 @@
   "domain": "logic",
   "renderer": "prose",
   "lang": "en",
-  "opener": true,
+  "opener": false,
   "title": "Saturday Expense Recap",
   "topic": "Two equal card charges that were not an even split",
   "blurb": "After the concert and hotpot, one friend sent a note to settle up.",

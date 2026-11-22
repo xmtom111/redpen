@@ -1,0 +1,99 @@
+{
+  "schema_version": 2,
+  "domain": "logic",
+  "renderer": "prose",
+  "opener": true,
+  "difficulty": "intro",
+  "level": 1,
+  "estimated_seconds": 60,
+  "id": "logic-chat-family-data",
+  "lang": "en",
+  "title": "Family plan",
+  "topic": "A friend is deciding whether a download will fit this month",
+  "blurb": "A friend is hesitating over a download on the family data plan.",
+  "prompt": "A friend just texted this in the group chat. If one line doesn't add up, tap it.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The plan",
+      "text": "Our family plan has a 100GB bucket this month for the three of us."
+    },
+    {
+      "id": 2,
+      "label": "What's used",
+      "text": "I've used 30 so far, and you two have barely touched it — maybe 10 between you."
+    },
+    {
+      "id": 3,
+      "label": "The hold",
+      "text": "A third of 100 is about 33, so I only have a sliver left. I'll skip the 8GB download until next month."
+    },
+    {
+      "id": 4,
+      "label": "The offer",
+      "text": "Text me if you need me to stay off it tonight."
+    }
+  ],
+  "conclusion": "I've almost used up my third, so the 8GB download has to wait until next month.",
+  "flaws": [
+    {
+      "segment_id": 3,
+      "error_type": "false-partition",
+      "original": "It's one 100GB pot. We've used about 40 together, so there's about 60 left — plenty for an 8GB download.",
+      "corrupted": "A third of 100 is about 33, so I only have a sliver left. I'll skip the 8GB download until next month.",
+      "diagnosis_choices": [
+        {
+          "id": "d1",
+          "label": "It's one shared 100GB pot. You three have used about 40, so there's about 60 left — plenty for 8GB."
+        },
+        {
+          "id": "d2",
+          "label": "An 8GB show is usually closer to 16GB after updates, so you should wait anyway."
+        },
+        {
+          "id": "d3",
+          "label": "Unused data expires halfway through the month, so their leftover 10GB is already gone."
+        },
+        {
+          "id": "d4",
+          "label": "Your 30GB already went past a 33GB cap, so the plan may have already slowed you down."
+        }
+      ],
+      "diagnosis_answer": "d1",
+      "fix_choices": [
+        {
+          "id": "f1",
+          "label": "Go ahead and download it. The leftover in the family bucket is still there to use."
+        },
+        {
+          "id": "f2",
+          "label": "Ask them to gift you 8GB from their unused third first, then download."
+        },
+        {
+          "id": "f3",
+          "label": "Wait until next month, and also stop using data now so you don't go past 33."
+        },
+        {
+          "id": "f4",
+          "label": "Delete 8GB of old photos on the phone so the download will fit under 33."
+        }
+      ],
+      "fix_answer": "f1",
+      "explanation": "There's no personal 33GB wall. You've used 40 of a 100GB pot together — the 8GB download still fits easily.",
+      "why_tempting": "Once you divide 100 by 3, 'my third' starts to feel like a real cap. The leftover sitting in the shared pot quietly disappears.",
+      "catch_rule": "If a family plan is one shared bucket, leftovers from the other people are still in the pot — not locked in their third.",
+      "hint": "Add up everything that's been used this month. How much of the 100GB is actually still there?",
+      "practice": {
+        "problem": "A shared 60-ride transit pass for three roommates. You've taken 18 rides, the other two have taken 6 together. A friend says, 'You've almost used your 20, don't take the subway tomorrow.' What's wrong?",
+        "answer": "It's one pool of 60 rides. Only 24 have been used, so 36 are left — not 2."
+      }
+    }
+  ],
+  "clean_segments": [
+    "Our family plan has a 100GB bucket this month for the three of us.",
+    "I've used 30 so far, and you two have barely touched it — maybe 10 between you.",
+    "It's one 100GB pot. We've used about 40 together, so there's about 60 left — plenty for an 8GB download.",
+    "Text me if you need me to stay off it tonight."
+  ],
+  "clean_conclusion": "You've used about 40 of a shared 100GB. The 8GB download still fits."
+}

@@ -1,0 +1,99 @@
+{
+  "schema_version": 2,
+  "domain": "logic",
+  "renderer": "prose",
+  "opener": true,
+  "difficulty": "intro",
+  "level": 1,
+  "estimated_seconds": 60,
+  "id": "logic-chat-guest-bed",
+  "lang": "en",
+  "title": "Guest room",
+  "topic": "A friend is measuring a bigger guest bed against the walkway",
+  "blurb": "A friend is swapping the guest bed and doing the measurements in the chat.",
+  "prompt": "A friend just texted this in the group chat. If one line doesn't add up, tap it.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The swap",
+      "text": "Putting a 6-foot bed in the guest room to replace the 5-foot one that's in there now."
+    },
+    {
+      "id": 2,
+      "label": "The layout",
+      "text": "The current bed is pushed along the window wall, leaving a 2-foot walkway on the closet side."
+    },
+    {
+      "id": 3,
+      "label": "The math",
+      "text": "The new one is a foot wider, so that's half a foot off each side — still a 1.5-foot walkway, plenty of room to open the closet."
+    },
+    {
+      "id": 4,
+      "label": "The order",
+      "text": "I'll order it tonight before the weekend sale ends."
+    }
+  ],
+  "conclusion": "A foot wider means half a foot off each side, so the closet walkway only shrinks to 1.5 feet.",
+  "flaws": [
+    {
+      "segment_id": 3,
+      "error_type": "wall-side-symmetry",
+      "original": "One side is already against the wall, so the whole extra foot comes out of the walkway — that's 1 foot left, not 1.5.",
+      "corrupted": "The new one is a foot wider, so that's half a foot off each side — still a 1.5-foot walkway, plenty of room to open the closet.",
+      "diagnosis_choices": [
+        {
+          "id": "d1",
+          "label": "The bed is already against the wall, so the whole extra foot comes out of the walkway — you'll have 1 foot, not 1.5."
+        },
+        {
+          "id": "d2",
+          "label": "A 6-foot bed plus a 2-foot walkway is 8 feet, and the room is only 7, so the bed won't fit at all."
+        },
+        {
+          "id": "d3",
+          "label": "Closet doors need a full 2 feet to open, so even a 1.5-foot walkway would be too tight."
+        },
+        {
+          "id": "d4",
+          "label": "Half a foot off each side is only 6 inches total, so the walkway barely changes."
+        }
+      ],
+      "diagnosis_answer": "d1",
+      "fix_choices": [
+        {
+          "id": "f1",
+          "label": "Take the whole extra foot from the walkway: 2 feet minus 1 foot leaves 1 foot, not 1.5."
+        },
+        {
+          "id": "f2",
+          "label": "Pull the bed off the wall so the extra width can split on both sides."
+        },
+        {
+          "id": "f3",
+          "label": "Keep the 5-foot bed; a 6-foot bed can never leave a walkway in this room."
+        },
+        {
+          "id": "f4",
+          "label": "Cut a half-foot recess into the window wall so both sides can share the extra width."
+        }
+      ],
+      "fix_answer": "f1",
+      "explanation": "The bed can't grow through the wall. That whole extra foot comes straight out of your walkway.",
+      "why_tempting": "Splitting a width change 'half and half' feels automatic. It's easy to skip that one edge is already tight against a wall.",
+      "catch_rule": "If one side of a bed or desk is already against a wall, every extra inch of width comes out of the open side.",
+      "hint": "The current bed is already tight against one wall. Where can the extra foot actually go?",
+      "practice": {
+        "problem": "A sofa sits along one wall with a 90cm gap to the coffee table. A new sofa is 20cm deeper. A friend says, '10cm off each side, still 80cm to the table.' What's wrong?",
+        "answer": "The back is already against the wall, so all 20cm come out of the gap. That's 70cm left, not 80."
+      }
+    }
+  ],
+  "clean_segments": [
+    "Putting a 6-foot bed in the guest room to replace the 5-foot one that's in there now.",
+    "The current bed is pushed along the window wall, leaving a 2-foot walkway on the closet side.",
+    "One side is already against the wall, so the whole extra foot comes out of the walkway — that's 1 foot left, not 1.5.",
+    "I'll order it tonight before the weekend sale ends."
+  ],
+  "clean_conclusion": "The extra foot all comes out of the walkway. You'll have 1 foot, not 1.5."
+}

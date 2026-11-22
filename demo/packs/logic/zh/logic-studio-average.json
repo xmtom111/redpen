@@ -4,7 +4,7 @@
   "domain": "logic",
   "renderer": "prose",
   "lang": "zh",
-  "opener": true,
+  "opener": false,
   "title": "团课人数说明",
   "topic": "一个班均人数，掩盖了大多数人实际所处的教室",
   "blurb": "有会员说教室有点挤，店长写了这份团课人数说明。",

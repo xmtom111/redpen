@@ -4,7 +4,7 @@
   "domain": "logic",
   "renderer": "prose",
   "lang": "en",
-  "opener": true,
+  "opener": false,
   "title": "Weekend Sale Plan",
   "topic": "A markup and a discount that do not leave the margin people think",
   "blurb": "The shop manager drafted a weekend flyer to clear the summer jackets.",
