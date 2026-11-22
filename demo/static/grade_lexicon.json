@@ -376,6 +376,67 @@
       "极小样本",
       "2 名",
       "巧合"
+    ],
+    "calendar-midnight": [
+      "midnight",
+      "thursday night",
+      "friday night",
+      "12:35",
+      "after midnight",
+      "凌晨",
+      "零点",
+      "周四晚",
+      "周五晚",
+      "过了零点"
+    ],
+    "leftover-half": [
+      "container",
+      "leftover",
+      "other half",
+      "undiluted",
+      "still salty",
+      "保鲜盒",
+      "另外那一半",
+      "没兑",
+      "还是咸",
+      "原汤"
+    ],
+    "parallel-time": [
+      "same day",
+      "same time",
+      "overlap",
+      "concurrent",
+      "expire together",
+      "in parallel",
+      "同时",
+      "同一天",
+      "一起到期",
+      "重叠",
+      "并行"
+    ],
+    "already-yours": [
+      "weekend",
+      "already off",
+      "already a holiday",
+      "already yours",
+      "only friday",
+      "本来就",
+      "周末",
+      "法定假",
+      "不上班",
+      "只换来了周五"
+    ],
+    "forgotten-goods": [
+      "lamp",
+      "keep the",
+      "goods",
+      "no longer have",
+      "out the lamp",
+      "台灯",
+      "白丢",
+      "灯也",
+      "货",
+      "倒贴"
     ]
   },
   "math_equivalences": [

@@ -4,7 +4,7 @@
   "domain": "logic",
   "renderer": "prose",
   "lang": "en",
-  "opener": true,
+  "opener": false,
   "title": "Studio Capacity Review",
   "topic": "An average class size that hides where most people actually are",
   "blurb": "The studio manager wrote this note after a few members said the rooms felt crowded.",

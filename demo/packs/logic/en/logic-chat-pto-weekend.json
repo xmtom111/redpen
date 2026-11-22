@@ -1,0 +1,99 @@
+{
+  "schema_version": 2,
+  "domain": "logic",
+  "renderer": "prose",
+  "opener": true,
+  "difficulty": "intro",
+  "level": 1,
+  "estimated_seconds": 60,
+  "id": "logic-chat-pto-weekend",
+  "lang": "en",
+  "title": "Christmas weekend",
+  "topic": "A four-day weekend that counts a public holiday and the weekend as PTO winnings",
+  "blurb": "A friend is proud of turning one Friday off into four vacation days.",
+  "prompt": "A friend just texted this in the group chat. If one line doesn't add up, tap it.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The calendar",
+      "text": "Christmas is on a Thursday this year, so the office is already closed that day."
+    },
+    {
+      "id": 2,
+      "label": "The Friday",
+      "text": "If I take Friday off, I get Thursday through Sunday at home."
+    },
+    {
+      "id": 3,
+      "label": "The flex",
+      "text": "So one PTO day turns into four full days off — I'm basically getting four days of vacation for the price of one."
+    },
+    {
+      "id": 4,
+      "label": "The booking",
+      "text": "I'll book the Friday morning train before the tickets jump."
+    }
+  ],
+  "conclusion": "One Friday of PTO buys a four-day vacation, because Thursday through Sunday are all off.",
+  "flaws": [
+    {
+      "segment_id": 3,
+      "error_type": "already-yours",
+      "original": "I'll have a four-day stretch at home, but Thursday was already a holiday and the weekend was already mine. The one PTO day only adds Friday.",
+      "corrupted": "So one PTO day turns into four full days off — I'm basically getting four days of vacation for the price of one.",
+      "diagnosis_choices": [
+        {
+          "id": "d1",
+          "label": "Thursday was already a holiday, and Saturday and Sunday were already yours. One PTO day only buys Friday."
+        },
+        {
+          "id": "d2",
+          "label": "Taking Friday off doesn't connect to Sunday, because Saturday is a working day this year."
+        },
+        {
+          "id": "d3",
+          "label": "Christmas falling on a Thursday means the office is also closed on Friday, so the PTO is wasted."
+        },
+        {
+          "id": "d4",
+          "label": "A train on Friday morning uses up part of the day, so it isn't four full days at home."
+        }
+      ],
+      "diagnosis_answer": "d1",
+      "fix_choices": [
+        {
+          "id": "f1",
+          "label": "Call it a four-day weekend if you want, but admit only Friday is the extra day you paid for."
+        },
+        {
+          "id": "f2",
+          "label": "Also take Monday off, so the four paid days finally match the four days at home."
+        },
+        {
+          "id": "f3",
+          "label": "Move the PTO to Thursday, since Christmas might not count as a real holiday."
+        },
+        {
+          "id": "f4",
+          "label": "Book the train on Thursday instead, which turns the holiday into a work-travel day and evens it out."
+        }
+      ],
+      "fix_answer": "f1",
+      "explanation": "Saturday and Sunday were already yours — and so was Christmas. One PTO day only buys Friday.",
+      "why_tempting": "A four-day stretch feels like a prize, so people count the whole cluster as something the PTO created.",
+      "catch_rule": "When someone turns a short leave into a long 'vacation,' subtract the weekend and the holiday you already had.",
+      "hint": "Which of those four days would you have had off even without filing any PTO?",
+      "practice": {
+        "problem": "New Year's Day is a Wednesday. A friend takes Thursday and Friday off and says, 'Three PTO days? No — I just turned two days into a five-day vacation.' What's the catch?",
+        "answer": "Wednesday was already a holiday, and the weekend was already off. The two PTO days only add Thursday and Friday."
+      }
+    }
+  ],
+  "clean_segments": [
+    "Christmas is on a Thursday this year, so the office is already closed that day.",
+    "If I take Friday off, I get Thursday through Sunday at home.",
+    "I'll have a four-day stretch at home, but Thursday was already a holiday and the weekend was already mine. The one PTO day only adds Friday.",
+    "I'll book the Friday morning train before the tickets jump."
+  ],
+  "clean_conclusion": "It's a four-day weekend, but only Friday is the extra day the PTO bought."
+}

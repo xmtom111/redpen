@@ -4,7 +4,7 @@
   "domain": "logic",
   "renderer": "prose",
   "lang": "zh",
-  "opener": true,
+  "opener": false,
   "title": "咖啡月卡测算",
   "topic": "一张并不能按原价杯数回本的折扣月卡",
   "blurb": "同事写了一段话，算楼下咖啡月卡到底值不值。",

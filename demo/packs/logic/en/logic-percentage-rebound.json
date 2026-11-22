@@ -4,7 +4,7 @@
   "domain": "logic",
   "renderer": "prose",
   "lang": "en",
-  "opener": true,
+  "opener": false,
   "title": "Compensation Adjustment Notice",
   "topic": "A raise that does not actually undo a cut",
   "blurb": "HR sent the adjusted offer and said last year's change is now behind you.",

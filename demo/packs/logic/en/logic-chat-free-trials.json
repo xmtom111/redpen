@@ -1,0 +1,99 @@
+{
+  "schema_version": 2,
+  "domain": "logic",
+  "renderer": "prose",
+  "opener": true,
+  "difficulty": "intro",
+  "level": 1,
+  "estimated_seconds": 60,
+  "id": "logic-chat-free-trials",
+  "lang": "en",
+  "title": "Streaming pass",
+  "topic": "Twelve 30-day trials started the same day all expire together",
+  "blurb": "A friend thinks signing up twelve times has banked a year of free video.",
+  "prompt": "A friend just texted this in the group chat. If one line doesn't add up, tap it.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The offer",
+      "text": "The streaming app gives a 30-day free trial that stays on even if you cancel right away."
+    },
+    {
+      "id": 2,
+      "label": "The move",
+      "text": "I just signed up with 12 different emails today and cancelled all of them immediately."
+    },
+    {
+      "id": 3,
+      "label": "The stash",
+      "text": "That queues up a full year of free streaming without paying a cent."
+    },
+    {
+      "id": 4,
+      "label": "The vibe",
+      "text": "If anyone else wants in, I can send the signup steps."
+    }
+  ],
+  "conclusion": "Twelve 30-day trials, started today, add up to a year of free watching.",
+  "flaws": [
+    {
+      "segment_id": 3,
+      "error_type": "parallel-time",
+      "original": "All 12 trials started today, so they run at the same time and all end in 30 days — not one after another.",
+      "corrupted": "That queues up a full year of free streaming without paying a cent.",
+      "diagnosis_choices": [
+        {
+          "id": "d1",
+          "label": "The 12 trials all started today, so they expire on the same day — you get 30 days, not a year."
+        },
+        {
+          "id": "d2",
+          "label": "Cancelling immediately ends a trial on the spot, so none of the 12 will actually run."
+        },
+        {
+          "id": "d3",
+          "label": "12 × 30 is only 360 days, so it's a few days short of a full year."
+        },
+        {
+          "id": "d4",
+          "label": "You can only watch on one email at a time, so the extra accounts do nothing."
+        }
+      ],
+      "diagnosis_answer": "d1",
+      "fix_choices": [
+        {
+          "id": "f1",
+          "label": "Admit it's 30 days of overlapping trials, not a year lined up back to back."
+        },
+        {
+          "id": "f2",
+          "label": "Start the next email only after each 30 days ends, if you want them in a line."
+        },
+        {
+          "id": "f3",
+          "label": "Sign up for 13 trials to cover the extra days and make it a real year."
+        },
+        {
+          "id": "f4",
+          "label": "Keep all 12 logged in at once so the year gets used up faster."
+        }
+      ],
+      "fix_answer": "f1",
+      "explanation": "All 12 of your trials will expire on the exact same Tuesday.",
+      "why_tempting": "12 × 30 feels like stocking inventory. It's easy to forget that calendar time for each account starts now, not when the last one finishes.",
+      "catch_rule": "If you start several free trials on the same day, they run in parallel — they don't get in line.",
+      "hint": "When does trial number 12 actually start — next year, or today?",
+      "practice": {
+        "problem": "A friend books four 7-day gym guest passes today, one on each of four guest emails, and says that's four weeks of free workouts. What's wrong?",
+        "answer": "All four passes start today, so they overlap. That's one week, not four."
+      }
+    }
+  ],
+  "clean_segments": [
+    "The streaming app gives a 30-day free trial that stays on even if you cancel right away.",
+    "I just signed up with 12 different emails today and cancelled all of them immediately.",
+    "All 12 trials started today, so they run at the same time and all end in 30 days — not one after another.",
+    "If anyone else wants in, I can send the signup steps."
+  ],
+  "clean_conclusion": "Twelve trials started today all end in 30 days. That's not a year."
+}

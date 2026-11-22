@@ -4,7 +4,7 @@
   "domain": "logic",
   "renderer": "prose",
   "lang": "en",
-  "opener": true,
+  "opener": false,
   "title": "Cafe Membership Note",
   "topic": "A pass that does not break even at the full cup price",
   "blurb": "A coworker wrote up whether the cafe's monthly pass is worth it.",

@@ -4,7 +4,7 @@
   "domain": "logic",
   "renderer": "prose",
   "lang": "en",
-  "opener": true,
+  "opener": false,
   "title": "Q3 Member Feedback Recap",
   "topic": "A satisfaction score collected only from people who just renewed",
   "blurb": "The product team shared this recap after the dating-app redesign.",

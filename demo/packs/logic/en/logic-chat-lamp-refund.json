@@ -1,0 +1,99 @@
+{
+  "schema_version": 2,
+  "domain": "logic",
+  "renderer": "prose",
+  "opener": true,
+  "difficulty": "intro",
+  "level": 1,
+  "estimated_seconds": 60,
+  "id": "logic-chat-lamp-refund",
+  "lang": "en",
+  "title": "Moving out",
+  "topic": "A seller refunds more than the sale and lets the buyer keep the lamp, then counts only the $5 cash gap",
+  "blurb": "A friend sold a lamp, then paid to end the argument, and thinks it only cost five dollars.",
+  "prompt": "A friend just texted this in the group chat. If one line doesn't add up, tap it.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The sale",
+      "text": "Sold my desk lamp for $30 on Marketplace before moving out."
+    },
+    {
+      "id": 2,
+      "label": "The text",
+      "text": "The buyer Venmo'd me, then messaged that the switch felt loose."
+    },
+    {
+      "id": 3,
+      "label": "The send-back",
+      "text": "Didn't want drama on moving day, so I sent him $35 and told him to just keep the lamp."
+    },
+    {
+      "id": 4,
+      "label": "The shrug",
+      "text": "Annoying, but honestly worth losing $5 just to be done with it."
+    }
+  ],
+  "conclusion": "Sent $35 back on a $30 sale, so it only cost $5 to make the hassle go away.",
+  "flaws": [
+    {
+      "segment_id": 4,
+      "error_type": "forgotten-goods",
+      "original": "That's not losing $5. I refunded $35 and let him keep a $30 lamp — I'm out the lamp and $5 cash.",
+      "corrupted": "Annoying, but honestly worth losing $5 just to be done with it.",
+      "diagnosis_choices": [
+        {
+          "id": "d1",
+          "label": "You also let him keep the $30 lamp. You're out the lamp and $5 cash, not just $5."
+        },
+        {
+          "id": "d2",
+          "label": "Venmo takes a fee, so the real cash loss is a bit more than $5."
+        },
+        {
+          "id": "d3",
+          "label": "A used lamp wasn't really worth $30, so the $5 already overstates the loss."
+        },
+        {
+          "id": "d4",
+          "label": "The only mistake is the extra $5. Sending back $30 and letting him keep it would have been even."
+        }
+      ],
+      "diagnosis_answer": "d1",
+      "fix_choices": [
+        {
+          "id": "f1",
+          "label": "Admit you're out a $30 lamp and $5 cash — or get the lamp back."
+        },
+        {
+          "id": "f2",
+          "label": "Ask him to send $5 so the cash evens out, and he can keep the lamp."
+        },
+        {
+          "id": "f3",
+          "label": "Retcon the sale price as $35, so the refund becomes a wash."
+        },
+        {
+          "id": "f4",
+          "label": "Count the original $30 as profit, which cancels the $35 you sent back."
+        }
+      ],
+      "fix_answer": "f1",
+      "explanation": "You're out $5 in cash — and you no longer have a lamp.",
+      "why_tempting": "Watching $30 come in and $35 go out leaves a tidy $5 in your head. The lamp quietly leaves the ledger.",
+      "catch_rule": "If you refund the money and let them keep the thing, you've lost the thing too — not just the difference.",
+      "hint": "After this, who has the lamp? And who has the $35?",
+      "practice": {
+        "problem": "You sell a used bike for $80. The buyer complains, so you send $90 and say keep it. A friend says, 'So you only lost $10.' What's missing?",
+        "answer": "You also no longer have the bike. You're out the bike and $10, not just $10."
+      }
+    }
+  ],
+  "clean_segments": [
+    "Sold my desk lamp for $30 on Marketplace before moving out.",
+    "The buyer Venmo'd me, then messaged that the switch felt loose.",
+    "Didn't want drama on moving day, so I sent him $35 and told him to just keep the lamp.",
+    "That's not losing $5. I refunded $35 and let him keep a $30 lamp — I'm out the lamp and $5 cash."
+  ],
+  "clean_conclusion": "You didn't just lose $5. You gave back the money and the lamp."
+}

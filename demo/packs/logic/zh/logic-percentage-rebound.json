@@ -4,7 +4,7 @@
   "domain": "logic",
   "renderer": "prose",
   "lang": "zh",
-  "opener": true,
+  "opener": false,
   "title": "薪资调整通知",
   "topic": "一次并不能补回降薪的涨幅",
   "blurb": "人事发来调整后的 Offer，说去年那次变动已经翻篇了。",

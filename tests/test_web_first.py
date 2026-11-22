@@ -79,7 +79,7 @@ class PackAndExportTest(unittest.TestCase):
                     for item in data["worksheets"]:
                         secret = json.loads((prefix / "secrets" / f"{item['id']}.json").read_text(encoding="utf-8"))
                         self.assertEqual(item["commitment"], redpen.commitment(secret["key"]))
-                self.assertEqual(total, 21)
+                self.assertEqual(total, 26)
 
     def test_server_pack_endpoints_and_light_mode_submit(self):
         banks = load_banks()
@@ -204,7 +204,7 @@ assert.equal(d1Zh[0].opener, true);
 // First-slot rotation stays inside the opener pool and visits each opener once per cycle.
 // 2026-01-01 is dayIdx 0, so it starts a cycle for any pool length.
 const openers = enCards.filter(x => x.opener === true).map(x => x.id).sort();
-assert.ok(openers.length >= 6);
+assert.ok(openers.length >= 4);
 const firstIds = [];
 for (let i = 0; i < openers.length; i++) {
   const day = String(1 + i).padStart(2, '0');

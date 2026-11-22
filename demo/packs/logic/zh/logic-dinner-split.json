@@ -4,7 +4,7 @@
   "domain": "logic",
   "renderer": "prose",
   "lang": "zh",
-  "opener": true,
+  "opener": false,
   "title": "周六聚餐对账",
   "topic": "两笔一样的刷卡，其实并没有 AA 平",
   "blurb": "看完演出又吃了火锅，一位朋友发来了对账消息。",

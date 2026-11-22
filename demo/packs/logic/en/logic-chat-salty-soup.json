@@ -1,0 +1,99 @@
+{
+  "schema_version": 2,
+  "domain": "logic",
+  "renderer": "prose",
+  "opener": true,
+  "difficulty": "intro",
+  "level": 1,
+  "estimated_seconds": 60,
+  "id": "logic-chat-salty-soup",
+  "lang": "en",
+  "title": "Tonight's soup",
+  "topic": "A halved pot is diluted; the saved half is still double-salted",
+  "blurb": "A friend oversalted dinner and thinks they've saved both meals.",
+  "prompt": "A friend just texted this in the group chat. If one line doesn't add up, tap it.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The pot",
+      "text": "Made a big pot of soup and accidentally put in double the salt — way too salty to eat."
+    },
+    {
+      "id": 2,
+      "label": "The save",
+      "text": "The pot was too full to add water, so I ladled half into a container, refilled the pot with water, and stirred."
+    },
+    {
+      "id": 3,
+      "label": "Both meals",
+      "text": "Now tonight's pot is back to normal, and tomorrow I'll just heat up the container — zero waste."
+    },
+    {
+      "id": 4,
+      "label": "The invite",
+      "text": "Come over tonight if you want a bowl."
+    }
+  ],
+  "conclusion": "Tonight's pot is saved, and tomorrow's container is fine to heat up — nothing wasted.",
+  "flaws": [
+    {
+      "segment_id": 3,
+      "error_type": "leftover-half",
+      "original": "Tonight's pot is back to normal, but the container is still double-salted — I can't just heat that up tomorrow.",
+      "corrupted": "Now tonight's pot is back to normal, and tomorrow I'll just heat up the container — zero waste.",
+      "diagnosis_choices": [
+        {
+          "id": "d1",
+          "label": "Tonight's pot is saved, sure — tomorrow's container is still the undiluted, double-salted half."
+        },
+        {
+          "id": "d2",
+          "label": "Adding water to half a pot doesn't bring it back to normal; it's still too salty."
+        },
+        {
+          "id": "d3",
+          "label": "Soup shouldn't be reheated the next day, so the container was never a real plan."
+        },
+        {
+          "id": "d4",
+          "label": "Stirring after topping up doesn't mix the salt, so tonight's pot is still uneven."
+        }
+      ],
+      "diagnosis_answer": "d1",
+      "fix_choices": [
+        {
+          "id": "f1",
+          "label": "Eat tonight's diluted pot, and dilute the container too before heating it tomorrow."
+        },
+        {
+          "id": "f2",
+          "label": "Pour the container back into the pot so both halves can even out overnight."
+        },
+        {
+          "id": "f3",
+          "label": "Throw out tonight's pot and eat the container tomorrow, since that half wasn't watered down."
+        },
+        {
+          "id": "f4",
+          "label": "Add a potato to the container overnight, which will pull the extra salt out."
+        }
+      ],
+      "fix_answer": "f1",
+      "explanation": "Tonight's pot is saved, sure — tomorrow's lunch container is still pure ocean water.",
+      "why_tempting": "You watch one clever kitchen save, nod along, and forget that the half you scooped out never got the water.",
+      "catch_rule": "If you fix a pot by watering down what's left, the half you already served is still the original mistake.",
+      "hint": "Tonight's pot got a refill of water. Did the container?",
+      "practice": {
+        "problem": "A pitcher of juice is twice as strong as you wanted. You pour half into a bottle for later, then fill the pitcher with water. Is the bottle ready to drink tomorrow?",
+        "answer": "No. The bottle still has the undiluted, too-strong half."
+      }
+    }
+  ],
+  "clean_segments": [
+    "Made a big pot of soup and accidentally put in double the salt — way too salty to eat.",
+    "The pot was too full to add water, so I ladled half into a container, refilled the pot with water, and stirred.",
+    "Tonight's pot is back to normal, but the container is still double-salted — I can't just heat that up tomorrow.",
+    "Come over tonight if you want a bowl."
+  ],
+  "clean_conclusion": "Tonight's pot is saved. Tomorrow's container is still double-salted."
+}
