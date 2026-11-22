@@ -44,38 +44,38 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "It's one shared 100GB pot. You three have used about 40, so there's about 60 left — plenty for 8GB."
+          "label": "It's one shared 100GB pot: 40GB used leaves ~60GB — plenty for 8GB."
         },
         {
           "id": "d2",
-          "label": "An 8GB show is usually closer to 16GB after updates, so you should wait anyway."
+          "label": "An 8GB video download actually uses ~12GB with overhead, so even 10GB left wouldn't cover it."
         },
         {
           "id": "d3",
-          "label": "Unused data expires halfway through the month, so their leftover 10GB is already gone."
+          "label": "Unused data expires mid-month on family plans, so the other two's leftover GBs are already gone."
         },
         {
           "id": "d4",
-          "label": "Your 30GB already went past a 33GB cap, so the plan may have already slowed you down."
+          "label": "Using 30GB out of 33GB triggers carrier throttling at 90%, so the 8GB download will crawl anyway."
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Go ahead and download it. The leftover in the family bucket is still there to use."
+          "label": "Download the 8GB now — ~60GB is still sitting unused in the shared pot."
         },
         {
           "id": "f2",
-          "label": "Ask them to gift you 8GB from their unused third first, then download."
+          "label": "Ask the other two to transfer 8GB from their 33GB shares before starting."
         },
         {
           "id": "f3",
-          "label": "Wait until next month, and also stop using data now so you don't go past 33."
+          "label": "Wait until next month and turn off mobile data so you stay under 33GB."
         },
         {
           "id": "f4",
-          "label": "Delete 8GB of old photos on the phone so the download will fit under 33."
+          "label": "Free up 8GB of phone storage first so the download fits inside your 33GB cap."
         }
       ],
       "fix_answer": "f1",
@@ -95,5 +95,50 @@
     "It's one 100GB pot. We've used about 40 together, so there's about 60 left — plenty for an 8GB download.",
     "Text me if you need me to stay off it tonight."
   ],
-  "clean_conclusion": "You've used about 40 of a shared 100GB. The 8GB download still fits."
+  "clean_conclusion": "You've used about 40 of a shared 100GB. The 8GB download still fits.",
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "100GB divided by 3 people is 33.3GB each, which automatically caps each SIM card at 33.3GB.",
+        "Family plans throttle hotspot and video downloads separately from the 100GB headline bucket.",
+        "A 100GB monthly bucket is actually 100 gigabits (12.5GB), so 30GB already blew past the cap.",
+        "Three people sharing 100GB means each line gets 25GB plus a 25GB rollover reserve."
+      ],
+      "fix": [
+        "Check the carrier app to see if per-line 33GB limits are turned on.",
+        "Confirm whether video downloads count double against the 100GB bucket.",
+        "Wait until the billing cycle resets so everyone gets a fresh 33GB.",
+        "Upgrade to a 120GB plan so it divides evenly by three (40GB each)."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "'Maybe 10 between you' is a rough guess — if they actually used 65GB, downloading 8GB would trigger overage fees.",
+        "30GB plus 10GB is 40GB, which means you already used 75% of the family's data and owe them the rest.",
+        "Saying '10 between you' means 10GB *each* (20GB total), so 50GB is already gone, not 40GB.",
+        "You can't add your 30GB to their 10GB because each line is billed on a separate counter."
+      ],
+      "fix": [
+        "Check the carrier app for their exact usage instead of guessing 'maybe 10'.",
+        "Count 10GB each (20GB total) so you budget from 50GB used, not 40GB.",
+        "Keep your own 30GB separate from their 10GB when checking your allowance.",
+        "Ask them if they plan to stream video before using any of the leftover data."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Offering to stay off it tonight doesn't help when you've already burned 30 of your 33GB.",
+        "If 60GB is left in the bucket, asking whether to stay off it tonight is pointless — there's plenty for everyone.",
+        "Staying off data tonight won't make an 8GB download fit under 33GB tomorrow.",
+        "They'd only need you off it if all three of you downloaded 20GB each tonight."
+      ],
+      "fix": [
+        "Go ahead and use it tonight — there's roughly 60GB left in the shared pot.",
+        "Just run the 8GB download on Wi-Fi tonight instead of asking in the chat.",
+        "Check when the billing cycle resets before offering to stay off mobile data.",
+        "Only hold off if someone says they need 50GB+ before the cycle ends."
+      ]
+    }
+  }
 }

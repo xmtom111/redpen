@@ -1,0 +1,186 @@
+{
+  "schema_version": 2,
+  "id": "code-trick-js-let-loop",
+  "domain": "code",
+  "renderer": "code",
+  "code_language": "javascript",
+  "lang": "zh",
+  "kind": "trick_clean",
+  "title": "重试循环里的闭包",
+  "topic": "在 JS `for` 循环里 `push` 捕获了 `i` 的箭头函数",
+  "blurb": "经典 JS 面试坑：循环里把带 `i` 的回调塞进数组——调起来是不是全变成最后一个值？",
+  "difficulty": "standard",
+  "level": 0,
+  "estimated_seconds": 55,
+  "prompt": "需求：`steps = 3` 时返回 3 个无参函数，调用它们依次得到 `{ attempt: 1, delayMs: 200 }`、`{ attempt: 2, delayMs: 400 }`、`{ attempt: 3, delayMs: 600 }`。发现 bug 就点对应行，觉得没问题就放行。",
+  "segments": [
+    {
+      "id": 1,
+      "label": "L1",
+      "text": "function makeRetryPlan(steps) {"
+    },
+    {
+      "id": 2,
+      "label": "L2",
+      "text": "  const tasks = [];"
+    },
+    {
+      "id": 3,
+      "label": "L3",
+      "text": "  for (let i = 0; i < steps; i++) {"
+    },
+    {
+      "id": 4,
+      "label": "L4",
+      "text": "    const delayMs = (i + 1) * 200;"
+    },
+    {
+      "id": 5,
+      "label": "L5",
+      "text": "    tasks.push(() => ({ attempt: i + 1, delayMs }));"
+    },
+    {
+      "id": 6,
+      "label": "L6",
+      "text": "  }"
+    },
+    {
+      "id": 7,
+      "label": "L7",
+      "text": "  return tasks;"
+    },
+    {
+      "id": 8,
+      "label": "L8",
+      "text": "}"
+    }
+  ],
+  "conclusion": "AI 总结：每个回调都保留了各自的 `attempt`（1..steps）和 `delayMs`（200..steps*200）。",
+  "flaws": [],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "函数没标 `async`，后面算出来的 `delayMs` 根本没法生效。",
+        "`steps` 传 `0` 时没有提前拦截，JS 会抛 RangeError。",
+        "普通函数声明内部返回箭头函数时不会正常变量提升。",
+        "参数 `steps` 没设默认值 `1`，循环会默认跑一次。"
+      ],
+      "fix": [
+        "改成 `async function makeRetryPlan(steps)`。",
+        "开头补上 `if (steps <= 0) return [];`。",
+        "改成 `const makeRetryPlan = (steps = 1) => ...`。",
+        "先把 `steps` 处理成 `Math.max(1, steps)`。"
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "用 `const` 声明 `tasks = []` 会把数组冻住，第 5 行 `tasks.push` 会抛 TypeError。",
+        "在函数里写 `const tasks = []` 会让多次调用共用同一个数组。",
+        "往数组里塞闭包必须用 `let tasks = []` 声明。",
+        "把 `tasks` 建在循环外面会导致所有闭包共享同一个作用域。"
+      ],
+      "fix": [
+        "把 `const tasks = []` 改成 `let tasks = []` 才能 `push`。",
+        "改用 `new Array(steps)` 预分配数组长度。",
+        "把 `const tasks = []` 移到 `for` 循环内部。",
+        "第 7 行改成 `return tasks.slice()` 防止共享。"
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "边界差一：`i < steps` 会停在 `steps - 1`，`steps = 3` 只会生成 2 个任务。",
+        "`i++` 会在第一次算 `delayMs` 之前先把 `i` 加 1。",
+        "从 `0` 开始循环会让第一次的 `attempt` 变成 `0` 而不是 `1`。",
+        "JS 里 `for` 头部的 `let i` 会提升到函数顶部，所有闭包共享最终的 `i`。"
+      ],
+      "fix": [
+        "把 `i < steps` 改成 `i <= steps` 防止漏掉最后一次重试。",
+        "改成 `for (let i = 1; i <= steps; i++)` 避免差一。",
+        "用立即执行函数 `(function(n){ ... })(i)` 包一层隔开 `i`。",
+        "把 `i++` 改成 `++i` 保证步进顺序。"
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "在循环体里写 `const delayMs` 第二轮会报 SyntaxError，因为 `const` 不能重复赋值。",
+        "`delayMs` 每轮都会被覆盖，所以最后所有闭包读到的都是 `600`。",
+        "运算符优先级会先算 `1 * 200` 再加 `i`，算出来是 `200, 201, 202`。",
+        "当 `i` 从 0 起步时 `(i + 1) * 200` 会算出 `0, 200, 400`。"
+      ],
+      "fix": [
+        "把 `const delayMs` 改成在循环外声明的 `let delayMs`。",
+        "把表达式改成 `i * 200` 而不是 `(i + 1) * 200`。",
+        "不要用 `const` 存中间变量，直接写进返回对象里。",
+        "多加一层括号 `((i + 1) * 200)` 固定优先级。"
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "经典循环闭包坑：所有箭头函数捕获的是同一个循环变量 `i`，调哪一个都会返回 `{ attempt: 4, delayMs: 600 }`。",
+        "箭头函数 `() => ({ ... })` 会把花括号当函数体解析，实际返回 `undefined`。",
+        "对象简写 `delayMs` 在循环结束后会变成 `undefined`。",
+        "`tasks.push` 会直接执行箭头函数，存进去的不是回调而是结果。"
+      ],
+      "fix": [
+        "套一层 IIFE `((idx) => tasks.push(() => ...))(i)` 锁住每轮的 `i`。",
+        "把 `() => ({ ... })` 改成 `() => { return { attempt: i + 1, delayMs }; }`。",
+        "用 `Object.freeze({ attempt: i + 1, delayMs })` 防止值被后面覆盖。",
+        "改用 `tasks[i] = ...` 替代 `tasks.push(...)`。"
+      ]
+    },
+    "6": {
+      "diagnosis": [
+        "`for` 块结尾少了分号，JS 自动插分号会破坏后面的 `return`。",
+        "离开 `for` 块会销毁 `delayMs`，外面再调闭包就拿不到了。",
+        "这个右花括号提前结束了函数，导致第 7 行变成死代码。",
+        "循环结束时 `i` 停在 `steps`，顺手把之前存的 `attempt` 全改掉了。"
+      ],
+      "fix": [
+        "在循环花括号后面补上分号 `};`。",
+        "把 `delayMs` 挂到 `this.delayMs` 上防止出块销毁。",
+        "把 `return tasks;` 挪进循环体末尾。",
+        "在循环结束后用 `tasks.map` 重新绑定 `i`。"
+      ]
+    },
+    "7": {
+      "diagnosis": [
+        "直接 `return tasks` 返回的是函数数组，不是 `{ attempt, delayMs }` 对象。",
+        "返回前没调用一遍，所以 `delayMs` 永远不会被计算。",
+        "`tasks` 在循环里被修改后在这里已经超出作用域。",
+        "直接返回 `tasks` 会让连续两次调用共享同一个数组。"
+      ],
+      "fix": [
+        "改成 `return tasks.map(fn => fn())` 直接返回结果对象。",
+        "改成 `return [...tasks]` 返回新数组副本。",
+        "改成 `return Object.freeze(tasks)` 锁住闭包值。",
+        "返回前先 `tasks.reverse()` 让第 1 次尝试排在最前。"
+      ]
+    },
+    "8": {
+      "diagnosis": [
+        "没有 `export` 或 `module.exports`，外部文件根本调不到 `makeRetryPlan`。",
+        "函数结束前没把 `i` 置零，会把 `i` 泄漏到全局对象上。",
+        "第 5 行少了一对括号，到这个右花括号处会报语法错误。",
+        "缺少 `'use strict';` 导致 `let` 退化成 `var` 行为。"
+      ],
+      "fix": [
+        "在末尾加上 `export default makeRetryPlan;`。",
+        "在结束前补上 `i = 0;` 防止泄漏。",
+        "检查第 5 行 `({ attempt: i + 1, delayMs })` 的括号配对。",
+        "在函数开头补上 `'use strict';`。"
+      ]
+    }
+  },
+  "clean_segments": [
+    "function makeRetryPlan(steps) {",
+    "  const tasks = [];",
+    "  for (let i = 0; i < steps; i++) {",
+    "    const delayMs = (i + 1) * 200;",
+    "    tasks.push(() => ({ attempt: i + 1, delayMs }));",
+    "  }",
+    "  return tasks;",
+    "}"
+  ],
+  "clean_conclusion": "循环里写闭包全变成最后一个值，那是老式 `var` 的坑；JS 里 `for (let i = ...)` 每次迭代都会新建独立绑定，三个回调各自稳稳拿到 1、2、3。",
+  "explanation": "循环里写闭包全变成最后一个值，那是老式 `var` 的坑；JS 里 `for (let i = ...)` 每次迭代都会新建独立绑定，三个回调各自稳稳拿到 1、2、3。"
+}

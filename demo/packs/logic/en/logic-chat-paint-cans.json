@@ -1,0 +1,106 @@
+{
+  "schema_version": 2,
+  "domain": "logic",
+  "renderer": "prose",
+  "opener": true,
+  "kind": "clean",
+  "difficulty": "intro",
+  "level": 0,
+  "estimated_seconds": 55,
+  "id": "logic-chat-paint-cans",
+  "lang": "en",
+  "title": "Bedroom paint",
+  "topic": "A friend estimates gallons of paint for two coats on four bedroom walls",
+  "blurb": "Subtract the door and windows, double for two coats, and buy three gallons.",
+  "prompt": "A friend texted this from the paint aisle. Tap a line if the estimate is off, or call it clean.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The walls",
+      "text": "Repainting the bedroom — four walls total 440 sq ft, minus 60 sq ft for the door and two windows, so 380 sq ft of actual wall."
+    },
+    {
+      "id": 2,
+      "label": "The label",
+      "text": "One gallon covers 350 sq ft, and I'm putting on two coats."
+    },
+    {
+      "id": 3,
+      "label": "The buy",
+      "text": "Two coats is 760 sq ft, so two gallons come up short — grabbed three gallons and I'll have most of the third can left over."
+    },
+    {
+      "id": 4,
+      "label": "The relief",
+      "text": "Glad I didn't try to stretch two cans."
+    }
+  ],
+  "conclusion": "380 sq ft times two coats is 760 sq ft, which exceeds two 350 sq ft cans, so three cans leave most of the third unused.",
+  "flaws": [],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "You can't subtract the door and windows — paint estimates always use gross wall area (440 sq ft).",
+        "440 minus 60 is 360 sq ft, not 380 sq ft, so the paintable area is overestimated.",
+        "Subtracting 60 sq ft once ignores that you're doing two coats, so you have to subtract 120 sq ft from 440.",
+        "You forgot the ceiling area, so 380 sq ft leaves out a fifth surface."
+      ],
+      "fix": [
+        "Use the full 440 sq ft so you don't under-buy paint.",
+        "Fix the subtraction: 440 minus 60 is 360 sq ft, not 380.",
+        "Subtract 120 sq ft (two coats of door/windows) from 440 to get 320 sq ft.",
+        "Add the ceiling's square footage before multiplying by two coats."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "A second coat uses half as much paint as the first coat, so you don't multiply 380 by 2.",
+        "Coverage ratings of 350 sq ft are already for two coats combined, not per coat.",
+        "Because 380 is close to 350, one gallon is practically one coat, so two gallons cover two coats.",
+        "Multiplying by two coats doubles the coverage per gallon to 700 sq ft per can."
+      ],
+      "fix": [
+        "Count the second coat as half-coverage (190 sq ft), making the total 570 sq ft.",
+        "Treat 350 sq ft as a finished two-coat rating so two cans easily cover 380 sq ft.",
+        "Stick to two gallons — 30 sq ft per coat is within normal roller stretch.",
+        "Divide 380 by 350 once (1.09 cans) instead of doubling first."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "Two gallons cover 700 sq ft and 760 minus 700 is 60 sq ft — you'll use over half of the third can, not leave most of it.",
+        "760 divided by 350 is 2.17 gallons, which rounds down to 2 gallons, not 3.",
+        "Two coats of 380 is 720 sq ft, and with two 350-sq-ft cans you're barely 20 sq ft short.",
+        "Three gallons cover 1,050 sq ft, so you'll have less than half of the third can left, not most of it."
+      ],
+      "fix": [
+        "Fix 380 × 2 to 720 sq ft so you know you're only 20 sq ft past two cans.",
+        "Round 2.17 gallons down to 2 gallons since 0.17 is negligible.",
+        "Say you'll have about a quarter of the third can left, not most of it.",
+        "Buy two gallons instead of three because 760 is under 800 sq ft."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Buying a third gallon just for 60 sq ft wastes almost a whole can when a quart covers ~90 sq ft.",
+        "If the second coat only needs half as much paint (570 sq ft total), two cans would have covered it with 130 sq ft to spare.",
+        "Three cans actually aren't enough if you forgot the door trim and ceiling.",
+        "Two cans cover 700 sq ft and 360 × 2 is 720 sq ft, so stretching two cans would have worked."
+      ],
+      "fix": [
+        "Return the third gallon and grab a quart (covers ~85–100 sq ft) for the last 60 sq ft.",
+        "Use two gallons since the second coat uses less paint than the first.",
+        "Grab a fourth gallon to cover the ceiling and closet too.",
+        "Stretch two gallons by rolling slightly thinner on the second coat."
+      ]
+    }
+  },
+  "clean_segments": [
+    "Repainting the bedroom — four walls total 440 sq ft, minus 60 sq ft for the door and two windows, so 380 sq ft of actual wall.",
+    "One gallon covers 350 sq ft, and I'm putting on two coats.",
+    "Two coats is 760 sq ft, so two gallons come up short — grabbed three gallons and I'll have most of the third can left over.",
+    "Glad I didn't try to stretch two cans."
+  ],
+  "clean_conclusion": "The numbers all check out: 440 − 60 = 380 sq ft; two coats is 760 sq ft, which beats two cans (700 sq ft) by 60 sq ft — leaving 290/350 (over 80%) of the third can unused.",
+  "explanation": "The numbers all check out: 440 − 60 = 380 sq ft; two coats is 760 sq ft, which beats two cans (700 sq ft) by 60 sq ft — leaving 290/350 (over 80%) of the third can unused."
+}

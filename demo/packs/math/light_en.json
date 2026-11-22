@@ -4,19 +4,116 @@
     "flaws": {
       "2": {
         "diagnosis_choices": [
-          { "id": "d1", "label": "Dividing both sides by $x$ silently assumes $x \\neq 0$, dropping the solution $x = 0$." },
-          { "id": "d2", "label": "Dividing $x^3$ by $x$ gives $x^3$, not $x^2$." },
-          { "id": "d3", "label": "You cannot divide an equation by a variable when the right side is positive." },
-          { "id": "d4", "label": "Dividing by $x$ flips the sign of $4x$ to $-4$." }
+          {
+            "id": "d1",
+            "label": "Dividing by \\(x\\) assumes \\(x \\neq 0\\), dropping the root \\(x = 0\\)."
+          },
+          {
+            "id": "d2",
+            "label": "Dividing \\(x^3\\) by \\(x\\) drops the exponent by one too much, leaving \\(x = 4\\) instead of \\(x^2 = 4\\)."
+          },
+          {
+            "id": "d3",
+            "label": "You cannot divide an equation by a variable whenever the right-hand coefficient is positive."
+          },
+          {
+            "id": "d4",
+            "label": "Dividing both sides by \\(x\\) flips the sign of \\(4x\\) to \\(-4\\) whenever \\(x\\) could be negative."
+          }
         ],
         "diagnosis_answer": "d1",
         "fix_choices": [
-          { "id": "f1", "label": "Move terms to one side and factor: $x(x^2 - 4) = 0$, giving $x \\in \\{-2, 0, 2\\}$." },
-          { "id": "f2", "label": "Divide by $x^2$ instead to get $x = 4$." },
-          { "id": "f3", "label": "Take cube roots of both sides to get $x = \\sqrt[3]{4}$." },
-          { "id": "f4", "label": "Keep dividing by $x$, then discard $x = -2$ because $x$ must be positive." }
+          {
+            "id": "f1",
+            "label": "Factor instead: \\(x(x^2 - 4) = 0\\), giving \\(x \\in \\{-2, 0, 2\\}\\)."
+          },
+          {
+            "id": "f2",
+            "label": "Divide both sides by \\(x^2\\) instead to isolate \\(x = 4\\) without taking square roots."
+          },
+          {
+            "id": "f3",
+            "label": "Take cube roots of both sides directly to solve for \\(x = \\sqrt[3]{4x}\\) cleanly."
+          },
+          {
+            "id": "f4",
+            "label": "Keep dividing by \\(x\\), then discard \\(x = -2\\) because dividing requires \\(x > 0\\)."
+          }
         ],
         "fix_answer": "f1"
+      }
+    },
+    "kind": "planted",
+    "segment_distractors": {
+      "1": {
+        "diagnosis": [
+          "A cubic equation \\(x^3 = 4x\\) requires \\(x > 0\\) so the cube stays positive.",
+          "You must take cube roots on step 1 before manipulating \\(x^3 = 4x\\).",
+          "Rewriting \\(x^3 = 4x\\) as \\(x^3 - 4x = 0\\) changes the solution set when \\(x < 0\\).",
+          "A degree-3 polynomial can have at most two real solutions over the reals."
+        ],
+        "fix": [
+          "Take cube roots immediately: \\(x = \\sqrt[3]{4x}\\).",
+          "Restrict \\(x > 0\\) before solving \\(x^3 = 4x\\).",
+          "Move terms to one side: \\(x^3 + 4x = 0\\).",
+          "Divide by \\(4\\) first to get \\(\\frac{x^3}{4} = x\\)."
+        ]
+      },
+      "3": {
+        "diagnosis": [
+          "The square root of \\(4\\) is only \\(+2\\), so \\(x = -2\\) is an extraneous root.",
+          "Taking square roots of \\(x^2 = 4\\) gives \\(x = \\pm 4\\), not \\(\\pm 2\\).",
+          "You must also include \\(x = 0\\) when taking the square root of \\(x^2 = 4\\).",
+          "Square roots cannot be taken across an equals sign when \\(x\\) could be negative."
+        ],
+        "fix": [
+          "Keep only the principal root \\(x = 2\\) and discard \\(x = -2\\).",
+          "Take square roots to get \\(x = 4\\) or \\(x = -4\\).",
+          "Include \\(x = 0\\) directly from \\(x^2 = 4\\).",
+          "Factor \\(x^2 - 4 = (x - 2)^2 = 0\\) to get a single root \\(x = 2\\)."
+        ]
+      },
+      "4": {
+        "diagnosis": [
+          "\\(2^3 = 6\\), not \\(8\\), so \\(x = 2\\) does not actually satisfy \\(x^3 = 4x\\).",
+          "Substituting \\(x = 2\\) into \\(4x\\) gives \\(4 + 2 = 6\\), not \\(8\\).",
+          "You should check \\(x = 2\\) in \\(x^2 = 4\\), not in the original cubic.",
+          "Checking \\(x = 2\\) only verifies positive roots and can't confirm \\(x^3 = 4x\\)."
+        ],
+        "fix": [
+          "Recompute \\(2^3 = 6\\) and reject \\(x = 2\\).",
+          "Verify \\(x = 2\\) in \\(x^2 = 4\\) instead of \\(x^3 = 4x\\).",
+          "Plug in \\(x = 4\\) as well since \\(4\\) appears on the right side.",
+          "Check \\(x = 1\\) instead to verify the cubic factor."
+        ]
+      },
+      "5": {
+        "diagnosis": [
+          "Sign slip: \\((-2)^3 = +8\\), not \\(-8\\), so \\(x = -2\\) fails the original equation.",
+          "\\(4 \\cdot (-2) = +8\\), which disagrees with \\((-2)^3 = -8\\).",
+          "A negative number cannot satisfy a cubic equation with a positive coefficient \\(4\\).",
+          "Checking \\(x = -2\\) introduces an extraneous sign from squaring."
+        ],
+        "fix": [
+          "Recompute \\((-2)^3 = 8\\) and discard \\(x = -2\\) as extraneous.",
+          "Flip the right side to \\(4 \\cdot (-2) = 8\\).",
+          "Drop \\(x = -2\\) and report \\(x = 2\\) as the unique solution.",
+          "Replace \\(-2\\) with \\(-4\\) so both sides match."
+        ]
+      },
+      "6": {
+        "diagnosis": [
+          "Because \\((-2)^3 = 8 \\neq -8\\), only \\(\\{2\\}\\) belongs in the final solution set.",
+          "The solution set should be written as the interval \\([-2, 2]\\), not the two-point set \\(\\{-2, 2\\}\\).",
+          "Checking two values already proves no other solutions can exist for a quadratic.",
+          "You forgot to include \\(x = 4\\) from the coefficient on the right side."
+        ],
+        "fix": [
+          "Report the solution set as \\(\\{2\\}\\) only.",
+          "Write the solution set as the closed interval \\([-2, 2]\\).",
+          "Add \\(x = 4\\) to get \\(\\{-2, 2, 4\\}\\).",
+          "Keep \\(\\{-2, 2\\}\\) because both substituted values checked out."
+        ]
       }
     }
   },
@@ -25,35 +122,128 @@
     "flaws": {
       "2": {
         "diagnosis_choices": [
-          { "id": "d1", "label": "Missing the chain-rule inner factor: $\\frac{d}{dx}\\sin(x^2)$ must multiply by $(x^2)' = 2x$." },
-          { "id": "d2", "label": "The derivative of $\\sin u$ is $-\\cos u$, so the sign is flipped." },
-          { "id": "d3", "label": "The sum rule does not apply when one term is trigonometric and one is polynomial." },
-          { "id": "d4", "label": "The derivative of $\\sin(x^2)$ is $\\cos(2x)$, replacing $x^2$ inside cosine." }
+          {
+            "id": "d1",
+            "label": "Missing inner derivative: \\(\\frac{d}{dx}\\sin(x^2)\\) must multiply by \\(2x\\)."
+          },
+          {
+            "id": "d2",
+            "label": "The derivative of \\(\\sin u\\) is \\(-\\cos u\\), so a minus sign is missing on \\(\\cos(x^2)\\)."
+          },
+          {
+            "id": "d3",
+            "label": "The sum rule does not apply when one term is trigonometric and the other is a squared binomial."
+          },
+          {
+            "id": "d4",
+            "label": "The derivative of \\(\\sin(x^2)\\) puts the inner derivative inside cosine, giving \\(\\cos(2x)\\)."
+          }
         ],
         "diagnosis_answer": "d1",
         "fix_choices": [
-          { "id": "f1", "label": "Apply the chain rule: $\\frac{d}{dx}\\sin(x^2) = 2x\\cos(x^2)$." },
-          { "id": "f2", "label": "Flip the sign: $\\frac{d}{dx}\\sin(x^2) = -\\cos(x^2)$." },
-          { "id": "f3", "label": "Differentiate inside only: $\\frac{d}{dx}\\sin(x^2) = \\cos(2x)$." },
-          { "id": "f4", "label": "Keep the power: $\\frac{d}{dx}\\sin(x^2) = x^2\\cos(x^2)$." }
+          {
+            "id": "f1",
+            "label": "Apply the chain rule: \\(\\frac{d}{dx}\\sin(x^2) = 2x\\cos(x^2)\\)."
+          },
+          {
+            "id": "f2",
+            "label": "Restore the missing minus sign on cosine: \\(\\frac{d}{dx}\\sin(x^2) = -\\cos(x^2)\\)."
+          },
+          {
+            "id": "f3",
+            "label": "Differentiate inside cosine instead of multiplying outside: \\(\\frac{d}{dx}\\sin(x^2) = \\cos(2x)\\)."
+          },
+          {
+            "id": "f4",
+            "label": "Multiply by the un-differentiated inner power: \\(\\frac{d}{dx}\\sin(x^2) = x^2\\cos(x^2)\\)."
+          }
         ],
         "fix_answer": "f1"
       },
       "3": {
         "diagnosis_choices": [
-          { "id": "d1", "label": "Expanding $(x+1)^2$ dropped the middle cross term $2x$." },
-          { "id": "d2", "label": "Squaring $1$ gives $2$, so the constant term should be $2$." },
-          { "id": "d3", "label": "You cannot expand $(x+1)^2$ before differentiating." },
-          { "id": "d4", "label": "The cross term should be $-2x$, not $+2x$." }
+          {
+            "id": "d1",
+            "label": "Expanding \\((x+1)^2\\) dropped the middle term \\(2x\\)."
+          },
+          {
+            "id": "d2",
+            "label": "Squaring the constant \\(1\\) doubles it to \\(2\\), so the constant term should be \\(+2\\)."
+          },
+          {
+            "id": "d3",
+            "label": "You cannot expand \\((x+1)^2\\) before differentiating; you must use the chain rule only."
+          },
+          {
+            "id": "d4",
+            "label": "The missing middle cross term carries a minus sign (\\(-2x\\)) instead of \\(+2x\\)."
+          }
         ],
         "diagnosis_answer": "d1",
         "fix_choices": [
-          { "id": "f1", "label": "Expand fully as $(x+1)^2 = x^2 + 2x + 1$ (derivative $2x + 2$)." },
-          { "id": "f2", "label": "Expand as $(x+1)^2 = x^2 + x + 1$." },
-          { "id": "f3", "label": "Expand as $(x+1)^2 = x^2 + 2$." },
-          { "id": "f4", "label": "Expand as $(x+1)^2 = x^2 - 2x + 1$." }
+          {
+            "id": "f1",
+            "label": "Expand fully: \\((x+1)^2 = x^2 + 2x + 1\\) (derivative \\(2x + 2\\))."
+          },
+          {
+            "id": "f2",
+            "label": "Include a single linear term: \\((x+1)^2 = x^2 + x + 1\\) (derivative \\(2x + 1\\))."
+          },
+          {
+            "id": "f3",
+            "label": "Fix the squared constant term: \\((x+1)^2 = x^2 + 2\\) (derivative \\(2x\\))."
+          },
+          {
+            "id": "f4",
+            "label": "Include the negative cross term: \\((x+1)^2 = x^2 - 2x + 1\\) (derivative \\(2x - 2\\))."
+          }
         ],
         "fix_answer": "f1"
+      }
+    },
+    "kind": "planted",
+    "segment_distractors": {
+      "1": {
+        "diagnosis": [
+          "The sum rule does not allow differentiating a trig term and a polynomial term separately.",
+          "You must apply the product rule to \\(\\sin(x^2) + (x+1)^2\\) instead of the sum rule.",
+          "Splitting the derivative drops the cross-interaction between \\(x^2\\) and \\((x+1)^2\\).",
+          "The sum rule only applies after converting \\(\\sin(x^2)\\) into a power series."
+        ],
+        "fix": [
+          "Use the product rule across \\(\\sin(x^2)\\) and \\((x+1)^2\\).",
+          "Differentiate the whole sum as one composite function.",
+          "Expand \\(\\sin(x^2)\\) into a polynomial before using the sum rule.",
+          "Combine the two terms over a common denominator first."
+        ]
+      },
+      "4": {
+        "diagnosis": [
+          "The derivative of the constant \\(1\\) is \\(1\\), so \\(\\frac{d}{dx}(x^2 + 1) = 2x + 1\\).",
+          "Power rule gives \\(\\frac{d}{dx}(x^2) = x\\), not \\(2x\\).",
+          "You can't differentiate \\(x^2 + 1\\) term by term after expanding.",
+          "The derivative of \\(x^2 + 1\\) is \\(2x + C\\) with an arbitrary constant."
+        ],
+        "fix": [
+          "Keep the derivative of \\(1\\) as \\(1\\): \\(\\frac{d}{dx}(x^2 + 1) = 2x + 1\\).",
+          "Differentiate \\(x^2\\) as \\(x\\) instead of \\(2x\\).",
+          "Add an arbitrary constant: \\(2x + C\\).",
+          "Apply the chain rule to \\(x^2 + 1\\) to get \\(2(x^2 + 1)\\)."
+        ]
+      },
+      "5": {
+        "diagnosis": [
+          "You should multiply the two derivatives \\(\\cos(x^2) \\cdot 2x\\) instead of adding them.",
+          "Adding \\(\\cos(x^2) + 2x\\) requires factoring out \\(x\\) to get \\(x(\\cos x + 2)\\).",
+          "Combining the terms drops a minus sign on \\(\\cos(x^2)\\).",
+          "You must add \\(+C\\) whenever combining two derivatives."
+        ],
+        "fix": [
+          "Multiply the two pieces: \\(f'(x) = 2x\\cos(x^2)\\).",
+          "Flip the sign to \\(f'(x) = -\\cos(x^2) + 2x\\).",
+          "Factor out \\(x\\): \\(f'(x) = x(\\cos x + 2)\\).",
+          "Add a constant of differentiation: \\(\\cos(x^2) + 2x + C\\)."
+        ]
       }
     }
   },
@@ -62,35 +252,142 @@
     "flaws": {
       "1": {
         "diagnosis_choices": [
-          { "id": "d1", "label": "$\\ln t$ requires $t > 0$; both $x > 0$ and $x - 2 > 0$ restrict the domain to $x > 2$." },
-          { "id": "d2", "label": "$\\ln t$ only excludes $t = 0$, so negative inputs are still valid over the reals." },
-          { "id": "d3", "label": "Only the sum $x + (x - 2)$ needs to be positive, giving $x > 1$." },
-          { "id": "d4", "label": "Logarithms are only defined for integers $x \\ge 1$." }
+          {
+            "id": "d1",
+            "label": "\\(\\ln t\\) requires \\(t > 0\\): both \\(x > 0\\) and \\(x - 2 > 0\\) restrict the domain to \\(x > 2\\)."
+          },
+          {
+            "id": "d2",
+            "label": "\\(\\ln t\\) only excludes \\(t = 0\\), so negative arguments stay valid over the real numbers."
+          },
+          {
+            "id": "d3",
+            "label": "Only the combined sum \\(x + (x - 2) > 0\\) has to be positive, restricting the domain to \\(x > 1\\)."
+          },
+          {
+            "id": "d4",
+            "label": "Natural logarithms are only defined for positive integers \\(x \\ge 1\\) and exclude all fractions."
+          }
         ],
         "diagnosis_answer": "d1",
         "fix_choices": [
-          { "id": "f1", "label": "Require $x > 0$ and $x - 2 > 0$, so the domain is $x > 2$." },
-          { "id": "f2", "label": "Require only $x \\neq 0$ and $x \\neq 2$." },
-          { "id": "f3", "label": "Require $x \\ge 0$ so $x = 0$ stays allowed." },
-          { "id": "f4", "label": "Require $x > 3$ because the right-hand side is $\\ln 3$." }
+          {
+            "id": "f1",
+            "label": "Require \\(x > 0\\) and \\(x - 2 > 0\\), so the domain is \\(x > 2\\)."
+          },
+          {
+            "id": "f2",
+            "label": "Exclude only the zero points \\(x \\neq 0\\) and \\(x \\neq 2\\) before combining logs."
+          },
+          {
+            "id": "f3",
+            "label": "Require \\(x \\ge 0\\) and \\(x - 2 \\ge 0\\) so the boundary point \\(x = 2\\) stays allowed."
+          },
+          {
+            "id": "f4",
+            "label": "Require \\(x > 3\\) because the right-hand side of the equation equals \\(\\ln 3\\)."
+          }
         ],
         "fix_answer": "f1"
       },
       "2": {
         "diagnosis_choices": [
-          { "id": "d1", "label": "A sum of logs is the log of a product, $\\ln a + \\ln b = \\ln(ab)$, not $\\ln(a+b)$." },
-          { "id": "d2", "label": "Combining two logs divides their arguments: $\\ln a + \\ln b = \\ln(a/b)$." },
-          { "id": "d3", "label": "Two logarithms with the same base cannot be combined into one term." },
-          { "id": "d4", "label": "$\\ln x + \\ln(x-2)$ equals $(\\ln x)(\\ln(x-2))$." }
+          {
+            "id": "d1",
+            "label": "A sum of logs is the log of a product: \\(\\ln a + \\ln b = \\ln(ab)\\), not \\(\\ln(a+b)\\)."
+          },
+          {
+            "id": "d2",
+            "label": "Combining two logarithms with addition divides their arguments: \\(\\ln a + \\ln b = \\ln(a/b)\\)."
+          },
+          {
+            "id": "d3",
+            "label": "Two logarithms with the same base cannot be merged into one term without first exponentiating."
+          },
+          {
+            "id": "d4",
+            "label": "Adding two logs multiplies their values instead: \\(\\ln x + \\ln(x-2) = (\\ln x)(\\ln(x-2))\\)."
+          }
         ],
         "diagnosis_answer": "d1",
         "fix_choices": [
-          { "id": "f1", "label": "Combine as a product: $\\ln x + \\ln(x-2) = \\ln(x(x-2))$, yielding $x = 3$." },
-          { "id": "f2", "label": "Combine as a quotient: $\\ln\\frac{x}{x-2} = \\ln 3$." },
-          { "id": "f3", "label": "Exponentiate term-by-term: $x + (x - 2) = 3$." },
-          { "id": "f4", "label": "Combine as a power: $\\ln(x^{x-2}) = \\ln 3$." }
+          {
+            "id": "f1",
+            "label": "Combine as a product: \\(\\ln(x(x-2)) = \\ln 3\\), giving \\(x = 3\\)."
+          },
+          {
+            "id": "f2",
+            "label": "Combine as a quotient instead: \\(\\ln\\frac{x}{x-2} = \\ln 3\\), giving \\(x = 3\\)."
+          },
+          {
+            "id": "f3",
+            "label": "Exponentiate each term separately to clear logs: \\(x + (x - 2) = 3\\)."
+          },
+          {
+            "id": "f4",
+            "label": "Combine the two arguments as a power: \\(\\ln(x^{x-2}) = \\ln 3\\)."
+          }
         ],
         "fix_answer": "f1"
+      }
+    },
+    "kind": "planted",
+    "segment_distractors": {
+      "3": {
+        "diagnosis": [
+          "You cannot equate \\(\\ln(2x - 2) = \\ln 3\\) because \\(\\ln 3\\) is irrational.",
+          "Simplifying \\(x + (x - 2)\\) gives \\(2x + 2\\), not \\(2x - 2\\).",
+          "Combining two logs on the left also doubles the right side to \\(2\\ln 3\\).",
+          "You must move \\(\\ln 3\\) to the left as \\(\\ln(2x - 5) = 0\\)."
+        ],
+        "fix": [
+          "Double the right side to \\(\\ln(2x - 2) = 2\\ln 3\\).",
+          "Fix the sign inside the log to \\(\\ln(2x + 2) = \\ln 3\\).",
+          "Move \\(\\ln 3\\) over as \\(\\ln(2x - 5) = 0\\).",
+          "Exponentiate before combining the two logarithms."
+        ]
+      },
+      "4": {
+        "diagnosis": [
+          "Dropping \\(\\ln\\) from both sides requires exponentiating \\(3\\) to \\(e^3\\), giving \\(2x - 2 = e^3\\).",
+          "\\(\\ln\\) is not one-to-one over the reals, so dropping \\(\\ln\\) loses a negative branch \\(2x - 2 = -3\\).",
+          "Cancelling \\(\\ln\\) from both sides divides by \\(\\ln\\), which is illegal.",
+          "You must keep \\(\\ln\\) on the right: \\(2x - 2 = \\ln 3\\)."
+        ],
+        "fix": [
+          "Exponentiate the right side too: \\(2x - 2 = e^3\\).",
+          "Keep both signs: \\(2x - 2 = \\pm 3\\).",
+          "Write \\(2x - 2 = \\ln 3\\) without dropping \\(\\ln\\) on the right.",
+          "Divide both sides by \\(e\\) instead of dropping \\(\\ln\\)."
+        ]
+      },
+      "5": {
+        "diagnosis": [
+          "Moving \\(-2\\) to the right subtracts \\(2\\): \\(2x = 3 - 2 = 1\\), so \\(x = \\frac{1}{2}\\).",
+          "Dividing \\(5\\) by \\(2\\) gives \\(x = \\frac{2}{5}\\), not \\(\\frac{5}{2}\\).",
+          "\\(2x = 5\\) has no integer solution, so the log equation has no real solution.",
+          "You forgot to take \\(e^{5/2}\\) at the end to undo the logarithm."
+        ],
+        "fix": [
+          "Fix the sign: \\(2x = 3 - 2 = 1\\), giving \\(x = \\frac{1}{2}\\).",
+          "Invert the fraction to \\(x = \\frac{2}{5}\\).",
+          "Apply \\(e^{\\cdot}\\) at the end: \\(x = e^{5/2}\\).",
+          "Reject \\(x = \\frac{5}{2}\\) because logarithms only accept integer solutions."
+        ]
+      },
+      "6": {
+        "diagnosis": [
+          "\\(x = \\frac{5}{2}\\) fails the domain check \\(x > 2\\), so there is no real solution.",
+          "A log equation with two \\(\\ln\\) terms must have two real solutions, not just one.",
+          "\\(x = \\frac{5}{2}\\) is extraneous because \\(\\frac{5}{2} - 2 = \\frac{1}{2} < 1\\) makes \\(\\ln(x - 2)\\) negative.",
+          "You forgot to include \\(x = -\\frac{5}{2}\\) by symmetry."
+        ],
+        "fix": [
+          "Discard \\(x = \\frac{5}{2}\\) because \\(\\ln(1/2) < 0\\) is not allowed.",
+          "Include both \\(x = \\frac{5}{2}\\) and \\(x = -\\frac{5}{2}\\).",
+          "Conclude there is no real solution since \\(\\frac{5}{2}\\) isn't an integer.",
+          "Plug \\(x = \\frac{5}{2}\\) into the original to confirm \\(\\ln(5/2) + \\ln(1/2) = \\ln(5/4) \\neq \\ln 3\\)."
+        ]
       }
     }
   },
@@ -99,40 +396,877 @@
     "flaws": {
       "3": {
         "diagnosis_choices": [
-          { "id": "d1", "label": "Dropped the differential factor $\\frac{1}{2}$ from $dx = \\frac{1}{2}\\,du$ when rewriting the integral." },
-          { "id": "d2", "label": "The upper bound should stay $\\frac{\\pi}{2}$ instead of changing to $\\pi$." },
-          { "id": "d3", "label": "When $u = 2x$, the integral should be multiplied by $2$, not $\\frac{1}{2}$." },
-          { "id": "d4", "label": "Linear substitution is invalid for trigonometric integrands." }
+          {
+            "id": "d1",
+            "label": "Dropped the \\(\\frac{1}{2}\\) factor from \\(dx = \\frac{1}{2}\\,du\\) when rewriting the integral."
+          },
+          {
+            "id": "d2",
+            "label": "The upper bound should stay \\(\\frac{\\pi}{2}\\) instead of doubling to \\(\\pi\\) after substitution."
+          },
+          {
+            "id": "d3",
+            "label": "Substituting \\(u = 2x\\) multiplies the integral by \\(2\\) instead of \\(\\frac{1}{2}\\), doubling the value."
+          },
+          {
+            "id": "d4",
+            "label": "Linear substitution \\(u = 2x\\) is invalid inside a definite trigonometric integral."
+          }
         ],
         "diagnosis_answer": "d1",
         "fix_choices": [
-          { "id": "f1", "label": "Include the $\\frac{1}{2}$ factor: $\\frac{1}{2}\\int_0^{\\pi} \\sin u\\, du$." },
-          { "id": "f2", "label": "Multiply by $2$: $2\\int_0^{\\pi} \\sin u\\, du$." },
-          { "id": "f3", "label": "Keep the original bounds: $\\int_0^{\\pi/2} \\sin u\\, du$." },
-          { "id": "f4", "label": "Change $\\sin u$ to $\\sin(u/2)$ inside the integral." }
+          {
+            "id": "f1",
+            "label": "Include the \\(\\frac{1}{2}\\) factor: \\(\\frac{1}{2}\\int_0^{\\pi} \\sin u\\, du\\)."
+          },
+          {
+            "id": "f2",
+            "label": "Multiply the transformed integral by \\(2\\): \\(2\\int_0^{\\pi} \\sin u\\, du\\)."
+          },
+          {
+            "id": "f3",
+            "label": "Keep the original \\(x\\)-bounds on the new variable: \\(\\int_0^{\\pi/2} \\sin u\\, du\\)."
+          },
+          {
+            "id": "f4",
+            "label": "Divide the angle inside sine by \\(2\\) instead: \\(\\int_0^{\\pi} \\sin(u/2)\\, du\\)."
+          }
         ],
         "fix_answer": "f1"
       },
       "4": {
         "diagnosis_choices": [
-          { "id": "d1", "label": "Sign error: $\\frac{d}{du}(\\cos u) = -\\sin u$, so an antiderivative of $\\sin u$ is $-\\cos u$." },
-          { "id": "d2", "label": "An antiderivative of $\\sin u$ is $\\sin u$, not $\\cos u$." },
-          { "id": "d3", "label": "Definite integrals require keeping an arbitrary constant $+C$ in the final number." },
-          { "id": "d4", "label": "An antiderivative of $\\sin u$ is $-\\sin u$." }
+          {
+            "id": "d1",
+            "label": "Sign flip: \\((\\cos u)' = -\\sin u\\), so an antiderivative of \\(\\sin u\\) is \\(-\\cos u\\)."
+          },
+          {
+            "id": "d2",
+            "label": "The derivative of \\(\\sin u\\) cycles back to itself, so an antiderivative of \\(\\sin u\\) is \\(\\sin u\\)."
+          },
+          {
+            "id": "d3",
+            "label": "Definite integrals still require carrying an arbitrary constant \\(+C\\) into step 5."
+          },
+          {
+            "id": "d4",
+            "label": "The antiderivative of \\(\\sin u\\) is \\(-\\sin u\\), flipping the sign without changing to cosine."
+          }
         ],
         "diagnosis_answer": "d1",
         "fix_choices": [
-          { "id": "f1", "label": "Use $-\\cos u$ as the antiderivative, giving $\\frac{1}{2}[-\\cos u]_0^{\\pi} = 1$." },
-          { "id": "f2", "label": "Use $\\cos(2u)$ as the antiderivative." },
-          { "id": "f3", "label": "Use $-\\sin u$ as the antiderivative." },
-          { "id": "f4", "label": "Swap the evaluation order to $\\cos 0 - \\cos \\pi$ while keeping $\\cos u$." }
+          {
+            "id": "f1",
+            "label": "Use \\(-\\cos u\\) as the antiderivative, giving \\(\\frac{1}{2}[-\\cos u]_0^{\\pi} = 1\\)."
+          },
+          {
+            "id": "f2",
+            "label": "Use \\(\\cos(2u)\\) as the antiderivative so the inner factor of \\(2\\) is absorbed."
+          },
+          {
+            "id": "f3",
+            "label": "Use \\(-\\sin u\\) as the antiderivative and evaluate \\(-\\sin\\pi + \\sin 0 = 0\\)."
+          },
+          {
+            "id": "f4",
+            "label": "Keep \\(\\cos u\\) and reverse the evaluation order to \\(\\cos 0 - \\cos \\pi = 2\\)."
+          }
         ],
         "fix_answer": "f1"
+      }
+    },
+    "kind": "planted",
+    "segment_distractors": {
+      "1": {
+        "diagnosis": [
+          "If \\(u = 2x\\), then \\(du = \\frac{1}{2}\\,dx\\), so \\(dx = 2\\,du\\), not \\(\\frac{1}{2}\\,du\\).",
+          "You cannot substitute \\(u = 2x\\) inside a trigonometric function without using a trig identity first.",
+          "Differentiating \\(u = 2x\\) gives \\(du = 2\\) with no \\(dx\\) factor.",
+          "The substitution should be \\(u = \\sin(2x)\\), not \\(u = 2x\\)."
+        ],
+        "fix": [
+          "Fix the differential to \\(dx = 2\\,du\\).",
+          "Expand \\(\\sin(2x) = 2\\sin x\\cos x\\) instead of substituting \\(u = 2x\\).",
+          "Substitute \\(u = \\sin(2x)\\) with \\(du = 2\\cos(2x)\\,dx\\).",
+          "Leave \\(dx = du\\) because linear scaling doesn't change \\(dx\\)."
+        ]
+      },
+      "2": {
+        "diagnosis": [
+          "When \\(x = \\frac{\\pi}{2}\\), \\(u = 2x\\) equals \\(\\frac{\\pi}{4}\\), not \\(\\pi\\).",
+          "Changing variables should leave the limits at \\(0\\) and \\(\\frac{\\pi}{2}\\) — you only change limits after integrating.",
+          "When \\(x = 0\\), \\(u = 2(0) = 2\\), so the lower limit should be \\(2\\).",
+          "Doubling the upper bound to \\(\\pi\\) already accounts for \\(du = 2\\,dx\\), so no extra factor is needed."
+        ],
+        "fix": [
+          "Change the upper limit to \\(u = \\frac{\\pi}{4}\\) (dividing by \\(2\\)).",
+          "Keep the limits at \\([0, \\frac{\\pi}{2}]\\) throughout the substitution.",
+          "Change the lower limit to \\(u = 2\\).",
+          "Swap the limits to \\([\\pi, 0]\\) to keep the sign positive."
+        ]
+      },
+      "5": {
+        "diagnosis": [
+          "\\(\\cos\\pi = 1\\) and \\(\\cos 0 = 0\\), so \\(\\cos\\pi - \\cos 0 = 1\\), not \\(-2\\).",
+          "\\(\\cos\\pi - \\cos 0 = -1 - (-1) = 0\\), not \\(-2\\).",
+          "Definite integrals evaluate lower minus upper: \\(\\cos 0 - \\cos\\pi = 2\\).",
+          "You evaluated at \\([0, \\pi]\\) instead of switching back to \\(x\\) on \\([0, \\frac{\\pi}{2}]\\), which doubles the answer."
+        ],
+        "fix": [
+          "Evaluate \\(\\cos\\pi = 1\\) and \\(\\cos 0 = 0\\) to get \\(1\\).",
+          "Flip the evaluation order to \\(\\cos 0 - \\cos\\pi = 2\\).",
+          "Recompute \\(-1 - 1\\) as \\(0\\).",
+          "Substitute \\(u = 2x\\) back and keep the limits \\([0, \\pi]\\)."
+        ]
+      },
+      "6": {
+        "diagnosis": [
+          "Because \\(\\sin(2x) \\ge 0\\) on \\([0, \\frac{\\pi}{2}]\\), simply taking \\(|-2| = 2\\) gives the exact value.",
+          "A definite integral can't be negative, so the answer must be \\(0\\).",
+          "Dividing \\(-2\\) by \\(\\pi\\) normalizes the trig integral to \\(-\\frac{2}{\\pi}\\).",
+          "You forgot to add \\(+C\\) to the final value \\(-2\\)."
+        ],
+        "fix": [
+          "Take the absolute value \\(|-2| = 2\\) since \\(\\sin(2x) \\ge 0\\).",
+          "Write \\(-2 + C\\) as the definite integral.",
+          "Fix the final value to \\(0\\) by symmetry of sine on \\([0, \\pi]\\).",
+          "Divide by \\(\\pi\\) to get \\(-\\frac{2}{\\pi}\\)."
+        ]
       }
     }
   },
   "definite-integral": {
     "estimated_seconds": 45,
-    "flaws": {}
+    "flaws": {},
+    "kind": "clean",
+    "segment_distractors": {
+      "1": {
+        "diagnosis": [
+          "\\(3x^2 + 2x\\) hits \\(0\\) at \\(x = 0\\), creating an improper integral on \\([0, 1]\\).",
+          "Continuity on \\([0, 1]\\) isn't enough — the integrand must also be strictly positive on \\([0, 1]\\).",
+          "You must factor \\(3x^2 + 2x = x(3x + 2)\\) before integrating a polynomial.",
+          "The interval \\([0, 1]\\) includes endpoints, so the integral only exists on the open interval \\((0, 1)\\)."
+        ],
+        "fix": [
+          "Treat \\(x = 0\\) as a limit \\(\\lim_{a \\to 0^+} \\int_a^1\\) because the integrand is \\(0\\) there.",
+          "Factor \\(x(3x + 2)\\) and apply integration by parts.",
+          "Split the integral at \\(x = \\frac{1}{2}\\) to guarantee continuity.",
+          "Restrict the domain to \\((0, 1)\\) before taking the antiderivative."
+        ]
+      },
+      "2": {
+        "diagnosis": [
+          "Missing constant of integration: the antiderivative must include \\(+C\\), which changes the final number.",
+          "Power rule error: integrating \\(3x^2\\) gives \\(3x^3\\) and \\(2x\\) gives \\(2x^2\\), so \\(F(x) = 3x^3 + 2x^2\\).",
+          "The derivative of \\(x^3 + x^2\\) is \\(3x^2 + 2\\), not \\(3x^2 + 2x\\).",
+          "Integrating \\(3x^2 + 2x\\) divides by the old powers instead of the new powers: \\(\\frac{3}{2}x^3 + 2x^2\\)."
+        ],
+        "fix": [
+          "Use \\(F(x) = 3x^3 + 2x^2\\) without dividing out the exponents.",
+          "Keep \\(+C\\) in the final answer: \\(2 + C\\).",
+          "Divide by the old powers: \\(F(x) = \\frac{3}{2}x^3 + 2x^2\\).",
+          "Differentiate instead of integrating: \\(F(x) = 6x + 2\\)."
+        ]
+      },
+      "3": {
+        "diagnosis": [
+          "The fundamental theorem of calculus evaluates \\(F(0) - F(1)\\) (lower minus upper), not \\(F(1) - F(0)\\).",
+          "For definite integrals, you add the endpoints \\(F(1) + F(0)\\) instead of subtracting.",
+          "You have to evaluate \\(f(1) - f(0)\\) on the original integrand, not on \\(F(x)\\).",
+          "You must divide \\(F(1) - F(0)\\) by the interval width \\(1 - 0\\) and then by \\(2\\)."
+        ],
+        "fix": [
+          "Reverse the order to \\(F(0) - F(1) = -2\\).",
+          "Evaluate \\(f(1) - f(0) = 5 - 0 = 5\\) directly.",
+          "Add the endpoints: \\(F(1) + F(0)\\).",
+          "Multiply by \\(\\frac{1}{2}\\) to average the two endpoints."
+        ]
+      },
+      "4": {
+        "diagnosis": [
+          "\\(1^3 + 1^2 = 3 + 2 = 5\\), not \\(2\\), because you multiply the base by the exponent.",
+          "Evaluating \\(F(1)\\) dropped the coefficients \\(3\\) and \\(2\\) from the integrand: \\(3(1) + 2(1) = 5\\).",
+          "\\(1^3 + 1^2 = 1\\) because any sum of powers of \\(1\\) equals \\(1\\).",
+          "You must substitute \\(x = 1\\) into \\(F'(x)\\) instead of \\(F(x)\\)."
+        ],
+        "fix": [
+          "Evaluate \\(F(1) = 3(1^3) + 2(1^2) = 5\\).",
+          "Compute \\(1^3 + 1^2 = 1\\) instead of \\(2\\).",
+          "Substitute \\(x = 1\\) into \\(3x^2 + 2x\\) to get \\(5\\).",
+          "Add the constant \\(+C\\) so \\(F(1) = 2 + C\\)."
+        ]
+      },
+      "5": {
+        "diagnosis": [
+          "\\(0^3 + 0^2 = 1 + 1 = 2\\) because anything to a power is \\(1\\) — wait, \\(0^0 = 1\\).",
+          "At the lower bound \\(x = 0\\), \\(F(0)\\) equals \\(C\\), which does not vanish to \\(0\\).",
+          "You cannot substitute \\(x = 0\\) into \\(F(x)\\) because \\(0\\) is a root of the integrand.",
+          "Evaluating at \\(0\\) gives \\(1\\), so the definite integral drops to \\(1\\)."
+        ],
+        "fix": [
+          "Keep \\(F(0) = C\\) so the final value stays \\(2 - C\\).",
+          "Evaluate \\(F(0) = 1\\) and subtract \\(2 - 1 = 1\\).",
+          "Take a right-hand limit as \\(x \\to 0^+\\) instead of plugging in \\(0\\).",
+          "Add \\(F(0)\\) to \\(F(1)\\) instead of subtracting."
+        ]
+      },
+      "6": {
+        "diagnosis": [
+          "Subtracting \\(F(0) - F(1)\\) gives \\(-2\\), not \\(2\\).",
+          "The integral of \\(3x^2 + 2x\\) on \\([0, 1]\\) is \\(5\\) (matching \\(3(1) + 2(1)\\)), not \\(2\\).",
+          "You forgot to multiply by the width of the interval \\((1 - 0)^2\\) — wait, you forgot \\(+C\\).",
+          "Since the average height on \\([0, 1]\\) is \\(\\frac{0 + 5}{2} = 2.5\\), the area must be \\(2.5\\), not \\(2\\)."
+        ],
+        "fix": [
+          "Fix the final value to \\(2.5\\) using the average of \\(f(0) = 0\\) and \\(f(1) = 5\\).",
+          "Fix the sign to \\(-2\\).",
+          "Write \\(2 + C\\) to include the integration constant.",
+          "Fix the final value to \\(5\\) using \\(F(1) = 3 + 2\\)."
+        ]
+      }
+    }
+  },
+  "safe-cancel-positive": {
+    "kind": "trick_clean",
+    "estimated_seconds": 50,
+    "flaws": {},
+    "segment_distractors": {
+      "1": {
+        "diagnosis": [
+          "You must expand \\((x^2 + 1)(x - 3)\\) into a cubic polynomial before solving.",
+          "A cubic equation always has three real roots, so stating it in factored form hides two of them.",
+          "Writing \\(2(x^2 + 1)\\) on the right leaves out the case \\(x = 0\\).",
+          "You cannot leave \\(x^2 + 1\\) factored on both sides without restricting \\(x > 0\\)."
+        ],
+        "fix": [
+          "Expand both sides to \\(x^3 - 3x^2 + x - 3 = 2x^2 + 2\\) first.",
+          "Move \\(2(x^2 + 1)\\) over and expand into a degree-3 polynomial.",
+          "Restrict \\(x > 0\\) before simplifying the equation.",
+          "Check \\(x = 0\\) explicitly before touching the factors."
+        ]
+      },
+      "2": {
+        "diagnosis": [
+          "\\(x^2 + 1 = 0\\) has roots \\(x = \\pm 1\\), so \\(x^2 + 1\\) can be zero for real \\(x\\).",
+          "Even over the reals, \\(x^2 + 1\\) can hit zero when \\(x = -1\\).",
+          "\\(x^2 + 1\\) is zero at \\(x = \\pm i\\), so claiming it is never zero drops two solutions.",
+          "Knowing \\(x^2 \\ge 0\\) only proves \\(x^2 + 1 > 0\\) when \\(x \\neq 0\\)."
+        ],
+        "fix": [
+          "Include \\(x = 1\\) and \\(x = -1\\) as candidate solutions from \\(x^2 + 1 = 0\\).",
+          "Include \\(x = i\\) and \\(x = -i\\) in the solution set.",
+          "Check \\(x = -1\\) separately because \\((-1)^2 + 1 = 0\\).",
+          "Exclude \\(x = 0\\) before claiming \\(x^2 + 1 > 0\\)."
+        ]
+      },
+      "3": {
+        "diagnosis": [
+          "Dividing both sides by an expression containing \\(x\\) silently drops the roots of \\(x^2 + 1 = 0\\).",
+          "You can never divide an equation by a quadratic expression without losing two roots.",
+          "Dividing by \\(x^2 + 1\\) leaves \\(x - 3 = 2(x^2 + 1)\\) on the right, not \\(2\\).",
+          "Cancelling \\(x^2 + 1\\) assumes \\(x \\neq 0\\), dropping \\(x = 0\\) as a solution."
+        ],
+        "fix": [
+          "Move everything to one side and factor: \\((x^2 + 1)(x - 5) = 0\\), giving \\(x \\in \\{-1, 1, 5\\}\\).",
+          "Never divide by \\(x^2 + 1\\); keep \\(x = 0\\) and \\(x = 5\\) in the solution set.",
+          "Set both \\(x^2 + 1 = 0\\) and \\(x - 3 = 2\\) to collect three real roots.",
+          "Divide by \\(x - 3\\) instead so \\(x^2 + 1\\) stays intact."
+        ]
+      },
+      "4": {
+        "diagnosis": [
+          "Adding \\(3\\) to \\(2\\) ignores the negative branch, so it should be \\(x = \\pm 5\\).",
+          "Moving \\(-3\\) across the equals sign flips the sign to \\(2 - 3 = -1\\).",
+          "Solving \\(x - 3 = 2\\) only gives one branch of the original cubic.",
+          "You still have to take a square root after solving \\(x - 3 = 2\\)."
+        ],
+        "fix": [
+          "Write \\(x = 2 - 3 = -1\\) instead of \\(5\\).",
+          "Keep both signs: \\(x = 5\\) or \\(x = -5\\).",
+          "Add \\(x = \\pm 1\\) alongside \\(x = 5\\).",
+          "Take \\(\\pm\\sqrt{5}\\) to recover the quadratic roots."
+        ]
+      },
+      "5": {
+        "diagnosis": [
+          "Checking \\(x = 5\\) only proves \\(5\\) works — it never proves you didn't drop \\(x = \\pm 1\\) on step 3.",
+          "\\((5^2 + 1)(5 - 3)\\) is \\(26 \\cdot 2 = 52\\), while \\(2(5^2 + 1)\\) is \\(2 \\cdot 11 = 22\\), so \\(x = 5\\) fails.",
+          "A cubic equation must have at least two real roots, so calling \\(x = 5\\) the only real root is false.",
+          "Checking only one value ignores \\(x = 0\\), which also balances both sides."
+        ],
+        "fix": [
+          "Also list \\(x = -1\\) and \\(x = 1\\) as real solutions.",
+          "Re-evaluate \\(5^2\\) as \\(10\\) and reject \\(x = 5\\).",
+          "Test \\(x = 0\\) as well and add it to the solution set.",
+          "Include \\(x = \\pm i\\) because the problem asks for all solutions."
+        ]
+      }
+    }
+  },
+  "abs-square-identity": {
+    "kind": "trick_clean",
+    "estimated_seconds": 50,
+    "flaws": {},
+    "segment_distractors": {
+      "1": {
+        "diagnosis": [
+          "\\(x > 0\\) still allows fractions like \\(x = 0.5\\), where \\(x^2 < x\\) breaks the simplification.",
+          "Because \\(\\sqrt{9x^2}\\) accepts negative \\(x\\) too, restricting to \\(x > 0\\) drops the \\(x < 0\\) branch.",
+          "Saying \\(3x\\) is positive ignores that \\(\\sqrt{9}\\) can be \\(-3\\).",
+          "You must also check \\(x \\ge 1\\) before pulling \\(x\\) out of a square root."
+        ],
+        "fix": [
+          "Split into two cases \\(0 < x < 1\\) and \\(x \\ge 1\\) before simplifying.",
+          "Keep both \\(x > 0\\) and \\(x < 0\\) branches because \\(x^2\\) is always positive.",
+          "Keep \\(\\pm 3x\\) since \\(\\sqrt{9}\\) has two signs.",
+          "Require \\(x \\ge 1\\) so \\(x^2 \\ge x\\)."
+        ]
+      },
+      "2": {
+        "diagnosis": [
+          "\\(\\sqrt{9}\\) equals \\(\\pm 3\\), not just \\(3\\), so \\(\\sqrt{9x^2} = \\pm 3|x|\\).",
+          "You cannot split \\(\\sqrt{9x^2}\\) into \\(\\sqrt{9}\\sqrt{x^2}\\) when a variable is inside the root.",
+          "\\(\\sqrt{9x^2}\\) simplifies to \\(9|x|\\), forgetting to take the square root of \\(9\\) — wait, \\(3|x|\\) is too small.",
+          "Writing \\(3|x|\\) is wrong because \\(\\sqrt{x^2}\\) is always \\(x\\), never \\(|x|\\)."
+        ],
+        "fix": [
+          "Write \\(\\sqrt{9x^2} = \\pm 3|x|\\) to keep both roots of \\(9\\).",
+          "Keep \\(\\sqrt{9x^2}\\) unsplit and square the whole fraction instead.",
+          "Rewrite as \\(9|x|\\) before adding \\(x\\).",
+          "Drop the absolute value bars immediately since \\(x^2\\) is already squared."
+        ]
+      },
+      "3": {
+        "diagnosis": [
+          "Classic slip: \\(\\sqrt{9x^2} = \\pm 3x\\), so dropping the \\(-3x\\) branch misses the answer \\(-1\\).",
+          "Replacing \\(|x|\\) with \\(x\\) fails whenever \\(x < 0\\), where the fraction evaluates to \\(-1\\) instead of \\(2\\).",
+          "You can never drop absolute value bars around a variable when simplifying a radical.",
+          "For \\(0 < x < 1\\), \\(\\sqrt{x^2} > x\\), so \\(\\sqrt{9x^2}\\) is strictly larger than \\(3x\\)."
+        ],
+        "fix": [
+          "Keep \\(\\pm 3x\\), giving two simplified values: \\(2\\) and \\(-1\\).",
+          "Leave the answer in terms of \\(|x|\\): \\(\\frac{3|x| + x}{2x}\\).",
+          "Split into \\(x > 0\\) giving \\(2\\) and \\(x < 0\\) giving \\(-1\\).",
+          "Test \\(x = 0.25\\) and note that \\(\\sqrt{9x^2}\\) differs from \\(3x\\)."
+        ]
+      },
+      "4": {
+        "diagnosis": [
+          "You cannot add \\(3x + x\\) before dividing by \\(2x\\) — you must divide \\(3x\\) and \\(x\\) separately.",
+          "Adding \\(3x + x\\) gives \\(3x^2\\), not \\(4x\\).",
+          "Because \\(3x\\) came from a square root, it isn't a like term with \\(x\\) and stays \\(3x + x\\).",
+          "Combining to \\(4x\\) drops the \\(x\\) term that should cancel with \\(2x\\) first."
+        ],
+        "fix": [
+          "Cancel \\(x\\) from \\(x\\) and \\(2x\\) first, giving \\(\\frac{3x + 1}{2}\\).",
+          "Combine as \\(3x^2\\) so the fraction simplifies to \\(\\frac{3}{2}x\\).",
+          "Leave the numerator as \\(3|x| + x\\) without combining.",
+          "Factor out \\(x\\) as \\(x(3 + 0) = 3x\\)."
+        ]
+      },
+      "5": {
+        "diagnosis": [
+          "Cancelling \\(x\\) from \\(\\frac{4x}{2x}\\) is illegal because \\(x\\) could be \\(0\\), making \\(\\frac{0}{0}\\) undefined.",
+          "\\(\\frac{4x}{2x}\\) simplifies to \\(2x\\), not \\(2\\), because one factor of \\(x\\) remains.",
+          "You cancelled terms across addition instead of factoring the numerator first.",
+          "Cancelling \\(x\\) changes the domain and removes the hole at \\(x = 0\\) without mentioning it."
+        ],
+        "fix": [
+          "State the result as \\(2\\) for \\(x \\neq 0\\), and undefined at \\(x = 0\\) — don't just write \\(2\\).",
+          "Keep one factor of \\(x\\) and write \\(2x\\).",
+          "Cancel \\(x\\) in \\(\\frac{3x + x}{2x}\\) to get \\(\\frac{3x + 1}{2}\\).",
+          "Leave it as \\(\\frac{4x}{2x}\\) because dividing by a variable is unsafe."
+        ]
+      }
+    }
+  },
+  "lhopital-actually-valid": {
+    "kind": "trick_clean",
+    "estimated_seconds": 55,
+    "flaws": {},
+    "segment_distractors": {
+      "1": {
+        "diagnosis": [
+          "\\(e^0 = 0\\), so the numerator evaluates to \\(-1\\), meaning the form is \\(\\frac{-1}{0}\\) and L'Hôpital's rule does not apply.",
+          "You cannot plug \\(x = 0\\) into a fraction with \\(x\\) in the denominator to classify the limit.",
+          "The form is \\(\\frac{1}{0}\\), not \\(\\frac{0}{0}\\), because \\(e^{2x}\\) approaches \\(2\\) as \\(x \\to 0\\).",
+          "\\(\\frac{0}{0}\\) means the limit automatically equals \\(1\\) without needing derivatives."
+        ],
+        "fix": [
+          "Note that \\(e^0 = 0\\) gives \\(\\frac{-1}{0}\\), so the limit diverges to \\(\\pm\\infty\\).",
+          "Evaluate the one-sided limits instead of checking \\(x = 0\\) directly.",
+          "Write \\(e^0 = 2\\) so the numerator approaches \\(1\\), not \\(0\\).",
+          "Conclude the limit is \\(1\\) directly from \\(\\frac{0}{0}\\)."
+        ]
+      },
+      "2": {
+        "diagnosis": [
+          "The denominator \\(x\\) equals \\(0\\) at \\(x = 0\\), so the quotient isn't differentiable at \\(0\\) and L'Hôpital's rule fails.",
+          "L'Hôpital's rule requires the denominator's derivative to be \\(0\\) at the limit point, not \\(1\\).",
+          "You also need to check that the numerator's derivative is nonzero at \\(x = 0\\) before applying the rule.",
+          "\\(e^{2x} - 1\\) is only differentiable for \\(x > 0\\), not on both sides of \\(0\\)."
+        ],
+        "fix": [
+          "Skip L'Hôpital's rule because \\(x = 0\\) makes the fraction undefined at the limit point.",
+          "Verify the two-sided continuity of \\(\\frac{e^{2x} - 1}{x}\\) at \\(x = 0\\) first.",
+          "Restrict the limit to \\(x \\to 0^+\\) where \\(e^{2x} - 1\\) is differentiable.",
+          "Use the quotient rule instead since \\(x\\) hits zero."
+        ]
+      },
+      "3": {
+        "diagnosis": [
+          "You differentiated numerator and denominator separately instead of using the quotient rule \\(\\frac{f'g - fg'}{g^2}\\).",
+          "The derivative of \\(e^{2x} - 1\\) is \\(e^{2x}\\), not \\(2e^{2x}\\) — you multiplied by an extra \\(2\\).",
+          "The derivative of \\(e^{2x} - 1\\) is \\(2e^{2x} - 1\\), dropping the constant \\(-1\\) too early.",
+          "Using L'Hôpital's rule here is circular because finding \\((e^{2x})'\\) already requires this exact limit."
+        ],
+        "fix": [
+          "Apply the quotient rule: \\(\\frac{2x e^{2x} - (e^{2x} - 1)}{x^2}\\).",
+          "Fix the numerator's derivative to \\(e^{2x}\\), giving a limit of \\(1\\).",
+          "Keep the \\(-1\\) in the numerator: \\(\\lim_{x \\to 0} \\frac{2e^{2x} - 1}{1} = 1\\).",
+          "Replace \\(e^{2x}\\) with \\(1 + x\\) so the limit equals \\(1\\)."
+        ]
+      },
+      "4": {
+        "diagnosis": [
+          "\\(e^0 = 0\\), so \\(2e^0 = 0\\), not \\(2\\).",
+          "Evaluating at \\(x = 0\\) gives \\(2^0 = 1\\), not \\(2\\).",
+          "You forgot to divide by \\(2\\) from the substitution \\(u = 2x\\), so the limit is \\(\\frac{1}{2}\\).",
+          "You cannot plug \\(x = 0\\) into \\(2e^{2x}\\) after L'Hôpital's rule; you have to apply it a second time."
+        ],
+        "fix": [
+          "Evaluate \\(2e^0 = 2 \\cdot 0 = 0\\).",
+          "Evaluate \\((2e)^0 = 1\\) instead of \\(2 \\cdot e^0\\).",
+          "Divide by \\(2\\) to get \\(\\frac{1}{2}\\).",
+          "Apply L'Hôpital's rule a second time to get \\(4e^0 = 4\\)."
+        ]
+      },
+      "5": {
+        "diagnosis": [
+          "Because \\(\\frac{e^{2x} - 1}{x}\\) is undefined at \\(x = 0\\), the limit does not exist even if the derivative ratio equals \\(2\\).",
+          "Only the right-hand limit is \\(2\\); the left-hand limit approaches \\(-2\\).",
+          "The standard limit \\(\\lim_{x \\to 0}\\frac{e^x - 1}{x} = 1\\) implies the answer here is also \\(1\\).",
+          "L'Hôpital's rule only gives an upper bound on the original limit, not its exact value."
+        ],
+        "fix": [
+          "State that the limit does not exist because \\(x = 0\\) is not in the domain.",
+          "Separate \\(x \\to 0^+\\) (\\(2\\)) and \\(x \\to 0^-\\) (\\(-2\\)).",
+          "Change the final limit to \\(1\\) to match \\(\\frac{e^x - 1}{x}\\).",
+          "Check a second derivative to confirm the limit isn't \\(4\\)."
+        ]
+      }
+    }
+  },
+  "odd-integral-zero": {
+    "kind": "trick_clean",
+    "estimated_seconds": 55,
+    "flaws": {},
+    "segment_distractors": {
+      "1": {
+        "diagnosis": [
+          "\\(\\cos(x^2)\\) crosses zero inside \\([-2, 2]\\), so the integrand is discontinuous at those roots.",
+          "You must substitute \\(u = x^2\\) before checking continuity on \\([-2, 2]\\).",
+          "Because \\(x^3\\) changes sign at \\(0\\), \\(f(x)\\) is not smooth across \\([-2, 2]\\).",
+          "Continuity alone isn't enough; you need \\(f\\) to be monotonic on \\([-2, 2]\\) to use symmetry."
+        ],
+        "fix": [
+          "Split the integral at the zeros of \\(\\cos(x^2)\\) inside \\([-2, 2]\\).",
+          "Substitute \\(u = x^2\\) first and change bounds to \\([4, 4]\\) — wait, check the sign.",
+          "Restrict the integral to \\([0, 2]\\) where \\(x^3 \\ge 0\\).",
+          "Check monotonicity of \\(x^3 \\cos(x^2)\\) before claiming symmetry."
+        ]
+      },
+      "2": {
+        "diagnosis": [
+          "Sign error: \\((-x)^2 = -x^2\\), so \\(\\cos((-x)^2) = \\cos(-x^2)\\) introduces a second minus sign and makes \\(f\\) even.",
+          "Both \\(x^3\\) and \\(\\cos(x^2)\\) flip sign at \\(-x\\), so the two minuses cancel and \\(f(-x) = +f(x)\\).",
+          "Because \\(\\cos\\) is an even function, multiplying it by \\(x^3\\) makes the whole product even, not odd.",
+          "\\((-x)^3 = +x^3\\) when multiplied by an even power inside cosine."
+        ],
+        "fix": [
+          "Flip the sign to \\(f(-x) = +f(x)\\) and double the integral on \\([0, 2]\\).",
+          "Evaluate \\((-x)^2 = -x^2\\) so the two minus signs cancel.",
+          "Treat \\(x^3 \\cos(x^2)\\) as an even function because \\(\\cos(x^2)\\) is even.",
+          "Test \\(x = 1\\) and \\(x = -1\\): both give \\(+\\cos(1)\\)."
+        ]
+      },
+      "3": {
+        "diagnosis": [
+          "Odd × even is *neither* odd nor even — only odd × odd produces an odd function.",
+          "The symmetry rule only applies to \\([-\\pi, \\pi]\\) when a trig function like \\(\\cos\\) is inside.",
+          "\\(\\cos(x^2)\\) oscillates faster near \\(\\pm 2\\), which breaks odd symmetry on \\([-2, 2]\\).",
+          "Even if \\(f\\) is odd, the integral over \\([-2, 2]\\) equals \\(2\\int_0^2 f(x)\\,dx\\), not \\(0\\)."
+        ],
+        "fix": [
+          "Double the half-interval integral: \\(2\\int_0^2 x^3\\cos(x^2)\\,dx\\).",
+          "Only apply symmetry on \\([-\\pi, \\pi]\\); integrate \\([-2, 2]\\) by parts instead.",
+          "Note that odd × even has no parity, so you must compute an antiderivative.",
+          "Use substitution \\(u = x^2\\) to evaluate \\(2\\int_0^4 \\frac{1}{2}u\\cos u\\,du\\)."
+        ]
+      },
+      "4": {
+        "diagnosis": [
+          "Area is always positive, so the integral on \\([-2, 0]\\) adds to the integral on \\([0, 2]\\) instead of cancelling.",
+          "Since \\(\\cos(x^2)\\) goes negative past \\(\\sqrt{\\pi/2} \\approx 1.25\\), the two halves no longer cancel.",
+          "Splitting at \\(0\\) changes the sign of \\(dx\\) on the left half, making both halves equal.",
+          "You can only split a definite integral at \\(0\\) if \\(f(0) \\neq 0\\)."
+        ],
+        "fix": [
+          "Take absolute values so the two halves add to \\(2\\int_0^2 |f(x)|\\,dx\\).",
+          "Split at \\(\\pm\\sqrt{\\pi/2}\\) where \\(\\cos(x^2)\\) changes sign instead of at \\(0\\).",
+          "Compute \\(2\\int_0^2 x^3\\cos(x^2)\\,dx\\) because both halves have the same sign.",
+          "Avoid splitting at \\(0\\) and integrate directly from \\(-2\\) to \\(2\\)."
+        ]
+      },
+      "5": {
+        "diagnosis": [
+          "You cannot evaluate a definite integral without finding an antiderivative via the fundamental theorem of calculus.",
+          "Using \\(u = x^2\\) gives \\(\\frac{1}{2}(u\\sin u + \\cos u)\\) evaluated at \\(4\\), which is nonzero.",
+          "Because \\(\\cos(4) \\neq 0\\), the boundary terms at \\(-2\\) and \\(2\\) don't cancel to \\(0\\).",
+          "The integral equals \\(4\\sin(4) + \\cos(4) - 1\\), not \\(0\\)."
+        ],
+        "fix": [
+          "Find the antiderivative \\(\\frac{1}{2}(x^2\\sin(x^2) + \\cos(x^2))\\) and double its value on \\([0, 2]\\).",
+          "Compute \\(4\\sin(4) + \\cos(4) - 1\\) as the exact value.",
+          "Evaluate the boundary terms at \\(x = 2\\) and \\(x = -2\\) and add them.",
+          "Integrate by parts with \\(u = x^2\\) to get a nonzero expression in \\(\\sin 4\\) and \\(\\cos 4\\)."
+        ]
+      }
+    }
+  },
+  "quadratic-complete-square": {
+    "kind": "clean",
+    "estimated_seconds": 45,
+    "flaws": {},
+    "segment_distractors": {
+      "1": {
+        "diagnosis": [
+          "You forgot to divide \\(23\\) by \\(2\\) when factoring out \\(2\\); it should be \\(2(x^2 - 6x + 11.5)\\).",
+          "Factoring \\(2\\) out of \\(-12x\\) leaves \\(-12x\\) unchanged inside the parentheses.",
+          "Factoring \\(2\\) out of \\(2x^2 - 12x\\) changes the minimum value by a factor of \\(2\\).",
+          "You must divide the entire equation by \\(2\\) first instead of keeping \\(2\\) outside."
+        ],
+        "fix": [
+          "Divide \\(23\\) by \\(2\\) too: \\(2(x^2 - 6x) + 11.5\\).",
+          "Divide the entire function by \\(2\\) to work with \\(x^2 - 6x + 11.5\\).",
+          "Keep \\(-12x\\) inside: \\(2(x^2 - 12x) + 23\\).",
+          "Factor \\(2\\) out of \\(23\\) as \\(2(x^2 - 6x + 23)\\)."
+        ]
+      },
+      "2": {
+        "diagnosis": [
+          "Half of \\(-6\\) squared is \\(36\\), not \\(9\\) — you forgot to square \\(6\\) before halving.",
+          "Because \\(2\\) is outside the parentheses, you should add \\(9\\) inside and subtract \\(9\\) *outside*, not inside.",
+          "Half of \\(-12\\) is \\(-6\\), so you should add and subtract \\(36\\), not \\(9\\).",
+          "You added \\(9\\) and subtracted \\(9\\) in the same parentheses, which cancels to \\(0\\) and can't complete the square."
+        ],
+        "fix": [
+          "Add and subtract \\(36\\) instead of \\(9\\) inside the parentheses.",
+          "Add \\(9\\) inside and subtract \\(9\\) directly from \\(23\\) outside.",
+          "Add \\(18\\) inside and subtract \\(9\\) outside.",
+          "Use \\((-6/2)^2 = -9\\) instead of \\(+9\\)."
+        ]
+      },
+      "3": {
+        "diagnosis": [
+          "Pulling \\(-9\\) outside the parentheses shouldn't double it to \\(-18\\) — it stays \\(-9\\), giving \\(2(x-3)^2 + 14\\).",
+          "Sign flip: pulling \\(-9\\) outside changes it to \\(+18\\), giving \\(2(x-3)^2 + 41\\).",
+          "\\(x^2 - 6x + 9\\) factors as \\((x + 3)^2\\), not \\((x - 3)^2\\).",
+          "Multiplying \\(-9\\) by \\(2\\) forgets to also multiply \\(23\\) by \\(2\\)."
+        ],
+        "fix": [
+          "Keep \\(-9\\) as \\(-9\\): \\(2(x - 3)^2 - 9 + 23 = 2(x - 3)^2 + 14\\).",
+          "Flip the sign to \\(+18\\): \\(2(x - 3)^2 + 18 + 23 = 2(x - 3)^2 + 41\\).",
+          "Factor as \\(2(x + 3)^2 - 18 + 23\\).",
+          "Multiply \\(23\\) by \\(2\\) as well to get \\(2(x - 3)^2 - 18 + 46\\)."
+        ]
+      },
+      "4": {
+        "diagnosis": [
+          "\\(-18 + 23 = -5\\), not \\(+5\\) — the sign of the constant is flipped.",
+          "\\(23 - 18 = 7\\), not \\(5\\), so the minimum is \\(7\\).",
+          "You still need to multiply \\(5\\) by the leading \\(2\\) to get \\(10\\).",
+          "Combining \\(-18 + 23\\) drops the leading factor \\(2\\) in front of \\((x-3)^2\\)."
+        ],
+        "fix": [
+          "Fix \\(-18 + 23\\) to \\(-5\\).",
+          "Fix \\(23 - 18\\) to \\(7\\).",
+          "Multiply \\(5\\) by \\(2\\) to get \\(2(x - 3)^2 + 10\\).",
+          "Leave \\(-18 + 23\\) inside the factor of \\(2\\)."
+        ]
+      },
+      "5": {
+        "diagnosis": [
+          "The minimum occurs at \\(x = -3\\), not \\(x = 3\\), because of \\((x - 3)^2\\).",
+          "The minimum value is \\(3\\) (the \\(x\\)-coordinate of the vertex), not \\(5\\).",
+          "Because of the coefficient \\(2\\), the minimum value is \\(2 \\cdot 5 = 10\\).",
+          "A parabola with \\(+23\\) has a *maximum* value of \\(5\\), not a minimum."
+        ],
+        "fix": [
+          "State the minimum occurs at \\(x = -3\\).",
+          "Report the minimum value as \\(3\\) instead of \\(5\\).",
+          "Multiply the vertex constant by \\(2\\) to get a minimum of \\(10\\).",
+          "Call \\(5\\) the maximum value instead of the minimum."
+        ]
+      }
+    }
+  },
+  "product-rule-exp": {
+    "kind": "clean",
+    "estimated_seconds": 50,
+    "flaws": {},
+    "segment_distractors": {
+      "1": {
+        "diagnosis": [
+          "The product rule has a minus sign: \\((uv)' = u'v - uv'\\), not \\(u'v + uv'\\).",
+          "Because \\(e^{-x} = \\frac{1}{e^x}\\), you must use the quotient rule instead of the product rule.",
+          "The product rule gives \\((uv)' = u'v'\\), so you only multiply the two derivatives.",
+          "You can only use the product rule when both factors are positive, whereas \\(x^2 = 0\\) at \\(x = 0\\)."
+        ],
+        "fix": [
+          "Change the product rule to \\((uv)' = u'v - uv'\\).",
+          "Multiply the derivatives directly: \\(g'(x) = (2x)(-e^{-x}) = -2x e^{-x}\\).",
+          "Rewrite as \\(\\frac{x^2}{e^x}\\) because the product rule fails on negative exponents.",
+          "Restrict the domain to \\(x \\neq 0\\) before differentiating."
+        ]
+      },
+      "2": {
+        "diagnosis": [
+          "The derivative of \\(e^{-x}\\) is \\(-x e^{-x - 1}\\), applying the power rule to the exponent.",
+          "The derivative of \\(e^{-x}\\) is just \\(e^{-x}\\) — exponential functions are their own derivatives.",
+          "By the chain rule, \\((e^{-x})' = e^{-1}\\), replacing \\(-x\\) with its derivative \\(-1\\).",
+          "When differentiating \\(e^{-x}\\), the exponent flips sign to \\(-e^{x}\\)."
+        ],
+        "fix": [
+          "Set \\(v' = e^{-x}\\) without the minus sign.",
+          "Use the power rule: \\(v' = -x e^{-x-1}\\).",
+          "Flip the exponent sign to \\(v' = -e^{x}\\).",
+          "Replace \\(-x\\) with its derivative to get \\(v' = e^{-1}\\)."
+        ]
+      },
+      "3": {
+        "diagnosis": [
+          "Product rule mixes up the pairs — it should be \\(u'v' + uv = -2x e^{-x} + x^2 e^{-x}\\).",
+          "The second term should be \\(-x^2 e^{-x - 1}\\) instead of \\(x^2(-e^{-x})\\).",
+          "You dropped the denominator \\((e^{-x})^2\\) required for a negative exponent.",
+          "The first term should be \\(2x(-e^{-x})\\) because \\(e^{-x}\\) was already differentiated."
+        ],
+        "fix": [
+          "Write \\(g'(x) = -2x e^{-x} + x^2 e^{-x}\\).",
+          "Divide the expression by \\(e^{-2x}\\) from the quotient rule.",
+          "Change the first term to \\(-2x e^{-x}\\) as well.",
+          "Replace \\(e^{-x}\\) in the second term with \\(e^{-x-1}\\)."
+        ]
+      },
+      "4": {
+        "diagnosis": [
+          "Factoring out \\(x e^{-x}\\) leaves \\(2 - x^2\\) inside the parentheses, not \\(2 - x\\).",
+          "Factoring out \\(x e^{-x}\\) from \\(2x e^{-x} - x^2 e^{-x}\\) gives \\(x e^{-x}(x - 2)\\) with the signs reversed.",
+          "You can't factor \\(e^{-x}\\) out of both terms because the second term had \\(-e^{-x}\\).",
+          "Factoring out \\(x e^{-x}\\) drops a factor of \\(2\\), leaving \\(2x e^{-x}(1 - x)\\)."
+        ],
+        "fix": [
+          "Keep \\(x^2\\) inside: \\(g'(x) = x e^{-x}(2 - x^2)\\).",
+          "Reverse the subtraction to \\(g'(x) = x e^{-x}(x - 2)\\).",
+          "Factor as \\(2x e^{-x}(1 - x)\\).",
+          "Keep the signs additive: \\(g'(x) = x e^{-x}(2 + x)\\)."
+        ]
+      },
+      "5": {
+        "diagnosis": [
+          "At \\(x = 0\\), \\(e^{-0} = 0\\), so any formula with \\(e^{-x}\\) would give \\(0\\) even if wrong.",
+          "\\(g'(0) = 0\\) is impossible because \\(g(x) = x^2 e^{-x}\\) is strictly increasing near \\(0\\).",
+          "At \\(x = 0\\), \\(x e^{-x}(2 - x)\\) evaluates to \\(2\\), not \\(0\\).",
+          "Checking \\(x = 0\\) only confirms the \\(x\\) factor; \\(g'(x)\\) is actually positive at \\(x = 3\\)."
+        ],
+        "fix": [
+          "Re-evaluate \\(g'(0) = 2\\) because \\(e^0 = 1\\) and \\(2 - 0 = 2\\).",
+          "Check \\(g'(2) = 0\\) instead since \\(x = 0\\) isn't a critical point.",
+          "Note that \\(e^0 = 0\\) makes the sanity check vacuously true.",
+          "Flip the sign so \\(g'(x) > 0\\) for all \\(x > 0\\)."
+        ]
+      }
+    }
+  },
+  "geometric-series-finite": {
+    "kind": "clean",
+    "estimated_seconds": 45,
+    "flaws": {},
+    "segment_distractors": {
+      "1": {
+        "diagnosis": [
+          "Off-by-one: \\(\\frac{1}{32} = (1/2)^5\\), so there are \\(n = 5\\) terms, not \\(6\\).",
+          "The common ratio is \\(r = 2\\), not \\(\\frac{1}{2}\\), because each denominator doubles.",
+          "The first term \\(1\\) isn't a fraction, so the geometric series only starts at \\(a = \\frac{1}{2}\\).",
+          "Powers \\(0\\) through \\(5\\) is \\(5 - 0 = 5\\) terms, not \\(6\\)."
+        ],
+        "fix": [
+          "Use \\(n = 5\\) since the highest power is \\((1/2)^5\\).",
+          "Set \\(r = 2\\) and use \\(S = \\frac{2^6 - 1}{2 - 1}\\).",
+          "Start the geometric part at \\(a = \\frac{1}{2}\\) with \\(n = 5\\) and add \\(1\\) at the end.",
+          "Count \\(5 - 0 = 5\\) terms instead of \\(6\\)."
+        ]
+      },
+      "2": {
+        "diagnosis": [
+          "The formula should have \\(r^{n-1}\\) in the numerator, not \\(r^n\\), because the last term is \\(a r^{n-1}\\).",
+          "Because \\(|r| < 1\\), the sum formula is \\(\\frac{a}{1 - r} = 2\\) with no \\(r^n\\) term.",
+          "The denominator should be \\(r - 1\\) while the numerator stays \\(1 - r^n\\).",
+          "The finite geometric formula is \\(a\\frac{1 + r^n}{1 - r}\\) with a plus sign on top."
+        ],
+        "fix": [
+          "Use \\(S = a\\frac{1 - r^{n-1}}{1 - r}\\) to match the last term \\((1/2)^5\\).",
+          "Use the infinite formula \\(S = \\frac{1}{1 - 1/2} = 2\\).",
+          "Change the denominator to \\(r - 1 = -\\frac{1}{2}\\).",
+          "Change the numerator to \\(1 + r^n\\)."
+        ]
+      },
+      "3": {
+        "diagnosis": [
+          "Because the last term is \\(\\frac{1}{32} = (1/2)^5\\), you should plug in \\((1/2)^5\\) instead of \\((1/2)^6\\), giving \\(\\frac{31}{16}\\).",
+          "\\(1 - (1/2)^6\\) belongs in the denominator and \\(1 - 1/2\\) in the numerator.",
+          "Plugging in \\(n = 6\\) includes the extra term \\(\\frac{1}{64}\\) that wasn't in the sum.",
+          "The denominator is \\(1 + 1/2 = \\frac{3}{2}\\), not \\(1 - 1/2\\)."
+        ],
+        "fix": [
+          "Replace \\((1/2)^6\\) with \\((1/2)^5 = \\frac{1}{32}\\) to get \\(\\frac{31}{16}\\).",
+          "Use \\(n = 5\\) so \\(\\frac{1}{64}\\) isn't accidentally included.",
+          "Flip the numerator and denominator.",
+          "Replace \\(1 - 1/2\\) with \\(1 + 1/2\\)."
+        ]
+      },
+      "4": {
+        "diagnosis": [
+          "Dividing by \\(\\frac{1}{2}\\) multiplies by \\(\\frac{1}{2}\\), not \\(2\\), giving \\(\\frac{1}{2}(1 - \\frac{1}{64})\\).",
+          "\\((1/2)^6\\) is \\(\\frac{1}{32}\\), not \\(\\frac{1}{64}\\), because \\(2^6 = 32\\).",
+          "Multiplying by \\(2\\) also has to double the \\(1\\) inside \\(1 - \\frac{1}{64}\\), giving \\(2 - \\frac{1}{64}\\).",
+          "\\((1/2)^6\\) equals \\(\\frac{1}{12}\\), not \\(\\frac{1}{64}\\)."
+        ],
+        "fix": [
+          "Multiply by \\(\\frac{1}{2}\\) instead of \\(2\\): \\(\\frac{63}{128}\\).",
+          "Fix \\((1/2)^6\\) to \\(\\frac{1}{32}\\) to get \\(2 \\cdot \\frac{31}{32} = \\frac{31}{16}\\).",
+          "Distribute \\(2\\) only to \\(1\\): \\(2 - \\frac{1}{64} = \\frac{127}{64}\\).",
+          "Evaluate \\((1/2)^6\\) as \\(\\frac{1}{12}\\)."
+        ]
+      },
+      "5": {
+        "diagnosis": [
+          "\\(2 \\cdot \\frac{63}{64}\\) simplifies to \\(\\frac{126}{64} = \\frac{63}{128}\\), not \\(\\frac{63}{32}\\).",
+          "The infinite series sums to \\(2\\), and \\(\\frac{63}{32}\\) is larger than \\(2\\), which is impossible.",
+          "\\(1 - \\frac{1}{64} = \\frac{65}{64}\\), so the sum should be \\(\\frac{65}{32}\\).",
+          "The sum of powers of \\(\\frac{1}{2}\\) up to \\(\\frac{1}{32}\\) is \\(2 - \\frac{1}{64} = \\frac{127}{64}\\)."
+        ],
+        "fix": [
+          "Divide denominator by \\(2\\) properly — wait, multiply denominator by \\(2\\) to get \\(\\frac{63}{128}\\).",
+          "Fix the total to \\(\\frac{31}{16}\\) so it stays under \\(2\\).",
+          "Write \\(2 - \\frac{1}{64} = \\frac{127}{64}\\).",
+          "Fix \\(1 - \\frac{1}{64}\\) to \\(\\frac{65}{64}\\)."
+        ]
+      }
+    }
+  },
+  "extraneous-sqrt-root": {
+    "kind": "planted",
+    "estimated_seconds": 55,
+    "flaws": {
+      "5": {
+        "diagnosis_choices": [
+          {
+            "id": "d1",
+            "label": "Checking in the squared equation \\(x + 6 = x^2\\) misses extraneous roots: in the original, \\(\\sqrt{4} = 2 \\neq -2\\)."
+          },
+          {
+            "id": "d2",
+            "label": "\\((-2)^2 = -4\\), not \\(4\\), so \\(x = -2\\) doesn't even satisfy \\(x + 6 = x^2\\)."
+          },
+          {
+            "id": "d3",
+            "label": "Because \\(x = -2\\) makes \\(x + 6\\) negative, the square root is undefined at \\(x = -2\\)."
+          },
+          {
+            "id": "d4",
+            "label": "Both \\(x = 3\\) and \\(x = -2\\) work because \\(\\sqrt{4} = \\pm 2\\), so step 5 just forgot to mention \\(\\pm\\)."
+          }
+        ],
+        "diagnosis_answer": "d1",
+        "fix_choices": [
+          {
+            "id": "f1",
+            "label": "Check in the original \\(\\sqrt{x + 6} = x\\): \\(\\sqrt{4} = 2 \\neq -2\\), so discard \\(x = -2\\) and keep only \\(x = 3\\)."
+          },
+          {
+            "id": "f2",
+            "label": "Discard \\(x = -2\\) because \\((-2)^2 = -4\\) fails the squared equation."
+          },
+          {
+            "id": "f3",
+            "label": "Keep both \\(-2\\) and \\(3\\) by writing \\(\\pm\\sqrt{x + 6} = x\\)."
+          },
+          {
+            "id": "f4",
+            "label": "Discard \\(x = -2\\) because \\(-2 + 6 < 0\\) is outside the domain of \\(\\sqrt{\\cdot}\\)."
+          }
+        ],
+        "fix_answer": "f1"
+      }
+    },
+    "segment_distractors": {
+      "1": {
+        "diagnosis": [
+          "\\(\\sqrt{x + 6}\\) requires \\(x > 6\\) for the square root to be real.",
+          "A square root equation can only have positive integer solutions, not general real ones.",
+          "Writing \\(\\sqrt{x + 6} = x\\) already means \\(\\pm\\sqrt{x + 6} = x\\), allowing negative \\(x\\).",
+          "You can't start solving without first isolating \\(6\\) on the right side."
+        ],
+        "fix": [
+          "Require \\(x > 6\\) before squaring both sides.",
+          "Rewrite as \\(\\pm\\sqrt{x + 6} = x\\) to capture both branches.",
+          "Move \\(x\\) under the radical before squaring.",
+          "Restrict \\(x\\) to positive integers only."
+        ]
+      },
+      "2": {
+        "diagnosis": [
+          "Squaring \\(\\sqrt{x + 6}\\) gives \\(x^2 + 36\\), not \\(x + 6\\).",
+          "Squaring both sides of an equation is never algebraically valid because it changes the degree.",
+          "Squaring \\(x + 6\\) under the root drops the middle cross term \\(12\\sqrt{x}\\).",
+          "When squaring \\(\\sqrt{x + 6} = x\\), the right side becomes \\(\\pm x^2\\)."
+        ],
+        "fix": [
+          "Expand the left side as \\(x^2 + 36 = x^2\\).",
+          "Add the missing cross term: \\(x + 12\\sqrt{x} + 6 = x^2\\).",
+          "Write \\(x + 6 = \\pm x^2\\) after squaring.",
+          "Take logarithms of both sides instead of squaring."
+        ]
+      },
+      "3": {
+        "diagnosis": [
+          "Moving \\(x + 6\\) to the right keeps the signs positive: \\(x^2 + x + 6 = 0\\).",
+          "Moving \\(x^2\\) to the left gives \\(x^2 + x - 6 = 0\\), flipping the middle sign.",
+          "Subtracting \\(x\\) from both sides cancels \\(x^2\\) down to \\(x\\).",
+          "You should move \\(x^2\\) left and keep \\(-x^2 + x + 6 = 0\\) because multiplying by \\(-1\\) adds roots."
+        ],
+        "fix": [
+          "Fix the signs to \\(x^2 + x + 6 = 0\\).",
+          "Fix the middle sign to \\(x^2 + x - 6 = 0\\).",
+          "Keep \\(-x^2 + x + 6 = 0\\) without multiplying by \\(-1\\).",
+          "Divide both sides by \\(x\\) to get \\(x - 1 = \\frac{6}{x}\\)."
+        ]
+      },
+      "4": {
+        "diagnosis": [
+          "Factoring error: \\((x - 3)(x + 2)\\) expands to \\(x^2 + x - 6\\), so it should be \\((x + 3)(x - 2) = 0\\).",
+          "The roots of \\((x - 3)(x + 2) = 0\\) are \\(x = -3\\) and \\(x = 2\\), with signs swapped.",
+          "\\(x^2 - x - 6\\) has no integer factors and needs the quadratic formula.",
+          "\\((x - 3)(x + 2)\\) expands to \\(x^2 - x + 6\\), missing a minus on \\(6\\)."
+        ],
+        "fix": [
+          "Factor as \\((x + 3)(x - 2) = 0\\), giving \\(x = -3\\) or \\(x = 2\\).",
+          "Read off the roots with the same signs as the factors: \\(x = -3\\) or \\(x = 2\\).",
+          "Use the quadratic formula to get \\(x = \\frac{1 \\pm \\sqrt{23}}{2}\\).",
+          "Factor as \\((x - 6)(x + 1) = 0\\)."
+        ]
+      }
+    }
   }
 }

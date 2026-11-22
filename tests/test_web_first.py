@@ -31,7 +31,7 @@ class PackAndExportTest(unittest.TestCase):
         self.assertEqual(counts_en, counts_zh)
         self.assertGreaterEqual(counts_en["logic"], 6)
         self.assertGreaterEqual(counts_en["code"], 6)
-        self.assertEqual(counts_en["math"], 5)
+        self.assertGreaterEqual(counts_en["math"], 5)
 
         en_ids = sorted(e["id"] for e in self.en["entries"])
         zh_ids = sorted(e["id"] for e in self.zh["entries"])
@@ -79,7 +79,7 @@ class PackAndExportTest(unittest.TestCase):
                     for item in data["worksheets"]:
                         secret = json.loads((prefix / "secrets" / f"{item['id']}.json").read_text(encoding="utf-8"))
                         self.assertEqual(item["commitment"], redpen.commitment(secret["key"]))
-                self.assertEqual(total, 26)
+                self.assertGreaterEqual(total, 26)
 
     def test_server_pack_endpoints_and_light_mode_submit(self):
         banks = load_banks()
@@ -107,7 +107,7 @@ class PackAndExportTest(unittest.TestCase):
 
         status, code_pack = fetch_json("/api/packs/code?lang=zh")
         self.assertEqual(status, 200)
-        self.assertEqual(len(code_pack["worksheets"]), 6)
+        self.assertGreaterEqual(len(code_pack["worksheets"]), 6)
 
         # Play a code puzzle in light mode via HTTP.
         status, rnd = fetch_json("/api/rounds", {"worksheet_id": "code-mutable-default", "lang": "zh"})

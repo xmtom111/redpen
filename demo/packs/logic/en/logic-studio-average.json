@@ -49,38 +49,38 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "The average class is 10 people, but most of the people are in the two packed evening classes, so most members do not get a quiet room."
+          "label": "60 of the 100 daily riders are packed into the two 30-person evening classes — most *members* feel crowded."
         },
         {
           "id": "d2",
-          "label": "Five plus 30 cannot average to 10, so the 10-person figure is a calculation error."
+          "label": "The average class size is actually 17.5 people ((5 + 30) / 2), not 10, so classes are crowded."
         },
         {
           "id": "d3",
-          "label": "A class of 10 is already crowded, so the quiet-workout claim is wrong for that reason alone."
+          "label": "Eight classes of 5 plus two classes of 30 equals 110 riders, making the average 11 per class, not 10."
         },
         {
           "id": "d4",
-          "label": "Daytime classes of 5 are too empty to count, so they should be dropped from the average."
+          "label": "An average of 10 riders in a spin studio is already crowded if the room only holds 12 bikes."
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "8×5 + 2×30 = 100 daily riders; 60 of them are in a room of 30. Most members feel the crowd, even though the average class is 10."
+          "label": "Weigh by rider, not by class: 60% of riders (60/100) experience a 30-person class — add evening capacity."
         },
         {
           "id": "f2",
-          "label": "Average 5 and 30 to get 17.5, and use that as the typical member experience."
+          "label": "Average 5 and 30 directly to report an average class size of 17.5 riders."
         },
         {
           "id": "f3",
-          "label": "Because the average class is 10, report that every member gets a class of 10."
+          "label": "Fix the headcount to 110 riders (11 per class) and add one more daytime slot."
         },
         {
           "id": "f4",
-          "label": "Count only the eight quiet classes, which already proves that most workouts are uncrowded."
+          "label": "Use the median class size (5 riders) instead of the mean (10) so evening outliers don't skew the report."
         }
       ],
       "fix_answer": "f1",
@@ -101,5 +101,64 @@
     "The average class size is 10, but 60 of the 100 daily riders are in a room of 30, so most members experience a packed class.",
     "The evening slots need more capacity or a split session; a quiet average does not fix a crowded 7 p.m."
   ],
-  "clean_conclusion": "Average class size is 10, but most riders are in a room of 30 — the average class is not the average experience."
+  "clean_conclusion": "Average class size is 10, but most riders are in a room of 30 — the average class is not the average experience.",
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "Listening to 'a few members' ignores the silent majority who never complain about crowding.",
+        "Auditing only one month misses seasonal New Year's surges when spin studios double in size.",
+        "Auditing all 10 daily sessions pools weekday and weekend classes that have different attendance.",
+        "Counting riders per session double-counts regulars who take two classes in one day."
+      ],
+      "fix": [
+        "Run a survey of all members instead of reacting to a few complaints.",
+        "Audit a full 12 months of attendance before changing the timetable.",
+        "Split weekday sessions from weekend sessions before averaging.",
+        "Count unique member check-ins instead of total class seats filled."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "Eight daytime classes averaging 5 riders means 40 riders total — that's already 40% of capacity wasted.",
+        "Reporting only the average (5) for the eight daytime classes hides whether the noon class actually had 25 riders.",
+        "Daytime classes shouldn't count in a crowding audit because working members can't attend them.",
+        "8 classes × 5 riders = 35 riders, not 40, once you exclude instructor bikes."
+      ],
+      "fix": [
+        "Check each of the eight daytime slots separately in case noon is packed.",
+        "Exclude off-peak daytime classes from the crowding audit completely.",
+        "Cut four empty daytime classes and move those instructors to 7 p.m.",
+        "Report the peak daytime class size alongside the 5-rider average."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "Two 7 p.m. classes with 30 riders each is only 20% of the daily schedule, so it's a minor edge case.",
+        "30 riders at 7 p.m. is only crowded if the studio has fewer than 30 bikes.",
+        "Having two classes at 7 p.m. means 30 riders are split 15 per room, not 30 in one room.",
+        "Without knowing how many people got turned away at 7 p.m., 30 riders understates true evening demand."
+      ],
+      "fix": [
+        "Report the studio's bike capacity alongside the 30-rider count.",
+        "Track evening waitlist turn-aways on top of the 30 riders who got in.",
+        "Clarify whether the two 7 p.m. classes run in two separate rooms of 30 each.",
+        "Compare 30 riders against the 5-rider daytime average as a 6× peak ratio."
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "A waiting-list reminder doesn't shrink the 30-person crowd — it just confirms evening slots are jammed.",
+        "Keeping the timetable unchanged wastes instructor pay on eight nearly empty daytime classes.",
+        "Adding a waiting-list reminder only for evening slots is unfair to daytime members.",
+        "If the average class really is 10 people, you don't even need a waiting-list reminder at 7 p.m."
+      ],
+      "fix": [
+        "Shift two daytime slots into 6 p.m. or 8 p.m. evening classes to relieve the 60 evening riders.",
+        "Cap evening classes at 20 bikes and add a third evening session.",
+        "Keep the timetable unchanged and drop the waiting-list reminder too.",
+        "Offer a daytime discount to nudge evening riders into the 5-person slots."
+      ]
+    }
+  }
 }

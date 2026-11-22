@@ -1,0 +1,38 @@
+{
+  "kind": "clean",
+  "title": "Product rule with a negative exponent",
+  "problem": "An AI tutor differentiated \\(g(x) = x^2 e^{-x}\\). Tap a slip if you spot one, or call it clean.",
+  "steps": [
+    "Apply the product rule \\((uv)' = u'v + uv'\\) with \\(u = x^2\\) and \\(v = e^{-x}\\).",
+    "Differentiate each factor: \\(u' = 2x\\) and \\(v' = -e^{-x}\\) by the chain rule.",
+    "Substitute into the product rule: \\(g'(x) = 2x e^{-x} + x^2(-e^{-x})\\).",
+    "Factor out \\(x e^{-x}\\): \\(g'(x) = x e^{-x}(2 - x)\\).",
+    "Sanity check at \\(x = 0\\): \\(g'(0) = 0\\), matching the horizontal tangent of \\(g(x) \\ge 0\\) at \\(x = 0\\)."
+  ],
+  "final_answer": "\\(g'(x) = x e^{-x}(2 - x)\\)",
+  "key": {
+    "level": 0,
+    "clean_steps": [
+      "Apply the product rule \\((uv)' = u'v + uv'\\) with \\(u = x^2\\) and \\(v = e^{-x}\\).",
+      "Differentiate each factor: \\(u' = 2x\\) and \\(v' = -e^{-x}\\) by the chain rule.",
+      "Substitute into the product rule: \\(g'(x) = 2x e^{-x} + x^2(-e^{-x})\\).",
+      "Factor out \\(x e^{-x}\\): \\(g'(x) = x e^{-x}(2 - x)\\).",
+      "Sanity check at \\(x = 0\\): \\(g'(0) = 0\\), matching the horizontal tangent of \\(g(x) \\ge 0\\) at \\(x = 0\\)."
+    ],
+    "clean_final_answer": "\\(g'(x) = x e^{-x}(2 - x)\\)",
+    "errors": [],
+    "checks": [
+      "diff(x**2 * E**(-x), x) == x*E**(-x)*(2 - x)"
+    ],
+    "reference_check": "none"
+  },
+  "meta": {
+    "kind": "clean",
+    "topic": "Product and chain rule on x^2 e^(-x)",
+    "mode": "0",
+    "difficulty": "standard",
+    "focus": [],
+    "blurb": "Product rule, chain rule on \\(-x\\), and factoring — easy to flip a sign, did it?"
+  },
+  "explanation": "Product rule, chain rule on \\(e^{-x}\\), and factoring out \\(x e^{-x}\\) are all exact."
+}

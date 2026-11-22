@@ -1,0 +1,106 @@
+{
+  "schema_version": 2,
+  "domain": "logic",
+  "renderer": "prose",
+  "opener": true,
+  "kind": "trick_clean",
+  "difficulty": "intro",
+  "level": 0,
+  "estimated_seconds": 50,
+  "id": "logic-chat-ring-fence",
+  "lang": "en",
+  "title": "Patio string lights",
+  "topic": "A friend counts poles for string lights around a closed patio perimeter",
+  "blurb": "40 feet divided by 8 is 5 poles — sounds like a classic forgotten end-post.",
+  "prompt": "A friend texted this on the way to the hardware store. Tap a line if their count is off, or call it clean.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The loop",
+      "text": "Hanging café lights all the way around our square backyard patio — 40 feet of perimeter, closing back into the same outlet corner."
+    },
+    {
+      "id": 2,
+      "label": "The spacing",
+      "text": "I want a pole every 8 feet along the edge so the wire doesn't sag."
+    },
+    {
+      "id": 3,
+      "label": "The count",
+      "text": "40 divided by 8 is 5, so I'm grabbing 5 poles at the hardware store."
+    },
+    {
+      "id": 4,
+      "label": "The run",
+      "text": "Heading out now before they close."
+    }
+  ],
+  "conclusion": "40 feet around the patio with a pole every 8 feet means 5 poles.",
+  "flaws": [],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "A 40-foot square patio has 10-foot sides, so the perimeter can't close back neatly at the outlet corner.",
+        "String lights sag between poles, so you actually need more than 40 feet of perimeter cable.",
+        "Closing back to the same corner means the outlet corner needs two separate poles for start and end.",
+        "A square has four corners, so any spacing has to divide 10 feet evenly to stay on the edges."
+      ],
+      "fix": [
+        "Leave one side open so the lights run straight instead of looping back.",
+        "Put two poles at the outlet corner so the start and end clips don't collide.",
+        "Measure each 10-foot side individually instead of using the 40-foot total.",
+        "Buy a 48-foot string so the sag doesn't pull the loop short."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "Because each side of the square is 10 feet, placing poles every 8 feet forces them off the four corners, so you'll need extra corner poles.",
+        "8 feet is too wide for café lights; the wire needs a pole every 5 feet or it will sag.",
+        "You can't space poles by 8 feet around a square without changing the total perimeter.",
+        "Measuring every 8 feet along the edge ignores the diagonal distance at each turn."
+      ],
+      "fix": [
+        "Change the spacing to 10 feet so every pole lands cleanly on a corner.",
+        "Add 4 extra corner poles on top of the 8-foot spacing poles.",
+        "Switch to 5-foot spacing so every 10-foot side gets an exact whole number of spans.",
+        "Place poles at the four corners first, then fill in the midpoints."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "Classic off-by-one: 5 gaps of 8 feet require 6 poles, because you have to count both the starting pole and the ending pole.",
+        "40 divided by 8 gives 5 intervals, so you need 4 poles between the corners plus 4 corner poles — 8 total.",
+        "Because 8 doesn't divide a 10-foot side evenly, you need to round up per side (2 poles × 4 sides = 8 poles).",
+        "With 5 poles around 40 feet, the gaps between poles stretch out to 10 feet each, not 8."
+      ],
+      "fix": [
+        "Grab 6 poles (40 ÷ 8 + 1) so you don't come up one pole short at the end.",
+        "Grab 8 poles — 2 for each 10-foot side — so every turn is supported.",
+        "Grab 4 poles for the four corners and accept 10-foot spans.",
+        "Grab 7 poles so both ends of the wire and every gap are covered."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Heading out now with 5 poles means a second trip back tomorrow for the missing sixth pole.",
+        "You forgot to count hooks and zip ties, so 5 poles won't be enough to finish tonight.",
+        "Store staff will cut the wire by pole count, leaving you 8 feet short of the outlet.",
+        "Buying 5 poles before checking the corners means the wire will cut diagonally across the patio."
+      ],
+      "fix": [
+        "Buy 6 poles while you're already at the store so you don't make a second run.",
+        "Sketch the four 10-foot sides first and buy 8 poles instead.",
+        "Pick up an extra pole for the outlet corner just in case.",
+        "Wait until tomorrow and measure the corner posts before buying."
+      ]
+    }
+  },
+  "clean_segments": [
+    "Hanging café lights all the way around our square backyard patio — 40 feet of perimeter, closing back into the same outlet corner.",
+    "I want a pole every 8 feet along the edge so the wire doesn't sag.",
+    "40 divided by 8 is 5, so I'm grabbing 5 poles at the hardware store.",
+    "Heading out now before they close."
+  ],
+  "clean_conclusion": "No off-by-one here — the lights wrap all the way around in a closed loop, so the last post meets the first. Five poles at 0, 8, 16, 24, and 32 feet give five exact 8-foot spans.",
+  "explanation": "No off-by-one here — the lights wrap all the way around in a closed loop, so the last post meets the first. Five poles at 0, 8, 16, 24, and 32 feet give five exact 8-foot spans."
+}

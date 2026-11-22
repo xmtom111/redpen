@@ -1,0 +1,106 @@
+{
+  "schema_version": 2,
+  "domain": "logic",
+  "renderer": "prose",
+  "opener": true,
+  "kind": "trick_clean",
+  "difficulty": "standard",
+  "level": 0,
+  "estimated_seconds": 60,
+  "id": "logic-chat-same-denom-ratio",
+  "lang": "en",
+  "title": "Rainy-day late orders",
+  "topic": "A shop owner compares rainy-day and dry-day late deliveries without total rain counts",
+  "blurb": "They say the number of rainy days doesn't even matter — and sound way too sure about it.",
+  "prompt": "A friend who runs a local bakery sent this after auditing delivery tickets. Tap a line if it breaks, or call it clean.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The batch",
+      "text": "Pulled our bakery's last 300 local deliveries to see where late orders are landing."
+    },
+    {
+      "id": 2,
+      "label": "The counts",
+      "text": "Out of those 300 orders, 42 were both rainy-day and late, and 14 were both dry-day and late."
+    },
+    {
+      "id": 3,
+      "label": "The ratio",
+      "text": "So if you pick a random late order from that batch, it's three times more likely to be from a rainy day than a dry day — doesn't even matter how many rainy days we had."
+    },
+    {
+      "id": 4,
+      "label": "The plan",
+      "text": "Even if that's just because we had a wet month, three-quarters of our late tickets sit on rain days, so I'm auditing rainy-day routing first."
+    }
+  ],
+  "conclusion": "A random late order from the batch is three times more likely to come from a rainy day than a dry day, regardless of how often it rained.",
+  "flaws": [],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "300 deliveries is too small a slice unless it spans a full year of dry and wet seasons.",
+        "Only checking local deliveries ignores pickup delays that might share the same kitchen bottleneck.",
+        "You can't compare weather effects without splitting the 300 orders into equal rainy and dry halves first.",
+        "A single bakery's last 300 orders won't separate courier traffic from kitchen prep delays."
+      ],
+      "fix": [
+        "Pull a full 12 months of deliveries so rainy and dry seasons balance out.",
+        "Include in-store pickup orders before diagnosing where delays happen.",
+        "Sample 150 rainy-day orders and 150 dry-day orders before comparing counts.",
+        "Split kitchen prep time from road time before counting late tickets."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "42 and 14 are raw counts out of 300, not percentages of rainy vs dry orders, so you can't compare them yet.",
+        "56 late orders out of 300 is 18.7%, which leaves out the 244 on-time orders you need for the real ratio.",
+        "Without knowing how many of the 300 orders happened in the rain, 42 vs 14 tells you nothing.",
+        "Listing only late orders hides whether dry days had way fewer total deliveries."
+      ],
+      "fix": [
+        "Divide 42 by total rainy-day orders and 14 by total dry-day orders first.",
+        "Report the 244 on-time deliveries split by weather before taking any ratio.",
+        "Convert 42/300 (14%) and 14/300 (4.7%) into per-weather lateness rates.",
+        "Throw out the 300 denominator and compare only orders from the same weekday."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "You're missing the rainy-day share: if 250 of the 300 orders happened in the rain, rainy orders aren't 3× more likely to be late at all.",
+        "Dividing 42 by 14 ignores the 244 on-time orders, so the true ratio can't be 3-to-1.",
+        "Whether it rained 20 days or 2 days completely changes the conditional odds, so saying it doesn't matter is backwards.",
+        "42 out of 56 is 75%, which is 50 percentage points higher than 25%, not three times higher."
+      ],
+      "fix": [
+        "Check how many total rainy vs dry orders were in the 300 before quoting a 3× ratio.",
+        "Compute P(late | rain) divided by P(late | dry) instead of dividing 42 by 14.",
+        "Drop the claim that rainy-day frequency doesn't matter — it sits right in the denominator.",
+        "State it as 14% vs 4.7% of all 300 orders instead of a 3× conditional chance."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Auditing rainy-day routing first only makes sense if rain actually raises the per-order lateness rate.",
+        "42 out of 300 is only 14%, not three-quarters — you mixed up the denominator between 56 and 300.",
+        "Admitting it might just be a wet month undercuts line 3's claim that rain makes late orders 3× as likely.",
+        "If most orders happened on rainy days, fixing dry-day routing could actually save more orders."
+      ],
+      "fix": [
+        "Wait until you verify rainy orders are late at a higher rate before changing rain routing.",
+        "Change 'three-quarters' to 14% so it matches 42 out of 300.",
+        "Audit dry-day and rainy-day routes equally until you know total rainy-day volume.",
+        "Check whether the dry-day late rate is actually higher per delivery first."
+      ]
+    }
+  },
+  "clean_segments": [
+    "Pulled our bakery's last 300 local deliveries to see where late orders are landing.",
+    "Out of those 300 orders, 42 were both rainy-day and late, and 14 were both dry-day and late.",
+    "So if you pick a random late order from that batch, it's three times more likely to be from a rainy day than a dry day — doesn't even matter how many rainy days we had.",
+    "Even if that's just because we had a wet month, three-quarters of our late tickets sit on rain days, so I'm auditing rainy-day routing first."
+  ],
+  "clean_conclusion": "How often it rained only matters if you ask whether rain *causes* lateness. Here they asked the reverse — grab one of the 56 late tickets, and 42/56 vs 14/56 really is 3-to-1.",
+  "explanation": "How often it rained only matters if you ask whether rain *causes* lateness. Here they asked the reverse — grab one of the 56 late tickets, and 42/56 vs 14/56 really is 3-to-1."
+}

@@ -48,38 +48,38 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "It treats a correlation as a cause. Being in the office more — or in a more visible role — could drive both cafe visits and promotions."
+          "label": "Office coffee buyers are in-office (and maybe longer-hours) staff — that link doesn't prove espresso causes promotions."
         },
         {
           "id": "d2",
-          "label": "Badge swipes cannot be matched to cafe receipts for a group of 800 people."
+          "label": "800 employees over one year is too small a sample to measure any promotion gap between coffee and tea."
         },
         {
           "id": "d3",
-          "label": "Tea has caffeine too, so tea drinkers must always get promoted faster."
+          "label": "Three espressos a day causes burnout after six months, so it actually lowers promotion rates long-term."
         },
         {
           "id": "d4",
-          "label": "Observational data can never show a relationship between two things."
+          "label": "Badge swipes only track entry time, so you can't tell whether the espresso was drunk by the buyer or a guest."
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Call it a correlation only, and check other factors (office time, role, tenure) before claiming coffee causes promotions."
+          "label": "Report an association only and check confounders like in-office presence, role, and tenure."
         },
         {
           "id": "f2",
-          "label": "Raise the cutoff from 3 espressos to 5 so the link becomes a cause."
+          "label": "Expand the receipt audit to 5,000 employees over three years to confirm coffee drives promotions."
         },
         {
           "id": "f3",
-          "label": "Drop remote workers from the data and keep claiming espresso causes promotions."
+          "label": "Exclude tea drinkers and compare espresso buyers only against remote workers."
         },
         {
           "id": "f4",
-          "label": "Claim that promotions cause people to stop drinking tea."
+          "label": "Cap the claim at two espressos a day since three or more hurts afternoon focus."
         }
       ],
       "fix_answer": "f1",
@@ -100,38 +100,38 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "The axis starts at 48%, so a tiny 51% vs 49% gap is drawn three times taller than it really is."
+          "label": "Starting the y-axis at 48% makes a tiny 2-point gap (51% vs 49%) look 3× taller than it really is."
         },
         {
           "id": "d2",
-          "label": "Bar charts are not allowed to show percentages; only pie charts can."
+          "label": "51% plus 49% adds up to 100%, which means the chart double-counted employees who drank both tea and espresso."
         },
         {
           "id": "d3",
-          "label": "51% is actually smaller than 49% once you adjust for sample size."
+          "label": "51% vs 49% is actually a 4% relative advantage (2/49), not 3× — a bar chart should show 4× instead."
         },
         {
           "id": "d4",
-          "label": "The y-axis should go to 1000% whenever two groups are compared."
+          "label": "A bar chart can't show percentages above 50% unless it starts at 50% instead of 48%."
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Anchor the bars at 0% and report the real gap: 51% vs 49% is +2 points, about 1.04×, not 3×."
+          "label": "Start the y-axis at 0% and state the actual gap: 51% vs 49% (2 percentage points, ~1.04×)."
         },
         {
           "id": "f2",
-          "label": "Crop the axis even tighter (48.5% to 51.5%) so the difference is clearer."
+          "label": "Change the y-axis to run from 45% to 55% so the bars look 2× taller instead of 3×."
         },
         {
           "id": "f3",
-          "label": "Remove the axis labels and let the bars speak for themselves."
+          "label": "Switch to a pie chart of 51% vs 49% so the 3× promotion gap is easier to see."
         },
         {
           "id": "f4",
-          "label": "Convert the bar chart into a 3D pie chart."
+          "label": "Report the 2-point difference as a 51% advantage over the 48% baseline."
         }
       ],
       "fix_answer": "f1",
@@ -153,5 +153,50 @@
     "Espresso bars might be a nice perk, but this data does not show they drive promotions."
   ],
   "clean_conclusion": "The data shows a tiny 2-point correlation with obvious confounders, not a 3× career boost.",
-  "opener": false
+  "opener": false,
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "Badge swipes and cafe receipts can't be joined cleanly because some employees pay cash at the cafe.",
+        "800 employees is too tiny a company to draw any conclusions from a single year of HR records.",
+        "Checking only the past year misses employees who were promoted 13 months ago.",
+        "Analyzing badge swipes alongside receipts violates privacy, which invalidates the 51% vs 49% numbers."
+      ],
+      "fix": [
+        "Include cash cafe receipts alongside card swipes before comparing groups.",
+        "Collect five years of badge swipes before checking promotion patterns.",
+        "Filter out employees who swiped in fewer than 100 days last year.",
+        "Run an anonymous coffee survey instead of matching badge logs."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "Comparing 3+ office espressos against remote staff already proves being in-office beats working remotely.",
+        "Lumping remote staff and tea drinkers together hides that remote workers don't even have access to the office cafe.",
+        "51% vs 49% isn't 'more often' at all — the two numbers are identical within rounding.",
+        "Employees who buy 3+ espressos a day are probably buying rounds for their whole team, not drinking three."
+      ],
+      "fix": [
+        "Split remote staff out from in-office tea drinkers before comparing rates.",
+        "Count espresso cups per person rather than total receipts charged to one badge.",
+        "Report the exact 51% vs 49% rates right here instead of saying 'more often'.",
+        "Compare only in-office staff who bought 3+ espressos vs 0 espressos."
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "Free espresso bars won't triple promotions because remote staff still can't walk over to the machine.",
+        "Installing espresso bars on every floor costs more than the 2-point lift in promotion readiness is worth.",
+        "Free espresso will push staff past 3 cups a day, causing jitters that cut promotions in half.",
+        "Even if espresso boosted promotions 3×, you can't promote 150% of the company."
+      ],
+      "fix": [
+        "Skip the espresso-bar rollout — neither the causal link nor the 3× lift exists in the data.",
+        "Mail free espresso pods to remote employees too so the whole company triples promotions.",
+        "Pilot one espresso bar on the engineering floor first to see if promotions triple.",
+        "Cap free espresso at two shots per badge swipe per day."
+      ]
+    }
+  }
 }

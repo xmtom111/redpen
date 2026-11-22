@@ -1,0 +1,144 @@
+{
+  "schema_version": 2,
+  "domain": "logic",
+  "renderer": "prose",
+  "opener": true,
+  "kind": "planted",
+  "difficulty": "intro",
+  "level": 1,
+  "estimated_seconds": 55,
+  "id": "logic-chat-flight-time",
+  "lang": "en",
+  "title": "Cross-country flight",
+  "topic": "A friend subtracts local takeoff and landing times on a coast-to-coast flight",
+  "blurb": "Takes off at 8:30 AM, lands at 5:00 PM — downloading four movies for an 8.5-hour flight.",
+  "prompt": "A friend texted this while packing for a trip east. Tap a line if something doesn't add up, or call it clean.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The ticket",
+      "text": "Booked a nonstop from San Francisco to Boston — takes off at 8:30 AM local and lands at 5:00 PM local."
+    },
+    {
+      "id": 2,
+      "label": "The clock",
+      "text": "Boston is three hours ahead of San Francisco, so I'm losing most of the afternoon once I land."
+    },
+    {
+      "id": 3,
+      "label": "The prep",
+      "text": "8:30 to 5:00 is eight and a half hours in the air, so I'm downloading four movies for the flight."
+    },
+    {
+      "id": 4,
+      "label": "The seat",
+      "text": "At least I grabbed a window seat."
+    }
+  ],
+  "conclusion": "8:30 AM to 5:00 PM means 8.5 hours in the air, enough for four movies.",
+  "flaws": [
+    {
+      "segment_id": 3,
+      "error_type": "timezone-subtraction",
+      "original": "8:30 AM in San Francisco is already 11:30 AM in Boston, so landing at 5:00 PM local is only 5.5 hours in the air, not 8.5.",
+      "corrupted": "8:30 to 5:00 is eight and a half hours in the air, so I'm downloading four movies for the flight.",
+      "diagnosis_choices": [
+        {
+          "id": "d1",
+          "label": "8:30 AM in San Francisco is already 11:30 AM in Boston — you're only in the air for 5.5 hours, not 8.5."
+        },
+        {
+          "id": "d2",
+          "label": "Since Boston is 3 hours ahead, you have to add 3 hours to 8.5 — the flight is actually 11.5 hours."
+        },
+        {
+          "id": "d3",
+          "label": "8:30 AM to 5:00 PM is 9.5 hours, not 8.5, so four movies won't even cover it."
+        },
+        {
+          "id": "d4",
+          "label": "Boarding and taxiing eat an hour of the 8.5 hours, so you only get 7.5 hours of movie time."
+        }
+      ],
+      "diagnosis_answer": "d1",
+      "fix_choices": [
+        {
+          "id": "f1",
+          "label": "Convert both clocks to Boston time (11:30 AM to 5:00 PM): it's a 5.5-hour flight, two movies tops."
+        },
+        {
+          "id": "f2",
+          "label": "Add the 3-hour jump for an 11.5-hour flight and download six movies."
+        },
+        {
+          "id": "f3",
+          "label": "Subtract an hour for boarding and taxiing to get 7.5 hours in the air."
+        },
+        {
+          "id": "f4",
+          "label": "Recount 8:30 AM to 5:00 PM as 9.5 hours and download a fifth movie."
+        }
+      ],
+      "fix_answer": "f1",
+      "explanation": "8:30 AM in San Francisco is already 11:30 AM in Boston. Those three missing hours are the time-zone jump, not flying time — you're only in the air for 5.5 hours.",
+      "why_tempting": "8:30 to 5:00 is instant clock subtraction, and you already mentioned the 3-hour difference on line 2, so your brain thinks it accounted for it.",
+      "catch_rule": "Before subtracting departure and arrival times, put both clocks in the same time zone.",
+      "hint": "When the plane lifts off at 8:30 AM in San Francisco, what time is it in Boston?",
+      "practice": {
+        "problem": "A flight leaves New York at 6:00 PM local and lands in Los Angeles (3 hours behind) at 9:15 PM local. How long is the flight?",
+        "answer": "6 hours 15 minutes — 6:00 PM in NY is 3:00 PM in LA, and 3:00 PM to 9:15 PM is 6h 15m."
+      }
+    }
+  ],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "Airlines always print arrival times in the departure city's time zone, so 5:00 PM is still Pacific time.",
+        "No nonstop flight from San Francisco to Boston takes off in the morning and lands at 5:00 PM.",
+        "Local takeoff and landing times already include TSA security wait time at the airport.",
+        "8:30 AM to 5:00 PM crosses noon, so you can't subtract them without converting to 24-hour time."
+      ],
+      "fix": [
+        "Check the itinerary — 5:00 PM is probably San Francisco time, not Boston time.",
+        "Confirm the flight doesn't have a hidden 3-hour layover in Chicago.",
+        "Convert 5:00 PM to 17:00 before subtracting 8:30.",
+        "Add two hours at the airport before 8:30 AM to get the real trip length."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "Boston is three hours behind San Francisco, not ahead, so you actually gain three hours of afternoon.",
+        "Because of daylight saving time, the gap between California and Massachusetts is only two hours.",
+        "Losing three hours means you lose half the day on the return flight too, not just going east.",
+        "Being three hours ahead only affects your watch after you land, not the flight duration."
+      ],
+      "fix": [
+        "Flip it: Boston is 3 hours behind San Francisco, so you'll land with extra afternoon.",
+        "Check whether Boston is 2 or 3 hours ahead in November.",
+        "Note that the 3-hour shift changes how long the flight feels, not the 8.5-hour airtime.",
+        "Set your watch to Boston time only after stepping off the plane."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "On an 8.5-hour daytime flight, an aisle seat is way better than a window seat for stretching.",
+        "Window seats on eastbound flights face the sun all morning, making movies hard to watch.",
+        "Grabbing a window seat won't stop the plane from taking 11.5 hours with the time change.",
+        "Four movies only fill 6 hours, so even with a window seat you'll be bored for 2.5 hours."
+      ],
+      "fix": [
+        "Switch to an aisle seat for an 8.5-hour flight.",
+        "Download a podcast too for the extra 2.5 hours after four movies.",
+        "Pick the left side of the plane to stay out of the sun.",
+        "Bring a charger since four movies will drain your tablet."
+      ]
+    }
+  },
+  "clean_segments": [
+    "Booked a nonstop from San Francisco to Boston — takes off at 8:30 AM local and lands at 5:00 PM local.",
+    "Boston is three hours ahead of San Francisco, so I'm losing most of the afternoon once I land.",
+    "8:30 AM in San Francisco is already 11:30 AM in Boston, so landing at 5:00 PM local is only 5.5 hours in the air, not 8.5.",
+    "At least I grabbed a window seat."
+  ],
+  "clean_conclusion": "8:30 AM in San Francisco is already 11:30 AM in Boston — you're only in the air for 5.5 hours, not 8.5."
+}

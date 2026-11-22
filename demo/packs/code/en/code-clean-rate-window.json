@@ -1,0 +1,166 @@
+{
+  "schema_version": 2,
+  "id": "code-clean-rate-window",
+  "domain": "code",
+  "renderer": "code",
+  "code_language": "python",
+  "lang": "en",
+  "kind": "clean",
+  "title": "60-second rate-limit window",
+  "topic": "A pure sliding-window rate check in Python",
+  "blurb": "Up to 3 hits in the last 60 seconds, without touching the caller's list. Check the boundary and mutation.",
+  "difficulty": "standard",
+  "level": 0,
+  "estimated_seconds": 55,
+  "prompt": "Spec: allow a request at time `now` if strictly fewer than `limit` prior timestamps fall inside `(now - window, now]`. Never mutate `timestamps`; return `(allowed, updated_timestamps)`. Tap a bug, or call it clean.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "L1",
+      "text": "def allow_request(timestamps, now, window=60, limit=3):"
+    },
+    {
+      "id": 2,
+      "label": "L2",
+      "text": "    cutoff = now - window"
+    },
+    {
+      "id": 3,
+      "label": "L3",
+      "text": "    recent = [t for t in timestamps if t > cutoff]"
+    },
+    {
+      "id": 4,
+      "label": "L4",
+      "text": "    if len(recent) >= limit:"
+    },
+    {
+      "id": 5,
+      "label": "L5",
+      "text": "        return False, recent"
+    },
+    {
+      "id": 6,
+      "label": "L6",
+      "text": "    recent.append(now)"
+    },
+    {
+      "id": 7,
+      "label": "L7",
+      "text": "    return True, recent"
+    }
+  ],
+  "conclusion": "AI summary: Filters to the active `(now - 60, now]` window without mutating the input list, blocks once `limit` is reached, and appends `now` only when allowed.",
+  "flaws": [],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "Default values `window=60, limit=3` are shared across calls and leak state between users.",
+        "Accepting `timestamps` as a list lets the caller's list get mutated on line 6.",
+        "If `now` is smaller than `60`, `cutoff` becomes negative and crashes the filter.",
+        "Having two default parameters at the end prevents passing `limit` as a keyword argument."
+      ],
+      "fix": [
+        "Default `window=None, limit=None` and assign `60` and `3` inside the body.",
+        "Copy `timestamps = list(timestamps)` on line 1 so callers aren't mutated.",
+        "Clamp `window = min(window, now)` so `cutoff` never goes negative.",
+        "Force keyword-only args with `def allow_request(timestamps, now, *, window=60, limit=3):`."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "Cutoff should be `now + window` — subtracting `window` checks timestamps from the future.",
+        "Subtracting `window` shifts the window to 61 seconds instead of 60.",
+        "If `now == 60` and `window == 60`, `cutoff` is `0`, which drops all timestamps.",
+        "Cutoff should be `now - window - 1` so requests exactly 60 seconds old still count."
+      ],
+      "fix": [
+        "Change to `cutoff = now + window`.",
+        "Use `cutoff = now - window - 1` to cover the full 60-second span.",
+        "Use `cutoff = max(0, now - window)` so negative timestamps are ignored.",
+        "Compute `cutoff = now - (window - 1)` for a 60-second inclusive window."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "Off-by-one: `t > cutoff` drops a request from exactly `now - 60`, which should still be inside the window.",
+        "List comprehension keeps references to `timestamps`, so appending on line 6 mutates the input list.",
+        "Filtering `t > cutoff` keeps *older* expired timestamps instead of recent ones.",
+        "If `timestamps` isn't sorted, the list comprehension stops early and misses recent hits."
+      ],
+      "fix": [
+        "Change `t > cutoff` to `t >= cutoff` to include the `now - 60` boundary.",
+        "Flip the inequality to `t < cutoff` so only recent entries stay.",
+        "Sort `timestamps` before running the list comprehension.",
+        "Wrap with `list(recent)` so line 6 doesn't touch `timestamps`."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Off-by-one: `>= limit` blocks the 3rd request when `limit=3`, allowing only 2 requests per minute.",
+        "Should compare against `limit + 1` because `now` hasn't been appended yet.",
+        "Checking `len(recent)` counts expired entries too when `timestamps` had duplicates.",
+        "Using `>=` allows an unlimited burst whenever `limit` is 0."
+      ],
+      "fix": [
+        "Change `>= limit` to `> limit` so 3 requests are actually allowed.",
+        "Append `now` first, then check `if len(recent) > limit:`.",
+        "Deduplicate `recent` with `set(recent)` before calling `len()`.",
+        "Change to `if len(recent) == limit:` so extra calls don't fail."
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "Returning `(False, recent)` drops the rejected attempt — you should append `now` before returning `False`.",
+        "Returning `recent` exposes the internal list instead of returning the original `timestamps`.",
+        "Python requires explicit parentheses `return (False, recent)` to return a 2-tuple.",
+        "Returning `False, recent` returns a list instead of a tuple."
+      ],
+      "fix": [
+        "Append `now` before returning `(False, recent)` so blocked attempts extend the block.",
+        "Return `False, timestamps` so the list stays untouched on rejection.",
+        "Wrap the return value in parentheses: `return (False, recent)`.",
+        "Return `False, []` when rate-limited to reset the window."
+      ]
+    },
+    "6": {
+      "diagnosis": [
+        "`recent.append(now)` mutates the caller's `timestamps` list because `recent` shares its backing array.",
+        "Appending `now` here adds a 4th timestamp even when `len(recent) == 3`.",
+        "`append` returns `None`, which silently clears `recent` before line 7.",
+        "Appending `now` at the end breaks chronological order if `timestamps` is newest-first."
+      ],
+      "fix": [
+        "Use `recent = recent + [now]` so the caller's list is never mutated.",
+        "Assign `recent = recent.append(now)` so the updated list is captured.",
+        "Insert at index 0 (`recent.insert(0, now)`) to keep newest-first order.",
+        "Guard with `if len(recent) < limit - 1:` before appending."
+      ]
+    },
+    "7": {
+      "diagnosis": [
+        "Returning `True, recent` without updating `timestamps` loses the new request unless the caller reassigns.",
+        "Returning `True, recent` returns the pre-append list because `append` mutates asynchronously.",
+        "If `timestamps` was empty, `recent` has length 2 here instead of 1.",
+        "Should return `(True, len(recent))` instead of the list itself."
+      ],
+      "fix": [
+        "Mutate `timestamps[:] = recent` so the caller doesn't need to capture the return value.",
+        "Return `True, recent + [now]` instead of relying on line 6.",
+        "Return `True, len(recent)` so callers know the count.",
+        "Sort `recent` before returning `(True, recent)`."
+      ]
+    }
+  },
+  "clean_segments": [
+    "def allow_request(timestamps, now, window=60, limit=3):",
+    "    cutoff = now - window",
+    "    recent = [t for t in timestamps if t > cutoff]",
+    "    if len(recent) >= limit:",
+    "        return False, recent",
+    "    recent.append(now)",
+    "    return True, recent"
+  ],
+  "clean_conclusion": "Everything matches the spec: `recent` is a fresh list (so `timestamps` is never mutated), `t > now - window` enforces `(now - window, now]`, and `len(recent) >= limit` allows 0, 1, or 2 prior hits before blocking the 4th.",
+  "explanation": "Everything matches the spec: `recent` is a fresh list (so `timestamps` is never mutated), `t > now - window` enforces `(now - window, now]`, and `len(recent) >= limit` allows 0, 1, or 2 prior hits before blocking the 4th."
+}

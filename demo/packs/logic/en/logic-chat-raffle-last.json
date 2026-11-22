@@ -1,0 +1,106 @@
+{
+  "schema_version": 2,
+  "domain": "logic",
+  "renderer": "prose",
+  "opener": true,
+  "kind": "trick_clean",
+  "difficulty": "intro",
+  "level": 0,
+  "estimated_seconds": 60,
+  "id": "logic-chat-raffle-last",
+  "lang": "en",
+  "title": "Office gift draw",
+  "topic": "A coworker counts remaining slips in a without-replacement draw",
+  "blurb": "Seven blanks in a row, and your coworker swears their odds just jumped to 1-in-3.",
+  "prompt": "A coworker whispered this during the holiday gift draw. Tap a line if their math is off, or call it clean.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The mug",
+      "text": "Ten of us are drawing from a mug for one $100 gift card — one winning slip and nine blanks."
+    },
+    {
+      "id": 2,
+      "label": "The streak",
+      "text": "Seven people already pulled blanks, and everyone kept their slip out of the mug."
+    },
+    {
+      "id": 3,
+      "label": "My turn",
+      "text": "I'm up next, so right now my odds jumped from 1-in-10 to 1-in-3 — those seven blanks genuinely boosted my chances."
+    },
+    {
+      "id": 4,
+      "label": "The caveat",
+      "text": "I still wouldn't bother waiting in line next year since someone could grab it early, but right here I'm sitting on 1-in-3."
+    }
+  ],
+  "conclusion": "With seven blanks gone and three slips left, my odds right now jumped from 1-in-10 to 1-in-3.",
+  "flaws": [],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "Ten slips for ten people means every seat in line has a 1-in-10 shot, so the odds can never move to 1-in-3.",
+        "A $100 prize split across ten people has an expected value of $10 no matter who draws when.",
+        "Because nobody knows who goes first before the draw starts, the initial odds aren't really 1-in-10.",
+        "With nine blanks and one winner, the ratio is 1-to-9, not 1-in-10."
+      ],
+      "fix": [
+        "Keep every person's probability fixed at 1-in-10 throughout the draw.",
+        "Quote the starting odds as 1-to-9 instead of 1-in-10.",
+        "State the expected value ($10) instead of changing percentages mid-draw.",
+        "Have everyone draw at the same time before opening any slips."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "Seven blanks in a row are past events, and past outcomes can't change the probability of the next draw.",
+        "Keeping slips out doesn't make the winning slip any more 'due' to show up on turn eight.",
+        "Knowing seven people lost only tells you about them; your slip was already fixed at 1-in-10 when you lined up.",
+        "Seven blanks out of ten is too small a streak to shift the real odds meaningfully."
+      ],
+      "fix": [
+        "Treat the eighth draw as independent of the first seven blanks.",
+        "Stick to 1-in-10 because the mug has no memory of earlier picks.",
+        "Put the drawn slips back in between turns if you want fair 1-in-10 odds.",
+        "Ignore the seven blanks since the winning slip could still be last."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "Classic streak illusion: earlier blanks don't raise your chances — each person in a fair draw has the exact same 1-in-10 odds.",
+        "Your odds are 1-in-2 against the remaining two people, not 1-in-3, because you draw before them.",
+        "Seven blanks out of nine only raises your odds slightly, from 10% to about 14%, not all the way to 33%.",
+        "Saying the seven blanks boosted your chances confuses your starting odds with the order you stood in."
+      ],
+      "fix": [
+        "Keep your odds at 1-in-10 — going eighth has the exact same chance as going first.",
+        "Divide 1 by the 7 blanks removed instead of the 3 slips left.",
+        "Call it 1-in-2 since only two other people are left behind you.",
+        "Wait until everyone opens their slips before recalculating your odds."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "That contradicts line 3: if your odds really jumped to 1-in-3 by going eighth, then waiting in back *would* be better next year.",
+        "If someone grabs the card early you get 0%, so your real odds right now are still 1-in-10, not 1-in-3.",
+        "Admitting waiting doesn't help proves the seven blanks didn't actually change your chances.",
+        "Standing eighth is actually worse next year because seven people get a crack at the card before you."
+      ],
+      "fix": [
+        "Drop line 4 and line up last next year to lock in the 1-in-3 edge.",
+        "Go first next year so nobody can take the card before your turn.",
+        "Reconcile lines 3 and 4 by sticking to 1-in-10 for both before and during the draw.",
+        "Multiply 1-in-3 by the chance of reaching turn eight to get back to 1-in-10 right now."
+      ]
+    }
+  },
+  "clean_segments": [
+    "Ten of us are drawing from a mug for one $100 gift card — one winning slip and nine blanks.",
+    "Seven people already pulled blanks, and everyone kept their slip out of the mug.",
+    "I'm up next, so right now my odds jumped from 1-in-10 to 1-in-3 — those seven blanks genuinely boosted my chances.",
+    "I still wouldn't bother waiting in line next year since someone could grab it early, but right here I'm sitting on 1-in-3."
+  ],
+  "clean_conclusion": "The slips aren't going back in the mug — seven blanks are gone, leaving one winner among three slips. Before the draw every spot is 1-in-10, but right now their live odds really are 1-in-3.",
+  "explanation": "The slips aren't going back in the mug — seven blanks are gone, leaving one winner among three slips. Before the draw every spot is 1-in-10, but right now their live odds really are 1-in-3."
+}

@@ -49,38 +49,38 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "可变默认参数 `cart=[]` 只在函数定义时创建一次，所有不传 `cart` 的调用都会共用同一个列表。"
+          "label": "可变默认参数 `cart=[]` 在定义时只建一次，所有调用共用同一个列表。"
         },
         {
           "id": "d2",
-          "label": "Python 不允许只给第二个参数设默认值，必须第一个参数也给默认值。"
+          "label": "Python 不允许第一个参数没默认值而第二个参数写默认值。"
         },
         {
           "id": "d3",
-          "label": "参数名 `cart` 与 Python 内置保留关键字冲突。"
+          "label": "空列表 `[]` 是假值，第二次不传 `cart` 时会被自动重置成 `None`。"
         },
         {
           "id": "d4",
-          "label": "函数不能直接 `return` 列表，必须先用 `list()` 转换。"
+          "label": "把参数列表直接返回会导致第二次调用丢失之前的元素。"
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "改为 `cart=None`，并在函数体开头写 `if cart is None: cart = []`。"
+          "label": "默认写成 `cart=None`，在函数体里写 `if cart is None: cart = []`。"
         },
         {
           "id": "f2",
-          "label": "在函数签名中把 `cart=[]` 改成 `cart=list()`，这样每次调用都会新建。"
+          "label": "签名改成 `cart=list()` 让 Python 每次调用分配一个新列表。"
         },
         {
           "id": "f3",
-          "label": "保留 `cart=[]`，把 `cart.append(...)` 改成 `cart += [...]`。"
+          "label": "保留 `cart=[]`，把第 4 行改成 `cart += [item.strip()]`。"
         },
         {
           "id": "f4",
-          "label": "在函数体第一行加上 `global cart`。"
+          "label": "在第 4 行追加完之后再写 `cart = cart[:]` 返回切片。"
         }
       ],
       "fix_answer": "f1",
@@ -103,5 +103,64 @@
     "    cart.append(item.strip())",
     "    return cart"
   ],
-  "clean_conclusion": "如果没有传入购物车，每次调用都会新建列表，顾客之间不会串数据。"
+  "clean_conclusion": "如果没有传入购物车，每次调用都会新建列表，顾客之间不会串数据。",
+  "kind": "planted",
+  "segment_distractors": {
+    "2": {
+      "diagnosis": [
+        "运算符优先级会解析成 `not (isinstance(...) or not item.strip())`，把合法字符串全拦掉。",
+        "如果 `item` 是整数，右侧的 `item.strip()` 依然会执行并抛 AttributeError。",
+        "判断 `not item.strip()` 会把 `item` 原地清空，影响第 4 行。",
+        "`isinstance(item, str)` 在 Python 里会拦掉 `str` 的子类。"
+      ],
+      "fix": [
+        "加上显式括号：`if (not isinstance(item, str)) or (not item.strip()):`。",
+        "拆成两层 `if`，避免非字符串触发 `item.strip()`。",
+        "先把 `item.strip()` 存进变量再判断类型。",
+        "改成 `type(item) != str` 做严格类型判断。"
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "非字符串输入应该抛 `TypeError`，抛 `ValueError` 会让上层捕获失败。",
+        "这里抛异常时没清空 `cart`，会把上一个顾客的商品留在里面。",
+        "抛异常会中断购物车流程，空输入应该直接原样返回 `cart`。",
+        "异常提示用了双引号，跟单引号参数不匹配。"
+      ],
+      "fix": [
+        "遇到空输入直接 `return cart` 而不是抛异常。",
+        "抛异常前先调用 `cart.clear()`。",
+        "统一改成 `raise TypeError(...)`。",
+        "改成 `return None` 表示添加失败。"
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "`cart.append(...)` 会原地修改列表，导致外部传入或默认列表被污染。",
+        "`append()` 返回 `None`，会把 `cart` 清空影响第 5 行。",
+        "连续调两次 `item.strip()` 会把字符串首尾字母切掉。",
+        "`append` 会把字符串按单个字符拆开塞进列表。"
+      ],
+      "fix": [
+        "改成 `cart = cart + [item.strip()]` 避免原地修改。",
+        "改成 `cart = cart.append(item.strip())` 接住结果。",
+        "改成 `cart.extend(item.strip())`。",
+        "第 2 行就把 `item.strip()` 存下来，别调两次。"
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "直接 `return cart` 返回了共享引用，应该返回副本才不串车。",
+        "因为 `.append()` 原地执行，这里实际返回的是 `None`。",
+        "返回 `cart` 只会返回刚加进去的那一件商品。",
+        "应该返回 `len(cart)` 防止外部继续改动购物车。"
+      ],
+      "fix": [
+        "改成 `return list(cart)` 给每个顾客独立副本。",
+        "保留 `cart=[]`，只把第 5 行改成 `return cart.copy()`。",
+        "没传 `cart` 时直接 `return [item.strip()]`。",
+        "改成 `return tuple(cart)` 禁止后续修改。"
+      ]
+    }
+  }
 }

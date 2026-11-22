@@ -59,38 +59,38 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "存在异步竞态（TOCTOU）：两个并发请求都会读到 100 并通过检查，随后各自写入 20，相当于提走 160 元。"
+          "label": "并发竞态：两次点击都读到 100、都通过 L4，再各自写成 20——总共取走 160。"
         },
         {
           "id": "d2",
-          "label": "JavaScript 是单线程的，`await` 会锁死其他请求直到 `withdraw` 执行完毕。"
+          "label": "JS 是单线程的，`await` 会锁住其他请求直到本次 `withdraw` 执行完毕。"
         },
         {
           "id": "d3",
-          "label": "JS 里的 `balance - amount` 会执行字符串拼接而不是减法。"
+          "label": "没有用 `try/catch` 包住 `setBalance`，网络抖动重试时会扣两次钱。"
         },
         {
           "id": "d4",
-          "label": "因为没加 `try/catch`，`setBalance` 会自动把余额翻倍。"
+          "label": "数据库返回的余额如果是字符串，`balance - amount` 会发生隐式类型拼接错误。"
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "使用数据库原子条件更新或事务（如 `UPDATE ... SET balance = balance - ? WHERE id = ? AND balance >= ?`）。"
+          "label": "改用数据库原子条件扣款：`UPDATE ... SET balance = balance - ? WHERE id = ? AND balance >= ?`。"
         },
         {
           "id": "f2",
-          "label": "去掉第 5 行的 `await`，让写入变成同步执行。"
+          "label": "去掉第 5 行的 `await`，让 `setBalance` 同步写完避免被下一次点击插队。"
         },
         {
           "id": "f3",
-          "label": "把第 4 行的 `balance < amount` 改成 `balance <= amount`。"
+          "label": "在 `setBalance` 之前再调一次 `db.getBalance(userId)` 复核余额是不是 100。"
         },
         {
           "id": "f4",
-          "label": "在第 5 行之前再不加锁地调用一次 `db.getBalance`。"
+          "label": "给 `setBalance` 加上 `try/catch`，顺便把 L4 从 `<` 改成 `<=`。"
         }
       ],
       "fix_answer": "f1",
@@ -112,5 +112,92 @@
     "  return { ok: true, balance: updated.balance };",
     "}"
   ],
-  "clean_conclusion": "数据库在同一步里完成检查和扣款，两次连点就钻不进去了。"
+  "clean_conclusion": "数据库在同一步里完成检查和扣款，两次连点就钻不进去了。",
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "把函数写成 `async` 会让调用方忘记写 `await`，导致提现静默失败。",
+        "把 `db` 当参数传进来，每次提现都会重新建一次数据库连接。",
+        "Node.js 的 `async` 函数会为每次请求开新线程，导致 `amount` 乱窜。",
+        "没给 `amount` 设默认值 `0`，连点两下会抛 ReferenceError。"
+      ],
+      "fix": [
+        "去掉 `async` 关键字让整个提现同步执行。",
+        "把 `db` 改成函数内部新建的连接实例。",
+        "把参数改成 `amount = 0` 防止缺参报错。",
+        "改成直接返回布尔值而不是 Promise。"
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "`amount <= 0` 拦不住 `NaN`，因为 `NaN <= 0` 在 JS 里是 `false`。",
+        "在 `async` 函数里直接 `throw` 会直接把整个 Node 进程崩掉。",
+        "写成 `<=` 把合法的 0 元连通性测试提现也拦掉了。",
+        "这一行只检查了 `<= 0`，漏检查 `amount > 100`。"
+      ],
+      "fix": [
+        "改成 `if (!(amount > 0))` 顺手拦住 `NaN`。",
+        "不要 `throw`，改成 `return { ok: false }`。",
+        "把 `<=` 改成 `<` 允许 0 元测试。",
+        "在这一行同时校验 `amount <= 100`。"
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "用 `const balance` 声明后，第 5 行就没法再减掉 `amount` 了。",
+        "`await db.getBalance` 会卡死整个 Node 事件循环，拖慢其他用户。",
+        "没用 `Number(...)` 转类型，如果数据库返回字符串会导致第 4 行比较出错。",
+        "读取余额前没校验 `userId`，两个人会读串账户。"
+      ],
+      "fix": [
+        "把 `const balance` 改成 `let balance` 方便后面扣减。",
+        "改成 `const balance = Number(await db.getBalance(userId));`。",
+        "把余额缓存在模块全局变量里，省掉 `await`。",
+        "去掉第 3 行的 `await` 避免让出事件循环。"
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "边界差一：`balance < amount` 允许用户把余额取成 `0`，应该用 `<=`。",
+        "改成 `balance <= amount` 就能拦住两次 80 元的并发提现。",
+        "失败时只返回 `{ ok: false }` 漏掉了 `balance` 字段，调用方会报错。",
+        "这一行检查在 `getBalance` 还没返回结果时就已经执行了。"
+      ],
+      "fix": [
+        "把 `balance < amount` 改成 `balance <= amount`。",
+        "失败分支补上余额：`return { ok: false, balance };`。",
+        "余额不足时直接 `throw new Error` 而不是返回对象。",
+        "改成 `if (balance - amount < 0)` 避免提前放行。"
+      ]
+    },
+    "6": {
+      "diagnosis": [
+        "这里又算了一次 `balance - amount`，等于扣了两遍钱，返回了 `-60`。",
+        "没重新查库就返回局部 `balance - amount`，给前端展示了过期余额。",
+        "JS 浮点相减没做 `toFixed(2)`，会返回 `19.99999999`。",
+        "还没等第 5 行写入完成，第 6 行就提前把旧余额返回了。"
+      ],
+      "fix": [
+        "直接返回 `balance`，因为第 5 行已经扣完钱了。",
+        "改成 `Number((balance - amount).toFixed(2))` 防止浮点误差。",
+        "返回前再 `await db.getBalance(userId)` 读一次最新余额。",
+        "先存成 `const next = balance - amount` 避免重复减。"
+      ]
+    },
+    "7": {
+      "diagnosis": [
+        "缺少 `finally` 关闭数据库连接，第 2 行抛错后会泄漏连接。",
+        "函数结束前没提交事务，第 5 行的写库不会持久化。",
+        "如果用户在第 6 行断网，没有回滚逻辑把钱退回去。",
+        "末尾没导出 `withdraw`，外部路由调不到。"
+      ],
+      "fix": [
+        "补上 `finally { await db.close(); }` 释放连接。",
+        "整个函数包一层 `try { ... } catch { return { ok: false }; }`。",
+        "在结尾加上 `await db.commit();`。",
+        "补上 `module.exports = withdraw;`。"
+      ]
+    }
+  }
 }

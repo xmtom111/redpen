@@ -1,0 +1,106 @@
+{
+  "schema_version": 2,
+  "domain": "logic",
+  "renderer": "prose",
+  "opener": true,
+  "kind": "trick_clean",
+  "difficulty": "intro",
+  "level": 0,
+  "estimated_seconds": 55,
+  "id": "logic-chat-equal-time-drive",
+  "lang": "en",
+  "title": "Highway pace",
+  "topic": "A friend averages two driving speeds from a holiday trip",
+  "blurb": "Two speeds, one simple average, and a very confident mileage total.",
+  "prompt": "A friend just dropped this in the group chat after getting home. Tap a line if something doesn't add up, or call it clean.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The drive",
+      "text": "Drove back from my sister's place — two hours straight, no stops."
+    },
+    {
+      "id": 2,
+      "label": "The split",
+      "text": "First hour was stuck behind holiday traffic at 40 mph, second hour opened right up at 70 mph."
+    },
+    {
+      "id": 3,
+      "label": "The math",
+      "text": "Average of 40 and 70 is 55, so I averaged 55 mph and covered 110 miles."
+    },
+    {
+      "id": 4,
+      "label": "The brag",
+      "text": "Not bad for Sunday night traffic."
+    }
+  ],
+  "conclusion": "40 mph for the first hour and 70 mph for the second comes out to 55 mph average and 110 miles.",
+  "flaws": [],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "Saying 'two hours straight' hides ramp and city slowdowns, so a single average speed can't be trusted.",
+        "A round trip from a relative's house needs both directions before you can quote an average pace.",
+        "Two hours is rounded to the nearest whole hour, which breaks the 110-mile calculation.",
+        "Without knowing the total highway mileage first, you can't split the trip into two equal hours."
+      ],
+      "fix": [
+        "Give the exact odometer reading before estimating any speed.",
+        "Break the two hours into city minutes and highway minutes separately.",
+        "Log the gas-station pause time even if you stayed in the car.",
+        "Wait until you drive back to average both directions together."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "You spend more miles at 70 mph than at 40 mph, so splitting the trip by time instead of distance distorts the pace.",
+        "Switching straight from 40 mph to 70 mph ignores acceleration time, so the two hours can't add up cleanly.",
+        "Holiday traffic fluctuates constantly, so quoting 40 mph for an hour makes the second hour's 70 mph unusable.",
+        "The two legs cover unequal distances (40 vs 70 miles), so you can't combine them into one trip average."
+      ],
+      "fix": [
+        "Split the trip into two equal 55-mile halves before comparing speeds.",
+        "Account for the time spent accelerating from 40 mph up to 70 mph.",
+        "Use the median speed across the two hours instead of two flat numbers.",
+        "Weight the 40 mph leg higher because slow traffic takes longer per mile."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "You can't take a plain average of two speeds — the true average of 40 and 70 mph is about 50.9 mph, around 102 miles.",
+        "The 40 mph leg drags the overall speed below 55 mph because slower driving always carries heavier weight.",
+        "55 mph over two hours is 110 miles, but 40 plus 70 already gave you the distance, not the speed.",
+        "Averaging 40 and 70 only works if both halves of the road were the exact same length in miles."
+      ],
+      "fix": [
+        "Use 2 × 40 × 70 / (40 + 70) ≈ 50.9 mph, which puts the drive at roughly 102 miles.",
+        "Weight each speed by its share of the miles driven, giving closer to 51 mph.",
+        "Divide 110 miles by the slower speed first to check whether two hours is enough.",
+        "Report the two legs separately because speeds never average linearly."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Averaging under 51 mph on a Sunday highway isn't fast once you fix the speed formula.",
+        "Sunday traffic is usually lighter than Friday, so 55 mph is actually below normal highway speed.",
+        "Claiming 'not bad' ignores that the first half of the drive was 40 mph bumper-to-bumper.",
+        "Calling 110 miles in two hours 'not bad' assumes the speed limit was 55 mph the whole way."
+      ],
+      "fix": [
+        "Compare against your usual weekday time on the same route instead.",
+        "Re-check the total with ~51 mph before calling the trip quick.",
+        "Note how many miles were stuck at 40 mph before bragging about the pace.",
+        "Leave an hour earlier next Sunday so both hours run near 70 mph."
+      ]
+    }
+  },
+  "clean_segments": [
+    "Drove back from my sister's place — two hours straight, no stops.",
+    "First hour was stuck behind holiday traffic at 40 mph, second hour opened right up at 70 mph.",
+    "Average of 40 and 70 is 55, so I averaged 55 mph and covered 110 miles.",
+    "Not bad for Sunday night traffic."
+  ],
+  "clean_conclusion": "The plain average actually works here — the two legs lasted the same amount of time (an hour each), not the same distance. 40 miles plus 70 miles in 2 hours really is 55 mph.",
+  "explanation": "The plain average actually works here — the two legs lasted the same amount of time (an hour each), not the same distance. 40 miles plus 70 miles in 2 hours really is 55 mph."
+}

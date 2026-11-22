@@ -1,0 +1,184 @@
+{
+  "schema_version": 2,
+  "id": "code-js-sort-numbers",
+  "domain": "code",
+  "renderer": "code",
+  "code_language": "javascript",
+  "lang": "zh",
+  "kind": "planted",
+  "title": "排行榜前三（直到有人考到 10 分）",
+  "topic": "个位数全通过、遇到两位数立刻翻车的 JS 排序",
+  "blurb": "拿 `[5, 2, 9, 7]` 测得漂漂亮亮，只要有人考出 10 分或 100 分，前三立刻错乱。",
+  "difficulty": "intro",
+  "level": 1,
+  "estimated_seconds": 50,
+  "prompt": "需求：从数字数组 `scores` 里按从高到低返回前三高分，不能修改调用方的原数组。AI 用 `[5, 2, 9, 7]` 测过说没问题。发现 bug 就点对应行，觉得没问题就放行。",
+  "segments": [
+    {
+      "id": 1,
+      "label": "L1",
+      "text": "function topThreeScores(scores) {"
+    },
+    {
+      "id": 2,
+      "label": "L2",
+      "text": "  const copy = [...scores];"
+    },
+    {
+      "id": 3,
+      "label": "L3",
+      "text": "  copy.sort();"
+    },
+    {
+      "id": 4,
+      "label": "L4",
+      "text": "  copy.reverse();"
+    },
+    {
+      "id": 5,
+      "label": "L5",
+      "text": "  return copy.slice(0, 3);"
+    },
+    {
+      "id": 6,
+      "label": "L6",
+      "text": "}"
+    }
+  ],
+  "conclusion": "AI 总结：拷贝原数组，先升序排序再反转成降序，最后切出前三项。",
+  "flaws": [
+    {
+      "segment_id": 3,
+      "error_type": "lexicographic-sort",
+      "original": "  copy.sort((a, b) => a - b);",
+      "corrupted": "  copy.sort();",
+      "diagnosis_choices": [
+        {
+          "id": "d1",
+          "label": "JS 的 `.sort()` 不传比较函数时会转成字符串按字典序排——`'9'` 排在 `'100'` 前面，高分会被挤掉。"
+        },
+        {
+          "id": "d2",
+          "label": "`.sort()` 会返回新数组而不是原地排序，所以 `copy` 根本没排。"
+        },
+        {
+          "id": "d3",
+          "label": "`copy` 是用 `const` 声明的，调用 `.sort()` 原地修改会抛 TypeError。"
+        },
+        {
+          "id": "d4",
+          "label": "`.sort()` 默认就是从大到小排，第 4 行反转后反而变成倒数前三。"
+        }
+      ],
+      "diagnosis_answer": "d1",
+      "fix_choices": [
+        {
+          "id": "f1",
+          "label": "传入数值比较函数：`copy.sort((a, b) => a - b)`（或直接 `b - a` 省掉反转）。"
+        },
+        {
+          "id": "f2",
+          "label": "改成 `copy = copy.sort()` 接住排序后的新数组。"
+        },
+        {
+          "id": "f3",
+          "label": "把 `const copy` 改成 `let copy` 才能原地排序。"
+        },
+        {
+          "id": "f4",
+          "label": "删掉 `copy.reverse()`，因为 `.sort()` 默认已经降序。"
+        }
+      ],
+      "fix_answer": "f1",
+      "explanation": "JavaScript 的 `.sort()` 不传比较函数时会把元素全转成字符串按字典序排：`[2, 10, 9, 100]` 会排成 `[10, 100, 2, 9]`，反转后 `9` 反而压在 `100` 前面。",
+      "why_tempting": "拿 `[5, 2, 9, 7]` 这种个位数样例一测，字典序和数值顺序完全重合；而且 Python 的 `.sort()` 默认确实按数值排。",
+      "catch_rule": "在 JS 里给数字数组排序，绝对不要裸写 `.sort()`，永远带上 `(a, b) => a - b` 或 `(a, b) => b - a`。",
+      "hint": "试着把 `[2, 10, 9, 100]` 全当成字符串排一下序。",
+      "practice": {
+        "problem": "在 JavaScript 里，`[1, 20, 3, 100].sort()` 的结果是什么？",
+        "answer": "`[1, 100, 20, 3]`——按字符串 `'1'`、`'100'`、`'20'`、`'3'` 的字典序排列。"
+      }
+    }
+  ],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "`scores` 长度不足 3 时，第 5 行切片会直接抛 RangeError。",
+        "没拦截空数组，`[].sort()` 会报错。",
+        "没给 `scores` 设默认值 `[]`，展开语法会出错。",
+        "哪怕做了展开，入参数组在外部还是会被同步改序。"
+      ],
+      "fix": [
+        "开头加上 `if (scores.length < 3) return scores;`。",
+        "参数改成 `scores = []` 防止空入参。",
+        "长度不足 3 时直接返回 `null`。",
+        "第一行改用 `structuredClone(scores)`。"
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "`[...scores]` 只是浅拷贝，第 3 行 `copy.sort()` 照样会把调用方的原数组改乱。",
+        "用 `const copy` 会冻住数组，导致后面的 `copy.sort()` 报 TypeError。",
+        "数组展开 `[...scores]` 会把数字隐式转成字符串。",
+        "`[...scores]` 会顺手去掉重复的分数。"
+      ],
+      "fix": [
+        "把 `const copy` 改成 `let copy` 才能调用 `.sort()`。",
+        "改用 `scores.map(Number)` 保持数字类型。",
+        "改用 `structuredClone(scores)` 彻底断开原数组引用。",
+        "改用 `Array.from(scores)` 避免丢掉并列分数。"
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "`copy.reverse()` 返回新数组而不修改 `copy`，导致第 5 行切出的是最低三分。",
+        "调用 `.reverse()` 会反过来把原数组 `scores` 也反转。",
+        "先排序再反转会把相同的并列分数合并掉。",
+        "数组长度为偶数时 `.reverse()` 会漏掉下标 0。"
+      ],
+      "fix": [
+        "接住返回值：`const desc = copy.reverse();`。",
+        "删掉 `.reverse()`，改成从末尾切 `copy.slice(-3)`。",
+        "反转前再拷贝一次：`[...copy].reverse()`。",
+        "改用循环手写倒序，别调 `.reverse()`。"
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "`copy.slice(0, 3)` 边界差一，会返回下标 `0, 1, 2, 3` 共 4 个元素。",
+        "当 `scores` 只有 2 个数时，`slice(0, 3)` 会用 `undefined` 补齐第 3 位。",
+        "`slice(0, 3)` 会原地截断 `copy` 并返回被删掉的其余元素。",
+        "`slice(0, 3)` 不包含下标 0，实际切的是第 2 到第 4 名。"
+      ],
+      "fix": [
+        "改成 `copy.slice(0, 2)` 才正好是 3 个元素。",
+        "改成 `copy.slice(0, Math.min(3, copy.length))` 防止补 `undefined`。",
+        "把 `slice(0, 3)` 换成 `splice(0, 3)`。",
+        "改成 `copy.slice(1, 4)` 取前三项。"
+      ]
+    },
+    "6": {
+      "diagnosis": [
+        "严格模式下函数结尾少了分号会报语法错误。",
+        "返回前没清空 `copy`，会造成内存泄漏。",
+        "函数提前结束，`reverse()` 还没执行完就返回了。",
+        "没有 `export` 导出，外面没法调用。"
+      ],
+      "fix": [
+        "在函数末尾加上分号 `};`。",
+        "切完后手动把 `copy.length = 0;` 清空。",
+        "改成 `export function topThreeScores(scores)`。",
+        "包一层 `new Set(...)` 保证前三名不重复。"
+      ]
+    }
+  },
+  "clean_segments": [
+    "function topThreeScores(scores) {",
+    "  const copy = [...scores];",
+    "  copy.sort((a, b) => a - b);",
+    "  copy.reverse();",
+    "  return copy.slice(0, 3);",
+    "}"
+  ],
+  "clean_conclusion": "JS 的 `.sort()` 不传比较函数时会按字符串字典序排，`'9'` 会排在 `'100'` 前面。传 `(a, b) => a - b`（或 `b - a`）才会真正按数值大小排序。"
+}

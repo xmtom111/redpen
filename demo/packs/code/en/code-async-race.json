@@ -59,38 +59,38 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "Race condition (TOCTOU): two concurrent calls both read $100, pass L4, and overwrite with $20 — withdrawing $160."
+          "label": "Race condition: two taps both read $100, pass L4, and overwrite with $20 — withdrawing $160."
         },
         {
           "id": "d2",
-          "label": "JavaScript is single-threaded, so `await` blocks all other requests until `withdraw` finishes."
+          "label": "JavaScript is single-threaded, so `await` blocks every other request until `withdraw` resolves."
         },
         {
           "id": "d3",
-          "label": "`balance - amount` uses string concatenation instead of subtraction in JS."
+          "label": "Without a `try/catch` around `setBalance`, a network blip doubles the deduction on retry."
         },
         {
           "id": "d4",
-          "label": "Missing `try/catch` around `setBalance` causes the balance to double."
+          "label": "`balance - amount` concatenates strings when `db.getBalance` returns a numeric string from SQL."
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Use an atomic DB update/transaction (e.g. `UPDATE ... SET balance = balance - ? WHERE id = ? AND balance >= ?`)."
+          "label": "Use an atomic DB update: `UPDATE ... SET balance = balance - ? WHERE id = ? AND balance >= ?`."
         },
         {
           "id": "f2",
-          "label": "Remove `await` on line 5 so the write happens synchronously."
+          "label": "Drop `await` on L5 so `setBalance` runs synchronously before the next tap enters the event loop."
         },
         {
           "id": "f3",
-          "label": "Change `if (balance < amount)` to `if (balance <= amount)`."
+          "label": "Re-read `db.getBalance(userId)` a second time right before `setBalance` to confirm the $100."
         },
         {
           "id": "f4",
-          "label": "Re-read `db.getBalance` a second time before `setBalance` without a lock."
+          "label": "Wrap `setBalance` in `try/catch` and change L4 from `balance < amount` to `balance <= amount`."
         }
       ],
       "fix_answer": "f1",
@@ -112,5 +112,92 @@
     "  return { ok: true, balance: updated.balance };",
     "}"
   ],
-  "clean_conclusion": "The database checks and deducts in one step, so two taps can't both sneak through."
+  "clean_conclusion": "The database checks and deducts in one step, so two taps can't both sneak through.",
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "Declaring `withdraw` as `async` lets callers ignore the returned Promise and skip `await`.",
+        "Passing `db` as the third argument reopens a new database connection on every withdrawal.",
+        "In Node.js, `async` functions spawn a new OS thread per call, which causes `amount` to race.",
+        "Missing default `amount = 0` throws ReferenceError when a user taps too fast."
+      ],
+      "fix": [
+        "Remove `async` from the signature so withdrawals execute synchronously.",
+        "Create a single global `db` inside `withdraw` instead of passing it in.",
+        "Set `amount = 0` as a default parameter on line 1.",
+        "Return a boolean instead of a Promise from `withdraw`."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "Checking `amount <= 0` lets `NaN` slip through because `NaN <= 0` evaluates to `false`.",
+        "Throwing an Error inside an `async` function crashes the Node process instead of rejecting.",
+        "Using `<=` rejects valid zero-fee test withdrawals that check wallet connectivity.",
+        "`amount <= 0` compares against `0` instead of checking `amount > 100`."
+      ],
+      "fix": [
+        "Change to `if (!(amount > 0))` so `NaN` is caught too.",
+        "Return `{ ok: false }` instead of throwing an Error inside an `async` function.",
+        "Change `<=` to `<` so zero-dollar checks pass.",
+        "Validate `amount <= 100` right on line 2."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "Using `const balance` freezes the value so line 5 can't subtract `amount` from it.",
+        "`await db.getBalance(userId)` blocks the whole Node event loop until SQL replies.",
+        "Reading `balance` without `Number(...)` treats `$100` as a string on line 4.",
+        "Missing `await` on `userId` lets two users read each other's balance."
+      ],
+      "fix": [
+        "Change `const balance` to `let balance` so line 5 can decrement it.",
+        "Cast `const balance = Number(await db.getBalance(userId));`.",
+        "Cache `balance` in a module-level variable to skip the `await`.",
+        "Drop `await` on line 3 so `getBalance` doesn't yield."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Off-by-one: `balance < amount` lets a user drain their account all the way to `$0` instead of keeping `$1`.",
+        "Should be `balance <= amount` so two $80 taps on a $100 wallet fail on the second check.",
+        "Returning `{ ok: false }` without `balance` breaks callers expecting a balance field.",
+        "Checking `balance < amount` runs before `getBalance` finishes resolving."
+      ],
+      "fix": [
+        "Change `balance < amount` to `balance <= amount`.",
+        "Include `balance` in the failure object: `return { ok: false, balance };`.",
+        "Throw an Error when `balance < amount` instead of returning `{ ok: false }`.",
+        "Check `balance - amount < 0` on line 4 instead of `balance < amount`."
+      ]
+    },
+    "6": {
+      "diagnosis": [
+        "Returning `balance - amount` returns the stale local arithmetic instead of reading back the DB row.",
+        "Line 6 subtracts `amount` a second time, returning `-$60` after line 5 already deducted `$80`.",
+        "`balance - amount` is not rounded to cents, so JS floats return `19.99999999`.",
+        "Returning `{ ok: true }` before `setBalance` finishes makes the UI show the old balance."
+      ],
+      "fix": [
+        "Return `balance` directly since line 5 already updated it.",
+        "Round with `Number((balance - amount).toFixed(2))`.",
+        "Re-query `await db.getBalance(userId)` for the return value.",
+        "Save `const next = balance - amount` so you don't subtract twice."
+      ]
+    },
+    "7": {
+      "diagnosis": [
+        "Missing `finally` block leaves the DB connection open after throwing on line 2.",
+        "Nothing rolls back the balance if the caller disconnects after line 6.",
+        "Closing brace ends the `async` function without resolving the outer transaction.",
+        "Missing semicolon after `}` causes bundling errors in Node."
+      ],
+      "fix": [
+        "Add a `finally { await db.close(); }` block before the closing brace.",
+        "Add `return { ok: false };` as a fallback before `}`.",
+        "Wrap the whole body in `try { ... } catch { return { ok: false }; }`.",
+        "Export `withdraw` with `module.exports = withdraw;`."
+      ]
+    }
+  }
 }

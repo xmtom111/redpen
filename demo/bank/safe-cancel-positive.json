@@ -1,0 +1,39 @@
+{
+  "kind": "trick_clean",
+  "title": "Dividing out a factor with x in it",
+  "problem": "An AI tutor was asked for all real solutions of \\((x^2 + 1)(x - 3) = 2(x^2 + 1)\\). Tap a slip if you spot one, or call it clean.",
+  "steps": [
+    "Start from \\((x^2 + 1)(x - 3) = 2(x^2 + 1)\\).",
+    "For every real number \\(x\\), \\(x^2 \\ge 0\\), so \\(x^2 + 1 \\ge 1 > 0\\) is never zero.",
+    "Divide both sides by \\(x^2 + 1\\) to get \\(x - 3 = 2\\).",
+    "Add \\(3\\) to both sides: \\(x = 5\\).",
+    "Check in the original: \\((5^2 + 1)(5 - 3) = 26 \\cdot 2 = 52\\) and \\(2(5^2 + 1) = 52\\), so \\(x = 5\\) is the only real solution."
+  ],
+  "final_answer": "\\(x = 5\\)",
+  "key": {
+    "level": 0,
+    "clean_steps": [
+      "Start from \\((x^2 + 1)(x - 3) = 2(x^2 + 1)\\).",
+      "For every real number \\(x\\), \\(x^2 \\ge 0\\), so \\(x^2 + 1 \\ge 1 > 0\\) is never zero.",
+      "Divide both sides by \\(x^2 + 1\\) to get \\(x - 3 = 2\\).",
+      "Add \\(3\\) to both sides: \\(x = 5\\).",
+      "Check in the original: \\((5^2 + 1)(5 - 3) = 26 \\cdot 2 = 52\\) and \\(2(5^2 + 1) = 52\\), so \\(x = 5\\) is the only real solution."
+    ],
+    "clean_final_answer": "\\(x = 5\\)",
+    "errors": [],
+    "checks": [
+      "expand((x**2 + 1)*(x - 3) - 2*(x**2 + 1)) == expand((x**2 + 1)*(x - 5))",
+      "(5**2 + 1)*(5 - 3) == 2*(5**2 + 1)"
+    ],
+    "reference_check": "none"
+  },
+  "meta": {
+    "kind": "trick_clean",
+    "topic": "Cancelling a strictly positive factor",
+    "mode": "0",
+    "difficulty": "standard",
+    "focus": [],
+    "blurb": "It divided both sides by an expression containing \\(x\\) — did it quietly drop a root?"
+  },
+  "explanation": "Dividing by \\(x^2 + 1\\) looks like a lost-root trap, except \\(x^2 + 1 \\ge 1\\) can never hit zero for any real \\(x\\)."
+}

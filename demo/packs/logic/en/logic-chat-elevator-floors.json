@@ -1,0 +1,144 @@
+{
+  "schema_version": 2,
+  "domain": "logic",
+  "renderer": "prose",
+  "opener": true,
+  "kind": "planted",
+  "difficulty": "intro",
+  "level": 1,
+  "estimated_seconds": 55,
+  "id": "logic-chat-elevator-floors",
+  "lang": "en",
+  "title": "Moving the sofa",
+  "topic": "A friend estimates when movers carrying a sofa up the stairs will reach the 8th floor",
+  "blurb": "They hit the 4th floor in 6 minutes, so the 8th floor should be another 6 — right?",
+  "prompt": "A friend texted this while waiting for movers on moving day. Tap a line if something doesn't add up, or call it clean.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The break",
+      "text": "Freight elevator broke mid-move, so the movers had to carry the sofa up the stairs from the 1st floor."
+    },
+    {
+      "id": 2,
+      "label": "Check-in",
+      "text": "Just texted that they hit the 4th floor after 6 minutes — steady pace, no breaks."
+    },
+    {
+      "id": 3,
+      "label": "The ETA",
+      "text": "I'm on the 8th floor, which is double 4, so they'll be at my door in another 6 minutes."
+    },
+    {
+      "id": 4,
+      "label": "The prep",
+      "text": "Going to prop the front door open right now."
+    }
+  ],
+  "conclusion": "1st to 4th took 6 minutes, and 8 is double 4, so they'll reach the 8th floor in 6 more minutes.",
+  "flaws": [
+    {
+      "segment_id": 3,
+      "error_type": "floor-gaps",
+      "original": "1st to 4th is 3 flights of stairs (2 minutes a flight), while 4th to 8th is 4 more flights — so they need 8 more minutes, not 6.",
+      "corrupted": "I'm on the 8th floor, which is double 4, so they'll be at my door in another 6 minutes.",
+      "diagnosis_choices": [
+        {
+          "id": "d1",
+          "label": "1st to 4th is 3 flights (2 min each), while 4th to 8th is 4 flights — that's 8 more minutes, not 6."
+        },
+        {
+          "id": "d2",
+          "label": "4th to 8th is 5 flights because you count both the 4th and 8th landings, so it takes 10 more minutes."
+        },
+        {
+          "id": "d3",
+          "label": "At 6 minutes for 4 floors (1.5 min each), the remaining 4 floors actually take 7.5 minutes."
+        },
+        {
+          "id": "d4",
+          "label": "Movers always slow down on the upper floors, so doubling 6 minutes ignores fatigue."
+        }
+      ],
+      "diagnosis_answer": "d1",
+      "fix_choices": [
+        {
+          "id": "f1",
+          "label": "Count flights, not floor numbers: 3 flights took 6 min, so 4 more flights take 8 min."
+        },
+        {
+          "id": "f2",
+          "label": "Count both landings (5 flights) and expect them in 10 more minutes."
+        },
+        {
+          "id": "f3",
+          "label": "Multiply 1.5 minutes per floor by 5 remaining landings for 7.5 minutes."
+        },
+        {
+          "id": "f4",
+          "label": "Add a 2-minute rest break on the 6th floor and expect them in 8 minutes."
+        }
+      ],
+      "fix_answer": "f1",
+      "explanation": "1st to 4th is 3 flights of stairs, not 4. Going from 4th to 8th is 4 more flights — 8 minutes, not 6.",
+      "why_tempting": "'8 is double 4' feels instant and clean. Because the lobby is called the 1st floor instead of 0, the first half is one flight shorter than it sounds.",
+      "catch_rule": "When climbing between numbered floors, subtract the floor numbers to count actual flights — never take a ratio of the floor numbers.",
+      "hint": "How many flights of stairs did they actually climb to get from the 1st floor to the 4th?",
+      "practice": {
+        "problem": "A runner climbs from the 1st floor to the 5th floor in 40 seconds at a steady pace. How long to climb from the 1st floor to the 9th?",
+        "answer": "80 seconds — 1st to 5th is 4 flights (10s each), and 1st to 9th is 8 flights."
+      }
+    }
+  ],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "Starting on the 1st floor means they had to climb a flight just to enter the lobby from street level.",
+        "A sofa takes two movers, so you have to split the 6-minute climb across two people.",
+        "If the freight elevator broke mid-move, the movers were already halfway up before starting the stairs.",
+        "Stairwells number the ground floor as 0, so calling it the 1st floor shifts every floor label."
+      ],
+      "fix": [
+        "Include the street-to-lobby steps before calculating their pace per flight.",
+        "Check whether they started from the garage level below the 1st floor.",
+        "Verify if the building uses 0 for ground floor so 4th is really 4 flights.",
+        "Wait for the freight elevator repair instead of estimating stair pace."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "6 minutes to reach the 4th floor is 1.5 minutes per floor, which doesn't divide evenly into whole seconds.",
+        "Saying 'no breaks' ignores that turning a sofa around each landing adds extra time per floor.",
+        "If they hit the 4th floor after 6 minutes, they're halfway to the 8th floor, so 6 minutes is only valid if they don't pause.",
+        "You can't extrapolate a steady pace from just one checkpoint at the 4th floor."
+      ],
+      "fix": [
+        "Wait for a second checkpoint on the 5th floor before estimating the ETA.",
+        "Add 30 seconds per landing turn to the 1.5-minute-per-floor pace.",
+        "Ask the movers how many breaks they plan to take before the 8th floor.",
+        "Compute 6 ÷ 4 = 1.5 minutes per floor explicitly so the pace is clear."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Propping the door open 6 minutes early breaks building fire code even if the ETA were right.",
+        "You're propping the door 2 minutes too late because they're actually only 4 minutes away.",
+        "Propping the door now leaves it open for 12 minutes, because they still have to climb all 8 floors.",
+        "You should wait until they text from the 7th floor instead of relying on a 6-minute estimate."
+      ],
+      "fix": [
+        "Wait until they're on the 7th floor before propping the door.",
+        "Prop the door now — they'll be there in 4 minutes, not 6.",
+        "Prop the door in 6 minutes since they have 12 minutes left.",
+        "Go down to the 4th floor to help them carry the last stretch."
+      ]
+    }
+  },
+  "clean_segments": [
+    "Freight elevator broke mid-move, so the movers had to carry the sofa up the stairs from the 1st floor.",
+    "Just texted that they hit the 4th floor after 6 minutes — steady pace, no breaks.",
+    "1st to 4th is 3 flights of stairs (2 minutes a flight), while 4th to 8th is 4 more flights — so they need 8 more minutes, not 6.",
+    "Going to prop the front door open right now."
+  ],
+  "clean_conclusion": "1st to 4th is 3 flights (2 minutes each); 4th to 8th is 4 flights — that's 8 more minutes, not 6."
+}

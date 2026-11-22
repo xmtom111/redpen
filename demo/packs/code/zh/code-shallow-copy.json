@@ -54,26 +54,26 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "`{ ...DEFAULT_CONFIG }` 只是浅拷贝，`cfg.limits` 和 `DEFAULT_CONFIG.limits` 指向同一个嵌套对象。"
+          "label": "对象展开 `{ ...obj }` 是浅拷贝，`cfg.limits` 仍指向 `DEFAULT_CONFIG.limits`。"
         },
         {
           "id": "d2",
-          "label": "`const` 会深度冻结对象，第 4 行修改属性会直接抛出 TypeError。"
+          "label": "`const` 会深度冻结 `DEFAULT_CONFIG`，导致第 4 行改 `retries` 抛 TypeError。"
         },
         {
           "id": "d3",
-          "label": "展开运算符只拷贝数字字段，会直接忽略嵌套对象。"
+          "label": "对象展开只复制数字字段 `timeout`，会直接跳过嵌套对象 `limits`。"
         },
         {
           "id": "d4",
-          "label": "严格模式下函数返回 `cfg` 时会自动剥离嵌套键。"
+          "label": "用 `const cfg` 声明后，严格模式下第 4 行不能再修改 `cfg.limits.retries`。"
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "连同嵌套对象一起拷贝：`{ ...DEFAULT_CONFIG, limits: { ...DEFAULT_CONFIG.limits, retries } }`（或用 `structuredClone`）。"
+          "label": "把嵌套对象也一并拷贝：`{ ...DEFAULT_CONFIG, limits: { ...DEFAULT_CONFIG.limits } }`。"
         },
         {
           "id": "f2",
@@ -81,11 +81,11 @@
         },
         {
           "id": "f3",
-          "label": "把 `const cfg` 改成 `let cfg` 避免引用共享。"
+          "label": "把 `const cfg` 改成 `let cfg`，让展开后的副本可以独立修改。"
         },
         {
           "id": "f4",
-          "label": "在第 3 行之后加上 `Object.freeze(cfg)`。"
+          "label": "在第 3 行加上 `Object.freeze(cfg)` 防止改动默认配置。"
         }
       ],
       "fix_answer": "f1",
@@ -105,5 +105,78 @@
     "  return { ...DEFAULT_CONFIG, limits: { ...DEFAULT_CONFIG.limits, retries } };",
     "}"
   ],
-  "clean_conclusion": "外层配置和嵌套的 `limits` 都是新分配的，默认值不会被改掉。"
+  "clean_conclusion": "外层配置和嵌套的 `limits` 都是新分配的，默认值不会被改掉。",
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "`DEFAULT_CONFIG` 用 `const` 声明会把 `limits.retries` 永远锁死在 `2`。",
+        "把常量写在函数外面，函数里访问不到它。",
+        "用 `const` 声明的嵌套对象不能使用展开语法 `{ ... }`。",
+        "没写 `Object.freeze` 没关系，只有 `var` 声明的配置才会被污染。"
+      ],
+      "fix": [
+        "把 `const DEFAULT_CONFIG` 改成 `let DEFAULT_CONFIG`。",
+        "把 `DEFAULT_CONFIG` 当作第二个参数传进函数。",
+        "把配置拍平成 `{ timeout: 3000, retries: 2 }`。",
+        "把默认配置放到独立 JSON 文件里读取。"
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "传 `retries = 0` 时会被当成假值，保留默认的 `2`。",
+        "参数名 `retries` 和属性名 `limits.retries` 重名，会导致变量遮蔽。",
+        "没写默认值 `retries = 2`，不传参会抛 ReferenceError。",
+        "函数没标 `async`，并发请求会共享同一个 `cfg`。"
+      ],
+      "fix": [
+        "把参数改名为 `maxRetries` 避免和 `limits.retries` 重名。",
+        "补上默认值 `retries = 2`。",
+        "开头加上 `if (!retries) return DEFAULT_CONFIG;`。",
+        "给函数加上 `async` 隔离并发调用。"
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "`cfg` 是 `const` 声明的，给 `cfg.limits.retries` 赋值会抛 TypeError。",
+        "点号赋值 `cfg.limits.retries` 会新建一个顶层键而不是改嵌套对象。",
+        "`retries` 为 `0` 时这一行不会生效。",
+        "修改 `cfg.limits.retries` 会顺手把 `cfg.timeout` 清成 `undefined`。"
+      ],
+      "fix": [
+        "先把第 3 行的 `const cfg` 改成 `let cfg`。",
+        "改用中括号写法 `cfg['limits']['retries'] = retries;`。",
+        "改用 `Object.defineProperty` 写入 `retries`。",
+        "在第 4 行后面补一句 `cfg.timeout = 3000;`。"
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "直接 `return cfg` 会把整个 `DEFAULT_CONFIG` 原对象返回出去，包括 `timeout`。",
+        "严格模式下直接返回 `cfg` 会把嵌套的 `limits` 丢掉。",
+        "应该只返回 `cfg.limits` 而不是整个 `cfg`。",
+        "返回前没冻结，外部改 `cfg.timeout` 会污染全局默认超时。"
+      ],
+      "fix": [
+        "改成 `return { ...cfg }` 断开与默认配置的关联。",
+        "改成 `return Object.freeze(cfg)`。",
+        "直接 `return cfg.limits`。",
+        "用 `JSON.stringify(cfg)` 返回序列化字符串。"
+      ]
+    },
+    "6": {
+      "diagnosis": [
+        "严格模式下函数结尾少了分号会报错。",
+        "函数结束前没把 `DEFAULT_CONFIG.limits.retries` 恢复成 `2`。",
+        "没写 `export` 导出，外面没法调用。",
+        "局部变量 `cfg` 没清理，会泄漏到全局。"
+      ],
+      "fix": [
+        "返回前把 `DEFAULT_CONFIG.limits.retries` 改回 `2`。",
+        "末尾补上分号 `};`。",
+        "加上 `export default withRetries;`。",
+        "结束前加上 `cfg = null;`。"
+      ]
+    }
+  }
 }

@@ -48,38 +48,38 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "It confuses 'catches 99% of fraud' with '99% of alerts are fraud.' Real fraud is so rare that false alarms outnumber true hits."
+          "label": "Per 1,000 charges, 1 real fraud triggers ~1 alert while 999 normal charges trigger ~10 false alerts — ~9% real, not 99%."
         },
         {
           "id": "d2",
-          "label": "The catch rate and the false-alarm rate must add up to 50%, not 100%."
+          "label": "99% catch rate minus 1% false-alarm rate leaves a 98% chance of real fraud, not 99%."
         },
         {
           "id": "d3",
-          "label": "1 in 1,000 is 1%, so there should be 10 fraudulent charges per 1,000, not 1."
+          "label": "Because fraud is only 0.1%, the chance a flagged charge is fraud is also 0.1% — alerts add no information."
         },
         {
           "id": "d4",
-          "label": "An AI cannot have the same 99% figure for both catching fraud and avoiding false alarms."
+          "label": "You need the dollar size of the charge before 99% and 1% can be combined into a probability."
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Count it out: of 1,000 charges, about 1 true fraud alert vs about 10 false alarms, so a flag is real fraud only ~1 in 11 (~9%)."
+          "label": "Count out of 1,000: ~1 real fraud vs ~10 false alerts means roughly 9% of alerts are fraud — verify first."
         },
         {
           "id": "f2",
-          "label": "Subtract the 1% false-alarm rate from 99% to get a 98% chance of fraud."
+          "label": "Subtract the 1% false alert rate from 99% to report a 98% chance of real fraud."
         },
         {
           "id": "f3",
-          "label": "Multiply 99% × 99% to get a 98.01% chance of fraud."
+          "label": "Multiply 99% by 99% (98.01%) to get the probability after both accuracy checks."
         },
         {
           "id": "f4",
-          "label": "Call it 50-50, because every alert is either fraud or a real dinner."
+          "label": "Drop the alert threshold until false alerts hit 5% so real fraud catches reach 100%."
         }
       ],
       "fix_answer": "f1",
@@ -101,5 +101,64 @@
     "Because most alerts are false alarms, ping the customer before freezing the account."
   ],
   "clean_conclusion": "Even a 99% accurate detector, on a 0.1%-prevalence event, is wrong about 9 times out of 10.",
-  "opener": false
+  "opener": false,
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "1 in 1,000 is 1%, not 0.1%, so fraud is ten times more common than the rest of the math assumes.",
+        "A network-wide rate of 1 in 1,000 hides that late-night and foreign charges have much higher fraud rates.",
+        "Knowing only 1 in 1,000 charges is fraud doesn't matter once the AI has already flagged a specific transaction.",
+        "If fraud is only 1 in 1,000, an AI with 99% accuracy catches fewer than 1 fraud per 100,000 charges."
+      ],
+      "fix": [
+        "Treat 1 in 1,000 as 1% when computing the alert counts.",
+        "Ignore the 1-in-1,000 background rate once a charge is already flagged.",
+        "Split the 1-in-1,000 rate by card tier before running the AI.",
+        "Multiply 1 in 1,000 by 99% to get the overall false-alarm rate."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "Flagging 99% of real fraud automatically guarantees that 99% of flagged charges are real fraud.",
+        "Missing 1% of real fraud on a card network means hundreds of thousands of dollars slip through unflagged.",
+        "A 99% catch rate is impossible when only 1 in 1,000 charges is fraud — you can't catch 0.99 of a single charge.",
+        "Catching 99% of fraud means only 1% of all alerts can be mistakes."
+      ],
+      "fix": [
+        "Raise the catch rate to 100% before trusting any alert.",
+        "Test on 100,000 charges so 99% of fraud equals a whole number (99 frauds).",
+        "Report how many real frauds were missed per 1,000 charges instead of 99%.",
+        "Combine 99% catch rate with 1% false alerts into a single 98% net score."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "A 1% false-alert rate on legitimate charges means 1 out of every 100 alerts is wrong, leaving 99% right.",
+        "1% false alerts plus 99% catch rate sums to 100%, which proves the two metrics were double-counted.",
+        "On 999 legitimate charges, 1% is roughly 100 false alerts, not 10.",
+        "A 1% false-alert rate is actually too *low* — legitimate charges should trigger 0% alerts."
+      ],
+      "fix": [
+        "Recompute 1% of 999 as ~100 false alerts per 1,000 charges.",
+        "Verify that 99% and 1% aren't just complements of the same single metric.",
+        "Interpret 1% false alerts as '1% of flagged transactions are innocent'.",
+        "Lower the false-alert rate to 0.5% so alerts become 99.5% accurate."
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "Freezing immediately is fine even at 9% fraud odds because unfreezing takes only a minute.",
+        "Agents should freeze only if the customer ignores a confirmation text for 24 hours.",
+        "Freezing without pinging the customer violates the 99% accuracy guarantee in line 2.",
+        "Even if 99% of alerts were real fraud, freezing accounts still blocks 1 in 100 good customers."
+      ],
+      "fix": [
+        "Send an instant SMS/app confirmation before freezing, since ~9 in 10 alerts are legit.",
+        "Freeze immediately for 10 minutes, then auto-unfreeze if the customer doesn't reply.",
+        "Freeze only when the amount exceeds $1,000 and let smaller alerts pass unverified.",
+        "Wait 24 hours for the charge to settle before asking the cardholder."
+      ]
+    }
+  }
 }

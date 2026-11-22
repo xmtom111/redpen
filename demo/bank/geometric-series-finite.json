@@ -1,0 +1,39 @@
+{
+  "kind": "clean",
+  "title": "Counting the terms in a finite geometric sum",
+  "problem": "An AI tutor summed \\(S = 1 + \\frac{1}{2} + \\frac{1}{4} + \\frac{1}{8} + \\frac{1}{16} + \\frac{1}{32}\\). Tap a slip if you spot one, or call it clean.",
+  "steps": [
+    "This is a finite geometric series with first term \\(a = 1\\), common ratio \\(r = \\frac{1}{2}\\), and \\(n = 6\\) terms (powers \\(0\\) through \\(5\\)).",
+    "Use the finite geometric sum formula \\(S = a\\frac{1 - r^n}{1 - r}\\).",
+    "Substitute \\(a = 1\\), \\(r = \\frac{1}{2}\\), and \\(n = 6\\): \\(S = \\frac{1 - (1/2)^6}{1 - 1/2}\\).",
+    "Since \\((1/2)^6 = \\frac{1}{64}\\) and \\(1 - \\frac{1}{2} = \\frac{1}{2}\\), dividing by \\(\\frac{1}{2}\\) doubles the numerator: \\(S = 2\\left(1 - \\frac{1}{64}\\right)\\).",
+    "Simplify: \\(S = 2 \\cdot \\frac{63}{64} = \\frac{63}{32}\\)."
+  ],
+  "final_answer": "\\(\\frac{63}{32}\\)",
+  "key": {
+    "level": 0,
+    "clean_steps": [
+      "This is a finite geometric series with first term \\(a = 1\\), common ratio \\(r = \\frac{1}{2}\\), and \\(n = 6\\) terms (powers \\(0\\) through \\(5\\)).",
+      "Use the finite geometric sum formula \\(S = a\\frac{1 - r^n}{1 - r}\\).",
+      "Substitute \\(a = 1\\), \\(r = \\frac{1}{2}\\), and \\(n = 6\\): \\(S = \\frac{1 - (1/2)^6}{1 - 1/2}\\).",
+      "Since \\((1/2)^6 = \\frac{1}{64}\\) and \\(1 - \\frac{1}{2} = \\frac{1}{2}\\), dividing by \\(\\frac{1}{2}\\) doubles the numerator: \\(S = 2\\left(1 - \\frac{1}{64}\\right)\\).",
+      "Simplify: \\(S = 2 \\cdot \\frac{63}{64} = \\frac{63}{32}\\)."
+    ],
+    "clean_final_answer": "\\(\\frac{63}{32}\\)",
+    "errors": [],
+    "checks": [
+      "1 + Rational(1, 2) + Rational(1, 4) + Rational(1, 8) + Rational(1, 16) + Rational(1, 32) == Rational(63, 32)",
+      "(1 - Rational(1, 2)**6) / (1 - Rational(1, 2)) == Rational(63, 32)"
+    ],
+    "reference_check": "none"
+  },
+  "meta": {
+    "kind": "clean",
+    "topic": "Finite geometric series sum",
+    "mode": "0",
+    "difficulty": "intro",
+    "focus": [],
+    "blurb": "Ends at \\(1/32 = (1/2)^5\\), yet it plugged \\(n = 6\\) into the formula — off by one?"
+  },
+  "explanation": "The last term is \\((1/2)^5\\), so counting from \\((1/2)^0 = 1\\) really gives \\(n = 6\\) terms, and \\(1 + \\frac{1}{2} + \\dots + \\frac{1}{32} = \\frac{32+16+8+4+2+1}{32} = \\frac{63}{32}\\)."
+}

@@ -1,0 +1,106 @@
+{
+  "schema_version": 2,
+  "domain": "logic",
+  "renderer": "prose",
+  "opener": true,
+  "kind": "trick_clean",
+  "difficulty": "standard",
+  "level": 0,
+  "estimated_seconds": 55,
+  "id": "logic-chat-metro-gate",
+  "lang": "en",
+  "title": "Peak-hour fare",
+  "topic": "A friend reasons backward from a $3.50 transit charge under an exclusive fare rule",
+  "blurb": "They flip an 'if' rule backward to catch their cousin — looks like a textbook slip.",
+  "prompt": "A friend texted this after checking a shared transit account. Tap a line if the reasoning slips, or call it clean.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The fare rule",
+      "text": "Our metro card only charges the $3.50 peak fare when you tap in between 7 and 9 AM; every other tap-in is $2.25, and this card has no passes or surcharges."
+    },
+    {
+      "id": 2,
+      "label": "The receipt",
+      "text": "My cousin swears he slept past 9:30 yesterday, yet his statement shows a single $3.50 ride deduction for the whole day."
+    },
+    {
+      "id": 3,
+      "label": "The call",
+      "text": "If the statement charged $3.50, then his card was definitely tapped in between 7 and 9 AM."
+    },
+    {
+      "id": 4,
+      "label": "The hunch",
+      "text": "Either he's mixing up which day he slept in, or somebody else borrowed his card."
+    }
+  ],
+  "conclusion": "Because $3.50 only occurs on a 7–9 AM tap-in, seeing a $3.50 charge proves the card tapped in between 7 and 9 AM.",
+  "flaws": [],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "Transit systems usually charge peak fare during evening rush hour too, so 7–9 AM can't be the only window.",
+        "Two $2.25 rides don't add up to $3.50, but a transfer fee could still push an off-peak ride to $3.50.",
+        "Saying 'every other tap-in is $2.25' leaves out tap-out adjustments when you ride across fare zones.",
+        "Stating a rule in the forward direction ('7–9 AM gives $3.50') never lets you reverse it later."
+      ],
+      "fix": [
+        "Check whether evening rush hour (5–7 PM) also charges $3.50 before ruling it out.",
+        "Verify whether cross-zone surcharges apply to this line.",
+        "Note that a partial pass credit could still produce a $3.50 charge off-peak.",
+        "Check the station timestamp instead of relying on the fare schedule."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "Transit statements often post charges a day late, so yesterday's $3.50 is almost certainly from the day before.",
+        "A single $3.50 deduction could be a missed tap-out penalty from a $2.25 ride after 9:30.",
+        "He could have tapped in at 9:35 and still been charged $3.50 if the gate clock was slow.",
+        "One $3.50 line item could be two smaller charges bundled together at midnight."
+      ],
+      "fix": [
+        "Check the posting date vs the ride date on the card statement.",
+        "Ask whether he forgot to tap out on his afternoon trip.",
+        "Look up the turnstile entry time rather than trusting the dollar amount.",
+        "Check if $3.50 is a daily cap combining a bus and a train."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "You're flipping an 'if A then B' rule backward into 'if B then A' — a $3.50 charge doesn't prove a 7–9 AM tap-in.",
+        "Just because 7–9 AM costs $3.50 doesn't rule out other ways to hit $3.50 later in the day.",
+        "Reasoning from the price back to the clock time is invalid unless you also see the gate's timestamp.",
+        "Even if 7–9 AM guarantees $3.50, seeing $3.50 only makes 7–9 AM *likely*, not definite."
+      ],
+      "fix": [
+        "Say a $3.50 charge makes a 7–9 AM tap-in plausible, not definite.",
+        "Don't reverse the fare rule — check the actual entry timestamp on the app.",
+        "Rule out other $3.50 triggers first before blaming the 7–9 AM window.",
+        "Remember that 'if 7–9 AM then $3.50' never implies 'if $3.50 then 7–9 AM'."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "False dilemma: there's a third option — he rode after 9:30 and got billed $3.50 for some other reason.",
+        "Even if someone else used the card, that wouldn't explain why the cousin forgot lending it out.",
+        "Jumping to 'someone borrowed his card' ignores that the $3.50 could have been an evening peak ride.",
+        "He might have tapped in right at 9:00 AM sharp, which still matches sleeping until almost 9."
+      ],
+      "fix": [
+        "Add a third possibility: an off-peak ride triggered a $3.50 charge for another reason.",
+        "Ask him if he took an evening train instead of accusing him of mixing up days.",
+        "Check whether he woke up at 8:55 rather than 9:30 before blaming another person.",
+        "Wait for the app's ride history before narrowing it down to two explanations."
+      ]
+    }
+  },
+  "clean_segments": [
+    "Our metro card only charges the $3.50 peak fare when you tap in between 7 and 9 AM; every other tap-in is $2.25, and this card has no passes or surcharges.",
+    "My cousin swears he slept past 9:30 yesterday, yet his statement shows a single $3.50 ride deduction for the whole day.",
+    "If the statement charged $3.50, then his card was definitely tapped in between 7 and 9 AM.",
+    "Either he's mixing up which day he slept in, or somebody else borrowed his card."
+  ],
+  "clean_conclusion": "Usually flipping an 'if' rule backward is a trap — except line 1 already locked it down to 'only between 7 and 9 AM, every other tap-in is $2.25, no surcharges.' With no other way to get $3.50, working backward actually holds.",
+  "explanation": "Usually flipping an 'if' rule backward is a trap — except line 1 already locked it down to 'only between 7 and 9 AM, every other tap-in is $2.25, no surcharges.' With no other way to get $3.50, working backward actually holds."
+}

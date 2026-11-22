@@ -1,0 +1,126 @@
+{
+  "schema_version": 2,
+  "id": "code-trick-slice-copy",
+  "domain": "code",
+  "renderer": "code",
+  "code_language": "python",
+  "lang": "en",
+  "kind": "trick_clean",
+  "title": "Purge expired sessions in place",
+  "topic": "Calling `.remove(s)` inside a `for` loop over `sessions[:]`",
+  "blurb": "Mutating a list inside a `for` loop is a famous trap — does this skip back-to-back expired sessions?",
+  "difficulty": "standard",
+  "level": 0,
+  "estimated_seconds": 55,
+  "prompt": "Spec: remove every session dict in `sessions` with `expires_at <= now` in place, and return how many active sessions remain. Tap a buggy line, or call it clean.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "L1",
+      "text": "def drop_expired(sessions, now):"
+    },
+    {
+      "id": 2,
+      "label": "L2",
+      "text": "    for s in sessions[:]:"
+    },
+    {
+      "id": 3,
+      "label": "L3",
+      "text": "        if s[\"expires_at\"] <= now:"
+    },
+    {
+      "id": 4,
+      "label": "L4",
+      "text": "            sessions.remove(s)"
+    },
+    {
+      "id": 5,
+      "label": "L5",
+      "text": "    return len(sessions)"
+    }
+  ],
+  "conclusion": "AI summary: Drops all expired sessions in place (even consecutive ones) and returns the remaining active count.",
+  "flaws": [],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "Mutating the caller's `sessions` list directly violates Python scoping unless `sessions` is marked `global`.",
+        "If `now` is a float timestamp and `expires_at` is an int, comparing them in Python raises TypeError.",
+        "The function has no return annotation, so callers receive `None` after `.remove()`.",
+        "Passing `sessions` by value copies the list, so the caller never sees any removals."
+      ],
+      "fix": [
+        "Return a brand-new filtered list instead of mutating `sessions` in place.",
+        "Cast `now = int(now)` on line 1 before comparing timestamps.",
+        "Add `global sessions` at the top of the function.",
+        "Accept `sessions=None` so empty lists don't crash."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "Slicing `sessions[:]` returns an empty list unless you specify start and stop indices like `0:len(sessions)`.",
+        "`sessions[:]` is just a reference alias to `sessions`, so removing items still shifts the iterator and skips back-to-back expired entries.",
+        "Because `sessions[:]` is a shallow copy, calling `sessions.remove(s)` deletes from the copy instead of the real list.",
+        "Slicing `sessions[:]` drops the last element of `sessions` on every call."
+      ],
+      "fix": [
+        "Use `copy.deepcopy(sessions)` so `sessions.remove(s)` doesn't shift the loop iterator.",
+        "Write `sessions[0:len(sessions)]` so the slice isn't empty.",
+        "Replace the loop with `sessions = [s for s in sessions if s['expires_at'] > now]`.",
+        "Iterate over indices `for i in range(len(sessions)):` and `pop(i)` instead."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "Using `<=` instead of `<` expires a session one second early when `expires_at == now`.",
+        "Double quotes inside `s[\"expires_at\"]` fail if the dict keys were created with single quotes.",
+        "If `sessions` is empty, `s[\"expires_at\"]` throws KeyError.",
+        "The comparison is backwards: expired sessions have `expires_at >= now`, not `<= now`."
+      ],
+      "fix": [
+        "Change `<=` to `<` so sessions at `expires_at == now` stay active.",
+        "Flip the condition to `if s[\"expires_at\"] >= now:`.",
+        "Use single quotes `s['expires_at']` to match Python dict keys.",
+        "Add `if not sessions: return 0` inside the loop before line 3."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Mutating `sessions` inside a `for` loop shifts indices left and skips every second consecutive expired session.",
+        "`sessions.remove(s)` only removes `s` from the slice copy, leaving the original `sessions` untouched.",
+        "Calling `sessions.remove(s)` on a dict raises TypeError because dicts are unhashable.",
+        "`sessions.remove(s)` raises ValueError on the second call when two expired sessions appear in a row."
+      ],
+      "fix": [
+        "Collect expired items in a separate list first, then remove them in a second loop.",
+        "Use `sessions[:] = [s for s in sessions if s['expires_at'] > now]` so you never remove inside a loop.",
+        "Delete by index `del sessions[i]` inside a forward `range(len(sessions))` loop.",
+        "Convert `sessions` to a `set` before calling `.remove(s)`."
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "Returning `len(sessions)` returns the *original* count because line 4 only modified the slice copy.",
+        "Returning `len(sessions)` returns how many sessions were *removed*, not how many remain.",
+        "If all sessions expired, `len(sessions)` raises ValueError instead of returning `0`.",
+        "`return len(sessions)` runs inside the loop and exits after checking the first session."
+      ],
+      "fix": [
+        "Return `len(sessions[:])` so it reflects the updated slice.",
+        "Count removed items with a counter and return `total - removed`.",
+        "Return `sessions` directly instead of `len(sessions)`.",
+        "Check `return len(sessions) if sessions else 0` to avoid crashing on empty."
+      ]
+    }
+  },
+  "clean_segments": [
+    "def drop_expired(sessions, now):",
+    "    for s in sessions[:]:",
+    "        if s[\"expires_at\"] <= now:",
+    "            sessions.remove(s)",
+    "    return len(sessions)"
+  ],
+  "clean_conclusion": "Removing inside a loop usually skips consecutive hits — except `sessions[:]` makes a fresh list copy to iterate over, so `sessions.remove(s)` mutates the original without shifting the iterator.",
+  "explanation": "Removing inside a loop usually skips consecutive hits — except `sessions[:]` makes a fresh list copy to iterate over, so `sessions.remove(s)` mutates the original without shifting the iterator."
+}

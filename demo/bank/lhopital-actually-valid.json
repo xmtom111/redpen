@@ -1,0 +1,39 @@
+{
+  "kind": "trick_clean",
+  "title": "Differentiating top and bottom separately",
+  "problem": "An AI tutor evaluated \\(\\lim_{x \\to 0} \\frac{e^{2x} - 1}{x}\\). Tap a slip if you spot one, or call it clean.",
+  "steps": [
+    "Substitute \\(x = 0\\): the numerator is \\(e^0 - 1 = 0\\) and the denominator is \\(0\\), so this is a \\(\\frac{0}{0}\\) indeterminate form.",
+    "Both \\(e^{2x} - 1\\) and \\(x\\) are differentiable near \\(0\\), and the denominator's derivative is \\(1 \\neq 0\\).",
+    "By L'Hôpital's rule, differentiate numerator and denominator separately: \\(\\lim_{x \\to 0} \\frac{2e^{2x}}{1}\\).",
+    "Evaluate at \\(x = 0\\): \\(2e^0 = 2 \\cdot 1 = 2\\).",
+    "Since the differentiated limit exists and equals \\(2\\), the original limit is \\(2\\)."
+  ],
+  "final_answer": "\\(2\\)",
+  "key": {
+    "level": 0,
+    "clean_steps": [
+      "Substitute \\(x = 0\\): the numerator is \\(e^0 - 1 = 0\\) and the denominator is \\(0\\), so this is a \\(\\frac{0}{0}\\) indeterminate form.",
+      "Both \\(e^{2x} - 1\\) and \\(x\\) are differentiable near \\(0\\), and the denominator's derivative is \\(1 \\neq 0\\).",
+      "By L'Hôpital's rule, differentiate numerator and denominator separately: \\(\\lim_{x \\to 0} \\frac{2e^{2x}}{1}\\).",
+      "Evaluate at \\(x = 0\\): \\(2e^0 = 2 \\cdot 1 = 2\\).",
+      "Since the differentiated limit exists and equals \\(2\\), the original limit is \\(2\\)."
+    ],
+    "clean_final_answer": "\\(2\\)",
+    "errors": [],
+    "checks": [
+      "limit((E**(2*x) - 1)/x, x, 0) == 2",
+      "diff(E**(2*x) - 1, x) == 2*E**(2*x)"
+    ],
+    "reference_check": "none"
+  },
+  "meta": {
+    "kind": "trick_clean",
+    "topic": "A valid 0/0 limit using L'Hopital's rule",
+    "mode": "0",
+    "difficulty": "standard",
+    "focus": [],
+    "blurb": "It differentiated the top and bottom separately — quotient-rule blunder or completely legal?"
+  },
+  "explanation": "Differentiating top and bottom separately looks like a quotient-rule mistake, but for a genuine \\(\\frac{0}{0}\\) limit it's exactly what L'Hôpital's rule calls for, and the chain-rule \\(2\\) is right there."
+}

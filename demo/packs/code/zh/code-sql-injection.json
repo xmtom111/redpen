@@ -49,19 +49,19 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "把外部输入直接用 f-string 拼进 SQL，存在 SQL 注入漏洞（如输入 `' OR '1'='1`）。"
+          "label": "用 f-string 把未受信任的 `cleaned` 拼进 SQL，会触发 SQL 注入（如 `' OR '1'='1`）。"
         },
         {
           "id": "d2",
-          "label": "SQL 字符串必须使用双引号，单引号会直接触发语法错误。"
+          "label": "SQL 字符串必须用双引号包起来，给 `{cleaned}` 套单引号会报语法错。"
         },
         {
           "id": "d3",
-          "label": "Python 的 f-string 不能作为参数传给 `conn.execute`。"
+          "label": "Python 的 f-string 只在函数定义时求值一次，会把第一个邮箱缓存下来。"
         },
         {
           "id": "d4",
-          "label": "查询语句必须写 `SELECT *`，只查两列会报错。"
+          "label": "只 `SELECT id, role` 没查 `email`，在 SQLite 里 `WHERE email = ...` 会报错。"
         }
       ],
       "diagnosis_answer": "d1",
@@ -72,15 +72,15 @@
         },
         {
           "id": "f2",
-          "label": "在拼接前调用 `cleaned.replace(' ', '')` 去掉空格。"
+          "label": "先用 `cleaned.replace(' ', '')` 去掉空格，就能挡住 f-string 里的 SQL 关键字。"
         },
         {
           "id": "f3",
-          "label": "放弃 f-string，改用 `\"...\" + cleaned + \"...\"` 字符串拼接。"
+          "label": "别用 f-string，改用加号字符串拼接 `\"SELECT ... '\" + cleaned + \"'\"`。"
         },
         {
           "id": "f4",
-          "label": "在 SQL 末尾加上 `LIMIT 1` 限制返回行数。"
+          "label": "在 f-string 末尾补上 `LIMIT 1`，确保最多只返回一个用户。"
         }
       ],
       "fix_answer": "f1",
@@ -101,5 +101,64 @@
     "    cursor = conn.execute(sql, (cleaned,))",
     "    return cursor.fetchone()"
   ],
-  "clean_conclusion": "数据库驱动会把邮箱当作数据而不是 SQL 来绑定，精心构造的地址改不了查询。"
+  "clean_conclusion": "数据库驱动会把邮箱当作数据而不是 SQL 来绑定，精心构造的地址改不了查询。",
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "直接传 `conn` 进来，每次查邮箱都会重开一个数据库连接。",
+        "`email` 没设默认值 `\"\"`，传 `None` 时 SQLite 会崩溃。",
+        "参数名 `email` 和 Python 标准库 `email` 模块重名，会引发冲突。",
+        "函数没做频率限制，客服可以暴力枚举全部邮箱。"
+      ],
+      "fix": [
+        "把参数名 `email` 改成 `addr` 避开标准库重名。",
+        "给参数加上默认值 `email=\"\"`。",
+        "在函数内部打开并关闭数据库连接。",
+        "开头先检查 `\"@\" in email`。"
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "`.strip().lower()` 去不掉邮箱中间的空格，会导致匹配失败。",
+        "按邮箱标准 `@` 前面的用户名区分大小写，直接 `.lower()` 会查不到大写注册用户。",
+        "`.strip().lower()` 会原地修改调用方传进来的 `email`。",
+        "`.strip()` 只去末尾空格，开头的空格还留着。"
+      ],
+      "fix": [
+        "改成 `email.replace(' ', '').lower()` 把中间空格也去掉。",
+        "只把 `@` 后面的域名转小写，保留用户名大小写。",
+        "改成 `email.lstrip().rstrip().lower()` 两头都去空格。",
+        "去掉 `.lower()` 保持精确大小写匹配。"
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "调完 `conn.execute(sql)` 没调 `conn.commit()`，查询不会真正执行。",
+        "Python DB-API 里 `conn` 不能直接调 `execute`，必须先建 `conn.cursor()`。",
+        "不关闭 `cursor` 会在每次查询后泄漏数据库锁。",
+        "给 `conn.execute` 只传一个字符串参数会拒绝执行 `WHERE` 条件。"
+      ],
+      "fix": [
+        "在 `conn.execute(sql)` 后面补上 `conn.commit()`。",
+        "先建游标 `cur = conn.cursor()` 再调 `cur.execute(sql)`。",
+        "用 `with conn:` 包住查询确保自动提交。",
+        "给 `conn.execute` 加上 `multi=False` 参数。"
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "查不到用户时 `fetchone()` 会抛 IndexError，而不是返回 `None`。",
+        "`fetchone()` 只拿第一条会掩盖多行匹配，改成 `fetchall()` 就能防注入。",
+        "`fetchone()` 返回字典，调用方按元组解包会报错。",
+        "返回前没关闭游标，查询结果会丢失。"
+      ],
+      "fix": [
+        "用 `try/except IndexError` 兜底返回 `None`。",
+        "改用 `fetchall()` 并校验 `len(rows) == 1`。",
+        "返回前转成 `tuple(cursor.fetchone())`。",
+        "先 `cursor.close()` 再返回结果。"
+      ]
+    }
+  }
 }

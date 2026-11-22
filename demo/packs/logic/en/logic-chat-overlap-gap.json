@@ -1,0 +1,106 @@
+{
+  "schema_version": 2,
+  "domain": "logic",
+  "renderer": "prose",
+  "opener": true,
+  "kind": "trick_clean",
+  "difficulty": "standard",
+  "level": 0,
+  "estimated_seconds": 55,
+  "id": "logic-chat-overlap-gap",
+  "lang": "en",
+  "title": "Two club rosters",
+  "topic": "A friend subtracts two overlapping club sizes without knowing the overlap",
+  "blurb": "They admit they have zero idea how many people are in both clubs — then quote an exact gap.",
+  "prompt": "A friend sent this while organizing two neighborhood clubs. Tap a line if the logic breaks, or call it clean.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The counts",
+      "text": "Counted up our neighborhood running and board-game rosters — 64 people are in the running club and 41 are in board games."
+    },
+    {
+      "id": 2,
+      "label": "The mess",
+      "text": "I have no idea how many people are in both clubs, because half the group uses nicknames on the signup sheet."
+    },
+    {
+      "id": 3,
+      "label": "The gap",
+      "text": "Still, the number of people who only run is definitely 23 more than the number who only play board games."
+    },
+    {
+      "id": 4,
+      "label": "The shortcut",
+      "text": "I don't even need to deduplicate the spreadsheet to know that gap is 23."
+    }
+  ],
+  "conclusion": "Without knowing how many people are in both clubs, run-only members still outnumber board-game-only members by exactly 23.",
+  "flaws": [],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "64 plus 41 is 105, which double-counts everyone in both clubs, so those two totals can't be compared directly.",
+        "Because nicknames let one person sign up twice in the same club, 64 and 41 aren't clean headcounts.",
+        "The two clubs have different sizes, so you should compare percentages rather than raw headcounts.",
+        "Without knowing the total number of neighbors in the building, 64 and 41 leave out non-members."
+      ],
+      "fix": [
+        "Match real names across both sheets before comparing 64 and 41.",
+        "Wait until you have the combined unique headcount before subtracting anything.",
+        "Convert 64 and 41 into shares of the neighborhood instead of raw counts.",
+        "Remove anyone who hasn't attended in the last month before counting."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "If you don't know the overlap, you have two unknowns and only one equation, so the exclusive counts are unsolvable.",
+        "Nicknames only matter if more than 23 people are in both clubs — up to 23, the gap stays positive.",
+        "Admitting you don't know the overlap makes any exact number in line 3 a guess.",
+        "Every person in both clubs sits inside both 64 and 41, which shrinks the gap every time someone joins both."
+      ],
+      "fix": [
+        "Deduplicate the nicknames first so you can subtract the overlap from 64 and 41.",
+        "Report a range for the gap (between 0 and 23) instead of pinning it to 23.",
+        "Ask members to confirm their real names before stating any 'only' counts.",
+        "Assume at least 10–15 people overlap and reduce the 23 accordingly."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "You can't subtract 64 minus 41 to get the 'only' gap — everyone in both clubs is double-counted and changes the difference.",
+        "23 is the gap between *total* runners and *total* gamers, not between *only*-runners and *only*-gamers.",
+        "If 20 people are in both clubs, you have to subtract 20 from the 23 gap, leaving only 3.",
+        "You can only say run-only is *at least* 23 more; if nobody overlaps it's 23, otherwise it shrinks."
+      ],
+      "fix": [
+        "Say the gap between run-only and board-game-only is at most 23, depending on the overlap.",
+        "Subtract the overlap once from 23 as soon as you find out how many people are in both.",
+        "Change 'only run vs only board games' to 'total running vs total board games'.",
+        "Wait to count the overlap — every shared member cuts the gap by 2."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "You definitely need to deduplicate the sheet first, because the overlap could swing the gap anywhere from 0 to 41.",
+        "Skipping deduplication only works for the *sum* of both clubs, not for the difference of exclusive members.",
+        "Even if the gap happens to be 23 on average, you can't claim it 'definitely' without checking the sheet.",
+        "If all 41 board gamers also run, there are 0 board-game-only members, which breaks the subtraction."
+      ],
+      "fix": [
+        "Deduplicate the sheet before quoting any exact difference.",
+        "Check the edge case where all 41 gamers also run before claiming 23 always holds.",
+        "Only skip deduplication if you're reporting the raw 64 vs 41 totals.",
+        "Estimate the overlap with a quick poll in the chat first."
+      ]
+    }
+  },
+  "clean_segments": [
+    "Counted up our neighborhood running and board-game rosters — 64 people are in the running club and 41 are in board games.",
+    "I have no idea how many people are in both clubs, because half the group uses nicknames on the signup sheet.",
+    "Still, the number of people who only run is definitely 23 more than the number who only play board games.",
+    "I don't even need to deduplicate the spreadsheet to know that gap is 23."
+  ],
+  "clean_conclusion": "The unknown overlap cancels right out: if k people are in both clubs, run-only is 64 − k and board-game-only is 41 − k. Subtract them and k vanishes — the gap is 23 whether k is 0 or 41.",
+  "explanation": "The unknown overlap cancels right out: if k people are in both clubs, run-only is 64 − k and board-game-only is 41 − k. Subtract them and k vanishes — the gap is 23 whether k is 0 or 41."
+}

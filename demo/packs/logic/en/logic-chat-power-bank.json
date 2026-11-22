@@ -1,0 +1,106 @@
+{
+  "schema_version": 2,
+  "domain": "logic",
+  "renderer": "prose",
+  "opener": true,
+  "kind": "clean",
+  "difficulty": "standard",
+  "level": 0,
+  "estimated_seconds": 55,
+  "id": "logic-chat-power-bank",
+  "lang": "en",
+  "title": "Flight power bank",
+  "topic": "A friend converts a power bank's rated capacity into 20%-to-100% phone top-ups",
+  "blurb": "20,000 mAh at 65% efficiency, 4,000 mAh phone topped from 20% to 100% — four full charges?",
+  "prompt": "A friend texted this while packing for a long-haul flight. Tap a line if the battery math breaks, or call it clean.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The pack",
+      "text": "Packed a 20,000 mAh power bank for the flight; the fine print says usable output after conversion is about 65%, so roughly 13,000 mAh actually reaches the phone."
+    },
+    {
+      "id": 2,
+      "label": "The phone",
+      "text": "My phone battery is 4,000 mAh, and I usually plug in whenever it hits 20% and charge it back to 100%."
+    },
+    {
+      "id": 3,
+      "label": "The count",
+      "text": "Each 80% top-up needs 3,200 mAh, so 13,000 mAh gives me four full top-ups with a tiny bit left over."
+    },
+    {
+      "id": 4,
+      "label": "The relief",
+      "text": "No need to fight my seatmate for the outlet."
+    }
+  ],
+  "conclusion": "13,000 mAh usable output divided by 3,200 mAh per 80% top-up gives four top-ups with 200 mAh to spare.",
+  "flaws": [],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "65% of 20,000 mAh is 12,000 mAh, not 13,000 mAh — you rounded the efficiency up.",
+        "A 20,000 mAh pack loses 65% in conversion, leaving only 7,000 mAh usable output.",
+        "Airlines ban 20,000 mAh power banks in carry-on bags, so you can't even bring it on the flight.",
+        "You can't take 65% of mAh directly without multiplying by 5V first, which cuts usable output in half."
+      ],
+      "fix": [
+        "Fix 20,000 × 0.65 to 12,000 mAh, which is less than four top-ups.",
+        "Take the remaining 35% (7,000 mAh) as usable output instead of 65%.",
+        "Leave the 20,000 mAh pack at home and pack a 10,000 mAh one for TSA.",
+        "Divide 13,000 mAh by 1.35 again for the 3.7V-to-5V boost step."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "Charging from 20% to 100% still takes 100% of the battery's 4,000 mAh because the last 20% trickles slowly.",
+        "Plugging in at 20% means you only have 20% left to fill, not 80%.",
+        "A 4,000 mAh phone charged from 20% to 100% still pulls 65% extra loss on top of line 1.",
+        "Using the phone while charging doesn't count against the 4,000 mAh battery size."
+      ],
+      "fix": [
+        "Budget a full 4,000 mAh per charge so you only get three top-ups.",
+        "Apply the 65% conversion loss a second time to the phone's 3,200 mAh.",
+        "Stop charging at 80% instead of 100% to save power.",
+        "Count 20% to 100% as 3,600 mAh to cover trickle-charge overhead."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "Four times 3,200 is 13,800 mAh, which is 800 mAh more than 13,000 — you only get three full top-ups.",
+        "80% of 4,000 mAh is 3,400 mAh, so four top-ups need 13,600 mAh and come up short.",
+        "13,000 divided by 4,000 is 3.25 — you can't get four top-ups out of a pack that only holds 3.25 phone batteries.",
+        "You forgot to apply the 65% efficiency to the 3,200 mAh figure, which makes each top-up cost ~4,920 mAh."
+      ],
+      "fix": [
+        "Recheck 4 × 3,200 = 13,800 mAh and plan for three full top-ups instead of four.",
+        "Divide 13,000 by the full 4,000 mAh phone capacity: 3.25 charges, not 4.",
+        "Divide 3,200 by 0.65 (≈ 4,923 mAh) — you only get two full top-ups.",
+        "Fix 80% of 4,000 to 3,400 mAh and count three top-ups."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Since 4 × 3,200 is 13,800 mAh, you'll run dry on the fourth charge and still need the seat outlet.",
+        "With only 200 mAh left over, even a tiny bit of screen-on drain during charging means you won't finish the fourth top-up.",
+        "Three top-ups at 4,000 mAh each leaves you short on a 14-hour flight.",
+        "A 20,000 mAh pack takes 6 hours to recharge, so you'll still want the outlet on the return leg."
+      ],
+      "fix": [
+        "Grab the seat outlet for the first charge so the pack covers the rest.",
+        "Switch to airplane mode while charging so the 200 mAh margin doesn't evaporate.",
+        "Pack a second cable in case the seat outlet is needed for charge four.",
+        "Plan for three top-ups instead of four so you aren't caught at 10%."
+      ]
+    }
+  },
+  "clean_segments": [
+    "Packed a 20,000 mAh power bank for the flight; the fine print says usable output after conversion is about 65%, so roughly 13,000 mAh actually reaches the phone.",
+    "My phone battery is 4,000 mAh, and I usually plug in whenever it hits 20% and charge it back to 100%.",
+    "Each 80% top-up needs 3,200 mAh, so 13,000 mAh gives me four full top-ups with a tiny bit left over.",
+    "No need to fight my seatmate for the outlet."
+  ],
+  "clean_conclusion": "All three steps hold up: 65% of 20,000 is 13,000 mAh; 80% of 4,000 is 3,200 mAh; and 4 × 3,200 = 12,800 mAh, leaving 200 mAh to spare.",
+  "explanation": "All three steps hold up: 65% of 20,000 is 13,000 mAh; 80% of 4,000 is 3,200 mAh; and 4 × 3,200 = 12,800 mAh, leaving 200 mAh to spare."
+}

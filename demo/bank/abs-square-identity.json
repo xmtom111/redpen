@@ -1,0 +1,39 @@
+{
+  "kind": "trick_clean",
+  "title": "Dropping the absolute value and cancelling x",
+  "problem": "Given a positive real number \\(x > 0\\), an AI tutor simplified \\(\\frac{\\sqrt{9x^2} + x}{2x}\\). Tap a slip if you spot one, or call it clean.",
+  "steps": [
+    "We are given \\(x > 0\\), so both \\(x\\) and \\(3x\\) are strictly positive.",
+    "Split the radical of a product of non-negative terms: \\(\\sqrt{9x^2} = \\sqrt{9}\\sqrt{x^2} = 3|x|\\).",
+    "Since \\(x > 0\\), we have \\(|x| = x\\), so \\(\\sqrt{9x^2} = 3x\\).",
+    "Combine the numerator: \\(3x + x = 4x\\).",
+    "Because \\(x > 0\\) (in particular \\(x \\neq 0\\)), cancel \\(x\\) in \\(\\frac{4x}{2x} = 2\\)."
+  ],
+  "final_answer": "\\(2\\)",
+  "key": {
+    "level": 0,
+    "clean_steps": [
+      "We are given \\(x > 0\\), so both \\(x\\) and \\(3x\\) are strictly positive.",
+      "Split the radical of a product of non-negative terms: \\(\\sqrt{9x^2} = \\sqrt{9}\\sqrt{x^2} = 3|x|\\).",
+      "Since \\(x > 0\\), we have \\(|x| = x\\), so \\(\\sqrt{9x^2} = 3x\\).",
+      "Combine the numerator: \\(3x + x = 4x\\).",
+      "Because \\(x > 0\\) (in particular \\(x \\neq 0\\)), cancel \\(x\\) in \\(\\frac{4x}{2x} = 2\\)."
+    ],
+    "clean_final_answer": "\\(2\\)",
+    "errors": [],
+    "checks": [
+      "(3*x + x)/(2*x) == 2",
+      "(sqrt(9*4**2) + 4)/(2*4) == 2"
+    ],
+    "reference_check": "none"
+  },
+  "meta": {
+    "kind": "trick_clean",
+    "topic": "Simplifying a radical under a positivity premise",
+    "mode": "0",
+    "difficulty": "standard",
+    "focus": [],
+    "blurb": "It dropped the absolute value bars AND cancelled \\(x\\) from a fraction — wait, is that actually legal here?"
+  },
+  "explanation": "Replacing \\(\\sqrt{x^2}\\) with \\(x\\) and cancelling \\(x\\) are classic traps in general, except \\(x > 0\\) already rules out negatives and zero."
+}

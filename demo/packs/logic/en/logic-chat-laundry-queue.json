@@ -44,38 +44,38 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "You can wash the second load while the first one dries: 30 + 45 + 45 is two hours. You'd finish on time."
+          "label": "Wash load two while load one dries: 30 + 45 + 45 is 2 hours flat."
         },
         {
           "id": "d2",
-          "label": "The dryer is the slow step, so two loads only take 45 + 45 = 90 minutes. Plenty of time."
+          "label": "The dryer is the slow step, so two loads only take 45 + 45 = 90 minutes, leaving 30 minutes to spare."
         },
         {
           "id": "d3",
-          "label": "You can put both loads in the washer at once, so the whole job is just 75 minutes."
+          "label": "Run both loads in the washer together so the whole wash-and-dry cycle finishes in 75 minutes."
         },
         {
           "id": "d4",
-          "label": "Two hours is 120 minutes and 75 + 75 is 150, so you're only half an hour short if you start now."
+          "label": "Two hours is 120 minutes and 75 + 75 is 150, so skipping 15 minutes of drying per load gets you out on time."
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Wash load two while load one is in the dryer. You'd be done in two hours."
+          "label": "Start load two in the washer as soon as load one hits the dryer: 30 + 45 + 45 = 120 min."
         },
         {
           "id": "f2",
-          "label": "Buy a second dryer so both loads can dry at the same time."
+          "label": "Count only the two 45-minute dry cycles (90 minutes total) since the washer runs inside them."
         },
         {
           "id": "f3",
-          "label": "Skip the dryer and hang both loads. They won't be dry in two hours, but you can still leave."
+          "label": "Combine both loads into one large wash-and-dry cycle so everything finishes in 75 minutes."
         },
         {
           "id": "f4",
-          "label": "Run each machine for half as long to cut the 75 minutes down to a fit."
+          "label": "Cut each dry cycle from 45 minutes down to 30 minutes so both loads finish in two hours."
         }
       ],
       "fix_answer": "f1",
@@ -95,5 +95,50 @@
     "I can wash the second load while the first one dries: 30 plus 45 plus 45 is two hours. I can just make it.",
     "If anyone's nearby later, I may need to borrow a shirt."
   ],
-  "clean_conclusion": "Wash the second load while the first one dries. That's two hours, just in time."
+  "clean_conclusion": "Wash the second load while the first one dries. That's two hours, just in time.",
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "Two hours is 120 minutes, which leaves zero buffer for folding and moving wet clothes between machines.",
+        "If you only need one shirt before leaving, you don't need both loads washed and dried in two hours.",
+        "Saying 'two hours' ignores the 10 minutes it takes to get dressed and walk out the door.",
+        "Two full loads of laundry can always be combined into one heavy-duty cycle when you're in a rush."
+      ],
+      "fix": [
+        "Wash only the load with the shirt you need and leave load two for tonight.",
+        "Budget 10 minutes for switching machines so your real window is 110 minutes.",
+        "Combine both loads into one cycle to finish well inside two hours.",
+        "Push your departure back 30 minutes so both loads finish comfortably."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "Because the washer is 15 minutes faster than the dryer, load two sits wet for 15 minutes and adds 15 minutes to the schedule.",
+        "30 minutes plus 45 minutes is 65 minutes per load, not 75 minutes.",
+        "Dryers take longer on a second load because the lint trap fills up, so 45 minutes understates load two.",
+        "Running a washer and dryer side by side on the same circuit trips the breaker, so they can't run together."
+      ],
+      "fix": [
+        "Add 15 minutes of wait time while load two sits in the washer waiting for the dryer.",
+        "Re-add 30 + 45 as 65 minutes per load (130 minutes for two).",
+        "Clean the lint trap between loads so the second dry stays at 45 minutes.",
+        "Run the dryer on low heat while the washer runs so they don't trip the breaker."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "You don't need to borrow a shirt — load one finishes in 75 minutes, 45 minutes before you have to leave.",
+        "Borrowing a shirt won't help because load two still needs another 90 minutes in the dryer.",
+        "Even if both loads take 150 minutes, you'll be back in time to fold load two later.",
+        "Asking to borrow a shirt assumes the shirt you want is in the second load instead of the first."
+      ],
+      "fix": [
+        "Put the shirt you plan to wear in load one so it's dry in 75 minutes.",
+        "Start both machines in sequence and you won't need to borrow anything.",
+        "Ask to borrow a shirt only if the second dry cycle runs past 45 minutes.",
+        "Hang the second load to dry while you're out and wear something from load one."
+      ]
+    }
+  }
 }

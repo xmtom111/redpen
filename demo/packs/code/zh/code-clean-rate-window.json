@@ -1,0 +1,166 @@
+{
+  "schema_version": 2,
+  "id": "code-clean-rate-window",
+  "domain": "code",
+  "renderer": "code",
+  "code_language": "python",
+  "lang": "zh",
+  "kind": "clean",
+  "title": "60 秒滑动限流窗口",
+  "topic": "一段不改原列表的 Python 限流检查函数",
+  "blurb": "最近 60 秒最多放行 3 次，且不能改动入参列表。边界符号和列表拷贝都看着很悬。",
+  "difficulty": "standard",
+  "level": 0,
+  "estimated_seconds": 55,
+  "prompt": "需求：如果落在 `(now - window, now]` 内的历史时间戳严格少于 `limit` 条，则放行本次 `now`；不能修改入参 `timestamps`，返回 `(allowed, updated_timestamps)`。发现 bug 就点对应行，觉得没问题就放行。",
+  "segments": [
+    {
+      "id": 1,
+      "label": "L1",
+      "text": "def allow_request(timestamps, now, window=60, limit=3):"
+    },
+    {
+      "id": 2,
+      "label": "L2",
+      "text": "    cutoff = now - window"
+    },
+    {
+      "id": 3,
+      "label": "L3",
+      "text": "    recent = [t for t in timestamps if t > cutoff]"
+    },
+    {
+      "id": 4,
+      "label": "L4",
+      "text": "    if len(recent) >= limit:"
+    },
+    {
+      "id": 5,
+      "label": "L5",
+      "text": "        return False, recent"
+    },
+    {
+      "id": 6,
+      "label": "L6",
+      "text": "    recent.append(now)"
+    },
+    {
+      "id": 7,
+      "label": "L7",
+      "text": "    return True, recent"
+    }
+  ],
+  "conclusion": "AI 总结：用新列表筛出 `(now - 60, now]` 内的记录、不改入参，满 `limit` 条就拦截，放行时再把 `now` 追加进去。",
+  "flaws": [],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "默认参数 `window=60, limit=3` 会在多次调用间共享并串味。",
+        "直接接收列表 `timestamps` 会让第 6 行顺手改脏调用方的原列表。",
+        "如果 `now < 60`，`cutoff` 会变成负数并导致列表推导报错。",
+        "把两个默认参数放在末尾，调用时没法单独传 `limit`。"
+      ],
+      "fix": [
+        "改成 `window=None, limit=None` 在函数内部赋值。",
+        "开头先写 `timestamps = list(timestamps)` 防止改坏入参。",
+        "把 `window` 截断成 `min(window, now)`。",
+        "加星号改成关键字参数 `*, window=60, limit=3`。"
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "写成 `now - window` 算反了，应该用 `now + window` 算窗口边界。",
+        "`now - window` 会把窗口拉成 61 秒，应该减 `window - 1`。",
+        "当 `now == 60` 时 `cutoff` 等于 `0`，会把所有时间戳全滤掉。",
+        "应该写成 `now - window - 1`，否则刚好 60 秒前的请求会被误踢。"
+      ],
+      "fix": [
+        "改成 `cutoff = now + window`。",
+        "改成 `cutoff = now - window - 1` 覆盖完整 60 秒。",
+        "改成 `cutoff = max(0, now - window)` 防止负数。",
+        "改成 `cutoff = now - (window - 1)`。"
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "边界差一：`t > cutoff` 会漏掉正好等于 `now - 60` 的请求，应该写成 `>=`。",
+        "列表推导式保留了原列表的引用，后面 `recent.append(now)` 会改坏 `timestamps`。",
+        "`t > cutoff` 留下来的是过期记录，方向写反了，应该是 `t < cutoff`。",
+        "如果 `timestamps` 没排过序，列表推导式会提前中断漏掉近期记录。"
+      ],
+      "fix": [
+        "把 `t > cutoff` 改成 `t >= cutoff` 把左端点算进来。",
+        "把比较符反过来写成 `t < cutoff`。",
+        "过滤前先对 `timestamps` 排序。",
+        "再套一层 `list(recent)` 断开和入参的引用。"
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "边界差一：`>= limit` 在第 3 次请求来时就会拦截，实际每分钟只能放行 2 次。",
+        "因为 `now` 还没加进去，这里应该跟 `limit + 1` 比较。",
+        "如果 `timestamps` 里有同一秒的重复时间戳，`len(recent)` 会重复计数。",
+        "写成 `>=` 在 `limit = 0` 时会无限放行。"
+      ],
+      "fix": [
+        "把 `>= limit` 改成 `> limit`，才能放满 3 次。",
+        "先把 `now` 塞进 `recent`，再判断 `if len(recent) > limit:`。",
+        "先用 `set(recent)` 去重再求长度。",
+        "改成 `if len(recent) == limit:`。"
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "被拦截时也应该先把 `now` 记进 `recent` 再返回 `False`，否则限流计数会偏少。",
+        "这里返回过滤后的 `recent` 会暴露内部副本，应该原样返回 `timestamps`。",
+        "Python 返回二元组必须加括号写成 `return (False, recent)`，不加括号会报语法错。",
+        "返回 `False, recent` 在调用方解包时会变成列表而不是元组。"
+      ],
+      "fix": [
+        "返回 `False` 前先 `recent.append(now)` 记录被拒请求。",
+        "改成 `return False, timestamps` 保持原样。",
+        "加上显式括号 `return (False, recent)`。",
+        "限流时返回 `False, []` 清空窗口。"
+      ]
+    },
+    "6": {
+      "diagnosis": [
+        "`recent.append(now)` 会原地改脏调用方的 `timestamps` 列表。",
+        "就算 `len(recent)` 已经等于 3，这一行还是会把第 4 条塞进去。",
+        "`append` 的返回值是 `None`，会导致下面返回空列表。",
+        "如果入参是按时间倒序排的，尾插 `now` 会打乱顺序。"
+      ],
+      "fix": [
+        "改成 `recent = recent + [now]` 防止改坏入参。",
+        "写成 `recent = recent.append(now)` 保存结果。",
+        "改成 `recent.insert(0, now)` 保持倒序。",
+        "追加前再加一层 `if len(recent) < limit - 1:`。"
+      ]
+    },
+    "7": {
+      "diagnosis": [
+        "不顺手把 `timestamps` 原地更新的话，调用方下次传原列表会丢失这次请求。",
+        "因为 `append` 不返回新列表，这里返回的 `recent` 里还没包含 `now`。",
+        "入参为空列表时，这里返回的 `recent` 长度会是 2 而不是 1。",
+        "应该返回 `(True, len(recent))` 而不是整个时间戳列表。"
+      ],
+      "fix": [
+        "补上 `timestamps[:] = recent` 同步更新原列表。",
+        "改成 `return True, recent + [now]`。",
+        "改成 `return True, len(recent)` 返回当前次数。",
+        "返回前对 `recent` 做一次 `sorted(recent)`。"
+      ]
+    }
+  },
+  "clean_segments": [
+    "def allow_request(timestamps, now, window=60, limit=3):",
+    "    cutoff = now - window",
+    "    recent = [t for t in timestamps if t > cutoff]",
+    "    if len(recent) >= limit:",
+    "        return False, recent",
+    "    recent.append(now)",
+    "    return True, recent"
+  ],
+  "clean_conclusion": "全按需求稳稳落地：`recent` 是列表推导新建的副本（绝不改 `timestamps`），`t > now - window` 精确对应 `(now - window, now]`，而 `len(recent) >= limit` 允许已有 0、1、2 条时放行、满 3 条时拦住第 4 次。",
+  "explanation": "全按需求稳稳落地：`recent` 是列表推导新建的副本（绝不改 `timestamps`），`t > now - window` 精确对应 `(now - window, now]`，而 `len(recent) >= limit` 允许已有 0、1、2 条时放行、满 3 条时拦住第 4 次。"
+}
