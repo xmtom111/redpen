@@ -1,0 +1,99 @@
+{
+  "schema_version": 2,
+  "domain": "logic",
+  "renderer": "prose",
+  "opener": true,
+  "difficulty": "intro",
+  "level": 1,
+  "estimated_seconds": 60,
+  "id": "logic-chat-cabin-split",
+  "lang": "en",
+  "title": "Weekend cabin",
+  "topic": "A friend is closing out the cabin and grocery money in the group chat",
+  "blurb": "A friend is wrapping up the weekend cabin expenses in the group chat.",
+  "prompt": "A friend just texted this in the group chat. If one line doesn't add up, tap it.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The room",
+      "text": "Three of us got a cabin for the weekend. I put the $600 room on my card — $200 each."
+    },
+    {
+      "id": 2,
+      "label": "The groceries",
+      "text": "Mia also grabbed groceries for everyone, $90."
+    },
+    {
+      "id": 3,
+      "label": "The settle-up",
+      "text": "That's $30 each for food, so Mia sent me $170 and Jake sent me $230. We're even."
+    },
+    {
+      "id": 4,
+      "label": "The receipt",
+      "text": "I'll drop the receipt in the chat in case anyone wants it."
+    }
+  ],
+  "conclusion": "Mia sent $170 and Jake sent $230, so the cabin and the groceries are all even.",
+  "flaws": [
+    {
+      "segment_id": 3,
+      "error_type": "misrouted-share",
+      "original": "Jake's $30 for groceries should go to Mia, not me. Mia should send me $140 for the room, not $170.",
+      "corrupted": "That's $30 each for food, so Mia sent me $170 and Jake sent me $230. We're even.",
+      "diagnosis_choices": [
+        {
+          "id": "d1",
+          "label": "Jake's $30 for groceries went to you, not Mia. She paid $260 and you paid $200 — she just bought your dinner."
+        },
+        {
+          "id": "d2",
+          "label": "The $90 groceries should have been split four ways, because you also bought snacks on the drive."
+        },
+        {
+          "id": "d3",
+          "label": "Jake still owes $10, because $600 plus $90 is $690, and $230 plus $170 is only $400."
+        },
+        {
+          "id": "d4",
+          "label": "Mia already paid $90, so she shouldn't have sent you anything else."
+        }
+      ],
+      "diagnosis_answer": "d1",
+      "fix_choices": [
+        {
+          "id": "f1",
+          "label": "Send Mia the $30 Jake gave you, or have her send you $140 instead of $170."
+        },
+        {
+          "id": "f2",
+          "label": "Ask Jake for another $30 so Mia can be paid back from a new transfer."
+        },
+        {
+          "id": "f3",
+          "label": "Let Mia keep a larger share of the cabin, which cancels the groceries on her side only."
+        },
+        {
+          "id": "f4",
+          "label": "Split the $90 groceries again from scratch and leave the $170 and $230 as they are."
+        }
+      ],
+      "fix_answer": "f1",
+      "explanation": "Jake's $30 for groceries went into your pocket, not Mia's. She just bought your dinner.",
+      "why_tempting": "Take $30 off one transfer, add $30 to the other, and the two numbers look perfectly netted. The grocery money just landed with the wrong person.",
+      "catch_rule": "When you net two bills, follow each person's share to the person who actually paid that bill.",
+      "hint": "Who paid for the groceries? And who ended up with Jake's $30?",
+      "practice": {
+        "problem": "You paid a $120 ride for three people. Lin paid $30 for parking. Lin sends you $30 and Sam sends you $50, and you call it even. What's wrong?",
+        "answer": "Sam's $10 parking share went to you, not Lin. Lin should have sent $20, or you should pass Sam's $10 along."
+      }
+    }
+  ],
+  "clean_segments": [
+    "Three of us got a cabin for the weekend. I put the $600 room on my card — $200 each.",
+    "Mia also grabbed groceries for everyone, $90.",
+    "Jake's $30 for groceries should go to Mia, not me. Mia should send me $140 for the room, not $170.",
+    "I'll drop the receipt in the chat in case anyone wants it."
+  ],
+  "clean_conclusion": "Jake's grocery share should go to Mia. She owes you $140 for the room, not $170."
+}
