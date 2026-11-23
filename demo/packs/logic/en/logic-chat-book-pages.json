@@ -1,0 +1,106 @@
+{
+  "schema_version": 2,
+  "domain": "logic",
+  "renderer": "prose",
+  "opener": true,
+  "kind": "clean",
+  "difficulty": "intro",
+  "level": 0,
+  "estimated_seconds": 50,
+  "id": "logic-chat-book-pages",
+  "lang": "en",
+  "title": "Book club",
+  "topic": "A friend counts inclusive pages read tonight and remaining pages left in a novel",
+  "blurb": "A friend is pacing the last chapters before Thursday's book club.",
+  "prompt": "A friend just sent this in the group chat. Tap a line if something doesn't add up, or let it pass.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "Tonight",
+      "text": "Trying to finish the novel before book club Thursday — read from the top of page 84 to the bottom of page 147 tonight."
+    },
+    {
+      "id": 2,
+      "label": "The tally",
+      "text": "Knocked out 64 pages in one sitting."
+    },
+    {
+      "id": 3,
+      "label": "What's left",
+      "text": "The book ends on page 275, so 128 pages left — two more nights at this pace and I'm done."
+    },
+    {
+      "id": 4,
+      "label": "The brag",
+      "text": "Might actually show up knowing the ending."
+    }
+  ],
+  "conclusion": "Pages 84–147 is 64 pages, leaving 128 pages to 275 — two more nights at this pace.",
+  "flaws": [],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "Starting on page 84 means you already read 84 pages earlier, not 83, which throws off the remaining count.",
+        "Reading 'from the top of 84 through the bottom of 147' counts both ends twice when you also add +1 on line 2.",
+        "Chapter breaks leave half-empty pages, so page 84 to 147 isn't a real 64-page pace.",
+        "If you stopped at the bottom of page 147, tomorrow starts on 147, not 148."
+      ],
+      "fix": [
+        "Count pages 84 through 147 as 147 − 84 = 63 pages so you don't double-count the ends.",
+        "Note that you've read 84 pages before tonight, not 83.",
+        "Start tomorrow's count at page 147 so you don't lose a page between sessions.",
+        "Time yourself by chapters instead of page numbers."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "147 minus 84 is 63 pages, not 64 — adding 1 double-counts page 84.",
+        "Counting both page 84 and page 147 means adding 2, so tonight was 65 pages.",
+        "147 minus 84 is 53 plus 1 = 54 pages; you mis-subtracted the tens digit.",
+        "You only add 1 when counting from page 1, not when starting mid-book on page 84."
+      ],
+      "fix": [
+        "Fix tonight's tally to 147 − 84 = 63 pages.",
+        "Fix tonight's tally to 65 pages since both endpoints are included.",
+        "Recheck 147 − 84 + 1: it's 54 pages, not 64.",
+        "Drop the '+1' rule whenever you start after page 1."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "By your own rule from line 2, 275 minus 147 needs +1 too — that's 129 pages left, so two nights of 64 still leaves 1 page.",
+        "275 minus 148 is 127 pages left, not 128, because you already finished page 147.",
+        "At 63 pages a night (from line 2), 128 pages takes three nights, not two.",
+        "275 minus 147 is 138 pages left, which is more than two 64-page nights."
+      ],
+      "fix": [
+        "Add 1 to 275 − 147 to get 129 pages left — you'll need an extra page on night two.",
+        "Subtract 275 − 148 = 127 pages left since page 147 is already done.",
+        "Plan on three nights since 128 ÷ 63 is slightly over two.",
+        "Fix the subtraction to 138 pages left and budget 69 pages a night."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "If you've actually got 129 pages left and only read 64 a night, you'll still miss the final page.",
+        "Reading 63 pages a night leaves 2 pages unread after two nights, right on the ending.",
+        "Book club is Thursday and 'tonight' could be Wednesday, leaving only one night, not two.",
+        "Two nights at 54 pages is 108 pages, leaving you 20 pages short of the ending."
+      ],
+      "fix": [
+        "Read 65 pages on one of the next two nights so you cover all 129 pages.",
+        "Bump your target to 64 real pages instead of 63 so you don't miss the last two pages.",
+        "Check the calendar — make sure you actually have two nights before Thursday.",
+        "Read 70 pages a night to make sure you hit page 275 with room to spare."
+      ]
+    }
+  },
+  "clean_segments": [
+    "Trying to finish the novel before book club Thursday — read from the top of page 84 to the bottom of page 147 tonight.",
+    "Knocked out 64 pages in one sitting.",
+    "The book ends on page 275, so 128 pages left — two more nights at this pace and I'm done.",
+    "Might actually show up knowing the ending."
+  ],
+  "clean_conclusion": "Both inclusive counts are right: 84 through 147 is 147 − 84 + 1 = 64 pages, and 148 through 275 is 275 − 148 + 1 = 128 pages — exactly two more nights.",
+  "explanation": "Both inclusive counts are right: 84 through 147 is 147 − 84 + 1 = 64 pages, and 148 through 275 is 275 − 148 + 1 = 128 pages — exactly two more nights."
+}

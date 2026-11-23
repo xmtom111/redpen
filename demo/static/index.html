@@ -3,55 +3,52 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RedPen — Spot the flaw. Beat the AI.</title>
-<meta name="description" content="Spot the flaw. Beat the AI. A quick red-pen error-hunting game across Code, Math, and Logic — no login or API key needed.">
-<meta property="og:title" content="RedPen — Spot the flaw. Beat the AI.">
-<meta property="og:description" content="Tap the line that sounds too sure of itself. A daily red-pen game of spotting confident AI nonsense.">
+<title>RedPen — Does this hold up?</title>
+<meta name="description" content="Judge three daily puzzles across Code, Math, and Logic. Flag a shaky line or clear it as solid. No login or API key needed.">
+<meta property="og:title" content="RedPen — Does this hold up?">
+<meta property="og:description" content="Judge three daily puzzles across Code, Math, and Logic. Flag a shaky line or clear it as solid. No login or API key needed.">
 <meta property="og:url" content="https://xmtom111.github.io/redpen/">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary">
-<meta name="theme-color" content="#c62828">
+<meta name="theme-color" content="#F6F5F1">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<script>
-window.MathJax = {
-  tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]] },
-  options: { skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code"] }
-};
-</script>
-<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="vendor/katex/katex.min.css">
+<link rel="stylesheet" href="style.css?v=3">
 </head>
 <body class="play-root">
 <a class="skip" href="#app">Skip to content</a>
-<header class="wrap top">
-  <div class="brand">
-    <svg class="nib" viewBox="0 0 32 32" aria-hidden="true">
-      <path d="M9 24.5 16.2 6.5h3.2L12.2 24.5H9z" fill="#c62828"/>
-      <path d="M11.2 24.5 9.4 29l4.2-2.2-2.4-2.3z" fill="#1f2328"/>
-    </svg>
-    <div>
-      <p class="mark">RedPen <span class="domain-tags">Code · Math · Logic</span></p>
-      <p class="sub">Spot the flaw. Beat the AI.</p>
-    </div>
-  </div>
-  <div class="top-tools">
-    <div class="top-bar-row">
-      <nav id="top-nav" class="top-nav" aria-label="Views"></nav>
-      <nav class="lang-switch" aria-label="Language">
-        <a href="zh/" hreflang="zh-Hans" lang="zh-Hans">中文</a>
-        <span aria-current="page">EN</span>
-      </nav>
-    </div>
-  </div>
-</header>
-<main id="app" class="wrap"></main>
-<footer class="wrap foot">
-  <p id="mode-note" class="mode-note"></p>
-  <p>A daily game of spotting confident AI nonsense. · <a href="https://github.com/xmtom111/redpen">RedPen on GitHub</a></p>
-</footer>
-<script src="grade.js"></script>
-<script src="daily.js"></script>
+<div class="page-sheet">
+  <header class="top">
+    <button type="button" class="brand-btn" data-nav="daily" aria-label="RedPen Daily">
+      <svg class="brand-stroke" viewBox="0 0 20 16" aria-hidden="true">
+        <path d="M2 12.5 C6.5 9.2 12.2 5.4 18 3.2" stroke="#D92D20" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+      </svg>
+      <span class="brand-name">RedPen</span>
+    </button>
+    <nav id="top-nav" class="daily-scale" aria-label="Daily progress"></nav>
+    <nav class="lang-switch" aria-label="Language">
+      <a href="zh/" hreflang="zh-Hans" lang="zh-Hans">中</a><span class="lang-sep" aria-hidden="true">/</span><span aria-current="page">EN</span>
+    </nav>
+  </header>
+  <main id="app" class="main-col"></main>
+  <footer class="foot">
+    <nav id="foot-nav" class="foot-nav" aria-label="More">
+      <button type="button" class="foot-link" data-nav="daily">Daily</button>
+      <span class="foot-sep" aria-hidden="true">·</span>
+      <button type="button" class="foot-link" data-nav="packs">Packs</button>
+      <span class="foot-sep" aria-hidden="true">·</span>
+      <button type="button" class="foot-link" data-nav="workshop">Workshop</button>
+      <span class="foot-sep" aria-hidden="true">·</span>
+      <a class="foot-link" href="https://github.com/xmtom111/redpen">GitHub</a>
+    </nav>
+    <p id="mode-note" class="mode-note"></p>
+  </footer>
+</div>
+<script src="vendor/katex/katex.min.js"></script>
+<script src="vendor/katex/auto-render.min.js"></script>
+<script src="grade.js?v=3"></script>
+<script src="daily.js?v=3"></script>
 <script src="browser-ai.js"></script>
-<script src="app.js"></script>
+<script src="app.js?v=3"></script>
 </body>
 </html>

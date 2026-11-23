@@ -5,13 +5,13 @@
   "renderer": "code",
   "code_language": "python",
   "lang": "en",
-  "title": "It stripped the email, so the SQL is 'safe'",
+  "title": "Support user lookup",
   "topic": "A support lookup that trusts a little cleanup",
-  "blurb": "The AI lowercased the address, then dropped it straight into the query. It calls that sanitizing.",
+  "blurb": "A support-desk helper that queries a customer by email.",
   "difficulty": "intro",
   "level": 1,
   "estimated_seconds": 45,
-  "prompt": "This AI-written helper looks up a customer by email for the support desk. The author says `.strip().lower()` makes the SQL safe. Find the hole.",
+  "prompt": "Spec: normalize `email` and safely fetch that single user's `id` and `role` from `users`. Review this helper — tap a line if it breaks the spec, or let it pass.",
   "segments": [
     {
       "id": 1,
@@ -49,38 +49,38 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "Interpolating untrusted input into SQL enables SQL injection (e.g. `' OR '1'='1`)."
+          "label": "Putting untrusted `cleaned` in an f-string allows SQL injection (`' OR '1'='1`)."
         },
         {
           "id": "d2",
-          "label": "SQL requires double quotes around string literals; single quotes cause a syntax error."
+          "label": "SQL requires double quotes around string literals; single quotes around `{cleaned}` fail."
         },
         {
           "id": "d3",
-          "label": "Python f-strings cannot be passed into `conn.execute`."
+          "label": "Python f-strings evaluate `{cleaned}` only once at `def` time, caching the first email."
         },
         {
           "id": "d4",
-          "label": "Using `SELECT id, role` fails unless `SELECT *` is used."
+          "label": "Querying only `id, role` without `email` breaks `WHERE email = ...` in SQLite."
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Use a parameterized query: `conn.execute(\"SELECT id, role FROM users WHERE email = ?\", (cleaned,))`."
+          "label": "Use a placeholder: `conn.execute(\"SELECT ... WHERE email = ?\", (cleaned,))`."
         },
         {
           "id": "f2",
-          "label": "Call `cleaned.replace(' ', '')` before building the f-string."
+          "label": "Strip spaces with `cleaned.replace(' ', '')` so SQL keywords can't run inside the f-string."
         },
         {
           "id": "f3",
-          "label": "Switch from an f-string to `\"...\" + cleaned + \"...\"` string concatenation."
+          "label": "Replace the f-string with `\"SELECT ... '\" + cleaned + \"'\"` string concatenation instead."
         },
         {
           "id": "f4",
-          "label": "Add `LIMIT 1` to the end of the f-string query."
+          "label": "Add `LIMIT 1` to the f-string query so it can never return more than one customer row."
         }
       ],
       "fix_answer": "f1",
@@ -101,5 +101,64 @@
     "    cursor = conn.execute(sql, (cleaned,))",
     "    return cursor.fetchone()"
   ],
-  "clean_conclusion": "The database driver binds the email as data, not as SQL, so a crafted address can't change the query."
+  "clean_conclusion": "The database driver binds the email as data, not as SQL, so a crafted address can't change the query.",
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "Passing `conn` directly opens a new database session on every support lookup.",
+        "If `email` is `None`, line 1 should default to `email=\"\"` or SQLite crashes.",
+        "The function has no rate limit, so support staff can brute-force every email.",
+        "Parameter name `email` collides with Python's standard-library `email` module."
+      ],
+      "fix": [
+        "Rename parameter `email` to `addr` so it doesn't shadow the `email` module.",
+        "Default `email=\"\"` in the signature.",
+        "Open and close `conn` inside `find_user` instead of passing it in.",
+        "Validate `\"@\" in email` right on line 1."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "`.strip().lower()` doesn't remove spaces inside the email, which breaks exact matching.",
+        "Lowercasing an email breaks RFC 5321 because the local part before `@` is case-sensitive.",
+        "Calling `.strip().lower()` mutates `email` in place for the caller.",
+        "`.strip()` only removes trailing spaces, leaving leading whitespace in `cleaned`."
+      ],
+      "fix": [
+        "Call `email.replace(' ', '').lower()` to strip inner spaces too.",
+        "Keep the part before `@` case-sensitive and lowercase only the domain.",
+        "Use `email.lstrip().rstrip().lower()` to strip both ends.",
+        "Remove `.lower()` so lookups stay exact."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Calling `conn.execute(sql)` without `conn.commit()` never runs the SELECT query.",
+        "`conn.execute` doesn't return a cursor in Python DB-API — you must call `conn.cursor()` first.",
+        "Passing a single string `sql` to `conn.execute` always rejects `WHERE` clauses.",
+        "Not closing `cursor` leaks a database lock on every lookup."
+      ],
+      "fix": [
+        "Call `conn.commit()` right after `conn.execute(sql)`.",
+        "Create `cur = conn.cursor()` and run `cur.execute(sql)`.",
+        "Wrap `conn.execute(sql)` in `with conn:` so the SELECT commits.",
+        "Pass `multi=False` to `conn.execute(sql)`."
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "`fetchone()` raises IndexError instead of returning `None` when no customer matches.",
+        "Using `fetchone()` returns only the first row even if an injection matches every user — switching to `fetchall()` fixes it.",
+        "`fetchone()` returns a dict when support callers expect a tuple.",
+        "Returning `cursor.fetchone()` leaves the cursor open and unread."
+      ],
+      "fix": [
+        "Wrap in `try/except IndexError: return None`.",
+        "Use `cursor.fetchall()` and verify `len(rows) == 1`.",
+        "Convert with `tuple(cursor.fetchone())` before returning.",
+        "Close `cursor.close()` before returning `cursor.fetchone()`."
+      ]
+    }
+  }
 }

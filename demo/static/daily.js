@@ -69,6 +69,8 @@
   }
 
   function permuteCycle(pool, seedPrefix, cycle) {
+    // A two-item cycle always alternates, including at cycle boundaries.
+    if (pool.length === 2) return shuffleDeterministic(pool, `${seedPrefix}:0`);
     const perm = shuffleDeterministic(pool, `${seedPrefix}:${cycle}`);
     // If a new cycle would start with the previous cycle's last item,
     // swap the first two so consecutive days never repeat across the seam.
@@ -98,9 +100,12 @@
    * back-to-back, and falls back deterministically if a pool is short.
    */
   function selectDaily(worksheets, dateStr, count = 3) {
-    const items = (worksheets || []).slice().sort((a, b) => String(a.id).localeCompare(String(b.id)));
-    if (!items.length) return [];
+    const items = (worksheets || []).slice().sort((a, b) => {
+      if (a.id < b.id) return -1;
+      return a.id === b.id ? 0 : 1;
+    });
     const targetCount = Math.min(count, items.length);
+    if (targetCount < 1) return [];
     const dayIdx = dayNumber(dateStr) - 1;
     const picked = [];
     const usedIds = new Set();
@@ -109,7 +114,7 @@
     const slot1Pool = openerPool.length
       ? openerPool
       : items.filter((item) => (item.domain || "math") === "logic" && !usedIds.has(item.id));
-    const first = pickFromPool(slot1Pool, dayIdx, "redpen:daily:v2:opener");
+    const first = pickFromPool(slot1Pool, dayIdx, "redpen:daily:v3:opener");
     if (first) {
       picked.push(first);
       usedIds.add(first.id);
@@ -118,7 +123,7 @@
     for (const domain of ["code", "math"]) {
       if (picked.length >= targetCount) break;
       const pool = items.filter((item) => (item.domain || "math") === domain && !usedIds.has(item.id));
-      const chosen = pickFromPool(pool, dayIdx, `redpen:daily:v1:${domain}`);
+      const chosen = pickFromPool(pool, dayIdx, `redpen:daily:v3:${domain}`);
       if (chosen) {
         picked.push(chosen);
         usedIds.add(chosen.id);
@@ -127,7 +132,7 @@
 
     if (picked.length < targetCount) {
       const remaining = items.filter((item) => !usedIds.has(item.id));
-      const perm = shuffleDeterministic(remaining, `redpen:daily:v1:fallback:${dateStr}`);
+      const perm = shuffleDeterministic(remaining, `redpen:daily:v3:fallback:${dateStr}`);
       for (const item of perm) {
         if (picked.length >= targetCount) break;
         picked.push(item);
@@ -269,7 +274,7 @@
         `🖍️ 今日红笔 #${num} (${dateStr})`,
         tiles,
         `得分 ${avgScore}/100 · 命中 ${totalFound}/${totalPlanted} · 误报 ${totalAlarms} · 用时 ${formatDuration(totalSec, "zh")}${streakPart}`,
-        "红笔抓错：专治一本正经的胡说八道",
+        "红笔抓错：这段话站得住脚吗？",
         link,
       ].join("\n");
     }
@@ -278,7 +283,7 @@
       `🖍️ RedPen Daily #${num} (${dateStr})`,
       tiles,
       `Score ${avgScore}/100 · Hits ${totalFound}/${totalPlanted} · False alarms ${totalAlarms} · ${formatDuration(totalSec, "en")}${streakPart}`,
-      "Spot the flaw. Beat the AI.",
+      "Does this hold up?",
       link,
     ].join("\n");
   }
@@ -297,7 +302,7 @@
         `🖍️ 红笔抓错 · ${domainLabel(domain || "math", "zh")}`,
         `${sq} ${title}`,
         `得分 ${scoreText} · 命中 ${debrief.found}/${debrief.planted} · 误报 ${debrief.false_alarms} · 用时 ${formatDuration(elapsedSec, "zh")}`,
-        "专治一本正经的胡说八道",
+        "这段话站得住脚吗？",
         link,
       ].join("\n");
     }
@@ -305,7 +310,7 @@
       `🖍️ RedPen · ${domainLabel(domain || "math", "en")}`,
       `${sq} ${title}`,
       `Score ${scoreText} · Hits ${debrief.found}/${debrief.planted} · False alarms ${debrief.false_alarms} · ${formatDuration(elapsedSec, "en")}`,
-      "Spot the flaw. Beat the AI.",
+      "Does this hold up?",
       link,
     ].join("\n");
   }

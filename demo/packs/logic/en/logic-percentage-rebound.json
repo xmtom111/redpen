@@ -11,7 +11,7 @@
   "difficulty": "intro",
   "level": 1,
   "estimated_seconds": 60,
-  "prompt": "You asked an AI to summarize this HR memo. If a line doesn't add up, tap it.",
+  "prompt": "HR sent this adjusted offer after last year's salary cut. Tap any line that doesn't hold up, or mark it clean.",
   "segments": [
     {
       "id": 1,
@@ -49,38 +49,38 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "The raise is 20% of the smaller $80,000 paycheck (+$16,000), which does not undo a 20% cut of $100,000 (−$20,000)."
+          "label": "20% of $80,000 is only $16,000, so the new salary is $96,000 — still $4,000 short of $100,000."
         },
         {
           "id": "d2",
-          "label": "You have to adjust both years for inflation before comparing the two salaries."
+          "label": "20% of $80,000 is $18,000, which brings the salary to $98,000 — $2,000 short of $100,000."
         },
         {
           "id": "d3",
-          "label": "20% of $100,000 is $25,000, so the cut actually landed at $75,000."
+          "label": "A 20% cut followed by a 20% raise returns you to $100,000, it just ignores a year of inflation."
         },
         {
           "id": "d4",
-          "label": "A 20% cut then a 20% raise overshoots, landing above $100,000 at $104,000."
+          "label": "Because the raise applies to $80,000, it actually pushes the new salary past $100,000 to $104,000."
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Do it in order: $100,000 × 0.80 = $80,000, then $80,000 × 1.20 = $96,000. You would need a 25% raise to get back to $100,000."
+          "label": "You need a 25% raise on $80,000 ($20,000) to get back to $100,000; 20% only reaches $96,000."
         },
         {
           "id": "f2",
-          "label": "Average the two percentages: (20% + 20%) / 2, which keeps the salary at $100,000."
+          "label": "Add a 22% raise on $80,000 ($17,600) to get back to $100,000 cleanly."
         },
         {
           "id": "f3",
-          "label": "Apply both changes to the original $100,000 and add them, for a final salary of $100,000."
+          "label": "Keep the 20% raise and add a 4% inflation bonus on top of $100,000."
         },
         {
           "id": "f4",
-          "label": "Keep $100,000 because multiplying by 0.80 and then 1.20 can be done in either order."
+          "label": "Calculate the 20% raise on $96,000 instead of $80,000 so it hits $100,000."
         }
       ],
       "fix_answer": "f1",
@@ -101,5 +101,64 @@
     "After the raise, the new salary is $80,000 × 1.20 = $96,000, which is still $4,000 short of $100,000. A 25% raise would be needed to restore the original pay.",
     "Whether you sign depends on the rest of the offer; this raise alone does not put you back to even."
   ],
-  "clean_conclusion": "The matching percentages do not cancel: the new salary is $96,000, not $100,000."
+  "clean_conclusion": "The matching percentages do not cancel: the new salary is $96,000, not $100,000.",
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "$100,000 base salary leaves out bonuses and equity, so percentage changes on base don't tell the full story.",
+        "A $100,000 base from last year is already worth less after inflation, even if it returned to $100,000.",
+        "You can't compare a $100,000 pre-downturn salary against post-downturn pay without adjusting tax brackets.",
+        "Calling $100,000 the baseline hides that a 20% cut only lowered take-home pay by ~15% after tax."
+      ],
+      "fix": [
+        "Include annual bonus and stock grants alongside the $100,000 base.",
+        "Index the $100,000 baseline for inflation (~$103,000) before comparing.",
+        "Compare after-tax net pay instead of gross $100,000.",
+        "Verify whether $100,000 was annualized before or after last year's merit cycle."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "A 20% cut from $100,000 leaves $83,333 ($100,000 ÷ 1.2), not $80,000.",
+        "Reducing $100,000 by 20% removes $20,000, which means a 20% raise later adds back the same $20,000.",
+        "Cutting $100,000 to $80,000 is a 25% reduction, not a 20% reduction.",
+        "Saying 'during the downturn' doesn't specify how many months you were paid at $80,000."
+      ],
+      "fix": [
+        "Recompute $100,000 ÷ 1.2 = $83,333 as the reduced salary.",
+        "Label the drop from $100,000 to $80,000 as a 25% cut.",
+        "Count the lost $20,000 from last year as back pay owed on top of the raise.",
+        "Verify the exact effective date of the cut to $80,000."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "Calculating the 20% raise on your current $80,000 salary is standard, so it automatically restores $20,000.",
+        "Saying '20% raise on your current salary' contradicts HR policy, which calculates raises off the original $100,000.",
+        "20% on $80,000 is $16,000 — that's 16% of $100,000, which is fine as long as the letter doesn't claim $100,000.",
+        "A 20% raise in one year pushes you into a higher tax bracket that wipes out the $16,000."
+      ],
+      "fix": [
+        "Ask HR to calculate the 20% raise on the pre-cut $100,000 base instead of $80,000.",
+        "State the dollar amount ($16,000 raise to $96,000) right inside line 3.",
+        "Request a 25% raise on $80,000 so the new salary actually returns to $100,000.",
+        "Split the 20% raise across two 10% bumps so taxes don't jump."
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "Signing this week locks you into $96,000 instead of $100,000 before you can point out the $4,000 gap.",
+        "Waiting until next month loses another month at $80,000, which costs more than the $4,000 gap.",
+        "HR pushing for a signature this week proves the $100,000 figure was a deliberate typo.",
+        "Even if you sign this week, the raise doesn't back-pay the $20,000 cut from last year."
+      ],
+      "fix": [
+        "Ask HR to fix the letter to $100,000 (25% on $80,000) before signing.",
+        "Sign immediately to start getting $96,000 next month, then negotiate the last $4,000 later.",
+        "Request retroactive back pay for last year's cut before signing.",
+        "Ask HR to put the exact new dollar salary in writing on the signature line."
+      ]
+    }
+  }
 }

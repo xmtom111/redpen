@@ -1,0 +1,126 @@
+{
+  "schema_version": 2,
+  "id": "code-trick-slice-copy",
+  "domain": "code",
+  "renderer": "code",
+  "code_language": "python",
+  "lang": "zh",
+  "kind": "trick_clean",
+  "title": "清理过期会话",
+  "topic": "在 `for s in sessions[:]:` 循环里调用 `sessions.remove(s)`",
+  "blurb": "一段原地删除过期会话并统计剩余数量的 Python 函数。",
+  "difficulty": "standard",
+  "level": 0,
+  "estimated_seconds": 55,
+  "prompt": "需求：原地删除 `sessions` 中所有 `expires_at <= now` 的会话，并返回剩余条数。看下这段代码，觉得哪行有问题就点它，觉得没问题就放行。",
+  "segments": [
+    {
+      "id": 1,
+      "label": "L1",
+      "text": "def drop_expired(sessions, now):"
+    },
+    {
+      "id": 2,
+      "label": "L2",
+      "text": "    for s in sessions[:]:"
+    },
+    {
+      "id": 3,
+      "label": "L3",
+      "text": "        if s[\"expires_at\"] <= now:"
+    },
+    {
+      "id": 4,
+      "label": "L4",
+      "text": "            sessions.remove(s)"
+    },
+    {
+      "id": 5,
+      "label": "L5",
+      "text": "    return len(sessions)"
+    }
+  ],
+  "conclusion": "AI 总结：原地删光所有过期会话（哪怕连续过期也不漏），并返回剩余条数。",
+  "flaws": [],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "函数内直接修改外部列表必须声明 `global sessions`，否则改动不会生效。",
+        "如果 `now` 是浮点时间戳而 `expires_at` 是整数，Python 直接比较会报 TypeError。",
+        "列表按值传入时会自动复制，函数里删完外面根本看不到变化。",
+        "参数没写默认值，传入空列表会直接报错。"
+      ],
+      "fix": [
+        "不要原地修改，直接返回一个过滤后的新列表。",
+        "在第一行先把 `now = int(now)` 转成整数。",
+        "在函数开头加上 `global sessions`。",
+        "把签名改成 `def drop_expired(sessions=None, now=0):`。"
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "`sessions[:]` 没写起止下标会切出空列表，循环根本不会跑。",
+        "`sessions[:]` 只是给原列表起了个引用别名，删元素照样会让迭代器错位跳项。",
+        "因为 `sessions[:]` 是浅拷贝，循环里删的其实只是副本，原列表一条没少。",
+        "切片 `sessions[:]` 在 Python 里会漏掉最后一个元素。"
+      ],
+      "fix": [
+        "改成 `copy.deepcopy(sessions)` 才能防止迭代器错位。",
+        "明确写出 `sessions[0:len(sessions)]` 避免切出空列表。",
+        "直接改成 `sessions = [s for s in sessions if s['expires_at'] > now]`。",
+        "改成按正序下标 `for i in range(len(sessions)):` 配合 `pop(i)`。"
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "写成 `<=` 会把刚好等于 `now` 的会话提前一秒清掉，应该用 `<`。",
+        "字典键用双引号 `\"expires_at\"`，如果原字典是单引号建的会匹配不到。",
+        "比较方向写反了：过期会话应该是 `expires_at >= now`。",
+        "`sessions` 为空时这一行会抛 KeyError。"
+      ],
+      "fix": [
+        "把 `<=` 改成 `<`，保留正好到期那一刻的会话。",
+        "把条件反过来写成 `if s[\"expires_at\"] >= now:`。",
+        "把双引号改成单引号 `s['expires_at']`。",
+        "在循环里加上 `if not sessions: return 0`。"
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "在 `for` 循环里调用 `sessions.remove(s)` 会让后面元素左移，连续两个过期会话会漏删第二个。",
+        "`sessions.remove(s)` 只能删掉切片副本里的项，原列表 `sessions` 完全没变。",
+        "列表元素是字典（不可哈希），调用 `.remove(s)` 会直接报 TypeError。",
+        "连续删两个过期会话时，第二次 `sessions.remove(s)` 会抛 ValueError。"
+      ],
+      "fix": [
+        "先把过期项收进临时列表，等循环结束再统一删除。",
+        "改用 `sessions[:] = [s for s in sessions if s['expires_at'] > now]` 避免循环内删除。",
+        "改成正序 `for i in range(len(sessions)): del sessions[i]`。",
+        "先把 `sessions` 转成 `set` 再调 `.remove(s)`。"
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "因为第 4 行改的只是副本，这里 `len(sessions)` 返回的还是删除前的原长度。",
+        "`len(sessions)` 返回的是被删掉的条数，不是剩下的条数。",
+        "全部删光后调用 `len([])` 会报错而不是返回 `0`。",
+        "`return` 缩进不对，检查完第一条就提前退出了。"
+      ],
+      "fix": [
+        "改成返回 `len(sessions[:])` 拿到最新长度。",
+        "用计数器统计删了多少条，再返回总数减计数器。",
+        "改成直接返回 `sessions` 列表本身。",
+        "写成 `return len(sessions) if sessions else 0` 防止空列表报错。"
+      ]
+    }
+  },
+  "clean_segments": [
+    "def drop_expired(sessions, now):",
+    "    for s in sessions[:]:",
+    "        if s[\"expires_at\"] <= now:",
+    "            sessions.remove(s)",
+    "    return len(sessions)"
+  ],
+  "clean_conclusion": "边遍历边 `remove` 平时确实会跳过相邻元素，但这里遍历的是切片副本 `sessions[:]`，删原列表完全不会影响副本的迭代器位置。",
+  "explanation": "边遍历边 `remove` 平时确实会跳过相邻元素，但这里遍历的是切片副本 `sessions[:]`，删原列表完全不会影响副本的迭代器位置。"
+}

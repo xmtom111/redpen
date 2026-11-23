@@ -1,0 +1,106 @@
+{
+  "schema_version": 2,
+  "domain": "logic",
+  "renderer": "prose",
+  "opener": true,
+  "kind": "clean",
+  "difficulty": "intro",
+  "level": 0,
+  "estimated_seconds": 50,
+  "id": "logic-chat-group-tickets",
+  "lang": "en",
+  "title": "Show tickets",
+  "topic": "A friend buys six show tickets together to hit a 5-ticket 10% group discount",
+  "blurb": "A friend bought six concert tickets together and is splitting the bill.",
+  "prompt": "A friend just sent this in the group chat. Tap a line if something doesn't add up, or let it pass.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The deal",
+      "text": "Show tickets are $45 each, or 10% off the whole order once you buy at least 5."
+    },
+    {
+      "id": 2,
+      "label": "The cart",
+      "text": "Six of us are going, so I grabbed all six on one order instead of everyone buying solo."
+    },
+    {
+      "id": 3,
+      "label": "The split",
+      "text": "Six at $45 is $270, minus 10% is $243 — comes out to $40.50 a person, saving $4.50 each."
+    },
+    {
+      "id": 4,
+      "label": "The ask",
+      "text": "Just send me $40.50 before Friday."
+    }
+  ],
+  "conclusion": "Six $45 tickets at 10% off cost $243 total, which is $40.50 each — $4.50 off per ticket.",
+  "flaws": [],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "Bulk tiers like '10% off once you buy 5' only discount the 5th and 6th tickets, not the first four.",
+        "10% off $45 is $4.50, which means you need to buy 10 tickets to save the price of one, not 5.",
+        "Ticket sites charge per-ticket service fees after the discount, so quoting $45 hides the real base.",
+        "Buying 5+ tickets only takes 10% off the first 5; the 6th ticket rings up at full price."
+      ],
+      "fix": [
+        "Apply 10% off only to the tickets beyond the first four.",
+        "Apply 10% off to 5 tickets ($202.50) and add the 6th at full price ($45).",
+        "Include venue service fees before quoting $40.50 a person.",
+        "Check if the 10% discount caps at $20 per order."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "Putting all six on one order means one person eats the credit-card fee while everyone else saves $4.50.",
+        "Since the threshold is 5 tickets, buying 6 wastes the discount on an uneven sixth seat.",
+        "Buying solo lets people use personal promo codes, so bundling all six isn't automatically cheaper.",
+        "Six people means the buyer paid for five friends plus themselves, so the $243 should be divided by 5."
+      ],
+      "fix": [
+        "Divide $243 by the 5 friends who owe you ($48.60 each).",
+        "Buy 5 tickets on the discounted order and have the 6th person buy solo.",
+        "Split the order into two carts of 3 so seats stay together.",
+        "Check whether anyone had a $10-off solo voucher first."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "10% of $270 is $27, and $270 minus $27 is $253, not $243 — so everyone actually owes $42.17.",
+        "Only the 5th and 6th tickets get 10% off ($9 off total), so the bill is $261, or $43.50 each.",
+        "$243 divided by 6 is $41.50, not $40.50, so you're shortchanging yourself by $6.",
+        "Saving 10% on $270 saves $27 total, and $27 divided by 6 is $3.50 each, not $4.50."
+      ],
+      "fix": [
+        "Fix the subtraction: $270 − $27 is $253, which is $42.17 per person.",
+        "Discount only the 5th and 6th tickets: $261 total, or $43.50 each.",
+        "Fix the division: $243 ÷ 6 is $41.50 each, not $40.50.",
+        "Change the savings to $3.50 per person ($27 ÷ 6)."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Asking for $40.50 from all five friends only brings back $202.50 — you're still out $40.50 on the $243 charge.",
+        "You shouldn't ask for $40.50 until you fix $270 − $27 = $253 ($42.17 each).",
+        "Collecting $40.50 each leaves you $6 short because $243 ÷ 6 is $41.50.",
+        "Because only the extra tickets got discounted, everyone owes $43.50, not $40.50."
+      ],
+      "fix": [
+        "Ask the five friends for $48.60 each so you recover the full $243.",
+        "Update the Venmo request to $42.17 each before people start paying.",
+        "Update the request to $41.50 each so you aren't out $6.",
+        "Ask for $43.50 each to match the two-ticket discount."
+      ]
+    }
+  },
+  "clean_segments": [
+    "Show tickets are $45 each, or 10% off the whole order once you buy at least 5.",
+    "Six of us are going, so I grabbed all six on one order instead of everyone buying solo.",
+    "Six at $45 is $270, minus 10% is $243 — comes out to $40.50 a person, saving $4.50 each.",
+    "Just send me $40.50 before Friday."
+  ],
+  "clean_conclusion": "Every number checks out: 6 × $45 = $270; minus 10% ($27) = $243; divided by 6 = $40.50 each, which is indeed $4.50 less than $45.",
+  "explanation": "Every number checks out: 6 × $45 = $270; minus 10% ($27) = $243; divided by 6 = $40.50 each, which is indeed $4.50 less than $45."
+}

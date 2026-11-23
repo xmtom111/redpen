@@ -1,0 +1,144 @@
+{
+  "schema_version": 2,
+  "domain": "logic",
+  "renderer": "prose",
+  "opener": true,
+  "kind": "planted",
+  "difficulty": "intro",
+  "level": 1,
+  "estimated_seconds": 55,
+  "id": "logic-chat-elevator-floors",
+  "lang": "en",
+  "title": "Moving day",
+  "topic": "A friend estimates when movers carrying a sofa up the stairs will reach the 8th floor",
+  "blurb": "A friend is timing movers carrying a sofa up the stairs.",
+  "prompt": "A friend just sent this in the group chat. Tap a line if something doesn't add up, or let it pass.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The break",
+      "text": "Freight elevator died mid-move, so the movers are hauling the sofa up the stairs to my place on the 10th floor."
+    },
+    {
+      "id": 2,
+      "label": "Check-in",
+      "text": "They left the lobby on floor 1 at 2:00 and just texted from the 4th floor at 2:06 — steady pace, no stops."
+    },
+    {
+      "id": 3,
+      "label": "The ETA",
+      "text": "Six minutes for four floors is a minute and a half per floor, so six more floors puts them at my door at 2:15."
+    },
+    {
+      "id": 4,
+      "label": "The prep",
+      "text": "I'll clear the hallway and prop the door around 2:14."
+    }
+  ],
+  "conclusion": "6 minutes for 4 floors is 1.5 minutes per floor, so 6 more floors to the 10th takes 9 minutes (2:15).",
+  "flaws": [
+    {
+      "segment_id": 3,
+      "error_type": "floor-gaps",
+      "original": "Floor 1 to floor 4 is 3 flights of stairs (2 minutes a flight), so 6 more flights to floor 10 takes 12 minutes — 2:18, not 2:15.",
+      "corrupted": "Six minutes for four floors is a minute and a half per floor, so six more floors puts them at my door at 2:15.",
+      "diagnosis_choices": [
+        {
+          "id": "d1",
+          "label": "Floor 1 to 4 is only 3 flights (2 min each), so 6 more flights to 10 takes 12 min — 2:18, not 2:15."
+        },
+        {
+          "id": "d2",
+          "label": "4th to 10th includes both landings (7 floors at 1.5 min each), so they won't arrive until 2:16:30."
+        },
+        {
+          "id": "d3",
+          "label": "Six more floors at 1.5 minutes each is 10 minutes, not 9, putting them at your door at 2:16."
+        },
+        {
+          "id": "d4",
+          "label": "Carrying a sofa slows down after floor 4, so extrapolating the 1.5 min/floor pace misses fatigue."
+        }
+      ],
+      "diagnosis_answer": "d1",
+      "fix_choices": [
+        {
+          "id": "f1",
+          "label": "Count flights climbed: 3 flights took 6 min (2 min each), so 6 more flights take 12 min (2:18)."
+        },
+        {
+          "id": "f2",
+          "label": "Count 7 floors inclusive from 4th to 10th at 1.5 min each and expect them around 2:17."
+        },
+        {
+          "id": "f3",
+          "label": "Fix 6 × 1.5 to 10 minutes so the arrival time moves from 2:15 to 2:16."
+        },
+        {
+          "id": "f4",
+          "label": "Add a 3-minute breather on floor 7 on top of the 9 minutes so they arrive at 2:18."
+        }
+      ],
+      "fix_answer": "f1",
+      "explanation": "Floor 1 to floor 4 is 3 flights of stairs, not 4 — that's 2 minutes a flight. Six more flights to the 10th floor takes 12 minutes, so they'll hit your door at 2:18, not 2:15.",
+      "why_tempting": "6 ÷ 4 = 1.5 and 6 × 1.5 = 9 are both spotless arithmetic. It glides right past that you start on floor 1 without climbing a flight.",
+      "catch_rule": "When climbing between numbered floors, subtract the floor numbers to count actual flights — never take a ratio of the floor numbers.",
+      "hint": "When you walk from floor 1 to floor 4, how many flights of stairs do you actually climb?",
+      "practice": {
+        "problem": "A runner climbs from the 1st floor to the 5th floor in 40 seconds at a steady pace. How long to climb from the 1st floor to the 9th?",
+        "answer": "80 seconds — 1st to 5th is 4 flights (10s each), and 1st to 9th is 8 flights."
+      }
+    }
+  ],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "A 10th-floor apartment only has 9 flights from street level, so calling it 10 floors overcounts by one.",
+        "If the freight elevator died mid-move, the movers were already partway up before switching to stairs.",
+        "A sofa takes two movers, so you can't treat their stair pace as a fixed per-floor rate.",
+        "Most buildings skip floor 13, not floor 10, so 10th floor is actually 10 flights from the garage."
+      ],
+      "fix": [
+        "Check whether they started in the basement garage instead of the 1st-floor lobby.",
+        "Verify if the building numbers the lobby as ground floor 0 instead of floor 1.",
+        "Count 9 total flights up front before timing them from floor 1.",
+        "Ask the building super when the freight elevator restarts before timing stairs."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "Texting from the 4th floor means they paused to type, so the 6 minutes already includes a break.",
+        "2:00 to 2:06 is 6 minutes, which is too short a window to predict a 10-floor climb accurately.",
+        "Leaving from floor 1 and hitting floor 4 in 6 minutes means 2 minutes per floor, not 1.5 — wait, 4 − 1 is 3.",
+        "Starting at 2:00 exact is almost certainly rounded, which skews the 1.5-minute pace."
+      ],
+      "fix": [
+        "Wait for a second text from floor 6 before estimating when they'll reach floor 10.",
+        "Subtract 30 seconds for texting time before computing their pace per flight.",
+        "Check the exact minute they left the lobby instead of rounding to 2:00.",
+        "Ask the movers how many rest stops they plan between floor 4 and floor 10."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Propping the door at 2:14 leaves it open only 1 minute if they hit 2:15 — too tight to clear the hall.",
+        "You'll be holding the door open 4 minutes early since they won't actually reach floor 10 until 2:18.",
+        "Propping a hallway fire door open before movers arrive violates building rules either way.",
+        "They'll actually arrive at 2:12 (only 6 more minutes), so 2:14 is two minutes too late."
+      ],
+      "fix": [
+        "Wait until 2:17 to prop the door, since they won't reach the 10th floor until 2:18.",
+        "Clear the hallway now and wait for their text from the 9th floor before opening.",
+        "Prop the door at 2:11 in case they reach floor 10 in 6 minutes.",
+        "Go down a flight around 2:15 to guide the sofa around the last corner."
+      ]
+    }
+  },
+  "clean_segments": [
+    "Freight elevator died mid-move, so the movers are hauling the sofa up the stairs to my place on the 10th floor.",
+    "They left the lobby on floor 1 at 2:00 and just texted from the 4th floor at 2:06 — steady pace, no stops.",
+    "Floor 1 to floor 4 is 3 flights of stairs (2 minutes a flight), so 6 more flights to floor 10 takes 12 minutes — 2:18, not 2:15.",
+    "I'll clear the hallway and prop the door around 2:14."
+  ],
+  "clean_conclusion": "Floor 1 to 4 is 3 flights (2 min each), so 6 more flights to floor 10 takes 12 minutes — 2:18, not 2:15."
+}

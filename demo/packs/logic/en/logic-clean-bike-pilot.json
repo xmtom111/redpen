@@ -10,7 +10,7 @@
   "difficulty": "intro",
   "level": 0,
   "estimated_seconds": 45,
-  "prompt": "This city brief went around after a year of the new lane. Flag a hole if you see one, or mark it clean if the reasoning holds.",
+  "prompt": "The city circulated this note after a year of the new bike lane. Tap any line that doesn't hold up, or mark it clean.",
   "segments": [
     {
       "id": 1,
@@ -48,5 +48,79 @@
     "The pilot supports a net rise in cycling on flat commercial streets like Oak Avenue, though steeper or suburban roads may behave differently."
   ],
   "clean_conclusion": "The write-up uses a full-year window, a matched control street, actual card sales instead of vibes, and a carefully scoped conclusion.",
-  "opener": false
+  "opener": false,
+  "kind": "clean",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "Tracking only weekday traffic drops weekend leisure riders and exaggerates the commuting jump.",
+        "12 months before and 12 months after is still too short because bike-lane habits take 3 years to stabilize.",
+        "Measuring Oak Avenue alone without checking parallel car lanes misses traffic spillover onto side streets.",
+        "Counting trips instead of unique riders double-counts the same commuters riding twice a day."
+      ],
+      "fix": [
+        "Include Saturday and Sunday bike counts before calling it a full-year comparison.",
+        "Extend the pilot to 36 months so novelty effects wear off.",
+        "Measure car congestion on nearby residential side streets too.",
+        "Track unique cyclists via survey instead of total daily bike trips."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "Because Pine Avenue is nearby, cyclists simply shifted from Pine to Oak, inflating Oak's +35% gain.",
+        "A single control street can't control for citywide trends — you need at least ten matched avenues.",
+        "Pine Avenue didn't get construction, so comparing it to Oak misses the disruption period.",
+        "Having 'similar traffic' beforehand doesn't mean Pine had the same share of cyclists."
+      ],
+      "fix": [
+        "Pick a control street in a different district so riders can't migrate from Pine to Oak.",
+        "Average five or more control corridors instead of relying on Pine Avenue alone.",
+        "Exclude the first three months after construction from both Oak and Pine.",
+        "Verify Pine Avenue's baseline bike volume before comparing percentage jumps."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "Subtracting 5% from 35% to get a 30-point gain is invalid because Oak and Pine started from different base counts.",
+        "35% vs 5% is a 7× relative gain, not a 30-point gain — you mixed up ratio and subtraction.",
+        "A 35% jump on a tiny baseline (say 20 bikes/day) is only 7 extra bikes, which could be pure noise.",
+        "Comparing percentage changes without reporting the raw trip counts hides whether cycling actually rose meaningfully."
+      ],
+      "fix": [
+        "Report raw daily bike counts on both streets instead of subtracting percentages.",
+        "Divide 35% by 5% to express the relative multiplier instead of 30 points.",
+        "Check whether Oak Avenue started from a tiny base before calling 35% substantial.",
+        "Adjust for weather differences between the two 12-month windows first."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Card-payment totals ignore cash sales, which are a huge share of small corner shops along Oak Avenue.",
+        "+1.2% vs +0.9% doesn't adjust for inflation — in real terms, shop revenue fell on both streets.",
+        "A 0.3-point gap (+1.2% vs +0.9%) is too small to be statistically significant, so it proves nothing.",
+        "Card totals pool big chains with mom-and-pop stores, hiding heavy losses at small shops."
+      ],
+      "fix": [
+        "Include cash register receipts alongside card totals before clearing the bike lane.",
+        "Subtract annual inflation (~3%) so you report real sales rather than nominal totals.",
+        "Break out independent shops separately from national chains along Oak Avenue.",
+        "Run a merchant profit survey to verify whether parking loss hurt margins."
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "Claiming a 'net rise in cycling' assumes riders didn't just detour off Pine Avenue onto Oak Avenue.",
+        "Limiting the claim to flat commercial streets makes the pilot useless for the rest of the city.",
+        "One year of flat card sales (+1.2%) isn't enough to call the lane harmless without checking store closures.",
+        "This jumps from correlation (lane installed + more bikes) to causation without randomizing which street got the lane."
+      ],
+      "fix": [
+        "Narrow the conclusion to 'trips on Oak rose' without claiming a citywide net rise.",
+        "Check shop turnover and vacancy rates over the 12 months before concluding zero hit.",
+        "Randomly assign bike lanes to half of the city's commercial streets before concluding causation.",
+        "Wait for a second post-installation year before recommending lanes on similar flat streets."
+      ]
+    }
+  },
+  "explanation": "The write-up uses a full-year window, a matched control street, actual card sales instead of vibes, and a carefully scoped conclusion."
 }

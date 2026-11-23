@@ -5,13 +5,13 @@
   "renderer": "code",
   "code_language": "python",
   "lang": "en",
-  "title": "The flash-sale checkout that never hits 25% off",
+  "title": "Flash-sale checkout",
   "topic": "A holiday discount the AI 'finished' in one sitting",
-  "blurb": "Spec says $500+ gets 25% off. The AI's function is very sure it does. Big carts will disagree.",
+  "blurb": "A tiered checkout helper with 10% and 25% discount thresholds.",
   "difficulty": "standard",
   "level": 2,
   "estimated_seconds": 75,
-  "prompt": "Spec: sum every item, take 25% off at $500+ or 10% off at $100+, return the total. An AI intern shipped this for the flash sale. Review it.",
+  "prompt": "Spec: sum every item in `prices`, apply 25% off at $500+ or 10% off at $100+, and return the rounded total. Review this helper — tap a line if it breaks the spec, or let it pass.",
   "segments": [
     {
       "id": 1,
@@ -64,19 +64,19 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "Off-by-one: `range(len(prices) - 1)` stops before the last index, silently dropping the last item."
+          "label": "`range(len(prices) - 1)` stops one short, silently dropping the last item."
         },
         {
           "id": "d2",
-          "label": "`range(len(prices) - 1)` raises IndexError on non-empty lists."
+          "label": "`range(len(prices) - 1)` raises IndexError whenever `prices` has only one item."
         },
         {
           "id": "d3",
-          "label": "Python's `sum()` cannot accept a generator expression."
+          "label": "Python's `sum()` requires a list `[...]`, so passing a generator returns `0`."
         },
         {
           "id": "d4",
-          "label": "`range` starts at 1 in Python, skipping `prices[0]`."
+          "label": "`range` starts at index `1`, so `prices[0]` is skipped on every cart."
         }
       ],
       "diagnosis_answer": "d1",
@@ -87,15 +87,15 @@
         },
         {
           "id": "f2",
-          "label": "Use `range(1, len(prices))` to include the last item."
+          "label": "Use `range(1, len(prices))` so the loop reaches the final item's index."
         },
         {
           "id": "f3",
-          "label": "Use `range(len(prices) + 1)` so the last index is included."
+          "label": "Use `range(len(prices) + 1)` so `len(prices) - 1` isn't excluded."
         },
         {
           "id": "f4",
-          "label": "Replace `sum(...)` with `len(prices)`."
+          "label": "Wrap the generator in brackets `[prices[i] for i in range(len(prices) - 1)]`."
         }
       ],
       "fix_answer": "f1",
@@ -116,38 +116,38 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "Unreachable branch: any `subtotal >= 500` already matched `if subtotal >= 100` on L3."
+          "label": "Dead branch: every `subtotal >= 500` already hit `if subtotal >= 100` on L3."
         },
         {
           "id": "d2",
-          "label": "`elif` cannot compare the same variable twice in Python."
+          "label": "Python forbids checking the same variable `subtotal` in both `if` and `elif`."
         },
         {
           "id": "d3",
-          "label": "`>= 500` should be `> 500` because $500 orders only get 10%."
+          "label": "Using `>= 500` instead of `> 500` gives $500 orders 25% off when they only get 10%."
         },
         {
           "id": "d4",
-          "label": "Discount should be `25` instead of `0.25`."
+          "label": "An `elif` branch runs *after* `if` too, stacking 10% and 25% into 35% off."
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Check the stricter condition first: `if subtotal >= 500:` (0.25), then `elif subtotal >= 100:` (0.10)."
+          "label": "Check the higher tier first: `if subtotal >= 500:` (0.25), then `elif subtotal >= 100:` (0.10)."
         },
         {
           "id": "f2",
-          "label": "Change `elif subtotal >= 500:` to `elif subtotal <= 500:`."
+          "label": "Change `elif subtotal >= 500:` to `if subtotal >= 500:` while keeping L3 at `>= 100` — wait, keep `elif subtotal < 500:`."
         },
         {
           "id": "f3",
-          "label": "Remove the `else` branch so Python evaluates both `if` and `elif`."
+          "label": "Remove the `else:` branch on L7 so Python evaluates both thresholds independently."
         },
         {
           "id": "f4",
-          "label": "Swap `0.10` and `0.25` while keeping the same threshold order."
+          "label": "Swap `0.10` on L4 and `0.25` on L6 without changing the threshold order."
         }
       ],
       "fix_answer": "f1",
@@ -172,5 +172,92 @@
     "        discount = 0.0",
     "    return round(subtotal * (1 - discount), 2)"
   ],
-  "clean_conclusion": "Every item is summed, and a $500+ cart actually gets the 25% tier."
+  "clean_conclusion": "Every item is summed, and a $500+ cart actually gets the 25% tier.",
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "If `prices` is empty `[]`, `checkout_total` crashes with ValueError without an early guard.",
+        "Missing default `prices=[]` prevents calling `checkout_total` on empty carts.",
+        "Accepting floats in `prices` breaks `>= 100` comparisons without `Decimal`.",
+        "Function mutates `prices` in place during `sum(...)`."
+      ],
+      "fix": [
+        "Add `if not prices: return 0.0` right after line 1.",
+        "Default `prices = []` in the signature.",
+        "Convert all entries with `map(int, prices)` on line 1.",
+        "Clone `prices = list(prices)` before summing."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "Using `>= 100` gives 10% off at exactly `$100` when the spec requires strictly over `$100`.",
+        "`if subtotal >= 100:` skips `$500+` carts only if L5 runs before L3 — here L3 itself should check `subtotal < 500` too.",
+        "Comparing float `subtotal >= 100` fails when `subtotal` is `100.0`.",
+        "The first tier should check `subtotal > 0` before checking `100`."
+      ],
+      "fix": [
+        "Change `>= 100` to `> 100` so `$100` exact stays full price.",
+        "Add an upper bound: `if 100 <= subtotal < 500:` on line 3.",
+        "Compare against `100.0` instead of integer `100`.",
+        "Check `if subtotal < 100: discount = 0.0` first."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Setting `discount = 0.10` takes 90% off instead of 10% off when multiplied on L8.",
+        "Discount should be `10` (percentage points), not `0.10`.",
+        "`discount` is scoped inside the `if` block and becomes undefined on L8.",
+        "Assigning `0.10` here is overwritten by L7 `else` on every call."
+      ],
+      "fix": [
+        "Set `discount = 0.90` so L8 keeps 90% of the subtotal.",
+        "Initialize `discount = 0.0` above L3 so it stays in scope.",
+        "Set `discount = 10` and divide by `100` on L8.",
+        "Return `round(subtotal * 0.9, 2)` directly on L4."
+      ]
+    },
+    "6": {
+      "diagnosis": [
+        "Setting `discount = 0.25` charges only 25% of the cart instead of taking 25% off.",
+        "25% off on top of 10% off should be `discount = 0.15` so they don't stack to 35%.",
+        "Floating-point `0.25` introduces binary rounding error; use `1 / 4` instead.",
+        "`discount` isn't returned here, so execution falls through to `else: discount = 0.0`."
+      ],
+      "fix": [
+        "Change `discount = 0.25` to `discount = 0.75`.",
+        "Change to `discount = 0.15` so total discount caps at 25%.",
+        "Add `return` right after `discount = 0.25` so it doesn't fall into `else`.",
+        "Use `discount = 25` and divide by 100 on line 8."
+      ]
+    },
+    "7": {
+      "diagnosis": [
+        "Putting `discount = 0.0` on the same line after `else:` is a syntax error in Python.",
+        "This `else:` only pairs with `elif` on L5, so carts between `$100` and `$499` get reset to `0.0`.",
+        "Setting `discount = 0.0` makes L8 multiply by `0` and return `$0` for small carts.",
+        "Missing `return` on `else:` causes small carts to return `None`."
+      ],
+      "fix": [
+        "Put `discount = 0.0` on the next indented line under `else:`.",
+        "Initialize `discount = 0.0` before L3 and remove the `else:` branch.",
+        "Set `discount = 1.0` on `else:` so small carts pay 100%.",
+        "Return `round(subtotal, 2)` directly in the `else:` branch."
+      ]
+    },
+    "8": {
+      "diagnosis": [
+        "Formula is inverted: `subtotal * (1 - discount)` charges 10% instead of taking 10% off.",
+        "Should be `subtotal * discount` to compute the discounted total.",
+        "`round(..., 2)` truncates cents downward, undercharging on every `.xx5` cart.",
+        "Multiplying `subtotal * (1 - discount)` before checking `subtotal == 0` divides by zero."
+      ],
+      "fix": [
+        "Change to `round(subtotal * discount, 2)`.",
+        "Change to `round(subtotal / (1 + discount), 2)`.",
+        "Use `int(subtotal * (1 - discount))` to avoid float drift.",
+        "Subtract `discount` directly: `round(subtotal - discount, 2)`."
+      ]
+    }
+  }
 }

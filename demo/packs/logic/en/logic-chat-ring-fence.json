@@ -1,0 +1,106 @@
+{
+  "schema_version": 2,
+  "domain": "logic",
+  "renderer": "prose",
+  "opener": true,
+  "kind": "trick_clean",
+  "difficulty": "intro",
+  "level": 0,
+  "estimated_seconds": 50,
+  "id": "logic-chat-ring-fence",
+  "lang": "en",
+  "title": "Patio lights",
+  "topic": "A friend counts poles for string lights around a closed patio perimeter",
+  "blurb": "A friend is grabbing support stakes on the way to the hardware store.",
+  "prompt": "A friend just sent this in the group chat. Tap a line if something doesn't add up, or let it pass.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The loop",
+      "text": "Putting café lights all the way around our round firepit patio — 40 feet around the rim."
+    },
+    {
+      "id": 2,
+      "label": "The spacing",
+      "text": "I want a support stake every 8 feet along the edge so the wire stays tight."
+    },
+    {
+      "id": 3,
+      "label": "The count",
+      "text": "40 divided by 8 is 5, so I'm grabbing 5 stakes at the hardware store."
+    },
+    {
+      "id": 4,
+      "label": "The run",
+      "text": "Heading out now before they close at 6."
+    }
+  ],
+  "conclusion": "40 feet around the patio with a stake every 8 feet means 5 stakes.",
+  "flaws": [],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "A 40-foot circle needs an extra foot of overlap where the plug meets the end of the strand, so 40 feet is short.",
+        "Around a curved rim, straight spans between stakes cut chords across the circle, making the spacing wrong.",
+        "Starting and ending at the outlet stake means the outlet spot needs two stakes side by side.",
+        "40 feet of circumference gives a diameter under 13 feet, so 8-foot stakes won't curve around it."
+      ],
+      "fix": [
+        "Buy two stakes for the outlet spot where the strand starts and ends.",
+        "Use 48 feet of spacing math so the plug overlap is covered.",
+        "Space stakes every 5 feet so the wire follows the curve cleanly.",
+        "Measure straight chord lengths instead of the 40-foot curved rim."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "Spacing stakes every 8 feet around a 40-foot rim means the last gap is shorter unless you add a 6th stake.",
+        "8 feet is too wide for café lights; the wire will dip between stakes unless you double the count to 10.",
+        "Along a circle, 8-foot spacing leaves 5 gaps, which always requires 5 + 1 = 6 stakes.",
+        "You can't divide a curved perimeter by a straight 8-foot spacing without rounding up."
+      ],
+      "fix": [
+        "Add a 6th stake so all five 8-foot spans have posts on both ends.",
+        "Cut the spacing to 4 feet and grab 10 stakes so it never sags.",
+        "Round up to 6 stakes to account for the curve of the patio.",
+        "Place 4 stakes evenly at the quarters (10 feet apart) instead."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "Off-by-one: 5 gaps of 8 feet require 6 stakes because you have to count both the first stake and the last stake.",
+        "With only 5 stakes along 40 feet, the gaps stretch out to 10 feet each (40 ÷ 4) instead of 8.",
+        "You need 5 stakes for the gaps plus 1 starter stake by the outlet — 6 stakes total.",
+        "40 divided by 8 counts the spaces, not the posts; posts are always spaces plus one."
+      ],
+      "fix": [
+        "Grab 6 stakes (40 ÷ 8 + 1) so you don't come up one short at the end.",
+        "Grab 6 stakes so the gaps stay 8 feet instead of stretching to 10 feet.",
+        "Add 1 extra stake for the outlet end of the light strand.",
+        "Buy 7 stakes so both ends and an overlap are covered."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Grabbing only 5 stakes right before 6 PM means you'll be stuck one stake short once the store locks up.",
+        "Without hooks or zip ties, 5 stakes alone won't hold the strand up tonight.",
+        "Leaving the store with 5 stakes forces 10-foot spans that will sag.",
+        "You should measure the exact outlet distance first — you'll probably need 6 stakes."
+      ],
+      "fix": [
+        "Grab 6 stakes before 6 PM so you don't have to drive back tomorrow.",
+        "Pick up an extra stake for the start/end join just in case.",
+        "Wait until tomorrow and mark the 6 spots around the rim with chalk first.",
+        "Grab 10 stakes for 4-foot spacing while the store is still open."
+      ]
+    }
+  },
+  "clean_segments": [
+    "Putting café lights all the way around our round firepit patio — 40 feet around the rim.",
+    "I want a support stake every 8 feet along the edge so the wire stays tight.",
+    "40 divided by 8 is 5, so I'm grabbing 5 stakes at the hardware store.",
+    "Heading out now before they close at 6."
+  ],
+  "clean_conclusion": "No off-by-one here — the lights wrap all the way around a closed circle, so the last stake meets the first and 5 stakes give five exact 8-foot spans.",
+  "explanation": "No off-by-one here — the lights wrap all the way around a closed circle, so the last stake meets the first and 5 stakes give five exact 8-foot spans."
+}

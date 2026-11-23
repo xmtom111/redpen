@@ -19,150 +19,6 @@ REGISTRY_PATH = PACKS_DIR / "index.json"
 VALID_DOMAINS = ("logic", "code", "math")
 VALID_RENDERERS = ("prose", "code", "math", "markdown")
 
-# Domain-appropriate distractors for non-flaw segments so every clickable segment
-# presents 4 plausible choices without leaking which segments contain planted flaws.
-DOMAIN_DISTRACTORS: dict[str, dict[str, dict[str, list[str]]]] = {
-    "code": {
-        "en": {
-            "diagnosis": [
-                "Off-by-one boundary error skips the first or last element.",
-                "Implicit type coercion turns a number into a string on this line.",
-                "Variable is read before initialization in this scope.",
-                "Null or empty input causes an unhandled runtime exception here.",
-                "Operator precedence evaluates the condition in the wrong order.",
-                "Mutating shared state here leaks values into later calls.",
-                "Return value is ignored, leaving the caller with `None`/`undefined`.",
-                "Early exit bypasses cleanup or validation on the following line.",
-            ],
-            "fix": [
-                "Guard against empty or null inputs before executing this line.",
-                "Clone the input structure before reading or updating it here.",
-                "Add explicit parentheses to enforce the intended precedence.",
-                "Rewrite the boundary comparison from `<` to `<=` (or vice versa).",
-                "Convert the value explicitly with `int()` / `Number()` before using it.",
-                "Move this statement inside an atomic helper or transaction.",
-                "Return a fresh copy instead of referencing the local variable.",
-                "Replace the inline expression with a parameterized or explicit check.",
-            ],
-        },
-        "zh": {
-            "diagnosis": [
-                "边界差一错误，会漏掉首项或末项元素。",
-                "存在隐式类型转换，导致数字与字符串混用出错。",
-                "变量在当前作用域内尚未初始化就被读取。",
-                "输入为空或 `None`/`null` 时，这一行会抛出未捕获异常。",
-                "运算符优先级导致条件判断顺序与预期不符。",
-                "这里原地修改了共享状态，会污染后续调用。",
-                "忽略了返回值，导致调用方拿到空值。",
-                "提前返回跳过了必要的校验或状态更新。",
-            ],
-            "fix": [
-                "在执行这一行之前补上空值与边界校验。",
-                "先对输入数据做深拷贝再读取或修改。",
-                "加上显式括号以固定运算符优先级。",
-                "把边界比较符号从 `<` 改为 `<=`（或反向调整）。",
-                "先显式转换类型后再参与运算或比较。",
-                "把这一步放进原子操作或事务块中执行。",
-                "返回一个全新的副本而不是直接引用局部变量。",
-                "改用参数化或显式分支写法替代当前行。",
-            ],
-        },
-    },
-    "logic": {
-        "en": {
-            "diagnosis": [
-                "Confuses correlation with direct causation without ruling out confounders.",
-                "Cherry-picks a biased sample and generalizes to the entire population.",
-                "Switches the percentage base between two consecutive comparisons.",
-                "Draws a sweeping conclusion from a sample size that is far too small.",
-                "Ignores the underlying base rate when interpreting a conditional rate.",
-                "Uses a misleading baseline or axis scale to exaggerate a tiny gap.",
-                "Assumes the converse of a statement is automatically true.",
-                "Compares mismatched time windows without controlling for seasonal trends.",
-            ],
-            "fix": [
-                "Narrow the conclusion to the group that was actually measured.",
-                "Compare against a matched control group over the same time window.",
-                "Convert the percentages into concrete counts out of 1,000 before concluding.",
-                "Report both the absolute difference and the underlying sample size.",
-                "State only an association and note plausible confounding variables.",
-                "Re-plot or re-state the gap relative to a zero baseline.",
-                "Collect a larger randomized sample before making a product decision.",
-                "Break the pooled average down by subgroup weights before comparing.",
-            ],
-        },
-        "zh": {
-            "diagnosis": [
-                "把相关性直接当成因果关系，未排除第三方混杂因素。",
-                "样本存在选择偏差，却直接推广到了全体人群。",
-                "在连续百分比比较中悄悄更换了计算基数。",
-                "样本量过小，把随机波动当成了确定规律。",
-                "解读条件概率时忽略了事件本身的基础发生率。",
-                "利用截断坐标轴或夸大比例尺放大了微小差异。",
-                "把充分条件当成必要条件，默认逆命题也成立。",
-                "对比了不同时间窗口，没有控制季节性或大盘趋势。",
-            ],
-            "fix": [
-                "把结论严格限定在真正被观测到的那部分人群内。",
-                "引入同一时间段、特征相似的对照组后再做比较。",
-                "把百分比换算成每 1,000 例里的具体数量后再下判断。",
-                "同时给出绝对差值与背后的原始样本量。",
-                "仅表述为相关关系，并列出可能的混杂因素。",
-                "以 0 为基准重新核对真实差距，避免视觉夸大。",
-                "先扩大随机样本量再做决策，不要凭极小样本拍板。",
-                "按子分组权重拆开比较，而不是只看合并后的总均值。",
-            ],
-        },
-    },
-    "math": {
-        "en": {
-            "diagnosis": [
-                "Sign slip reverses a plus or minus sign in this step.",
-                "Drops a constant factor when differentiating or substituting.",
-                "Applies an algebraic identity to addition when it only holds for products.",
-                "Divides or cancels an expression without checking whether it can be zero.",
-                "Ignores a domain restriction required by a root, denominator, or logarithm.",
-                "Drops a cross term when expanding a squared expression.",
-                "Fails to update bounds or limits after changing variables.",
-                "Reverses the upper and lower evaluation endpoints.",
-            ],
-            "fix": [
-                "Keep every factor and re-check the sign by differentiating or substituting back.",
-                "Factor the expression instead of cancelling a variable across both sides.",
-                "State the domain inequalities first and test every candidate against them.",
-                "Expand all terms explicitly, including the middle cross term.",
-                "Update both the differential factor and the integration limits together.",
-                "Apply the exact identity for products rather than sums.",
-                "Verify every arithmetic evaluation at both endpoints.",
-                "Keep all real roots from both branches of the square root.",
-            ],
-        },
-        "zh": {
-            "diagnosis": [
-                "符号出错，这一步漏掉或反转了正负号。",
-                "求导或换元时漏乘了必要的系数或内层导数。",
-                "误把乘积公式套用在了加法运算上。",
-                "两边约去或除以含未知数的式子时，未检验它是否可能为零。",
-                "忽略了对数、根式或分母所要求的定义域限制。",
-                "展开平方或括号时漏掉了中间交叉项。",
-                "换元后忘记同步调整系数或上下限。",
-                "代入上下限求差时把顺序写反了。",
-            ],
-            "fix": [
-                "保留全部系数，并用求导或代回原式验算正负号。",
-                "改用移项因式分解，避免直接约去可能为零的因式。",
-                "先写出完整定义域不等式，再逐一筛选候选解。",
-                "把完全平方或括号完整展开，补齐交叉项。",
-                "换元时同步改写微分因子与积分限。",
-                "改用正确的乘积对数或代数恒等式。",
-                "分别重新代入上下限并核对每一步算术。",
-                "完整保留开平方或分解得到的全部实数根。",
-            ],
-        },
-    },
-}
-
-
 def _det_shuffle(items: list[Any], seed: str) -> list[Any]:
     """Deterministic, order-hiding shuffle keyed by SHA-256."""
     keyed = []
@@ -174,23 +30,13 @@ def _det_shuffle(items: list[Any], seed: str) -> list[Any]:
     return [pair[1] for pair in keyed]
 
 
-def _pick_distractors(pool: list[str], seed: str, count: int = 4, prefix: str = "d") -> list[dict[str, str]]:
-    shuffled = _det_shuffle(list(pool), seed)
-    chosen = shuffled[:count]
-    return [{"id": f"{prefix}{i}", "label": label} for i, label in enumerate(chosen, 1)]
-
-
 def build_light_choices(
     puzzle_id: str,
     n_segments: int,
     flaw_choices_by_step: dict[int, dict[str, Any]],
-    domain: str,
-    lang: str,
     segment_distractors: dict[str, dict[str, list[str]]] | None = None,
 ) -> dict[str, dict[str, list[dict[str, str]]]]:
-    """Build spoiler-free public choices for EVERY segment 1..n_segments."""
-    lang_key = "zh" if lang == "zh" else "en"
-    domain_pool = DOMAIN_DISTRACTORS.get(domain, DOMAIN_DISTRACTORS["logic"])[lang_key]
+    """Expose only explicitly authored choices."""
     custom = segment_distractors or {}
     out: dict[str, dict[str, list[dict[str, str]]]] = {}
 
@@ -210,11 +56,6 @@ def build_light_choices(
             out[step_str] = {
                 "diagnosis": _det_shuffle(c_diag, f"{puzzle_id}:{step}:diag"),
                 "fix": _det_shuffle(c_fix, f"{puzzle_id}:{step}:fix"),
-            }
-        else:
-            out[step_str] = {
-                "diagnosis": _pick_distractors(domain_pool["diagnosis"], f"{puzzle_id}:{step}:diag", 4, "d"),
-                "fix": _pick_distractors(domain_pool["fix"], f"{puzzle_id}:{step}:fix", 4, "f"),
             }
     return out
 
@@ -243,8 +84,43 @@ def _validate_choices(choices: Any, answer_id: Any, label: str) -> None:
         raise ValueError(f"{label} answer '{answer_id}' is not in choice ids")
 
 
+def worksheet_kind(raw: dict, level: int) -> str:
+    """Accept older packs that predate the explicit kind field."""
+    kind = raw.get("kind", "clean" if level == 0 else "planted")
+    if kind not in ("planted", "clean", "trick_clean"):
+        raise ValueError("'kind' must be planted, clean, or trick_clean")
+    if (kind == "planted") != (level != 0):
+        raise ValueError("'kind' must agree with the worksheet level")
+    explanation = raw.get("explanation")
+    if kind == "trick_clean" and (
+        not isinstance(explanation, str) or not explanation.strip()
+        or len(explanation.strip().splitlines()) != 1
+    ):
+        raise ValueError("trick_clean needs a one-line 'explanation'")
+    return kind
+
+
+def validate_segment_distractors(custom: Any, n_segments: int) -> None:
+    if not isinstance(custom, dict):
+        raise ValueError("'segment_distractors' must be an object")
+    steps = {str(i) for i in range(1, n_segments + 1)}
+    for step, choices in custom.items():
+        if step not in steps or not isinstance(choices, dict):
+            raise ValueError(f"invalid segment_distractors entry for {step}")
+        for group in ("diagnosis", "fix"):
+            labels = choices.get(group)
+            if (not isinstance(labels, list) or not 3 <= len(labels) <= 4
+                    or not all(isinstance(label, str) and label.strip() for label in labels)
+                    or len({label.strip() for label in labels}) != len(labels)):
+                raise ValueError(f"segment {step} needs 3-4 distinct {group} labels")
+
+
 def validate_pack_puzzle(raw: dict) -> None:
-    """Validate a v2 domain pack puzzle file."""
+    """Validate a v2 puzzle.
+
+    Flaws carry their own choices. Other segments are playable when their
+    string ID has authored diagnosis and fix labels in segment_distractors.
+    """
     for field in ("id", "domain", "renderer", "lang", "title", "prompt", "conclusion", "clean_conclusion"):
         value = raw.get(field)
         if not isinstance(value, str) or not value.strip():
@@ -256,6 +132,7 @@ def validate_pack_puzzle(raw: dict) -> None:
     level = raw.get("level")
     if isinstance(level, bool) or not isinstance(level, int) or level not in redpen.LEVELS:
         raise ValueError("'level' must be an integer 0-4")
+    worksheet_kind(raw, level)
     est = raw.get("estimated_seconds")
     if isinstance(est, bool) or not isinstance(est, int) or not 15 <= est <= 600:
         raise ValueError("'estimated_seconds' must be an integer 15-600")
@@ -273,6 +150,7 @@ def validate_pack_puzzle(raw: dict) -> None:
             raise ValueError(f"segment {idx} needs a non-empty label")
         if not isinstance(seg.get("text"), str) or not seg["text"].strip():
             raise ValueError(f"segment {idx} needs non-empty text")
+    validate_segment_distractors(raw.get("segment_distractors", {}), len(segments))
     clean_segments = raw.get("clean_segments")
     if not isinstance(clean_segments, list) or not clean_segments or not all(isinstance(s, str) and s.strip() for s in clean_segments):
         raise ValueError("'clean_segments' must be a non-empty list of strings")
@@ -353,12 +231,12 @@ def normalize_v2_puzzle(raw: dict, pack_id: str) -> dict:
         "checks": list(raw.get("checks") or []),
         "reference_check": raw.get("reference_check") or "none",
     }
+    if raw.get("explanation"):
+        key["explanation"] = raw["explanation"]
     light_choices = build_light_choices(
         raw["id"],
         len(segments),
         flaw_choices_by_step,
-        raw["domain"],
-        lang,
         raw.get("segment_distractors"),
     )
     verified = "人工审校题包" if lang == "zh" else "Curated pack"
@@ -382,6 +260,7 @@ def normalize_v2_puzzle(raw: dict, pack_id: str) -> dict:
         "blurb": str(raw.get("blurb") or ""),
         "opener": bool(raw.get("opener")),
         "level": raw["level"],
+        "kind": worksheet_kind(raw, raw["level"]),
         "commitment": redpen.commitment(key),
         "verified": verified,
         "live": False,
@@ -408,6 +287,7 @@ def attach_math_light(entry: dict, lang: str, light_map: dict | None = None) -> 
     ]
     light_map = load_math_light_data(lang) if light_map is None else light_map
     spec = light_map.get(entry["id"]) or {}
+    validate_segment_distractors(spec.get("segment_distractors", {}), len(segments))
     flaws_spec = spec.get("flaws") or {}
 
     flaw_choices_by_step: dict[int, dict[str, Any]] = {}
@@ -428,12 +308,12 @@ def attach_math_light(entry: dict, lang: str, light_map: dict | None = None) -> 
                 "fix_choices": flaw_data["fix_choices"],
             }
 
+    if spec and len(flaw_choices_by_step) != len(entry["key"]["errors"]):
+        raise ValueError(f"{entry['id']} needs light choices for every flaw")
     light_choices = build_light_choices(
         entry["id"],
         len(segments),
         flaw_choices_by_step,
-        "math",
-        lang,
         spec.get("segment_distractors"),
     )
     entry["pack_id"] = "math"
@@ -442,7 +322,8 @@ def attach_math_light(entry: dict, lang: str, light_map: dict | None = None) -> 
     entry["code_language"] = ""
     entry["estimated_seconds"] = int(spec.get("estimated_seconds") or max(45, len(steps) * 10))
     entry["segments"] = segments
-    entry["light_choices"] = light_choices
+    if spec or not entry["key"]["errors"]:
+        entry["light_choices"] = light_choices
     entry["commitment"] = redpen.commitment(entry["key"])
     return entry
 

@@ -10,7 +10,7 @@
   "difficulty": "standard",
   "level": 2,
   "estimated_seconds": 75,
-  "prompt": "An AI product analyst just shared this checkout-test recap. If two lines jump too far, tap them.",
+  "prompt": "An AI product analyst dropped this checkout-test recap in the team channel. Tap any line that doesn't hold up, or mark it clean.",
   "segments": [
     {
       "id": 1,
@@ -48,38 +48,38 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "A only looks better overall because it got almost all the high-converting desktop traffic. B actually beats A on every device."
+          "label": "B beat A on both mobile (12% vs 10%) and desktop (32% vs 30%); A only led overall from getting 80% desktop."
         },
         {
           "id": "d2",
-          "label": "You cannot compare conversion rates between mobile and desktop users at all."
+          "label": "26% minus 16% is a 10% relative lift, not 10 points, so A's edge is actually 62.5%."
         },
         {
           "id": "d3",
-          "label": "26% minus 16% is a 62.5-point gap, not a 10-point gap."
+          "label": "Mobile and desktop shouldn't be split at all — the combined 26% vs 16% average is what matters for revenue."
         },
         {
           "id": "d4",
-          "label": "The overall average of 10% and 30% must always be 20%, no matter how traffic is split."
+          "label": "Because 12% + 32% = 44% and 10% + 30% = 40%, the real combined averages should be 22% vs 20%, not 26% vs 16%."
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Compare like with like (or re-run with a fair traffic split): B wins on both mobile and desktop, so B is the better page."
+          "label": "Compare per device (B wins both) and ship B, or re-run with a 50/50 split."
         },
         {
           "id": "f2",
-          "label": "Ignore the device breakdown, because the combined average always overrides the subgroups."
+          "label": "Ship A to desktop where 80% of its traffic converted well, and keep B only on mobile."
         },
         {
           "id": "f3",
-          "label": "Ship A on desktop and A on mobile to lock in that 26% overall rate."
+          "label": "Recompute the pooled averages as (10%+30%)/2 = 20% and (12%+32%)/2 = 22% ignoring routing."
         },
         {
           "id": "f4",
-          "label": "Average each page's mobile and desktop rates with equal weights and skip the traffic split."
+          "label": "Ship A everywhere because a 10-point overall lead (26% vs 16%) beats a 2-point device gap."
         }
       ],
       "fix_answer": "f1",
@@ -100,38 +100,38 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "2 out of 2 visitors is just noise. That '100%' proves nothing about what VIPs prefer."
+          "label": "2 out of 2 VIPs is far too tiny to prove a preference — a coin hits heads twice 25% of the time."
         },
         {
           "id": "d2",
-          "label": "A 100% conversion rate is mathematically impossible in an A/B test."
+          "label": "2 purchases out of 2 visitors is a 200% conversion rate, not 100%, because VIPs buy twice as much."
         },
         {
           "id": "d3",
-          "label": "VIP users should never be included in a checkout experiment."
+          "label": "VIPs shouldn't be split out separately since they were already counted inside the 30% desktop average."
         },
         {
           "id": "d4",
-          "label": "2 out of 2 equals a 50% conversion rate, not 100%."
+          "label": "100% VIP conversion on A only holds if B had 0 purchases out of its 2 VIP visitors too."
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Treat n = 2 as inconclusive and collect a much larger, randomized VIP sample before making a call."
+          "label": "Ignore the 2-visitor VIP stat until you have enough randomized VIP traffic to compare."
         },
         {
           "id": "f2",
-          "label": "Report it as 'nearly 100%' (say 95%) so it sounds more conservative."
+          "label": "Keep the old checkout A specifically for VIP accounts while shipping B to regular shoppers."
         },
         {
           "id": "f3",
-          "label": "Drop one of the two VIP visitors to reduce variance."
+          "label": "Require 5 out of 5 VIP orders before calling 100% conversion statistically conclusive."
         },
         {
           "id": "f4",
-          "label": "Assume VIPs behave like mobile users and skip collecting more data."
+          "label": "Drop VIP visitors from both mobile and desktop totals so they don't skew the 26% average."
         }
       ],
       "fix_answer": "f1",
@@ -153,5 +153,50 @@
     "The VIP '100%' is 2 out of 2 visitors — far too small to support any claim."
   ],
   "clean_conclusion": "The new page wins on both phones and laptops. Don't ship the old one just because a broken traffic split padded its average.",
-  "opener": false
+  "opener": false,
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "12% vs 10% is only a 2% relative lift, which is too small to matter on mobile.",
+        "Mobile conversion is three times lower than desktop, so mobile results shouldn't influence the checkout decision.",
+        "Calling 12% vs 10% a win without reporting mobile cart sizes hides whether A made more revenue.",
+        "Because 80% of B's users were on mobile, B's 12% mobile figure is artificially inflated."
+      ],
+      "fix": [
+        "Compute 2 ÷ 10 = 20% relative lift instead of calling it 2 points.",
+        "Drop mobile from the analysis since desktop drives 3× higher conversion.",
+        "Compare average mobile order value before counting B ahead on mobile.",
+        "Wait until mobile reaches 30% conversion before evaluating B."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "32% vs 30% on desktop is smaller in relative terms than 12% vs 10% on mobile, so the two devices contradict each other.",
+        "Because 80% of A's traffic was on desktop, A's 30% desktop rate is more reliable than B's 32%.",
+        "32% vs 30% leaves out tablet visitors who convert halfway between mobile and desktop.",
+        "If B beat A by 2 points on both mobile and desktop, B's combined rate has to be 2 points higher too."
+      ],
+      "fix": [
+        "Weight desktop 3× higher than mobile when comparing the 2-point gap.",
+        "Keep A on desktop until B gets the same 80% desktop share.",
+        "Add a third tablet bucket before deciding between A and B.",
+        "Average 12% and 32% to check whether B really leads overall."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "The arithmetic itself is wrong: 80% × 30% + 20% × 10% is 28%, not 26%, for checkout A.",
+        "A routing bug invalidates the mobile and desktop subgroup numbers too, so you can't tell which won on either device.",
+        "Sending 80% of A to desktop and 80% of B to mobile cancels out symmetrically across the whole test.",
+        "26% for A and 16% for B can't both be right if B beat A on every single device."
+      ],
+      "fix": [
+        "Re-verify the weighted math: 0.8×30 + 0.2×10 = 26% for A and 0.8×12 + 0.2×32 = 16% for B.",
+        "Throw out the entire test including the device-level 12% vs 10% and 32% vs 30% splits.",
+        "Treat the 80/20 mirror split as balanced and trust the 26% vs 16% headline.",
+        "Re-route 80% of B to desktop next week and compare across the two different weeks."
+      ]
+    }
+  }
 }

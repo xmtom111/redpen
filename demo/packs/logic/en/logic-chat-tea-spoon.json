@@ -1,0 +1,106 @@
+{
+  "schema_version": 2,
+  "domain": "logic",
+  "renderer": "prose",
+  "opener": true,
+  "kind": "trick_clean",
+  "difficulty": "intro",
+  "level": 0,
+  "estimated_seconds": 60,
+  "id": "logic-chat-tea-spoon",
+  "lang": "en",
+  "title": "Morning coffee",
+  "topic": "A friend scoops oat milk into coffee, stirs, and scoops a spoon back",
+  "blurb": "A friend is sharing a small kitchen mixing observation.",
+  "prompt": "A friend just sent this in the group chat. Tap a line if something doesn't add up, or let it pass.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "Two mugs",
+      "text": "Poured two identical 10 oz mugs — one pure cold brew, one pure oat milk."
+    },
+    {
+      "id": 2,
+      "label": "First scoop",
+      "text": "Wanted a splash of milk, so I spooned 1 oz of oat milk into the cold brew and stirred it up."
+    },
+    {
+      "id": 3,
+      "label": "Scoop back",
+      "text": "Looked too pale, so I spooned 1 oz of the mixed coffee straight back into the oat milk mug."
+    },
+    {
+      "id": 4,
+      "label": "The claim",
+      "text": "Now both mugs are back at 10 oz, which means the coffee in the milk mug equals the milk in the coffee mug."
+    }
+  ],
+  "conclusion": "Both mugs end back at 10 oz, so the amount of coffee in the milk mug equals the amount of milk in the coffee mug.",
+  "flaws": [],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "Cold brew and oat milk have different densities, so 10 oz by weight won't match 10 oz by volume.",
+        "Starting with equal 10 oz mugs doesn't keep the ratio symmetric once one mug briefly hits 11 oz.",
+        "You'd need a 1:10 ratio in a larger pitcher for the back-and-forth scoops to stay balanced.",
+        "Pure cold brew and pure oat milk absorb into each other slightly, so total volume shrinks below 20 oz."
+      ],
+      "fix": [
+        "Weigh both mugs on a kitchen scale instead of going by fluid ounces.",
+        "Use a 12 oz mug for the coffee so stirring doesn't change the concentration.",
+        "Start with 11 oz in the milk mug so both transfers come from the same volume.",
+        "Measure both pours in milliliters before claiming anything is equal."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "Stirring mixes the 1 oz of oat milk evenly into 11 oz, which breaks the symmetry for the return scoop.",
+        "Moving 1 oz of pure milk leaves the milk mug at 9 oz, so the second scoop isn't pulling from the same base.",
+        "Because the first scoop is 100% pure milk, more milk enters the coffee than can ever come back.",
+        "Stirring dilutes the coffee to 10/11 strength, so the coffee mug keeps a full ounce of milk."
+      ],
+      "fix": [
+        "Don't stir before taking the second scoop back, or the amounts won't match.",
+        "Scoop 1.1 oz back instead of 1 oz to make up for the dilution.",
+        "Pour half an ounce each way at the same time so both transfers stay pure.",
+        "Leave the coffee mug at 11 oz instead of trying to rebalance it."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "That return spoon is watered-down coffee — only 10/11 oz of coffee and 1/11 oz of milk — so less coffee goes back than milk came over.",
+        "Pulling 1 oz out of an 11 oz mix sends a tenth of the milk back, leaving the coffee mug with more milk than the milk mug has coffee.",
+        "The return scoop carries milk back to its own mug, which creates a net gap of 1/11 oz between the two mugs.",
+        "Because the second mug is mixed and the first wasn't, the two transfers can't leave equal cross-amounts."
+      ],
+      "fix": [
+        "Scoop 1.1 oz of mixed coffee back so a full 1 oz of pure coffee reaches the milk mug.",
+        "Calculate 10/11 oz vs 1 oz and admit the coffee mug still holds more oat milk.",
+        "Only claim equality if the second scoop had been pure cold brew before stirring.",
+        "Subtract the 1/11 oz of returning milk from the coffee side only."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Both mugs being 10 oz only proves total liquid is conserved, not that the milk-in-coffee matches the coffee-in-milk.",
+        "The coffee mug ended up with more milk (1 full oz) while the milk mug only got 10/11 oz of coffee.",
+        "Because you stirred after scoop one, the milk mug actually got slightly less coffee than the milk left in the coffee.",
+        "They only match if you stirred *completely* evenly; any uneven stirring tilts the coffee mug toward more milk."
+      ],
+      "fix": [
+        "Change the claim: the coffee mug has 1/11 oz more milk than the milk mug has coffee.",
+        "State that the amounts are only roughly close (10/11 oz vs 1 oz), not strictly equal.",
+        "Note that you'd need to stir both mugs identically for the cross-amounts to match.",
+        "Compute the exact fractions — 10/11 oz vs 11/12 oz — instead of calling them equal."
+      ]
+    }
+  },
+  "clean_segments": [
+    "Poured two identical 10 oz mugs — one pure cold brew, one pure oat milk.",
+    "Wanted a splash of milk, so I spooned 1 oz of oat milk into the cold brew and stirred it up.",
+    "Looked too pale, so I spooned 1 oz of the mixed coffee straight back into the oat milk mug.",
+    "Now both mugs are back at 10 oz, which means the coffee in the milk mug equals the milk in the coffee mug."
+  ],
+  "clean_conclusion": "It really is exact — both mugs start and end at 10 oz, so every drop of milk missing from the milk mug had to be replaced by an equal drop of coffee (10/11 oz each way), stirred or not.",
+  "explanation": "It really is exact — both mugs start and end at 10 oz, so every drop of milk missing from the milk mug had to be replaced by an equal drop of coffee (10/11 oz each way), stirred or not."
+}

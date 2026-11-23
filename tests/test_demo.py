@@ -119,15 +119,44 @@ class BankAndGraderTest(unittest.TestCase):
         return self.by_id[worksheet_id]
 
     def test_bank_matches_the_level_rules_and_checks(self):
-        self.assertEqual(
-            [entry["id"] for entry in self.bank],
-            ["definite-integral", "cubic-lost-root", "chain-and-square", "log-equation", "sine-substitution"],
-        )
+        legacy_ids = {"definite-integral", "cubic-lost-root", "chain-and-square", "log-equation", "sine-substitution"}
+        self.assertTrue(legacy_ids.issubset({entry["id"] for entry in self.bank}))
+        self.assertGreaterEqual(len(self.bank), len(legacy_ids))
         for entry in self.bank:
             self.assertEqual(redpen.commitment(entry["key"]), entry["commitment"])
             self.assertIn("passed", entry["verified"])
             self.assertNotIn("check_results", entry["key"])
             redpen.validate_grade(grade_findings(entry, CLEAN), len(entry["key"]["errors"]))
+
+    def test_demo_math_uses_explicit_delimiters(self):
+        paths = [
+            *(ROOT / "demo" / "bank").rglob("*.json"),
+            *(ROOT / "demo" / "packs" / "math").glob("light_*.json"),
+        ]
+
+        def visible_source(raw: str) -> str:
+            data = json.loads(raw)
+
+            def strip_sealed(obj):
+                if isinstance(obj, dict):
+                    out = {}
+                    for key, value in obj.items():
+                        # Sealed key.errors fields may keep $...$ for equivalent_fix.
+                        if key in {"original", "why_tempting", "catch_rule"}:
+                            continue
+                        out[key] = strip_sealed(value)
+                    return out
+                if isinstance(obj, list):
+                    return [strip_sealed(item) for item in obj]
+                return obj
+
+            return json.dumps(strip_sealed(data), ensure_ascii=False)
+
+        for path in paths:
+            with self.subTest(path=path):
+                source = visible_source(path.read_text(encoding="utf-8"))
+                self.assertNotIn("$", source)
+                self.assertIn(r"\\(", source)
 
     def test_clean_mathematics(self):
         x = sp.symbols("x")
@@ -273,10 +302,9 @@ class BankAndGraderTest(unittest.TestCase):
             self.assertEqual(digest, entry["commitment"])
 
     def test_chinese_bank_grades_without_a_model(self):
-        self.assertEqual(
-            sorted(entry["id"] for entry in self.zh),
-            ["chain-and-square", "cubic-lost-root", "definite-integral", "log-equation", "sine-substitution"],
-        )
+        legacy_ids = {"chain-and-square", "cubic-lost-root", "definite-integral", "log-equation", "sine-substitution"}
+        self.assertTrue(legacy_ids.issubset({entry["id"] for entry in self.zh}))
+        self.assertEqual(sorted(entry["id"] for entry in self.zh), sorted(entry["id"] for entry in self.bank))
         for entry in self.zh:
             self.assertEqual(entry["lang"], "zh")
             self.assertIn("通过", entry["verified"])
@@ -419,7 +447,7 @@ class ServerAndExportTest(unittest.TestCase):
         self.assertFalse(catalog["static"])
 
         status, health = self.json("GET", "/api/health")
-        self.assertEqual(health["worksheets"], 26)
+        self.assertGreaterEqual(health["worksheets"], 26)
         self.assertTrue(health["ok"])
 
         status, rnd = self.json("POST", "/api/rounds", {"worksheet_id": "cubic-lost-root"})
@@ -571,12 +599,17 @@ class ServerAndExportTest(unittest.TestCase):
             page = (dest / "index.html").read_text(encoding="utf-8")
             self.assertNotIn('src="/', page)
             self.assertNotIn("href=\"/", page)
+            for prefix, html in (("", page), ("../", (dest / "zh" / "index.html").read_text())):
+                self.assertIn(f'src="{prefix}vendor/katex/katex.min.js"', html)
+                self.assertIn(f'href="{prefix}vendor/katex/katex.min.css"', html)
+                self.assertNotIn("jsdelivr", html)
+            self.assertTrue((dest / "vendor/katex/fonts/KaTeX_Main-Regular.woff2").is_file())
             self.assertIn('href="zh/"', page)
             zh_page = (dest / "zh" / "index.html").read_text(encoding="utf-8")
             self.assertIn('lang="zh-Hans"', zh_page)
             self.assertIn('href="../"', zh_page)
-            self.assertIn('src="grade.js"', zh_page)
-            self.assertIn('href="style.css"', zh_page)
+            self.assertRegex(zh_page, r'src="grade\.js(?:\?v=\d+)?"')
+            self.assertRegex(zh_page, r'href="style\.css(?:\?v=\d+)?"')
             self.assertNotIn("../grade", zh_page)
             self.assertNotIn('src="/', zh_page)
             self.assertNotIn('href="/', zh_page)
@@ -603,7 +636,7 @@ class ServerAndExportTest(unittest.TestCase):
         self.assertEqual(status, 200)
         text = page.decode("utf-8")
         self.assertIn("zh-Hans", text)
-        self.assertIn("红笔抓错：专治一本正经的胡说八道", text)
+        self.assertIn("这段话站得住脚吗？", text)
         for marker in SECRET_MARKERS:
             self.assertNotIn(marker, text)
         status, direct = self.request("GET", "/zh")
@@ -623,7 +656,7 @@ class ServerAndExportTest(unittest.TestCase):
             self.assertNotIn(marker, encoded)
         self.assertEqual(catalog["lang"], "zh")
         self.assertIn("全部实数解", encoded)
-        self.assertEqual(len(catalog["worksheets"]), 26)
+        self.assertGreaterEqual(len(catalog["worksheets"]), 26)
         self.assertIn(catalog["worksheets"][0]["level_name"], ("无错", "隐蔽", "轻微", "混杂", "胡来"))
 
         status, english = self.json("GET", "/api/catalog")

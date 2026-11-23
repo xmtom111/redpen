@@ -178,6 +178,7 @@ def longest_common_run(left: list[str], right: list[str]) -> int:
 
 
 def math_form(text: str) -> str:
+    text = re.sub(r"\\[()\[\]]", "", text)
     text = FRAC.sub(r"(\1)/(\2)", text.lower())
     for a, b in [("\\left", ""), ("\\right", ""), ("\\cdot", "*"), ("\\times", "*"), ("\\cos", "cos"), ("\\sin", "sin"), ("\\in", "∈"), ("**", "^"), ("²", "^2"), ("−", "-"), ("×", "*")]:
         text = text.replace(a, b)
@@ -186,7 +187,8 @@ def math_form(text: str) -> str:
 
 def equivalent_fix(text: str, original: str, lexicon: dict) -> bool:
     student = math_form(text)
-    reference = [math_form(m) for m in re.findall(r"\$([^$]+)\$", original)]
+    delimited = re.findall(r"\\\((.*?)\\\)|\\\[(.*?)\\\]|\$([^$]+)\$", original, re.S)
+    reference = [math_form(next(part for part in match if part)) for match in delimited if any(match)]
     for group in lexicon.get("math_equivalences", []):
         forms = {math_form(item) for item in group}
         if student in forms and any(ref in forms or ref.split("=")[-1] in forms for ref in reference):

@@ -1,0 +1,146 @@
+{
+  "schema_version": 2,
+  "id": "code-trick-default-tuple",
+  "domain": "code",
+  "renderer": "code",
+  "code_language": "python",
+  "lang": "zh",
+  "kind": "trick_clean",
+  "title": "追加标签函数",
+  "topic": "把 `tags=()` 写在 `def` 默认参数里再用 `+` 拼接",
+  "blurb": "一段清洗并追加标签的 6 行 Python 函数。",
+  "difficulty": "standard",
+  "level": 0,
+  "estimated_seconds": 50,
+  "prompt": "需求：把 `tag` 去空格转小写，非空且未重复时追加到 `tags` 返回，多次独立调用之间不能串味。看下这段代码，觉得哪行有问题就点它，觉得没问题就放行。",
+  "segments": [
+    {
+      "id": 1,
+      "label": "L1",
+      "text": "def append_tag(tag, tags=()):"
+    },
+    {
+      "id": 2,
+      "label": "L2",
+      "text": "    cleaned = tag.strip().lower()"
+    },
+    {
+      "id": 3,
+      "label": "L3",
+      "text": "    if not cleaned or cleaned in tags:"
+    },
+    {
+      "id": 4,
+      "label": "L4",
+      "text": "        return tags"
+    },
+    {
+      "id": 5,
+      "label": "L5",
+      "text": "    tags += (cleaned,)"
+    },
+    {
+      "id": 6,
+      "label": "L6",
+      "text": "    return tags"
+    }
+  ],
+  "conclusion": "AI 总结：先调 `append_tag('VIP')` 再调 `append_tag('Sale')` 分别返回 `('vip',)` 和 `('sale',)`，互不污染。",
+  "flaws": [],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "默认容器 `tags=()` 只在 `def` 定义时建一次，后续调用会把上次加进去的标签串过来。",
+        "Python 不允许把空元组 `()` 直接当默认参数。",
+        "写了 `tags=()` 后，第二次调 `append_tag('sale')` 会返回 `('vip', 'sale')`。",
+        "默认参数是元组，导致调用方无法传入已有标签元组。"
+      ],
+      "fix": [
+        "改成 `tags=None`，函数内部再写 `if tags is None: tags = ()` 防止串味。",
+        "签名改成 `tags=tuple()` 让每次调用重新分配。",
+        "默认参数改成 `tags=[]`，返回前再转成元组。",
+        "去掉默认值，强制每次显式传入 `tags`。"
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "调用 `.strip().lower()` 会原地修改调用方传进来的 `tag` 字符串。",
+        "先 `.strip()` 再 `.lower()` 会漏掉大写的空白字符。",
+        "当 `tag` 本来就是小写时 `.lower()` 会返回 `None`。",
+        "如果标签中间有空格（如 `'vip pass'`），`.strip()` 会把中间空格也删掉。"
+      ],
+      "fix": [
+        "调换顺序写成 `tag.lower().strip()`。",
+        "先拷贝 `str(tag)` 再做 `.strip().lower()`。",
+        "改用 `tag.replace(' ', '').lower()`。",
+        "先判断 `if tag:` 再调用 `.strip().lower()`。"
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "`tags` 是空元组 `()` 时，执行 `cleaned in tags` 会抛 TypeError。",
+        "运算符优先级会解析成 `not (cleaned or cleaned in tags)`，把去重逻辑取反了。",
+        "对元组用 `in` 会做子串匹配，`'vi'` 会误判为已在 `('vip',)` 里。",
+        "用 `or` 而不是 `and`，会导致 `tags` 为空时也直接跳过。"
+      ],
+      "fix": [
+        "加上括号写成 `if (not cleaned) or (cleaned in tags):`。",
+        "补上 `if tags and cleaned in tags:` 防止空元组报错。",
+        "把 `or` 改成 `and`。",
+        "先把 `tags` 转成 `set` 再判断 `cleaned in tags`。"
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "直接 `return tags` 会把默认元组引用暴露出去，后续修改会污染它。",
+        "`cleaned` 为空时应该返回 `None` 而不是返回原 `tags`。",
+        "提前返回会把空字符串留在默认元组里。",
+        "这里没把 `tags` 转成列表再返回。"
+      ],
+      "fix": [
+        "改成 `return tuple(tags)` 返回副本。",
+        "`cleaned` 为空时改为 `return None`。",
+        "直接写 `return ()` 而不是 `return tags`。",
+        "统一改成 `return list(tags)`。"
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "复合赋值 `tags += (cleaned,)` 会原地修改默认参数 `tags=()`，把标签串进下一次调用。",
+        "`(cleaned,)` 末尾多写了一个逗号，会造出第二个元素是 `None` 的二元组。",
+        "元组是不可变的，在 Python 里写 `tags += (cleaned,)` 运行时会直接抛 TypeError。",
+        "对参数做 `+=` 会把调用方传进来的原元组一并改掉。"
+      ],
+      "fix": [
+        "把 `tags += (cleaned,)` 改成 `tags = tags + (cleaned,)` 避免原地修改。",
+        "去掉末尾多余逗号，写成 `tags += (cleaned)`。",
+        "先转成列表 `list(tags).append(cleaned)` 再转回元组。",
+        "换个新变量 `out = (*tags, cleaned)` 避免碰 `tags`。"
+      ]
+    },
+    "6": {
+      "diagnosis": [
+        "返回的 `tags` 还是那个被改脏的默认元组，下次调用会串味。",
+        "因为元组不可变，第 5 行其实是空操作，这里返回的还是 `()`。",
+        "第一次调用会返回嵌套元组 `((), 'vip')`。",
+        "应该返回 `cleaned` 而不是整个 `tags`。"
+      ],
+      "fix": [
+        "改成 `return tuple(tags)` 断开和默认参数的关联。",
+        "`tags` 为空时直接返回 `(cleaned,)`。",
+        "写成 `return (*tags,)` 避免嵌套。",
+        "改成 `return list(tags)` 方便调用方遍历。"
+      ]
+    }
+  },
+  "clean_segments": [
+    "def append_tag(tag, tags=()):",
+    "    cleaned = tag.strip().lower()",
+    "    if not cleaned or cleaned in tags:",
+    "        return tags",
+    "    tags += (cleaned,)",
+    "    return tags"
+  ],
+  "clean_conclusion": "默认 `[]` 用 `+=` 会原地修改而串味；但 `()` 是不可变元组，`tags += (cleaned,)` 每次都会新建元组并重新绑定局部变量，默认空元组纹丝不动。",
+  "explanation": "默认 `[]` 用 `+=` 会原地修改而串味；但 `()` 是不可变元组，`tags += (cleaned,)` 每次都会新建元组并重新绑定局部变量，默认空元组纹丝不动。"
+}

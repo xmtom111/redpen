@@ -2,9 +2,9 @@
 
 [**免安装在线体验 · 简体中文**](https://xmtom111.github.io/redpen/zh/) · [**Try online · English**](https://xmtom111.github.io/redpen/) · [中文说明](README_zh.md)
 
-**Spot the flaw. Beat the AI.** *(Code · Math · Logic)*
+**Does this hold up?** *(Code · Math · Logic)*
 
-Convincing AI explanations still need human verification. RedPen drops you straight into a short, checkable puzzle — code snippets, logic & statistics briefs, or worked math solutions — with deliberately planted flaws (or none at all). Tap the broken line, pick what went wrong and how to fix it, and get instant red-pen feedback.
+Convincing AI explanations still need human verification. RedPen drops you straight into a short, checkable puzzle — code snippets, logic & statistics briefs, or worked math solutions — with deliberately planted flaws (or none at all). Flag a line and choose a diagnosis and fix, or clear the worksheet as solid. Get instant red-pen feedback.
 
 ## Web-first play
 

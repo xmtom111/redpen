@@ -1,0 +1,146 @@
+{
+  "schema_version": 2,
+  "id": "code-clean-debounce-merge",
+  "domain": "code",
+  "renderer": "code",
+  "code_language": "javascript",
+  "lang": "en",
+  "kind": "clean",
+  "title": "Auth request headers",
+  "topic": "Spreading `BASE_OPTS` and `BASE_OPTS.headers` without leaking auth tokens",
+  "blurb": "A JS helper building per-request headers from a shared base config.",
+  "difficulty": "standard",
+  "level": 0,
+  "estimated_seconds": 50,
+  "prompt": "Spec: build per-request options from `BASE_OPTS`, adding `authorization` when `token` is truthy, without mutating `BASE_OPTS` or its `headers`. Review this helper — tap a line if it breaks the spec, or let it pass.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "L1",
+      "text": "const BASE_OPTS = { timeout: 2000, headers: { accept: \"application/json\" } };"
+    },
+    {
+      "id": 2,
+      "label": "L2",
+      "text": "function buildRequestOpts(token) {"
+    },
+    {
+      "id": 3,
+      "label": "L3",
+      "text": "  const headers = { ...BASE_OPTS.headers };"
+    },
+    {
+      "id": 4,
+      "label": "L4",
+      "text": "  if (token) headers.authorization = `Bearer ${token}`;"
+    },
+    {
+      "id": 5,
+      "label": "L5",
+      "text": "  return { ...BASE_OPTS, headers };"
+    },
+    {
+      "id": 6,
+      "label": "L6",
+      "text": "}"
+    }
+  ],
+  "conclusion": "AI summary: Clones `headers` separately and overrides it in the returned copy, so `BASE_OPTS.headers` never picks up a user's token.",
+  "flaws": [],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "`BASE_OPTS` is declared with `const`, which freezes nested `headers` and makes line 4 throw TypeError.",
+        "Using lowercase `accept` instead of `Accept` causes `headers` spread to drop the key.",
+        "Putting `BASE_OPTS` at module scope means every call shares the exact same `timeout` and `headers` reference.",
+        "Missing `Object.freeze` on `BASE_OPTS` means line 3 still mutates it."
+      ],
+      "fix": [
+        "Change `const BASE_OPTS` to `let BASE_OPTS` so copies can be modified.",
+        "Move `BASE_OPTS` inside `buildRequestOpts` so it's rebuilt on every call.",
+        "Wrap `BASE_OPTS` in `Object.freeze(...)` to block nested writes.",
+        "Store `headers` as a `Map` instead of a plain object."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "Missing default `token = \"\"` causes `if (token)` on line 4 to throw ReferenceError when called with no args.",
+        "Accepting `token` without trimming lets whitespace tokens bypass the `if` guard and mutate `BASE_OPTS`.",
+        "`buildRequestOpts` isn't `async`, so it can't return request options for `fetch`.",
+        "Parameter `token` shadows a global browser property."
+      ],
+      "fix": [
+        "Default the parameter to `token = null` so zero-arg calls don't throw.",
+        "Rename `token` to `authToken` to avoid shadowing.",
+        "Mark the function `async` for `fetch` callers.",
+        "Validate `typeof token === 'string'` before reading `BASE_OPTS`."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "Object spread `{ ...BASE_OPTS.headers }` is a shallow copy, so `headers` still points to `BASE_OPTS.headers` and line 4 mutates the global default.",
+        "Declaring `const headers` prevents line 4 from adding the `authorization` property.",
+        "Spreading `BASE_OPTS.headers` loses `timeout: 2000` from the final options object.",
+        "Spreading a nested property throws TypeError unless `BASE_OPTS` is spread first."
+      ],
+      "fix": [
+        "Use `structuredClone(BASE_OPTS.headers)` because `{ ...obj }` shares the same reference.",
+        "Change `const headers` to `let headers` so line 4 can assign `authorization`.",
+        "Spread `{ ...BASE_OPTS }` first on line 3 instead of `BASE_OPTS.headers`.",
+        "Use `Object.assign(BASE_OPTS.headers, {})` to clone safely."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Assigning `headers.authorization` mutates `BASE_OPTS.headers`, leaking the Bearer token to the next anonymous call.",
+        "Missing curly braces around the `if` body causes line 5 to only run when `token` is truthy.",
+        "Template literal `` `Bearer ${token}` `` leaves `${token}` uninterpolated because of backticks.",
+        "If `token` is empty, `headers.authorization` stays set from the previous call."
+      ],
+      "fix": [
+        "Delete `headers.authorization` in an `else` branch so anonymous calls don't inherit it.",
+        "Wrap the `if` body in `{ ... }` so `return` always runs.",
+        "Replace the template literal with `'Bearer ' + token`.",
+        "Build a second clone `{ ...headers, authorization: ... }` on line 4."
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "Shallow copy bug: `{ ...BASE_OPTS, headers }` copies `BASE_OPTS.headers` *over* the local `headers`, wiping out `authorization`.",
+        "Shorthand `headers` puts `{ headers: { headers: ... } }` nested one level too deep.",
+        "Spreading `BASE_OPTS` first shares `BASE_OPTS.headers` between the returned object and the global default.",
+        "Missing `timeout` in the shorthand means `timeout` is dropped when `headers` is supplied."
+      ],
+      "fix": [
+        "Put `headers` before `...BASE_OPTS`: `return { headers, ...BASE_OPTS };`.",
+        "Write `headers: { ...headers }` explicitly instead of shorthand `headers`.",
+        "Use `Object.assign(BASE_OPTS, { headers })` instead of object spread.",
+        "Write `{ timeout: BASE_OPTS.timeout, headers }` so `BASE_OPTS` isn't spread."
+      ]
+    },
+    "6": {
+      "diagnosis": [
+        "Missing semicolon after the function block causes syntax errors in strict mode.",
+        "The function leaks `headers` into the outer scope after returning.",
+        "Calling `buildRequestOpts()` twice returns the exact same object identity.",
+        "Nothing resets `BASE_OPTS.headers` before the function closes."
+      ],
+      "fix": [
+        "Reset `delete BASE_OPTS.headers.authorization;` before returning.",
+        "Add `};` at the end of the function declaration.",
+        "Wrap the returned object in `structuredClone(...)`.",
+        "Return `Object.freeze(...)` so callers can't mutate it."
+      ]
+    }
+  },
+  "clean_segments": [
+    "const BASE_OPTS = { timeout: 2000, headers: { accept: \"application/json\" } };",
+    "function buildRequestOpts(token) {",
+    "  const headers = { ...BASE_OPTS.headers };",
+    "  if (token) headers.authorization = `Bearer ${token}`;",
+    "  return { ...BASE_OPTS, headers };",
+    "}"
+  ],
+  "clean_conclusion": "This one actually clones the nested object: line 3 builds a fresh `headers` copy before setting `authorization`, and line 5's `headers` comes *after* `...BASE_OPTS` so it overrides cleanly — `BASE_OPTS` stays untouched.",
+  "explanation": "This one actually clones the nested object: line 3 builds a fresh `headers` copy before setting `authorization`, and line 5's `headers` comes *after* `...BASE_OPTS` so it overrides cleanly — `BASE_OPTS` stays untouched."
+}

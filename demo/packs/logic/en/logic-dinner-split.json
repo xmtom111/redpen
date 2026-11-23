@@ -11,7 +11,7 @@
   "difficulty": "intro",
   "level": 1,
   "estimated_seconds": 60,
-  "prompt": "A friend asked an AI to write this settle-up note. If a line doesn't add up, tap it.",
+  "prompt": "After the concert and hotpot, one friend sent this note to settle up. Tap any line that doesn't hold up, or mark it clean.",
   "segments": [
     {
       "id": 1,
@@ -49,38 +49,38 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "Equal card charges are not an even split when one bill was for one person and the other bill was shared."
+          "label": "The $120 ticket was 100% yours, while the $120 hotpot was shared ($60 each) — you still owe $60."
         },
         {
           "id": "d2",
-          "label": "The hotpot bill should have been split three ways, including the waiter."
+          "label": "The total night cost $240 ($120 each), so putting $120 on each card really does make you even."
         },
         {
           "id": "d3",
-          "label": "A work-issued ticket has no cash value, so only the dinner needs to be settled."
+          "label": "Since my own ticket came free from work, the two tickets average $60 each and we should split that too."
         },
         {
           "id": "d4",
-          "label": "You actually owe $120 more, because concert tickets can be resold."
+          "label": "You owe $120 for the ticket plus $60 for your half of hotpot ($180), so you still owe $120."
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "I covered your whole $120 ticket and half the dinner; you covered only $60 of my dinner. You still owe $60."
+          "label": "You owe $120 for the ticket minus $60 for my half of hotpot = $60 owed."
         },
         {
           "id": "f2",
-          "label": "Keep it as even: matching totals on two cards always cancel."
+          "label": "Split the $240 total in half ($120 each) and call it even since each card paid $120."
         },
         {
           "id": "f3",
-          "label": "Split both bills in half, so each person owes $120 and the transfer is $0."
+          "label": "Split the $120 ticket ($60 each) too so we each owe $120 total and stay completely even."
         },
         {
           "id": "f4",
-          "label": "Ignore the ticket and split only the hotpot, which already makes the $120 charges even."
+          "label": "Send me $120 for the concert ticket and keep the $120 hotpot bill as your thank-you treat."
         }
       ],
       "fix_answer": "f1",
@@ -101,5 +101,64 @@
     "Thanks again for a fun Saturday; let's do another night next month.",
     "I'll send a $60 transfer request in the chat."
   ],
-  "clean_conclusion": "Matching $120 charges are not an even split: one bill was personal, the other was shared. $60 is still owed."
+  "clean_conclusion": "Matching $120 charges are not an even split: one bill was personal, the other was shared. $60 is still owed.",
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "Since your own ticket was free from work, you should split the $120 cost of the second ticket ($60 each).",
+        "Buying a $120 ticket online usually adds a $20 service fee, so quoting $120 understates what you spent.",
+        "A work perk ticket still has a $120 face value, so the real ticket total for the night was $240.",
+        "Paying $120 just for your friend means they owe $120 only if you didn't pick the seats."
+      ],
+      "fix": [
+        "Split the $120 ticket 50/50 ($60 each) since your ticket was free.",
+        "Include the $240 combined face value of both tickets before splitting.",
+        "Check the online receipt for ticketing fees before asking for $120.",
+        "Keep the $120 ticket strictly as your friend's $120 share."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "Paying $120 for hotpot for two people means each person owes $120, not $60.",
+        "If you ate more than half the hotpot, splitting $120 evenly at $60 each isn't fair.",
+        "A $120 hotpot bill for two after a concert covers the $120 ticket as a thank-you meal.",
+        "You forgot to split tax and tip on the $120 hotpot bill separately."
+      ],
+      "fix": [
+        "Note explicitly that your half of the $120 hotpot is $60, not $120.",
+        "Itemize who ordered which hotpot dishes instead of splitting $120 in half.",
+        "Treat the $120 dinner as a treat in exchange for getting invited to the show.",
+        "Check whether $120 already included tax and tip before halving it."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Inviting them to another night next month hides that you're still out $60 from Saturday.",
+        "Next month they should pay for both tickets ($240) to make up for Saturday's $60 gap.",
+        "Saying thanks for Saturday confirms you treated the $120 dinner as settling the $120 ticket.",
+        "Planning next month before checking the receipt means the $60 imbalance rolls over."
+      ],
+      "fix": [
+        "Settle the remaining $60 first before booking next month's plans.",
+        "Have them cover $60 more of next month's dinner instead of transferring now.",
+        "Confirm explicitly whether you're waiving the $60 or expecting a transfer.",
+        "Keep next month's expenses on separate tabs so nothing gets netted wrong."
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "Marking it settled in the chat locks in a $60 loss for you — you paid $120 for them and only got $60 of food back.",
+        "Marking it settled is actually right because $120 paid minus $120 paid equals $0.",
+        "Only the person who paid the second bill (hotpot) should mark the weekend settled.",
+        "You shouldn't mark it settled until credit-card points on both $120 charges post."
+      ],
+      "fix": [
+        "Don't mark it settled yet — note that they still owe you $60.",
+        "Keep it marked settled since both cards were charged $120.",
+        "Ask them to send $120 for the ticket, then you send $60 back for hotpot.",
+        "Mark it settled only after they confirm the $120 hotpot included tip."
+      ]
+    }
+  }
 }

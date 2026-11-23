@@ -1,0 +1,106 @@
+{
+  "schema_version": 2,
+  "domain": "logic",
+  "renderer": "prose",
+  "opener": true,
+  "kind": "trick_clean",
+  "difficulty": "standard",
+  "level": 0,
+  "estimated_seconds": 60,
+  "id": "logic-chat-coupon-cancel",
+  "lang": "en",
+  "title": "Outlet rack",
+  "topic": "A friend checks per-item rounding on three 40%-off clearance items",
+  "blurb": "A friend is checking a clearance receipt on the way out.",
+  "prompt": "A friend just sent this in the group chat. Tap a line if something doesn't add up, or let it pass.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The tags",
+      "text": "Grabbed three shirts off a 40%-off rack: tags were $24.98, $19.99, and $15.03 ($60.00 before discount)."
+    },
+    {
+      "id": 2,
+      "label": "The register",
+      "text": "The register takes 40% off each shirt separately and rounds every line to the nearest cent instead of discounting the $60 once."
+    },
+    {
+      "id": 3,
+      "label": "The total",
+      "text": "Still rang up to $36.00 on the nose — didn't drift by even a single penny."
+    },
+    {
+      "id": 4,
+      "label": "The change",
+      "text": "Handed over two twenties and got $4 back clean."
+    }
+  ],
+  "conclusion": "Taking 40% off $24.98, $19.99, and $15.03 individually with cent rounding still totals $36.00 flat.",
+  "flaws": [],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "$24.98 + $19.99 + $15.03 adds up to $59.90, not $60.00 flat, so the baseline is already off by a dime.",
+        "40% off $60.00 means you pay $24.00, not $36.00 — you used the discount instead of the sale price.",
+        "Outlet racks usually round tags to .99, so $15.03 already has sales tax baked into the tag.",
+        "Adding three tags before discounting hides that each shirt sits in a different clearance bracket."
+      ],
+      "fix": [
+        "Re-add the three tags: $24.98 + $19.99 + $15.03 is $59.90, not $60.",
+        "Take 40% of $60 to get $24.00 as the checkout price.",
+        "Check each shirt's discount separately instead of summing to $60 first.",
+        "Add local sales tax before checking whether the total lands on an even dollar."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "Taking 40% off three items separately compounds the discount instead of matching a single 40% cut.",
+        "Rounding three odd-cent items to the nearest penny always adds at least a penny of drift to the bill.",
+        "Registers always round up in the store's favor, so three lines can't cancel out to $36.00.",
+        "Applying 40% off per item means multiplying by 0.40 on each line, which gives $24.00 total."
+      ],
+      "fix": [
+        "Ask the cashier to apply 40% off once to the $60 subtotal to avoid compounding.",
+        "Expect $36.01 or $35.99 because three separate roundings won't net to zero.",
+        "Multiply each tag by 0.40 ($9.99, $8.00, $6.01) to get the real discounted lines.",
+        "Round every line up to the next cent so you see the store's true total ($36.02)."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "Check the lines: 60% of $24.98 is $14.99, 60% of $19.99 is $12.00, and 60% of $15.03 is $9.02 — that's $36.01, not $36.00.",
+        "Two tags end in .98 and .99, so both round down and leave you at $35.99, a penny under $36.00.",
+        "40% off $60 is $24.00; paying $36.00 means the register only gave you a 24-dollar tag cut, wait — 60% off.",
+        "Per-item rounding errors are 0.2¢, 0.4¢, and 0.8¢, which can't cancel to an exact zero."
+      ],
+      "fix": [
+        "Re-sum the rounded lines as $14.99 + $12.00 + $9.02 = $36.01.",
+        "Re-sum the rounded lines as $14.99 + $11.99 + $9.01 = $35.99.",
+        "Correct the checkout total from $36.00 to $24.00 for a 40%-off sale.",
+        "Note that you were overcharged by one cent from the two round-ups."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "If the lines actually summed to $36.01, two twenties would give back $3.99, not $4 flat.",
+        "With sales tax on $36.00, two twenties wouldn't give you a clean $4 back.",
+        "Getting $4 back from $40 means you paid 60% off ($24) only if you handed over $28.",
+        "Paying with two twenties ($40) on a $35.99 bill should have returned $4.01."
+      ],
+      "fix": [
+        "Check your pocket for the missing penny — $40 minus $35.99 is $4.01.",
+        "Check the receipt again: $36.01 leaves $3.99 in change, not $4.",
+        "Account for sales tax so the $4 change makes sense.",
+        "Verify the cashier didn't skip discounting the third shirt."
+      ]
+    }
+  },
+  "clean_segments": [
+    "Grabbed three shirts off a 40%-off rack: tags were $24.98, $19.99, and $15.03 ($60.00 before discount).",
+    "The register takes 40% off each shirt separately and rounds every line to the nearest cent instead of discounting the $60 once.",
+    "Still rang up to $36.00 on the nose — didn't drift by even a single penny.",
+    "Handed over two twenties and got $4 back clean."
+  ],
+  "clean_conclusion": "Every penny checks out: 60% of $24.98 is $14.988 → $14.99 (+0.2¢), 60% of $19.99 is $11.994 → $11.99 (−0.4¢), and 60% of $15.03 is $9.018 → $9.02 (+0.2¢). The three rounding slivers cancel to zero: $36.00 exact.",
+  "explanation": "Every penny checks out: 60% of $24.98 is $14.988 → $14.99 (+0.2¢), 60% of $19.99 is $11.994 → $11.99 (−0.4¢), and 60% of $15.03 is $9.018 → $9.02 (+0.2¢). The three rounding slivers cancel to zero: $36.00 exact."
+}

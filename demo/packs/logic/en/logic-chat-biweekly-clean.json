@@ -10,8 +10,8 @@
   "lang": "en",
   "title": "Housekeeping",
   "topic": "A friend is putting a regular cleaner into the yearly budget",
-  "blurb": "A friend just booked a cleaner and is doing the yearly math in the chat.",
-  "prompt": "A friend just texted this in the group chat. If one line doesn't add up, tap it.",
+  "blurb": "A friend just booked a regular cleaner and is setting the yearly budget.",
+  "prompt": "A friend just sent this in the group chat. Tap a line if something doesn't add up, or let it pass.",
   "segments": [
     {
       "id": 1,
@@ -21,7 +21,7 @@
     {
       "id": 2,
       "label": "The month",
-      "text": "That's twice a month, so $120 a month."
+      "text": "Runs $120 in a typical month."
     },
     {
       "id": 3,
@@ -44,38 +44,38 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "Every two weeks is 26 visits a year, not 24. That budget is short two visits."
+          "label": "Every two weeks is 26 visits a year, not 24 — $1,440 is short $120."
         },
         {
           "id": "d2",
-          "label": "Some months have five weeks, so those months should be budgeted at five visits, not two."
+          "label": "Four months have five weeks, so those months get three visits and push the year to 28 visits ($1,680)."
         },
         {
           "id": "d3",
-          "label": "Every two weeks is 24 visits, but they may skip holidays, so $1,440 is already on the high side."
+          "label": "Every two weeks is 24 visits, and skipping Christmas and Thanksgiving drops the real bill to $1,320."
         },
         {
           "id": "d4",
-          "label": "The first visit is usually a trial, so the first month is only one visit and the year costs less than $1,440."
+          "label": "12 months times $120 is $1,540, not $1,440 — the multiplication itself is off by $100."
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Budget 26 visits — 52 weeks divided by 2 — not 12 months times 2."
+          "label": "Budget 26 visits (52 ÷ 2 × $60 = $1,560), not 24."
         },
         {
           "id": "f2",
-          "label": "Have them come on the 1st and the 15th each month, so the $1,440 finally matches."
+          "label": "Add 4 extra visits for the 5-week months and set aside $1,680 for the year."
         },
         {
           "id": "f3",
-          "label": "Pay $1,440 up front and ask them to skip two visits so the year lines up."
+          "label": "Re-multiply 12 × $120 as $1,540 so the yearly fund matches the monthly rate."
         },
         {
           "id": "f4",
-          "label": "Switch to a weekly visit and keep the same yearly total."
+          "label": "Drop two holiday visits from the schedule so the yearly budget drops to $1,320."
         }
       ],
       "fix_answer": "f1",
@@ -91,9 +91,54 @@
   ],
   "clean_segments": [
     "Finally booked a cleaner — $60 a visit, coming every two weeks.",
-    "That's twice a month, so $120 a month.",
+    "Runs $120 in a typical month.",
     "Every two weeks is 26 visits a year, not 24. At $60 that's $1,560, not $1,440.",
     "If it works out, I'll send you their number."
   ],
-  "clean_conclusion": "Every two weeks is 26 visits a year, not 24. Budget $1,560, not $1,440."
+  "clean_conclusion": "Every two weeks is 26 visits a year, not 24. Budget $1,560, not $1,440.",
+  "kind": "planted",
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "$60 a visit doesn't include tips or cleaning supplies, so the per-visit base is understated.",
+        "'Every two weeks' means 14 days, which drifts across months and makes a fixed $60 rate impossible to budget.",
+        "A cleaner coming every two weeks comes 13 times a year (once every 4 weeks), not 26.",
+        "You can't budget a cleaner at $60 until you know if the first deep clean costs double."
+      ],
+      "fix": [
+        "Add a 20% tip ($72 a visit) before multiplying out the year.",
+        "Ask the cleaner to bill a flat monthly fee instead of per visit.",
+        "Include a $120 first-visit deep-clean charge in the yearly budget.",
+        "Switch to a fixed 1st-and-15th calendar schedule instead of every two weeks."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "Every two weeks is *more* than twice a month — two months a year have three visits ($180), not two.",
+        "Twice a month at $60 is $180 a month because months average 30 days (three 10-day gaps).",
+        "February only has 28 days, so every two weeks is only one visit in February ($60).",
+        "Saying '$120 a month' is right for 10 months, so the monthly average is $140, not $130."
+      ],
+      "fix": [
+        "Average the year to $130 a month ($1,560 ÷ 12) instead of calling it $120 a month.",
+        "Budget $180 in the four 31-day months that pick up a third visit.",
+        "Lower February's budget to $60 to offset the longer months.",
+        "Book twice a month on fixed dates (1st and 15th) so it really stays $120 a month."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Sharing their number before you see the first clean risks recommending someone unreliable.",
+        "If your friend hires them on the alternate week, the cleaner's rate will jump past $60.",
+        "Recommending a cleaner priced at $1,440 a year misleads your friend by $120.",
+        "You shouldn't send their number until after the first 3-visit month proves they show up on schedule."
+      ],
+      "fix": [
+        "Wait for two or three visits before passing along their contact info.",
+        "Warn your friend the yearly cost is $1,560, not $1,440, when you share the number.",
+        "Ask the cleaner if they offer a referral discount before sending their number.",
+        "Check if they have open biweekly slots before offering the contact."
+      ]
+    }
+  }
 }
