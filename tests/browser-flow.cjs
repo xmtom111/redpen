@@ -39,7 +39,8 @@ const draft = JSON.parse(fs.readFileSync(path.join(root, 'demo/bank/cubic-lost-r
         assert.equal(await page.locator('.accuracy-pill').count(), 1);
         await page.locator('[data-next-id]').waitFor();
 
-        assert.equal(await page.locator('[data-share-daily]').count(), 1, 'Partial daily postcard is available');
+        // Mid-daily: no induced share prompt. The docket appears after the third verdict.
+        assert.equal(await page.locator('[data-share-daily]').count(), 0);
 
         // Advance to Daily #2 and #3 via Next button and complete Daily.
         await page.locator('[data-next-id]').click();
@@ -62,9 +63,9 @@ const draft = JSON.parse(fs.readFileSync(path.join(root, 'demo/bank/cubic-lost-r
         // Math renders offline in the setup, steps, drawer, final answer and debrief.
         await page.locator('[data-nav="packs"]').click();
         await page.locator('[data-id="sine-substitution"]').click();
-        await page.locator('.problem .katex').first().waitFor();
+        await page.locator('.evidence-brief .katex').first().waitFor();
         await page.locator('.seg-body .katex').first().waitFor();
-        await page.locator('.final .katex').first().waitFor();
+        await page.locator('.evidence-conclusion .katex').first().waitFor();
         await page.locator('[data-seg="2"]').click();
         await page.locator('[data-pick-fix] .katex').first().waitFor();
         const oldLabels = await page.locator('[data-pick-diag]').allTextContents();
@@ -87,9 +88,9 @@ const draft = JSON.parse(fs.readFileSync(path.join(root, 'demo/bank/cubic-lost-r
 
         await page.locator('[data-nav="packs"]').click();
         await page.locator('[data-id="logic-chat-cabin-split"]').click();
-        await page.locator('.seg-background').waitFor();
-        assert.equal(await page.locator('.seg-background').count(), 1);
-        assert.equal(await page.locator('[data-seg="4"]').count(), 0);
+        await page.locator('button.seg-btn[data-seg="1"]').waitFor();
+        assert.ok(await page.locator('button.seg-btn[data-seg]').count() >= 4);
+        assert.equal(await page.locator('button.seg-btn[data-seg="4"]').count(), 1);
         if (!lang) {
           assert.match(await page.locator('[data-seg="1"]').textContent(), /\$600.*\$200/);
           assert.equal(await page.locator('[data-seg="1"] .katex').count(), 0);

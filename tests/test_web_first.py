@@ -73,8 +73,8 @@ class PackAndExportTest(unittest.TestCase):
             entries = {entry["id"]: entry for entry in catalog["entries"]}
             cabin = entries["logic-chat-cabin-split"]["light_choices"]
             laundry = entries["logic-chat-laundry-queue"]["light_choices"]
-            self.assertTrue({"1", "2", "3"} <= set(cabin))
-            self.assertNotIn("4", cabin)  # Receipt housekeeping is background.
+            self.assertTrue({"1", "2", "3", "4"} <= set(cabin))
+            self.assertTrue({"1", "2", "3"} <= set(laundry))
             for group in ("diagnosis", "fix"):
                 labels = lambda choices: {choice["label"] for choice in choices[group]}
                 self.assertFalse(labels(cabin["1"]) & labels(laundry["1"]))
@@ -90,14 +90,16 @@ class PackAndExportTest(unittest.TestCase):
             ({"kind": "unknown"}, "kind"),
             ({"kind": "planted"}, "level"),
             ({"kind": "clean", "level": 1}, "level"),
-            ({"kind": "trick_clean"}, "one-line"),
+            ({"kind": "trick_clean", "explanation": None}, "one-line"),
             ({"kind": "trick_clean", "explanation": "  "}, "one-line"),
             ({"kind": "trick_clean", "explanation": "One\nTwo"}, "one-line"),
             ({"segment_distractors": {"99": {}}}, "segment_distractors"),
             ({"segment_distractors": {"2": {"diagnosis": ["one"]}}}, "3-4 distinct"),
         ):
             with self.subTest(changes=changes), self.assertRaisesRegex(ValueError, message):
-                validate_pack_puzzle({**clean_pack_fixture(), **changes})
+                payload = {**clean_pack_fixture(), **changes}
+                payload = {key: value for key, value in payload.items() if value is not None}
+                validate_pack_puzzle(payload)
         legacy = clean_pack_fixture()
         legacy.pop("kind")
         self.assertEqual(normalize_v2_puzzle(legacy, "code")["kind"], "clean")
@@ -369,12 +371,14 @@ class PlayFeelExportTest(unittest.TestCase):
                 css = (prefix / "style.css").read_text(encoding="utf-8")
                 self.assertIn("function pickDefaultPuzzle", app_js)
                 self.assertIn("First-screen instant play", app_js)
-                self.assertIn("Score it", app_js)
-                self.assertIn("看打得准不准", app_js)
-                self.assertIn("Tap a shaky line to call it out, or clear it as solid.", app_js)
-                self.assertIn("点可疑的那句下判词，或直接判没毛病", app_js)
-                self.assertIn("Share today's RedPen", app_js)
-                self.assertIn("分享今日战绩", app_js)
+                self.assertIn("Does this hold up?", app_js)
+                self.assertIn("这段话站得住脚吗？", app_js)
+                self.assertIn("Tap a shaky line, or clear it as solid.", app_js)
+                self.assertIn("觉得不对就用红笔点那一句；若没漏洞也可以直接放行", app_js)
+                self.assertIn("Holds up", app_js)
+                self.assertIn("没毛病，站得住", app_js)
+                self.assertIn("Copy text", app_js)
+                self.assertIn("复制战绩文本", app_js)
                 self.assertIn("function playDockHtml", app_js)
                 self.assertIn("function shareCardVisualHtml", app_js)
                 self.assertIn("choice-drawer", app_js)

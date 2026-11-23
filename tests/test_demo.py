@@ -133,9 +133,28 @@ class BankAndGraderTest(unittest.TestCase):
             *(ROOT / "demo" / "bank").rglob("*.json"),
             *(ROOT / "demo" / "packs" / "math").glob("light_*.json"),
         ]
+
+        def visible_source(raw: str) -> str:
+            data = json.loads(raw)
+
+            def strip_sealed(obj):
+                if isinstance(obj, dict):
+                    out = {}
+                    for key, value in obj.items():
+                        # Sealed key.errors fields may keep $...$ for equivalent_fix.
+                        if key in {"original", "why_tempting", "catch_rule"}:
+                            continue
+                        out[key] = strip_sealed(value)
+                    return out
+                if isinstance(obj, list):
+                    return [strip_sealed(item) for item in obj]
+                return obj
+
+            return json.dumps(strip_sealed(data), ensure_ascii=False)
+
         for path in paths:
             with self.subTest(path=path):
-                source = path.read_text(encoding="utf-8")
+                source = visible_source(path.read_text(encoding="utf-8"))
                 self.assertNotIn("$", source)
                 self.assertIn(r"\\(", source)
 

@@ -11,7 +11,7 @@
 
   const UI = {
     en: {
-      headline: "Spot the flaw. Beat the AI.",
+      headline: "Does this hold up?",
       navDaily: "Daily",
       navPacks: "Packs",
       navWorkshop: "Workshop",
@@ -147,7 +147,7 @@
       },
     },
     zh: {
-      headline: "红笔抓错：专治一本正经的胡说八道",
+      headline: "红笔抓错：这段话站得住脚吗？",
       navDaily: "今日三题",
       navPacks: "题库",
       navWorkshop: "工坊",
@@ -333,6 +333,17 @@
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;");
+  }
+
+  function legacyMathDelims(value) {
+    // Sealed math keys may still use $...$; playable text already uses \(...\).
+    // Only rewrite $pairs$ that look like TeX so dollar amounts stay literal.
+    return String(value ?? "").replace(/\$([^$\n]+)\$/g, (match, inner) => {
+      if (/\\|[A-Za-z]\s*\^|[_^]\{|\\frac|[A-Za-z]\s*=|=\s*[A-Za-z0-9-]/.test(inner)) {
+        return "\\(" + inner + "\\)";
+      }
+      return match;
+    });
   }
 
   function pageDir() {
@@ -1337,7 +1348,7 @@
         const canFlag = !supportsLightPlay(round) || !!(round.light_choices && round.light_choices[id]);
         if (!canFlag) {
           return `<li class="${cls}" data-seg-item="${id}">
-            <div class="chat-row seg-static">${avatarHtml}<div class="chat-bubble">${bubbleInner}</div></div>
+            <div class="chat-row seg-static seg-background">${avatarHtml}<div class="chat-bubble">${bubbleInner}</div></div>
           </li>`;
         }
         return `<li class="${cls}" data-seg-item="${id}">
@@ -1397,7 +1408,7 @@
       }
       const canFlag = !supportsLightPlay(round) || !!(round.light_choices && round.light_choices[id]);
       if (!canFlag) {
-        return `<li class="${cls}" data-seg-item="${id}"><div class="seg-static">${rowInner}</div></li>`;
+        return `<li class="${cls}" data-seg-item="${id}"><div class="seg-static seg-background">${rowInner}</div></li>`;
       }
       return `<li class="${cls}" data-seg-item="${id}">
         <button type="button" class="seg-btn" data-seg="${id}" aria-pressed="${selectedSteps.has(id) ? "true" : "false"}">${rowInner}</button>
@@ -1600,9 +1611,9 @@
           <span class="debrief-loc-name">${esc(segmentLabel(round, error.step))}</span>
           <span class="status-chip ${error.found ? "hit" : "missed"}">${error.found ? esc(text.foundDetail(error.diagnosis, error.fix)) : esc(text.missedTag)}</span>
         </div>
-        <p class="debrief-punch">${esc(error.why_wrong)}</p>
-        <p class="debrief-line"><strong>${esc(text.theFix)}${sep}</strong>${esc(error.correct)}</p>
-        <p class="debrief-rule">${esc(text.catchRule)}${sep}${esc(error.catch_rule)}</p>
+        <p class="debrief-punch">${esc(legacyMathDelims(error.why_wrong))}</p>
+        <p class="debrief-line"><strong>${esc(text.theFix)}${sep}</strong>${esc(legacyMathDelims(error.correct))}</p>
+        <p class="debrief-rule">${esc(text.catchRule)}${sep}${esc(legacyMathDelims(error.catch_rule))}</p>
       </article>`).join("");
 
     const alarms = (debrief.false_alarm_details || []).map((alarm) =>
@@ -1611,9 +1622,9 @@
     const bounties = (debrief.bounty_details || []).map((b) =>
       `<li>${esc(text.alarmItem(segmentLabel(round, b.step), b.description || ""))}</li>`
     ).join("");
-    const clean = (debrief.clean_steps || []).map((step) => `<li>${esc(step)}</li>`).join("");
-    const practice = (debrief.errors || []).map((error) => `<li>${esc(error.practice_problem)}</li>`).join("");
-    const practiceAnswers = (debrief.errors || []).map((error) => `<li>${esc(error.practice_answer)}</li>`).join("");
+    const clean = (debrief.clean_steps || []).map((step) => `<li>${esc(legacyMathDelims(step))}</li>`).join("");
+    const practice = (debrief.errors || []).map((error) => `<li>${esc(legacyMathDelims(error.practice_problem))}</li>`).join("");
+    const practiceAnswers = (debrief.errors || []).map((error) => `<li>${esc(legacyMathDelims(error.practice_answer))}</li>`).join("");
     const hashLine = debrief.commitment_ok === false
       ? text.hashBad
       : debrief.commitment_ok
@@ -1644,7 +1655,7 @@
             ${!debrief.revealed ? `<span class="accuracy-pill">${esc(text.accuracy(acc))}</span>` : ""}
           </div>
         </div>
-        ${debrief.explanation ? `<p class="debrief-punch">${esc(debrief.explanation)}</p>` : ""}
+        ${debrief.explanation ? `<p class="debrief-punch">${esc(legacyMathDelims(debrief.explanation))}</p>` : ""}
         <div class="debrief-list">
           ${errors || (debrief.planted === 0 && !debrief.explanation ? `<p class="clean-msg">${esc(text.cleanRound)}</p>` : "")}
         </div>
@@ -1661,7 +1672,7 @@
           <div class="clean">
             <h3>${esc(text.cleanTitle)}</h3>
             <ol>${clean}</ol>
-            <p><strong>${esc(text.finalAnswer)}:</strong> ${esc(debrief.clean_final_answer || "")}</p>
+            <p><strong>${esc(text.finalAnswer)}:</strong> ${esc(legacyMathDelims(debrief.clean_final_answer || ""))}</p>
           </div>
           ${practice ? `<h3>${esc(text.practice)}</h3><ol class="practice-list">${practice}</ol>
             <details><summary>${esc(text.practiceAnswers)}</summary><ol class="practice-list">${practiceAnswers}</ol></details>` : ""}
