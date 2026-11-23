@@ -647,20 +647,6 @@
       },
       "2": {
         "diagnosis": [
-          "\\(x^2 + 1 = 0\\) has roots \\(x = \\pm 1\\), so \\(x^2 + 1\\) can be zero for real \\(x\\).",
-          "Even over the reals, \\(x^2 + 1\\) can hit zero when \\(x = -1\\).",
-          "\\(x^2 + 1\\) is zero at \\(x = \\pm i\\), so claiming it is never zero drops two solutions.",
-          "Knowing \\(x^2 \\ge 0\\) only proves \\(x^2 + 1 > 0\\) when \\(x \\neq 0\\)."
-        ],
-        "fix": [
-          "Include \\(x = 1\\) and \\(x = -1\\) as candidate solutions from \\(x^2 + 1 = 0\\).",
-          "Include \\(x = i\\) and \\(x = -i\\) in the solution set.",
-          "Check \\(x = -1\\) separately because \\((-1)^2 + 1 = 0\\).",
-          "Exclude \\(x = 0\\) before claiming \\(x^2 + 1 > 0\\)."
-        ]
-      },
-      "3": {
-        "diagnosis": [
           "Dividing both sides by an expression containing \\(x\\) silently drops the roots of \\(x^2 + 1 = 0\\).",
           "You can never divide an equation by a quadratic expression without losing two roots.",
           "Dividing by \\(x^2 + 1\\) leaves \\(x - 3 = 2(x^2 + 1)\\) on the right, not \\(2\\).",
@@ -673,7 +659,7 @@
           "Divide by \\(x - 3\\) instead so \\(x^2 + 1\\) stays intact."
         ]
       },
-      "4": {
+      "3": {
         "diagnosis": [
           "Adding \\(3\\) to \\(2\\) ignores the negative branch, so it should be \\(x = \\pm 5\\).",
           "Moving \\(-3\\) across the equals sign flips the sign to \\(2 - 3 = -1\\).",
@@ -685,6 +671,20 @@
           "Keep both signs: \\(x = 5\\) or \\(x = -5\\).",
           "Add \\(x = \\pm 1\\) alongside \\(x = 5\\).",
           "Take \\(\\pm\\sqrt{5}\\) to recover the quadratic roots."
+        ]
+      },
+      "4": {
+        "diagnosis": [
+          "Checking \\(x = 5\\) only proves \\(5\\) works — it never proves step 2 didn't drop other real roots.",
+          "\\((5^2 + 1)(5 - 3)\\) is \\(26 \\cdot 2 = 52\\), while \\(2(5^2 + 1) = 2 \\cdot 11 = 22\\), so \\(x = 5\\) fails.",
+          "You also need to test \\(x = -1\\) and \\(x = 1\\) because they zero out \\(x^2 + 1\\).",
+          "Plugging into the original equation doesn't catch roots lost when dividing by \\(x^2 + 1\\)."
+        ],
+        "fix": [
+          "Test \\(x = -1\\) and \\(x = 1\\) as well and add them to the solution set.",
+          "Re-evaluate \\(5^2 + 1\\) as \\(11\\) and reject \\(x = 5\\).",
+          "Factor \\((x^2 + 1)(x - 5) = 0\\) and include \\(x = \\pm i\\) as real solutions.",
+          "Test \\(x = 0\\) as well since cancelling a factor often drops \\(0\\)."
         ]
       },
       "5": {
@@ -724,20 +724,6 @@
       },
       "2": {
         "diagnosis": [
-          "\\(\\sqrt{9}\\) equals \\(\\pm 3\\), not just \\(3\\), so \\(\\sqrt{9x^2} = \\pm 3|x|\\).",
-          "You cannot split \\(\\sqrt{9x^2}\\) into \\(\\sqrt{9}\\sqrt{x^2}\\) when a variable is inside the root.",
-          "\\(\\sqrt{9x^2}\\) simplifies to \\(9|x|\\), forgetting to take the square root of \\(9\\) — wait, \\(3|x|\\) is too small.",
-          "Writing \\(3|x|\\) is wrong because \\(\\sqrt{x^2}\\) is always \\(x\\), never \\(|x|\\)."
-        ],
-        "fix": [
-          "Write \\(\\sqrt{9x^2} = \\pm 3|x|\\) to keep both roots of \\(9\\).",
-          "Keep \\(\\sqrt{9x^2}\\) unsplit and square the whole fraction instead.",
-          "Rewrite as \\(9|x|\\) before adding \\(x\\).",
-          "Drop the absolute value bars immediately since \\(x^2\\) is already squared."
-        ]
-      },
-      "3": {
-        "diagnosis": [
           "Classic slip: \\(\\sqrt{9x^2} = \\pm 3x\\), so dropping the \\(-3x\\) branch misses the answer \\(-1\\).",
           "Replacing \\(|x|\\) with \\(x\\) fails whenever \\(x < 0\\), where the fraction evaluates to \\(-1\\) instead of \\(2\\).",
           "You can never drop absolute value bars around a variable when simplifying a radical.",
@@ -750,7 +736,7 @@
           "Test \\(x = 0.25\\) and note that \\(\\sqrt{9x^2}\\) differs from \\(3x\\)."
         ]
       },
-      "4": {
+      "3": {
         "diagnosis": [
           "You cannot add \\(3x + x\\) before dividing by \\(2x\\) — you must divide \\(3x\\) and \\(x\\) separately.",
           "Adding \\(3x + x\\) gives \\(3x^2\\), not \\(4x\\).",
@@ -764,7 +750,7 @@
           "Factor out \\(x\\) as \\(x(3 + 0) = 3x\\)."
         ]
       },
-      "5": {
+      "4": {
         "diagnosis": [
           "Cancelling \\(x\\) from \\(\\frac{4x}{2x}\\) is illegal because \\(x\\) could be \\(0\\), making \\(\\frac{0}{0}\\) undefined.",
           "\\(\\frac{4x}{2x}\\) simplifies to \\(2x\\), not \\(2\\), because one factor of \\(x\\) remains.",
@@ -776,6 +762,20 @@
           "Keep one factor of \\(x\\) and write \\(2x\\).",
           "Cancel \\(x\\) in \\(\\frac{3x + x}{2x}\\) to get \\(\\frac{3x + 1}{2}\\).",
           "Leave it as \\(\\frac{4x}{2x}\\) because dividing by a variable is unsafe."
+        ]
+      },
+      "5": {
+        "diagnosis": [
+          "The expression can't be a constant \\(2\\) because \\(x\\) appears in both the root and denominator.",
+          "Plugging \\(x = 0.25\\) gives a value different from \\(2\\) because \\(\\sqrt{x^2} > x\\) for fractions.",
+          "The simplified value is \\(2\\) only for \\(x \\ge 1\\), not for \\(0 < x < 1\\).",
+          "You missed the second constant value \\(-1\\) from the negative square root \\(-3x\\)."
+        ],
+        "fix": [
+          "Report both constant values \\(2\\) and \\(-1\\) from \\(\\pm 3x\\).",
+          "Restrict the constant \\(2\\) to \\(x \\ge 1\\) only.",
+          "Leave the expression as \\(\\frac{3|x| + x}{2x}\\) instead of \\(2\\).",
+          "Keep a factor of \\(x\\) in the final answer: \\(2x\\)."
         ]
       }
     }
@@ -801,20 +801,6 @@
       },
       "2": {
         "diagnosis": [
-          "The denominator \\(x\\) equals \\(0\\) at \\(x = 0\\), so the quotient isn't differentiable at \\(0\\) and L'Hôpital's rule fails.",
-          "L'Hôpital's rule requires the denominator's derivative to be \\(0\\) at the limit point, not \\(1\\).",
-          "You also need to check that the numerator's derivative is nonzero at \\(x = 0\\) before applying the rule.",
-          "\\(e^{2x} - 1\\) is only differentiable for \\(x > 0\\), not on both sides of \\(0\\)."
-        ],
-        "fix": [
-          "Skip L'Hôpital's rule because \\(x = 0\\) makes the fraction undefined at the limit point.",
-          "Verify the two-sided continuity of \\(\\frac{e^{2x} - 1}{x}\\) at \\(x = 0\\) first.",
-          "Restrict the limit to \\(x \\to 0^+\\) where \\(e^{2x} - 1\\) is differentiable.",
-          "Use the quotient rule instead since \\(x\\) hits zero."
-        ]
-      },
-      "3": {
-        "diagnosis": [
           "You differentiated numerator and denominator separately instead of using the quotient rule \\(\\frac{f'g - fg'}{g^2}\\).",
           "The derivative of \\(e^{2x} - 1\\) is \\(e^{2x}\\), not \\(2e^{2x}\\) — you multiplied by an extra \\(2\\).",
           "The derivative of \\(e^{2x} - 1\\) is \\(2e^{2x} - 1\\), dropping the constant \\(-1\\) too early.",
@@ -827,7 +813,7 @@
           "Replace \\(e^{2x}\\) with \\(1 + x\\) so the limit equals \\(1\\)."
         ]
       },
-      "4": {
+      "3": {
         "diagnosis": [
           "\\(e^0 = 0\\), so \\(2e^0 = 0\\), not \\(2\\).",
           "Evaluating at \\(x = 0\\) gives \\(2^0 = 1\\), not \\(2\\).",
@@ -841,7 +827,7 @@
           "Apply L'Hôpital's rule a second time to get \\(4e^0 = 4\\)."
         ]
       },
-      "5": {
+      "4": {
         "diagnosis": [
           "Because \\(\\frac{e^{2x} - 1}{x}\\) is undefined at \\(x = 0\\), the limit does not exist even if the derivative ratio equals \\(2\\).",
           "Only the right-hand limit is \\(2\\); the left-hand limit approaches \\(-2\\).",
@@ -853,6 +839,20 @@
           "Separate \\(x \\to 0^+\\) (\\(2\\)) and \\(x \\to 0^-\\) (\\(-2\\)).",
           "Change the final limit to \\(1\\) to match \\(\\frac{e^x - 1}{x}\\).",
           "Check a second derivative to confirm the limit isn't \\(4\\)."
+        ]
+      },
+      "5": {
+        "diagnosis": [
+          "Testing \\(x = 0.001\\) only checks the right-hand limit; from \\(x = -0.001\\) the fraction approaches \\(-2\\).",
+          "Getting \\(2.002\\) instead of \\(2.000\\) shows the real limit is slightly above \\(2\\).",
+          "A single numerical test never proves a limit when step 2 skipped the quotient rule.",
+          "At \\(x = 0.001\\), \\(e^{0.002} \\approx 1.001\\), so the ratio is actually \\(1\\), not \\(2\\)."
+        ],
+        "fix": [
+          "Test \\(x = -0.001\\) too and conclude the two-sided limit does not exist.",
+          "Recompute \\(\\frac{e^{0.002} - 1}{0.001}\\) as \\(1\\) to match \\(\\frac{e^x - 1}{x}\\).",
+          "Replace step 2 with the quotient rule instead of relying on \\(x = 0.001\\).",
+          "Note that \\(2.002\\) approaches \\(e \\approx 2.718\\), not \\(2\\)."
         ]
       }
     }
@@ -1173,7 +1173,7 @@
         "diagnosis_choices": [
           {
             "id": "d1",
-            "label": "Checking in the squared equation \\(x + 6 = x^2\\) misses extraneous roots: in the original, \\(\\sqrt{4} = 2 \\neq -2\\)."
+            "label": "Checking in \\(x + 6 = x^2\\) misses extraneous roots: \\(\\sqrt{-2 + 6} = 2 \\neq -2\\)."
           },
           {
             "id": "d2",
@@ -1192,7 +1192,7 @@
         "fix_choices": [
           {
             "id": "f1",
-            "label": "Check in the original \\(\\sqrt{x + 6} = x\\): \\(\\sqrt{4} = 2 \\neq -2\\), so discard \\(x = -2\\) and keep only \\(x = 3\\)."
+            "label": "Check in \\(\\sqrt{x + 6} = x\\): \\(x = -2\\) fails (\\(2 \\neq -2\\)), leaving \\(x = 3\\)."
           },
           {
             "id": "f2",

@@ -6,13 +6,13 @@
   "code_language": "python",
   "lang": "en",
   "kind": "clean",
-  "title": "60-second rate-limit window",
+  "title": "Rate-limit window",
   "topic": "A pure sliding-window rate check in Python",
-  "blurb": "Up to 3 hits in the last 60 seconds, without touching the caller's list. Check the boundary and mutation.",
+  "blurb": "A pure sliding-window helper checking recent request timestamps.",
   "difficulty": "standard",
   "level": 0,
   "estimated_seconds": 55,
-  "prompt": "Spec: allow a request at time `now` if strictly fewer than `limit` prior timestamps fall inside `(now - window, now]`. Never mutate `timestamps`; return `(allowed, updated_timestamps)`. Tap a bug, or call it clean.",
+  "prompt": "Spec: allow a request at `now` if strictly fewer than `limit` timestamps lie in `(now - window, now]`, never mutating `timestamps`. Review this helper — tap a line if it breaks the spec, or let it pass.",
   "segments": [
     {
       "id": 1,

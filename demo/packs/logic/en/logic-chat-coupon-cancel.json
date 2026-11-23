@@ -9,15 +9,15 @@
   "estimated_seconds": 60,
   "id": "logic-chat-coupon-cancel",
   "lang": "en",
-  "title": "40%-off rack",
+  "title": "Outlet rack",
   "topic": "A friend checks per-item rounding on three 40%-off clearance items",
-  "blurb": "Three messy price tags, 40% off each one, rounded per line — and they claim zero drift.",
-  "prompt": "A friend texted this walking out of an outlet store. Tap a line if the math doesn't check out, or call it clean.",
+  "blurb": "A friend is checking a clearance receipt on the way out.",
+  "prompt": "A friend just sent this in the group chat. Tap a line if something doesn't add up, or let it pass.",
   "segments": [
     {
       "id": 1,
       "label": "The tags",
-      "text": "Grabbed three shirts off a 40%-off rack: tags were $24.98, $19.99, and $15.03 — $60.00 flat before the discount."
+      "text": "Grabbed three shirts off a 40%-off rack: tags were $24.98, $19.99, and $15.03 ($60.00 before discount)."
     },
     {
       "id": 2,
@@ -27,7 +27,7 @@
     {
       "id": 3,
       "label": "The total",
-      "text": "Funny thing is it still rang up to $36.00 on the nose — the tiny fraction-of-a-cent round-ups and round-downs canceled out."
+      "text": "Still rang up to $36.00 on the nose — didn't drift by even a single penny."
     },
     {
       "id": 4,
@@ -35,7 +35,7 @@
       "text": "Handed over two twenties and got $4 back clean."
     }
   ],
-  "conclusion": "Per-item rounding on $24.98, $19.99, and $15.03 at 40% off still sums to $36.00 flat.",
+  "conclusion": "Taking 40% off $24.98, $19.99, and $15.03 individually with cent rounding still totals $36.00 flat.",
   "flaws": [],
   "segment_distractors": {
     "1": {
@@ -96,9 +96,9 @@
     }
   },
   "clean_segments": [
-    "Grabbed three shirts off a 40%-off rack: tags were $24.98, $19.99, and $15.03 — $60.00 flat before the discount.",
+    "Grabbed three shirts off a 40%-off rack: tags were $24.98, $19.99, and $15.03 ($60.00 before discount).",
     "The register takes 40% off each shirt separately and rounds every line to the nearest cent instead of discounting the $60 once.",
-    "Funny thing is it still rang up to $36.00 on the nose — the tiny fraction-of-a-cent round-ups and round-downs canceled out.",
+    "Still rang up to $36.00 on the nose — didn't drift by even a single penny.",
     "Handed over two twenties and got $4 back clean."
   ],
   "clean_conclusion": "Every penny checks out: 60% of $24.98 is $14.988 → $14.99 (+0.2¢), 60% of $19.99 is $11.994 → $11.99 (−0.4¢), and 60% of $15.03 is $9.018 → $9.02 (+0.2¢). The three rounding slivers cancel to zero: $36.00 exact.",

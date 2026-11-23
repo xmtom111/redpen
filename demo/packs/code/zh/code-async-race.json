@@ -5,13 +5,13 @@
   "renderer": "code",
   "code_language": "javascript",
   "lang": "zh",
-  "title": "连点两下提现：AI 说余额不可能变负",
+  "title": "钱包提现接口",
   "topic": "只在「点一下」时成立的钱包校验",
-  "blurb": "账户里有 100 元，用户连点两次「提现 80 元」。AI 说先检查余额，这事不可能发生。",
+  "blurb": "一段扣款前检查余额的 Node.js 提现函数。",
   "difficulty": "standard",
   "level": 1,
   "estimated_seconds": 60,
-  "prompt": "AI 给钱包 App 写了这段 Node.js 提现函数。余额 100 元的用户连点两次「提现 80 元」。上线前找出漏洞。",
+  "prompt": "需求：余额不足时拒绝提现，并发双击时余额也不能扣成负数。看下这段代码，觉得哪行有问题就点它，觉得没问题就放行。",
   "segments": [
     {
       "id": 1,
@@ -78,19 +78,19 @@
       "fix_choices": [
         {
           "id": "f1",
-          "label": "改用数据库原子条件扣款：`UPDATE ... SET balance = balance - ? WHERE id = ? AND balance >= ?`。"
+          "label": "改用原子条件扣款：`UPDATE ... SET balance = balance - ? WHERE id = ? AND balance >= ?`。"
         },
         {
           "id": "f2",
-          "label": "去掉第 5 行的 `await`，让 `setBalance` 同步写完避免被下一次点击插队。"
+          "label": "去掉第 5 行的 `await`，让 `setBalance` 同步写完以免在事件循环里被下一次点击插队。"
         },
         {
           "id": "f3",
-          "label": "在 `setBalance` 之前再调一次 `db.getBalance(userId)` 复核余额是不是 100。"
+          "label": "在 `setBalance` 之前再调一次 `await db.getBalance(userId)` 复核一下当前余额是不是 100。"
         },
         {
           "id": "f4",
-          "label": "给 `setBalance` 加上 `try/catch`，顺便把 L4 从 `<` 改成 `<=`。"
+          "label": "给 `setBalance` 外面加上 `try/catch` 捕获并发异常，顺便把第 4 行的 `<` 改成 `<=`。"
         }
       ],
       "fix_answer": "f1",

@@ -5,13 +5,13 @@
   "renderer": "code",
   "code_language": "python",
   "lang": "en",
-  "title": "The flash-sale checkout that never hits 25% off",
+  "title": "Flash-sale checkout",
   "topic": "A holiday discount the AI 'finished' in one sitting",
-  "blurb": "Spec says $500+ gets 25% off. The AI's function is very sure it does. Big carts will disagree.",
+  "blurb": "A tiered checkout helper with 10% and 25% discount thresholds.",
   "difficulty": "standard",
   "level": 2,
   "estimated_seconds": 75,
-  "prompt": "Spec: sum every item, take 25% off at $500+ or 10% off at $100+, return the total. An AI intern shipped this for the flash sale. Review it.",
+  "prompt": "Spec: sum every item in `prices`, apply 25% off at $500+ or 10% off at $100+, and return the rounded total. Review this helper — tap a line if it breaks the spec, or let it pass.",
   "segments": [
     {
       "id": 1,

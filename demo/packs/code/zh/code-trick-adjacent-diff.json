@@ -8,11 +8,11 @@
   "kind": "trick_clean",
   "title": "单日最大涨幅",
   "topic": "看着像少循环一次的 `range(len(prices) - 1)`",
-  "blurb": "需求：求相邻两天最大单日涨幅，没涨过就返回 0。第 5 行那个 `len - 1` 看着特别可疑。",
+  "blurb": "一段扫描相邻两天最大价格涨幅的 Python 函数。",
   "difficulty": "standard",
   "level": 0,
   "estimated_seconds": 55,
-  "prompt": "需求：返回相邻两天最大的单日涨幅（`prices[i+1] - prices[i]`）；如果从未上涨或不足两天则返回 `0`。发现 bug 就点对应行，觉得没问题就放行。",
+  "prompt": "需求：返回相邻两天最大单日涨幅（`prices[i+1] - prices[i]`），未上涨或不足两天返回 `0`。看下这段代码，觉得哪行有问题就点它，觉得没问题就放行。",
   "segments": [
     {
       "id": 1,

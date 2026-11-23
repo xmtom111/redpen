@@ -1,6 +1,6 @@
 {
-  "title": "The AI already found every real solution",
-  "problem": "A student asked an AI tutor for every real solution of \\(x^3 = 4x\\). This is the write-up it handed back, ending with a very sure answer.",
+  "title": "Cubic equation",
+  "problem": "Find all real solutions of \\(x^3 = 4x\\). Check this solution — tap a step if it slips, or let it pass.",
   "steps": [
     "Start from the equation \\(x^3 = 4x\\).",
     "Divide both sides by \\(x\\) to obtain \\(x^2 = 4\\).",
@@ -46,7 +46,7 @@
     "mode": "1",
     "difficulty": "standard",
     "focus": [],
-    "blurb": "It checked two values, declared the job done, and moved on.",
+    "blurb": "Solving \\(x^3 = 4x\\) over the reals.",
     "kind": "planted"
   },
   "kind": "planted"

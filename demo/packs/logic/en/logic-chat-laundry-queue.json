@@ -10,8 +10,8 @@
   "lang": "en",
   "title": "Two loads",
   "topic": "A friend is timing two loads of laundry before heading out",
-  "blurb": "A friend is trying to wash and dry two loads before leaving the house.",
-  "prompt": "A friend just texted this in the group chat. If one line doesn't add up, tap it.",
+  "blurb": "A friend is timing two loads of laundry before heading out.",
+  "prompt": "A friend just sent this in the group chat. Tap a line if something doesn't add up, or let it pass.",
   "segments": [
     {
       "id": 1,
@@ -21,7 +21,7 @@
     {
       "id": 2,
       "label": "The machines",
-      "text": "The washer takes 30 minutes a load, and the dryer next to it takes 45."
+      "text": "The washer takes 30 minutes a load, and the dryer takes 45."
     },
     {
       "id": 3,
@@ -63,11 +63,11 @@
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Start load two in the washer as soon as load one hits the dryer: 30 + 45 + 45 = 120 min."
+          "label": "Wash load two while load one dries: 30 + 45 + 45 = 2 hours."
         },
         {
           "id": "f2",
-          "label": "Count only the two 45-minute dry cycles (90 minutes total) since the washer runs inside them."
+          "label": "Count only the two 45-minute dry cycles (90 min) since the washer runs inside them."
         },
         {
           "id": "f3",
@@ -91,7 +91,7 @@
   ],
   "clean_segments": [
     "I have to leave in two hours, and I've still got two loads that need to be washed and dried.",
-    "The washer takes 30 minutes a load, and the dryer next to it takes 45.",
+    "The washer takes 30 minutes a load, and the dryer takes 45.",
     "I can wash the second load while the first one dries: 30 plus 45 plus 45 is two hours. I can just make it.",
     "If anyone's nearby later, I may need to borrow a shirt."
   ],

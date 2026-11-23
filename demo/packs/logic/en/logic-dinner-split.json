@@ -11,7 +11,7 @@
   "difficulty": "intro",
   "level": 1,
   "estimated_seconds": 60,
-  "prompt": "A friend asked an AI to write this settle-up note. If a line doesn't add up, tap it.",
+  "prompt": "After the concert and hotpot, one friend sent this note to settle up. Tap any line that doesn't hold up, or mark it clean.",
   "segments": [
     {
       "id": 1,
@@ -68,7 +68,7 @@
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Net the two shares: you owe $120 for your ticket minus $60 for my half of hotpot = $60 owed to me."
+          "label": "You owe $120 for the ticket minus $60 for my half of hotpot = $60 owed."
         },
         {
           "id": "f2",
@@ -76,11 +76,11 @@
         },
         {
           "id": "f3",
-          "label": "Split the $120 ticket ($60 each) too so we each owe $120 total and stay even."
+          "label": "Split the $120 ticket ($60 each) too so we each owe $120 total and stay completely even."
         },
         {
           "id": "f4",
-          "label": "Send me $120 for the ticket and keep the $120 hotpot bill as your treat."
+          "label": "Send me $120 for the concert ticket and keep the $120 hotpot bill as your thank-you treat."
         }
       ],
       "fix_answer": "f1",

@@ -9,10 +9,10 @@
   "estimated_seconds": 55,
   "id": "logic-chat-overlap-gap",
   "lang": "en",
-  "title": "Two club rosters",
+  "title": "Club rosters",
   "topic": "A friend subtracts two overlapping club sizes without knowing the overlap",
-  "blurb": "They admit they have zero idea how many people are in both clubs — then quote an exact gap.",
-  "prompt": "A friend sent this while organizing two neighborhood clubs. Tap a line if the logic breaks, or call it clean.",
+  "blurb": "A friend is comparing headcounts across two neighborhood clubs.",
+  "prompt": "A friend just sent this in the group chat. Tap a line if something doesn't add up, or let it pass.",
   "segments": [
     {
       "id": 1,

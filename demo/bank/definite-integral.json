@@ -1,6 +1,6 @@
 {
-  "title": "A tidy little integral from 0 to 1",
-  "problem": "An AI tutor evaluated \\(\\int_0^1 (3x^2 + 2x)\\, dx\\). Flag a slip if you see one, or mark it clean if the work holds.",
+  "title": "Polynomial integral",
+  "problem": "Evaluate \\(\\int_0^1 (3x^2 + 2x)\\, dx\\). Check this solution — tap a step if it slips, or let it pass.",
   "steps": [
     "The integrand \\(3x^2 + 2x\\) is a polynomial, so it is continuous on \\([0, 1]\\) and the definite integral exists.",
     "An antiderivative is \\(F(x) = x^3 + x^2\\), because the power rule gives \\(F'(x) = 3x^2 + 2x\\).",
@@ -33,7 +33,7 @@
     "mode": "0",
     "difficulty": "standard",
     "focus": [],
-    "blurb": "Short, neat, and very sure of itself — is anything actually off?",
+    "blurb": "Evaluating \\(\\int_0^1 (3x^2 + 2x)\\, dx\\).",
     "kind": "clean"
   },
   "kind": "clean",

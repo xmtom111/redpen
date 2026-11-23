@@ -9,10 +9,10 @@
   "estimated_seconds": 50,
   "id": "logic-chat-trivia-halves",
   "lang": "en",
-  "title": "Pub trivia score",
+  "title": "Pub trivia",
   "topic": "A friend averages two percentages from two halves of a trivia night",
-  "blurb": "75% plus 45% divided by 2 equals 60% — averaging percentages usually burns you.",
-  "prompt": "A friend texted this walking out of pub trivia. Tap a line if the math is sloppy, or call it clean.",
+  "blurb": "A friend is recapping their team's score after trivia night.",
+  "prompt": "A friend just sent this in the group chat. Tap a line if something doesn't add up, or let it pass.",
   "segments": [
     {
       "id": 1,

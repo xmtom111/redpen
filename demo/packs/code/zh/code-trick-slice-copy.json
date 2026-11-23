@@ -6,13 +6,13 @@
   "code_language": "python",
   "lang": "zh",
   "kind": "trick_clean",
-  "title": "原地清理过期会话",
+  "title": "清理过期会话",
   "topic": "在 `for s in sessions[:]:` 循环里调用 `sessions.remove(s)`",
-  "blurb": "边遍历边 `remove` 是出了名的跳项坑——遇到连续两个过期会话会漏删吗？",
+  "blurb": "一段原地删除过期会话并统计剩余数量的 Python 函数。",
   "difficulty": "standard",
   "level": 0,
   "estimated_seconds": 55,
-  "prompt": "需求：原地删掉 `sessions` 里所有 `expires_at <= now` 的过期会话，并返回剩余有效会话数。发现 bug 就点对应行，觉得没问题就放行。",
+  "prompt": "需求：原地删除 `sessions` 中所有 `expires_at <= now` 的会话，并返回剩余条数。看下这段代码，觉得哪行有问题就点它，觉得没问题就放行。",
   "segments": [
     {
       "id": 1,

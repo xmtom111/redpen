@@ -1,7 +1,7 @@
 {
   "kind": "planted",
-  "title": "Both roots checked out — in the wrong equation",
-  "problem": "An AI tutor solved \\(\\sqrt{x + 6} = x\\) over the reals and checked both answers at the end. Tap the step that slips, or call it clean.",
+  "title": "Square-root equation",
+  "problem": "Find all real solutions of \\(\\sqrt{x + 6} = x\\). Check this solution — tap a step if it slips, or let it pass.",
   "steps": [
     "Start from \\(\\sqrt{x + 6} = x\\).",
     "Square both sides to clear the square root: \\(x + 6 = x^2\\).",
@@ -48,6 +48,6 @@
     "mode": "1",
     "difficulty": "standard",
     "focus": [],
-    "blurb": "It actually substituted both roots at the end to verify — and still got fooled."
+    "blurb": "Solving \\(\\sqrt{x + 6} = x\\) over the reals."
   }
 }

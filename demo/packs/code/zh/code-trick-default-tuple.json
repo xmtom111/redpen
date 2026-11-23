@@ -6,13 +6,13 @@
   "code_language": "python",
   "lang": "zh",
   "kind": "trick_clean",
-  "title": "看着像会串味的默认元组",
+  "title": "追加标签函数",
   "topic": "把 `tags=()` 写在 `def` 默认参数里再用 `+` 拼接",
-  "blurb": "函数签名里直接写了容器字面量——先调 `append_tag('vip')` 再调 `append_tag('sale')` 会串味吗？",
+  "blurb": "一段清洗并追加标签的 6 行 Python 函数。",
   "difficulty": "standard",
   "level": 0,
   "estimated_seconds": 50,
-  "prompt": "需求：把 `tag` 去空格转小写，如果不为空且不在 `tags` 里就追加进去并返回元组，多次独立调用之间不能串味。发现 bug 就点对应行，觉得没问题就放行。",
+  "prompt": "需求：把 `tag` 去空格转小写，非空且未重复时追加到 `tags` 返回，多次独立调用之间不能串味。看下这段代码，觉得哪行有问题就点它，觉得没问题就放行。",
   "segments": [
     {
       "id": 1,
@@ -37,7 +37,7 @@
     {
       "id": 5,
       "label": "L5",
-      "text": "    tags = tags + (cleaned,)"
+      "text": "    tags += (cleaned,)"
     },
     {
       "id": 6,
@@ -106,16 +106,16 @@
     },
     "5": {
       "diagnosis": [
-        "`tags + (cleaned,)` 会原地改动默认参数 `tags=()`，把标签漏进下一次调用。",
+        "复合赋值 `tags += (cleaned,)` 会原地修改默认参数 `tags=()`，把标签串进下一次调用。",
         "`(cleaned,)` 末尾多写了一个逗号，会造出第二个元素是 `None` 的二元组。",
-        "元组是不可变的，在 Python 里不支持用 `+` 拼接，会抛 TypeError。",
-        "参数 `tags` 是不可变元组，函数里不能给变量名 `tags` 重新赋值。"
+        "元组是不可变的，在 Python 里写 `tags += (cleaned,)` 运行时会直接抛 TypeError。",
+        "对参数做 `+=` 会把调用方传进来的原元组一并改掉。"
       ],
       "fix": [
-        "去掉末尾多余逗号，写成 `tags + (cleaned)`。",
+        "把 `tags += (cleaned,)` 改成 `tags = tags + (cleaned,)` 避免原地修改。",
+        "去掉末尾多余逗号，写成 `tags += (cleaned)`。",
         "先转成列表 `list(tags).append(cleaned)` 再转回元组。",
-        "改用 `tags += (cleaned,)` 避免原地修改默认参数。",
-        "换个新变量名 `res = (*tags, cleaned)` 别碰 `tags`。"
+        "换个新变量 `out = (*tags, cleaned)` 避免碰 `tags`。"
       ]
     },
     "6": {
@@ -138,9 +138,9 @@
     "    cleaned = tag.strip().lower()",
     "    if not cleaned or cleaned in tags:",
     "        return tags",
-    "    tags = tags + (cleaned,)",
+    "    tags += (cleaned,)",
     "    return tags"
   ],
-  "clean_conclusion": "默认参数串味是可变列表 `[]` 的坑；`()` 是不可变元组，`tags + (cleaned,)` 每次都会新建元组并重新绑定局部变量，默认空元组压根不会被改到。",
-  "explanation": "默认参数串味是可变列表 `[]` 的坑；`()` 是不可变元组，`tags + (cleaned,)` 每次都会新建元组并重新绑定局部变量，默认空元组压根不会被改到。"
+  "clean_conclusion": "默认 `[]` 用 `+=` 会原地修改而串味；但 `()` 是不可变元组，`tags += (cleaned,)` 每次都会新建元组并重新绑定局部变量，默认空元组纹丝不动。",
+  "explanation": "默认 `[]` 用 `+=` 会原地修改而串味；但 `()` 是不可变元组，`tags += (cleaned,)` 每次都会新建元组并重新绑定局部变量，默认空元组纹丝不动。"
 }

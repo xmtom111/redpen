@@ -9,33 +9,33 @@
   "estimated_seconds": 55,
   "id": "logic-chat-oven-roast",
   "lang": "en",
-  "title": "Roast chicken clock",
+  "title": "Sunday dinner",
   "topic": "A friend works backward from 7 PM dinner with preheat, roast, and rest times",
-  "blurb": "Preheat, seasoning, 1h 25m roast, 15m rest — and they turned the oven on at 5:05.",
-  "prompt": "A friend hosting dinner texted this from the kitchen. Tap a line if the schedule slips, or call it clean.",
+  "blurb": "A friend hosting dinner is checking the oven schedule.",
+  "prompt": "A friend just sent this in the group chat. Tap a line if something doesn't add up, or let it pass.",
   "segments": [
     {
       "id": 1,
       "label": "The target",
-      "text": "Dinner is at 7:00 PM, and the roast chicken needs 1 hour 25 minutes in the oven plus 15 minutes resting on the board."
+      "text": "Dinner's at 7:00 PM — the roast chicken needs 1 hour 25 minutes in the oven plus 15 minutes resting."
     },
     {
       "id": 2,
       "label": "The prep",
-      "text": "The oven takes 15 minutes to preheat, and I'm seasoning the chicken while it heats up."
+      "text": "Oven takes 15 minutes to heat up, which is plenty of time to season the bird."
     },
     {
       "id": 3,
       "label": "The clock",
-      "text": "Turned the oven on at 5:05 PM so the bird goes in at 5:20, comes out at 6:45, and we carve right at 7."
+      "text": "Turned the oven on at 5:05 PM, so we'll be carving right at 7:00."
     },
     {
       "id": 4,
       "label": "The relief",
-      "text": "Actually on schedule for once."
+      "text": "Rare win for my kitchen timing."
     }
   ],
-  "conclusion": "Oven on at 5:05, in at 5:20, out at 6:45, and carved at 7:00 after a 15-minute rest.",
+  "conclusion": "Oven on at 5:05 PM with 15m preheat, 1h 25m roast, and 15m rest lands right on 7:00 PM.",
   "flaws": [],
   "segment_distractors": {
     "1": {
@@ -96,10 +96,10 @@
     }
   },
   "clean_segments": [
-    "Dinner is at 7:00 PM, and the roast chicken needs 1 hour 25 minutes in the oven plus 15 minutes resting on the board.",
-    "The oven takes 15 minutes to preheat, and I'm seasoning the chicken while it heats up.",
-    "Turned the oven on at 5:05 PM so the bird goes in at 5:20, comes out at 6:45, and we carve right at 7.",
-    "Actually on schedule for once."
+    "Dinner's at 7:00 PM — the roast chicken needs 1 hour 25 minutes in the oven plus 15 minutes resting.",
+    "Oven takes 15 minutes to heat up, which is plenty of time to season the bird.",
+    "Turned the oven on at 5:05 PM, so we'll be carving right at 7:00.",
+    "Rare win for my kitchen timing."
   ],
   "clean_conclusion": "The timeline checks out to the minute: 5:05 + 15m preheat (seasoning overlaps) = 5:20; 5:20 + 1h 25m = 6:45; 6:45 + 15m rest = 7:00.",
   "explanation": "The timeline checks out to the minute: 5:05 + 15m preheat (seasoning overlaps) = 5:20; 5:20 + 1h 25m = 6:45; 6:45 + 15m rest = 7:00."

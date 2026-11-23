@@ -10,7 +10,7 @@
   "difficulty": "standard",
   "level": 2,
   "estimated_seconds": 70,
-  "prompt": "An AI drafted this internal memo about new espresso machines. If two lines overreach, tap them.",
+  "prompt": "An AI drafted this internal memo on whether to buy new espresso machines. Tap any line that doesn't hold up, or mark it clean.",
   "segments": [
     {
       "id": 1,

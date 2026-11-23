@@ -5,13 +5,13 @@
   "renderer": "code",
   "code_language": "python",
   "lang": "en",
-  "title": "Is this ticket-ID search actually broken?",
+  "title": "Ticket ID lookup",
   "topic": "A short lookup that looks like a classic trap",
-  "blurb": "The AI wrote a binary search over today's sorted flash-sale ticket IDs. The bounds look spicy — but are they?",
+  "blurb": "A binary search helper over a sorted list of flash-sale ticket IDs.",
   "difficulty": "standard",
   "level": 0,
   "estimated_seconds": 50,
-  "prompt": "This helper finds a ticket ID in a sorted list of today's flash-sale orders. Flag a bug if you see one, or mark it clean if the code holds up.",
+  "prompt": "Spec: return the index of `target` in sorted `nums`, or `-1` if missing (including empty and 1-item lists). Review this helper — tap a line if it breaks the spec, or let it pass.",
   "segments": [
     {
       "id": 1,

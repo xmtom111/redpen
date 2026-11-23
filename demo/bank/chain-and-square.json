@@ -1,6 +1,6 @@
 {
-  "title": "A fluent derivative, delivered with certainty",
-  "problem": "An AI homework helper was asked to find \\(f'(x)\\) if \\(f(x) = \\sin(x^2) + (x+1)^2\\). Here is its polished solution.",
+  "title": "Derivative of a sum",
+  "problem": "Find \\(f'(x)\\) for \\(f(x) = \\sin(x^2) + (x+1)^2\\). Check this solution — tap a step if it slips, or let it pass.",
   "steps": [
     "Differentiate term by term, which the sum rule allows: \\(f'(x) = \\frac{d}{dx}\\sin(x^2) + \\frac{d}{dx}(x+1)^2\\).",
     "The derivative of \\(\\sin u\\) is \\(\\cos u\\), so with \\(u = x^2\\) one gets \\(\\frac{d}{dx}\\sin(x^2) = \\cos(x^2)\\).",
@@ -60,7 +60,7 @@
     "mode": "2",
     "difficulty": "standard",
     "focus": [],
-    "blurb": "The write-up sounds smooth. The final line is very clean. Is the calculus actually right?",
+    "blurb": "Differentiating \\(\\sin(x^2) + (x+1)^2\\).",
     "kind": "planted"
   },
   "kind": "planted"

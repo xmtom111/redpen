@@ -6,13 +6,13 @@
   "code_language": "javascript",
   "lang": "zh",
   "kind": "planted",
-  "title": "排行榜前三（直到有人考到 10 分）",
+  "title": "排行榜前三名",
   "topic": "个位数全通过、遇到两位数立刻翻车的 JS 排序",
-  "blurb": "拿 `[5, 2, 9, 7]` 测得漂漂亮亮，只要有人考出 10 分或 100 分，前三立刻错乱。",
+  "blurb": "一段从数字数组里取前三高分的 JS 函数。",
   "difficulty": "intro",
   "level": 1,
   "estimated_seconds": 50,
-  "prompt": "需求：从数字数组 `scores` 里按从高到低返回前三高分，不能修改调用方的原数组。AI 用 `[5, 2, 9, 7]` 测过说没问题。发现 bug 就点对应行，觉得没问题就放行。",
+  "prompt": "需求：按从高到低返回数字数组 `scores` 里的前三高分，且不能修改原数组。看下这段代码，觉得哪行有问题就点它，觉得没问题就放行。",
   "segments": [
     {
       "id": 1,
@@ -55,38 +55,38 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "JS 的 `.sort()` 不传比较函数时会转成字符串按字典序排——`'9'` 排在 `'100'` 前面，高分会被挤掉。"
+          "label": "不传比较函数时 `.sort()` 按字符串字典序排，`'9'` 会排在 `'100'` 前面。"
         },
         {
           "id": "d2",
-          "label": "`.sort()` 会返回新数组而不是原地排序，所以 `copy` 根本没排。"
+          "label": "`.sort()` 在 JavaScript 里会返回新数组而不是原地排序，所以 `copy` 根本没动。"
         },
         {
           "id": "d3",
-          "label": "`copy` 是用 `const` 声明的，调用 `.sort()` 原地修改会抛 TypeError。"
+          "label": "`copy` 是用 `const` 声明的，第 3 行调用 `.sort()` 原地修改元素会直接抛 TypeError。"
         },
         {
           "id": "d4",
-          "label": "`.sort()` 默认就是从大到小排，第 4 行反转后反而变成倒数前三。"
+          "label": "`.sort()` 对数字数组默认就是从大到小降序排，第 4 行反转后反而变成倒数前三。"
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "传入数值比较函数：`copy.sort((a, b) => a - b)`（或直接 `b - a` 省掉反转）。"
+          "label": "传入数值比较器：`copy.sort((a, b) => a - b)`（或直接 `b - a`）。"
         },
         {
           "id": "f2",
-          "label": "改成 `copy = copy.sort()` 接住排序后的新数组。"
+          "label": "改成 `copy = copy.sort()` 把排序返回的新数组重新赋给 `copy`。"
         },
         {
           "id": "f3",
-          "label": "把 `const copy` 改成 `let copy` 才能原地排序。"
+          "label": "把第 2 行的 `const copy` 改成 `let copy`，数组才能原地排序。"
         },
         {
           "id": "f4",
-          "label": "删掉 `copy.reverse()`，因为 `.sort()` 默认已经降序。"
+          "label": "直接删掉第 4 行的 `copy.reverse()`，因为 `.sort()` 默认就是降序。"
         }
       ],
       "fix_answer": "f1",

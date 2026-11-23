@@ -6,13 +6,13 @@
   "code_language": "javascript",
   "lang": "en",
   "kind": "planted",
-  "title": "Top three scores (until someone hits 10)",
+  "title": "Top three scores",
   "topic": "A leaderboard helper that passed every single-digit test",
-  "blurb": "Works great on `[5, 2, 9, 7]`. The moment someone scores 10 or 100, the podium breaks.",
+  "blurb": "A leaderboard helper that returns the three highest numeric scores.",
   "difficulty": "intro",
   "level": 1,
   "estimated_seconds": 50,
-  "prompt": "Spec: return the three highest numeric scores from `scores` in descending order, without mutating the caller's array. Tested fine on `[5, 2, 9, 7]`. Tap the buggy line, or call it clean.",
+  "prompt": "Spec: return the three highest numeric scores from `scores` in descending order without mutating the input array. Review this helper — tap a line if it breaks the spec, or let it pass.",
   "segments": [
     {
       "id": 1,

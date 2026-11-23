@@ -6,13 +6,13 @@
   "code_language": "python",
   "lang": "zh",
   "kind": "clean",
-  "title": "60 秒滑动限流窗口",
+  "title": "滑动限流窗口",
   "topic": "一段不改原列表的 Python 限流检查函数",
-  "blurb": "最近 60 秒最多放行 3 次，且不能改动入参列表。边界符号和列表拷贝都看着很悬。",
+  "blurb": "一段按最近 60 秒时间戳判断是否限流的 Python 函数。",
   "difficulty": "standard",
   "level": 0,
   "estimated_seconds": 55,
-  "prompt": "需求：如果落在 `(now - window, now]` 内的历史时间戳严格少于 `limit` 条，则放行本次 `now`；不能修改入参 `timestamps`，返回 `(allowed, updated_timestamps)`。发现 bug 就点对应行，觉得没问题就放行。",
+  "prompt": "需求：若 `(now - window, now]` 内历史记录严格少于 `limit` 条则放行，且不修改原列表 `timestamps`。看下这段代码，觉得哪行有问题就点它，觉得没问题就放行。",
   "segments": [
     {
       "id": 1,

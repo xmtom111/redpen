@@ -6,13 +6,13 @@
   "code_language": "python",
   "lang": "en",
   "kind": "trick_clean",
-  "title": "Biggest single-day price jump",
+  "title": "Daily price jump",
   "topic": "A loop over `range(len(prices) - 1)` that looks one short",
-  "blurb": "Spec: largest single-day increase in `prices`, or 0 if it never went up. That `len(prices) - 1` loop looks suspicious.",
+  "blurb": "A helper scanning consecutive days for the largest price increase.",
   "difficulty": "standard",
   "level": 0,
   "estimated_seconds": 55,
-  "prompt": "Spec: return the biggest single-day price increase (`prices[i+1] - prices[i]`), or `0` if prices never rose or there are fewer than 2 days. Tap a buggy line, or call it clean.",
+  "prompt": "Spec: return the largest single-day increase (`prices[i+1] - prices[i]`), or `0` if prices never rose or fewer than 2 days exist. Review this helper — tap a line if it breaks the spec, or let it pass.",
   "segments": [
     {
       "id": 1,

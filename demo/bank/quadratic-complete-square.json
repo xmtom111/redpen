@@ -1,7 +1,7 @@
 {
   "kind": "clean",
-  "title": "Pulling a constant out of a completed square",
-  "problem": "An AI tutor found the minimum value of \\(f(x) = 2x^2 - 12x + 23\\) for real \\(x\\). Tap a slip if you spot one, or call it clean.",
+  "title": "Quadratic minimum",
+  "problem": "Find the minimum value of \\(f(x) = 2x^2 - 12x + 23\\) for real \\(x\\). Check this solution — tap a step if it slips, or let it pass.",
   "steps": [
     "Factor \\(2\\) out of the \\(x\\)-terms only: \\(f(x) = 2(x^2 - 6x) + 23\\).",
     "Complete the square inside the parentheses by adding and subtracting \\(9\\): \\(f(x) = 2(x^2 - 6x + 9 - 9) + 23\\).",
@@ -33,7 +33,7 @@
     "mode": "0",
     "difficulty": "intro",
     "focus": [],
-    "blurb": "Factoring out \\(2\\) and pulling \\(-9\\) out as \\(-18\\) — easy spot to slip, did it?"
+    "blurb": "Finding the minimum of \\(2x^2 - 12x + 23\\)."
   },
   "explanation": "Factoring \\(2\\) only from the \\(x\\)-terms and multiplying the pulled-out \\(-9\\) by \\(2\\) to get \\(-18\\) is exact: \\(2(x-3)^2 + 5 = 2x^2 - 12x + 23\\)."
 }

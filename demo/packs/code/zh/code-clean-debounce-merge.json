@@ -6,13 +6,13 @@
   "code_language": "javascript",
   "lang": "zh",
   "kind": "clean",
-  "title": "单次请求的鉴权头拷贝",
+  "title": "组装鉴权请求头",
   "topic": "展开 `BASE_OPTS` 和 `BASE_OPTS.headers` 组装请求配置",
-  "blurb": "嵌套配置对象上又出现了对象展开 `{ ... }`——上一个登录用户的 Token 会不会漏给匿名请求？",
+  "blurb": "一段基于公共配置拼装单次请求头的 JS 函数。",
   "difficulty": "standard",
   "level": 0,
   "estimated_seconds": 50,
-  "prompt": "需求：基于 `BASE_OPTS` 生成单次请求配置，有 `token` 时补上 `authorization`，且绝对不能修改 `BASE_OPTS` 或它里面的 `headers`。发现 bug 就点对应行，觉得没问题就放行。",
+  "prompt": "需求：基于 `BASE_OPTS` 生成单次请求配置，有 `token` 时加上 `authorization`，绝不修改 `BASE_OPTS` 或 `headers`。看下这段代码，觉得哪行有问题就点它，觉得没问题就放行。",
   "segments": [
     {
       "id": 1,

@@ -1,7 +1,7 @@
 {
   "kind": "clean",
-  "title": "Counting the terms in a finite geometric sum",
-  "problem": "An AI tutor summed \\(S = 1 + \\frac{1}{2} + \\frac{1}{4} + \\frac{1}{8} + \\frac{1}{16} + \\frac{1}{32}\\). Tap a slip if you spot one, or call it clean.",
+  "title": "Finite geometric sum",
+  "problem": "Compute \\(S = 1 + \\frac{1}{2} + \\frac{1}{4} + \\frac{1}{8} + \\frac{1}{16} + \\frac{1}{32}\\). Check this solution — tap a step if it slips, or let it pass.",
   "steps": [
     "This is a finite geometric series with first term \\(a = 1\\), common ratio \\(r = \\frac{1}{2}\\), and \\(n = 6\\) terms (powers \\(0\\) through \\(5\\)).",
     "Use the finite geometric sum formula \\(S = a\\frac{1 - r^n}{1 - r}\\).",
@@ -33,7 +33,7 @@
     "mode": "0",
     "difficulty": "intro",
     "focus": [],
-    "blurb": "Ends at \\(1/32 = (1/2)^5\\), yet it plugged \\(n = 6\\) into the formula — off by one?"
+    "blurb": "Summing powers of \\(\\frac{1}{2}\\) from \\(1\\) to \\(\\frac{1}{32}\\)."
   },
   "explanation": "The last term is \\((1/2)^5\\), so counting from \\((1/2)^0 = 1\\) really gives \\(n = 6\\) terms, and \\(1 + \\frac{1}{2} + \\dots + \\frac{1}{32} = \\frac{32+16+8+4+2+1}{32} = \\frac{63}{32}\\)."
 }

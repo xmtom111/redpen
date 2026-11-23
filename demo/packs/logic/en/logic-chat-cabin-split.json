@@ -10,8 +10,8 @@
   "lang": "en",
   "title": "Weekend cabin",
   "topic": "A friend is closing out the cabin and grocery money in the group chat",
-  "blurb": "A friend is wrapping up the weekend cabin expenses in the group chat.",
-  "prompt": "A friend just texted this in the group chat. If one line doesn't add up, tap it.",
+  "blurb": "A friend is wrapping up the weekend cabin and grocery split.",
+  "prompt": "A friend just sent this in the group chat. Tap a line if something doesn't add up, or let it pass.",
   "segments": [
     {
       "id": 1,

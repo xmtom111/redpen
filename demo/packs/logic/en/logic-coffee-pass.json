@@ -11,7 +11,7 @@
   "difficulty": "intro",
   "level": 1,
   "estimated_seconds": 60,
-  "prompt": "A coworker asked an AI to check this cafe-pass note. If a line doesn't add up, tap it.",
+  "prompt": "A coworker wrote up whether the cafe's monthly pass is worth it. Tap any line that doesn't hold up, or mark it clean.",
   "segments": [
     {
       "id": 1,
@@ -68,19 +68,19 @@
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Divide $20 by the $1 saved per cup: break-even is 20 lattes a month (profit starts at 21)."
+          "label": "$20 ÷ $1 saved per cup = 20 lattes to break even (profit at 21)."
         },
         {
           "id": "f2",
-          "label": "Divide $20 by the $4 discounted latte price: break-even is 5 lattes, profit starts at 6."
+          "label": "Divide $20 by the $4 discounted latte price: break-even is 5 lattes, profit starts at cup 6."
         },
         {
           "id": "f3",
-          "label": "Count the $20 pass as 4 free lattes, so anyone buying 4+ lattes breaks even."
+          "label": "Count the $20 pass as 4 free lattes up front, so anyone buying 4+ lattes breaks even."
         },
         {
           "id": "f4",
-          "label": "Divide $20 by 20% ($20 × 0.20 = 4) and add 4 cups to get 8 lattes to break even."
+          "label": "Multiply $20 by 20% ($4) and add 4 cups to get 8 lattes a month to break even."
         }
       ],
       "fix_answer": "f1",

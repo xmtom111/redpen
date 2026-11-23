@@ -10,8 +10,8 @@
   "lang": "en",
   "title": "Guest room",
   "topic": "A friend is measuring a bigger guest bed against the walkway",
-  "blurb": "A friend is swapping the guest bed and doing the measurements in the chat.",
-  "prompt": "A friend just texted this in the group chat. If one line doesn't add up, tap it.",
+  "blurb": "A friend is swapping the guest bed and checking the walkway.",
+  "prompt": "A friend just sent this in the group chat. Tap a line if something doesn't add up, or let it pass.",
   "segments": [
     {
       "id": 1,
@@ -21,12 +21,12 @@
     {
       "id": 2,
       "label": "The layout",
-      "text": "The current bed is pushed along the window wall, leaving a 2-foot walkway on the closet side."
+      "text": "The current bed sits tucked under the window, leaving a 2-foot aisle in front of the closet doors."
     },
     {
       "id": 3,
       "label": "The math",
-      "text": "The new one is a foot wider, so that's half a foot off each side — still a 1.5-foot walkway, plenty of room to open the closet."
+      "text": "Going up a foot in width trims half a foot per side, leaving a 1.5-foot aisle — still clears the closet."
     },
     {
       "id": 4,
@@ -40,7 +40,7 @@
       "segment_id": 3,
       "error_type": "wall-side-symmetry",
       "original": "One side is already against the wall, so the whole extra foot comes out of the walkway — that's 1 foot left, not 1.5.",
-      "corrupted": "The new one is a foot wider, so that's half a foot off each side — still a 1.5-foot walkway, plenty of room to open the closet.",
+      "corrupted": "Going up a foot in width trims half a foot per side, leaving a 1.5-foot aisle — still clears the closet.",
       "diagnosis_choices": [
         {
           "id": "d1",
@@ -91,7 +91,7 @@
   ],
   "clean_segments": [
     "Putting a 6-foot bed in the guest room to replace the 5-foot one that's in there now.",
-    "The current bed is pushed along the window wall, leaving a 2-foot walkway on the closet side.",
+    "The current bed sits tucked under the window, leaving a 2-foot aisle in front of the closet doors.",
     "One side is already against the wall, so the whole extra foot comes out of the walkway — that's 1 foot left, not 1.5.",
     "I'll order it tonight before the weekend sale ends."
   ],

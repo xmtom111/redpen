@@ -11,7 +11,7 @@
   "difficulty": "intro",
   "level": 1,
   "estimated_seconds": 60,
-  "prompt": "The manager asked an AI to check this weekend sale plan. If a line doesn't add up, tap it.",
+  "prompt": "The shop manager drafted this weekend sale plan to clear summer jackets. Tap any line that doesn't hold up, or mark it clean.",
   "segments": [
     {
       "id": 1,
@@ -68,7 +68,7 @@
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Price it on the $150 tag: 40% off is $90 (losing $10 each); cap the discount at 33% to break even."
+          "label": "40% off $150 is $90 (a $10 loss); cap the discount at 33% to break even."
         },
         {
           "id": "f2",
@@ -76,11 +76,11 @@
         },
         {
           "id": "f3",
-          "label": "Set the weekend sale to 45% off so you still keep a 5% margin above the $100 cost."
+          "label": "Set the weekend sale to 45% off so you still keep a 5% margin above the $100 wholesale cost."
         },
         {
           "id": "f4",
-          "label": "Raise the tag to $160 first so 50% minus 40% leaves $16 profit per jacket."
+          "label": "Raise the rack tag to $160 first so 50% minus 40% leaves $16 profit on every jacket."
         }
       ],
       "fix_answer": "f1",

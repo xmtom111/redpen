@@ -9,10 +9,10 @@
   "estimated_seconds": 55,
   "id": "logic-chat-metro-gate",
   "lang": "en",
-  "title": "Peak-hour fare",
+  "title": "Transit statement",
   "topic": "A friend reasons backward from a $3.50 transit charge under an exclusive fare rule",
-  "blurb": "They flip an 'if' rule backward to catch their cousin — looks like a textbook slip.",
-  "prompt": "A friend texted this after checking a shared transit account. Tap a line if the reasoning slips, or call it clean.",
+  "blurb": "A friend is checking a charge on a shared transit account.",
+  "prompt": "A friend just sent this in the group chat. Tap a line if something doesn't add up, or let it pass.",
   "segments": [
     {
       "id": 1,

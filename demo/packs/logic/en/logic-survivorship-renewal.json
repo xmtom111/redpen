@@ -11,7 +11,7 @@
   "difficulty": "intro",
   "level": 1,
   "estimated_seconds": 60,
-  "prompt": "An AI analyst wrote this launch recap. If a line reaches further than the evidence, tap it.",
+  "prompt": "The product team shared this recap after the dating-app redesign. Tap any line that doesn't hold up, or mark it clean.",
   "segments": [
     {
       "id": 1,

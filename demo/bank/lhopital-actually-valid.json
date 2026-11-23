@@ -1,23 +1,23 @@
 {
   "kind": "trick_clean",
-  "title": "Differentiating top and bottom separately",
-  "problem": "An AI tutor evaluated \\(\\lim_{x \\to 0} \\frac{e^{2x} - 1}{x}\\). Tap a slip if you spot one, or call it clean.",
+  "title": "Exponential limit",
+  "problem": "Evaluate \\(\\lim_{x \\to 0} \\frac{e^{2x} - 1}{x}\\). Check this solution — tap a step if it slips, or let it pass.",
   "steps": [
-    "Substitute \\(x = 0\\): the numerator is \\(e^0 - 1 = 0\\) and the denominator is \\(0\\), so this is a \\(\\frac{0}{0}\\) indeterminate form.",
-    "Both \\(e^{2x} - 1\\) and \\(x\\) are differentiable near \\(0\\), and the denominator's derivative is \\(1 \\neq 0\\).",
-    "By L'Hôpital's rule, differentiate numerator and denominator separately: \\(\\lim_{x \\to 0} \\frac{2e^{2x}}{1}\\).",
-    "Evaluate at \\(x = 0\\): \\(2e^0 = 2 \\cdot 1 = 2\\).",
-    "Since the differentiated limit exists and equals \\(2\\), the original limit is \\(2\\)."
+    "We want \\(\\lim_{x \\to 0} \\frac{e^{2x} - 1}{x}\\).",
+    "Differentiate the top and bottom separately: \\(\\lim_{x \\to 0} \\frac{2e^{2x}}{1}\\).",
+    "Plug in \\(x = 0\\): \\(\\frac{2e^0}{1} = 2 \\cdot 1 = 2\\).",
+    "So \\(\\lim_{x \\to 0} \\frac{e^{2x} - 1}{x} = 2\\).",
+    "Spot check at \\(x = 0.001\\): \\(\\frac{e^{0.002} - 1}{0.001} \\approx 2.002\\), right on \\(2\\)."
   ],
   "final_answer": "\\(2\\)",
   "key": {
     "level": 0,
     "clean_steps": [
-      "Substitute \\(x = 0\\): the numerator is \\(e^0 - 1 = 0\\) and the denominator is \\(0\\), so this is a \\(\\frac{0}{0}\\) indeterminate form.",
-      "Both \\(e^{2x} - 1\\) and \\(x\\) are differentiable near \\(0\\), and the denominator's derivative is \\(1 \\neq 0\\).",
-      "By L'Hôpital's rule, differentiate numerator and denominator separately: \\(\\lim_{x \\to 0} \\frac{2e^{2x}}{1}\\).",
-      "Evaluate at \\(x = 0\\): \\(2e^0 = 2 \\cdot 1 = 2\\).",
-      "Since the differentiated limit exists and equals \\(2\\), the original limit is \\(2\\)."
+      "We want \\(\\lim_{x \\to 0} \\frac{e^{2x} - 1}{x}\\).",
+      "Differentiate the top and bottom separately: \\(\\lim_{x \\to 0} \\frac{2e^{2x}}{1}\\).",
+      "Plug in \\(x = 0\\): \\(\\frac{2e^0}{1} = 2 \\cdot 1 = 2\\).",
+      "So \\(\\lim_{x \\to 0} \\frac{e^{2x} - 1}{x} = 2\\).",
+      "Spot check at \\(x = 0.001\\): \\(\\frac{e^{0.002} - 1}{0.001} \\approx 2.002\\), right on \\(2\\)."
     ],
     "clean_final_answer": "\\(2\\)",
     "errors": [],
@@ -33,7 +33,7 @@
     "mode": "0",
     "difficulty": "standard",
     "focus": [],
-    "blurb": "It differentiated the top and bottom separately — quotient-rule blunder or completely legal?"
+    "blurb": "Evaluating \\(\\lim_{x \\to 0} \\frac{e^{2x} - 1}{x}\\)."
   },
   "explanation": "Differentiating top and bottom separately looks like a quotient-rule mistake, but for a genuine \\(\\frac{0}{0}\\) limit it's exactly what L'Hôpital's rule calls for, and the chain-rule \\(2\\) is right there."
 }

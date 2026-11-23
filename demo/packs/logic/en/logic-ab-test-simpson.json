@@ -10,7 +10,7 @@
   "difficulty": "standard",
   "level": 2,
   "estimated_seconds": 75,
-  "prompt": "An AI product analyst just shared this checkout-test recap. If two lines jump too far, tap them.",
+  "prompt": "An AI product analyst dropped this checkout-test recap in the team channel. Tap any line that doesn't hold up, or mark it clean.",
   "segments": [
     {
       "id": 1,
@@ -67,7 +67,7 @@
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Compare within each device (B wins both) and ship B, or re-run with a clean 50/50 split."
+          "label": "Compare per device (B wins both) and ship B, or re-run with a 50/50 split."
         },
         {
           "id": "f2",
@@ -75,11 +75,11 @@
         },
         {
           "id": "f3",
-          "label": "Recompute the pooled averages as (10%+30%)/2 = 20% and (12%+32%)/2 = 22% and ignore the routing bug."
+          "label": "Recompute the pooled averages as (10%+30%)/2 = 20% and (12%+32%)/2 = 22% ignoring routing."
         },
         {
           "id": "f4",
-          "label": "Ship A everywhere because a 10-point overall lead (26% vs 16%) outweighs a 2-point device gap."
+          "label": "Ship A everywhere because a 10-point overall lead (26% vs 16%) beats a 2-point device gap."
         }
       ],
       "fix_answer": "f1",

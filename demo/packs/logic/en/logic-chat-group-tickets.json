@@ -9,10 +9,10 @@
   "estimated_seconds": 50,
   "id": "logic-chat-group-tickets",
   "lang": "en",
-  "title": "Concert tickets",
+  "title": "Show tickets",
   "topic": "A friend buys six show tickets together to hit a 5-ticket 10% group discount",
-  "blurb": "Six tickets, 10% off once you hit five, and everyone sends $40.50.",
-  "prompt": "A friend just bought tickets for the group and sent this. Tap a line if the split is wrong, or call it clean.",
+  "blurb": "A friend bought six concert tickets together and is splitting the bill.",
+  "prompt": "A friend just sent this in the group chat. Tap a line if something doesn't add up, or let it pass.",
   "segments": [
     {
       "id": 1,

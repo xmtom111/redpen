@@ -1,7 +1,7 @@
 {
   "kind": "clean",
-  "title": "Product rule with a negative exponent",
-  "problem": "An AI tutor differentiated \\(g(x) = x^2 e^{-x}\\). Tap a slip if you spot one, or call it clean.",
+  "title": "Product derivative",
+  "problem": "Find \\(g'(x)\\) for \\(g(x) = x^2 e^{-x}\\). Check this solution — tap a step if it slips, or let it pass.",
   "steps": [
     "Apply the product rule \\((uv)' = u'v + uv'\\) with \\(u = x^2\\) and \\(v = e^{-x}\\).",
     "Differentiate each factor: \\(u' = 2x\\) and \\(v' = -e^{-x}\\) by the chain rule.",
@@ -32,7 +32,7 @@
     "mode": "0",
     "difficulty": "standard",
     "focus": [],
-    "blurb": "Product rule, chain rule on \\(-x\\), and factoring — easy to flip a sign, did it?"
+    "blurb": "Differentiating \\(g(x) = x^2 e^{-x}\\)."
   },
   "explanation": "Product rule, chain rule on \\(e^{-x}\\), and factoring out \\(x e^{-x}\\) are all exact."
 }

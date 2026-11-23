@@ -5,13 +5,13 @@
   "renderer": "code",
   "code_language": "python",
   "lang": "zh",
-  "title": "邮箱都「清洗」过了，所以这条 SQL 很安全？",
+  "title": "客服邮箱查用户",
   "topic": "一个把清理当成防注入的客服查询",
-  "blurb": "AI 先把邮箱转成小写，再直接拼进查询，还把这叫做脱敏。",
+  "blurb": "一段按邮箱从数据库查询用户信息的函数。",
   "difficulty": "intro",
   "level": 1,
   "estimated_seconds": 45,
-  "prompt": "这段 AI 写的函数，给客服按邮箱查找顾客。作者认为 `.strip().lower()` 已经让 SQL 安全了。找出漏洞。",
+  "prompt": "需求：清洗 `email` 后安全地从 `users` 表查出对应用户的 `id` 和 `role`。看下这段代码，觉得哪行有问题就点它，觉得没问题就放行。",
   "segments": [
     {
       "id": 1,
@@ -68,19 +68,19 @@
       "fix_choices": [
         {
           "id": "f1",
-          "label": "改用参数化查询：`conn.execute(\"SELECT id, role FROM users WHERE email = ?\", (cleaned,))`。"
+          "label": "用参数化查询：`conn.execute(\"SELECT id, role FROM users WHERE email = ?\", (cleaned,))`。"
         },
         {
           "id": "f2",
-          "label": "先用 `cleaned.replace(' ', '')` 去掉空格，就能挡住 f-string 里的 SQL 关键字。"
+          "label": "先用 `cleaned.replace(' ', '')` 去掉所有空格，就能彻底挡住 f-string 里的 SQL 关键字注入。"
         },
         {
           "id": "f3",
-          "label": "别用 f-string，改用加号字符串拼接 `\"SELECT ... '\" + cleaned + \"'\"`。"
+          "label": "不要用 f-string，改成加号字符串拼接 `\"SELECT id, role FROM users WHERE email = '\" + cleaned + \"'\"`。"
         },
         {
           "id": "f4",
-          "label": "在 f-string 末尾补上 `LIMIT 1`，确保最多只返回一个用户。"
+          "label": "在 f-string 末尾补上 `LIMIT 1`，就算有额外条件也确保最多只返回一个用户。"
         }
       ],
       "fix_answer": "f1",

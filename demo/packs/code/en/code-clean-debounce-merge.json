@@ -6,13 +6,13 @@
   "code_language": "javascript",
   "lang": "en",
   "kind": "clean",
-  "title": "Per-request auth header clone",
+  "title": "Auth request headers",
   "topic": "Spreading `BASE_OPTS` and `BASE_OPTS.headers` without leaking auth tokens",
-  "blurb": "Object spread on a nested config object — does one logged-in user's Bearer token leak to anonymous requests?",
+  "blurb": "A JS helper building per-request headers from a shared base config.",
   "difficulty": "standard",
   "level": 0,
   "estimated_seconds": 50,
-  "prompt": "Spec: build per-request options from `BASE_OPTS`, adding `authorization` when `token` is truthy, without ever mutating `BASE_OPTS` or its nested `headers`. Tap a bug, or call it clean.",
+  "prompt": "Spec: build per-request options from `BASE_OPTS`, adding `authorization` when `token` is truthy, without mutating `BASE_OPTS` or its `headers`. Review this helper — tap a line if it breaks the spec, or let it pass.",
   "segments": [
     {
       "id": 1,

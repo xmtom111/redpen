@@ -9,25 +9,25 @@
   "estimated_seconds": 50,
   "id": "logic-chat-book-pages",
   "lang": "en",
-  "title": "Book club sprint",
+  "title": "Book club",
   "topic": "A friend counts inclusive pages read tonight and remaining pages left in a novel",
-  "blurb": "Page 84 through 147 is 64 pages, then 148 to 275 is 128 — did they add +1 in the right place?",
-  "prompt": "A friend from book club texted this late last night. Tap a line if their page count is off by one, or call it clean.",
+  "blurb": "A friend is pacing the last chapters before Thursday's book club.",
+  "prompt": "A friend just sent this in the group chat. Tap a line if something doesn't add up, or let it pass.",
   "segments": [
     {
       "id": 1,
       "label": "Tonight",
-      "text": "Trying to finish the novel before Thursday — read from the top of page 84 straight through the bottom of page 147 tonight."
+      "text": "Trying to finish the novel before book club Thursday — read from the top of page 84 to the bottom of page 147 tonight."
     },
     {
       "id": 2,
       "label": "The tally",
-      "text": "That's 64 pages in one sitting, since you have to count page 84 itself."
+      "text": "Knocked out 64 pages in one sitting."
     },
     {
       "id": 3,
       "label": "What's left",
-      "text": "The book ends on page 275, so I've got 128 pages left — two more nights at this pace and I'm done."
+      "text": "The book ends on page 275, so 128 pages left — two more nights at this pace and I'm done."
     },
     {
       "id": 4,
@@ -35,7 +35,7 @@
       "text": "Might actually show up knowing the ending."
     }
   ],
-  "conclusion": "Pages 84–147 inclusive is 64 pages, leaving 128 pages (148–275), which is two more nights at 64 pages.",
+  "conclusion": "Pages 84–147 is 64 pages, leaving 128 pages to 275 — two more nights at this pace.",
   "flaws": [],
   "segment_distractors": {
     "1": {
@@ -96,9 +96,9 @@
     }
   },
   "clean_segments": [
-    "Trying to finish the novel before Thursday — read from the top of page 84 straight through the bottom of page 147 tonight.",
-    "That's 64 pages in one sitting, since you have to count page 84 itself.",
-    "The book ends on page 275, so I've got 128 pages left — two more nights at this pace and I'm done.",
+    "Trying to finish the novel before book club Thursday — read from the top of page 84 to the bottom of page 147 tonight.",
+    "Knocked out 64 pages in one sitting.",
+    "The book ends on page 275, so 128 pages left — two more nights at this pace and I'm done.",
     "Might actually show up knowing the ending."
   ],
   "clean_conclusion": "Both inclusive counts are right: 84 through 147 is 147 − 84 + 1 = 64 pages, and 148 through 275 is 275 − 148 + 1 = 128 pages — exactly two more nights.",

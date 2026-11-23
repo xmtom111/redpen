@@ -10,18 +10,18 @@
   "lang": "en",
   "title": "Family plan",
   "topic": "A friend is deciding whether a download will fit this month",
-  "blurb": "A friend is hesitating over a download on the family data plan.",
-  "prompt": "A friend just texted this in the group chat. If one line doesn't add up, tap it.",
+  "blurb": "A friend is checking the shared family data plan before a download.",
+  "prompt": "A friend just sent this in the group chat. Tap a line if something doesn't add up, or let it pass.",
   "segments": [
     {
       "id": 1,
       "label": "The plan",
-      "text": "Our family plan has a 100GB bucket this month for the three of us."
+      "text": "We're on the shared 100GB family plan this month for the three of us."
     },
     {
       "id": 2,
       "label": "What's used",
-      "text": "I've used 30 so far, and you two have barely touched it — maybe 10 between you."
+      "text": "Checked the app — I'm at 30GB and you two are sitting around 10GB combined."
     },
     {
       "id": 3,
@@ -90,8 +90,8 @@
     }
   ],
   "clean_segments": [
-    "Our family plan has a 100GB bucket this month for the three of us.",
-    "I've used 30 so far, and you two have barely touched it — maybe 10 between you.",
+    "We're on the shared 100GB family plan this month for the three of us.",
+    "Checked the app — I'm at 30GB and you two are sitting around 10GB combined.",
     "It's one 100GB pot. We've used about 40 together, so there's about 60 left — plenty for an 8GB download.",
     "Text me if you need me to stay off it tonight."
   ],

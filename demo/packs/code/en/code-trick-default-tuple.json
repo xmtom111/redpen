@@ -6,13 +6,13 @@
   "code_language": "python",
   "lang": "en",
   "kind": "trick_clean",
-  "title": "A default tuple that looks like a leak",
+  "title": "Tag list helper",
   "topic": "Using `tags=()` as a default argument and rebinding with `+`",
-  "blurb": "A container literal right in the `def` line — does calling `append_tag('vip')` then `append_tag('sale')` leak between calls?",
+  "blurb": "A small Python helper that appends normalized tags.",
   "difficulty": "standard",
   "level": 0,
   "estimated_seconds": 50,
-  "prompt": "Spec: normalize `tag` (strip + lowercase), add it to `tags` if non-empty and not already present, and return the resulting tuple without leaking across separate calls. Tap a buggy line, or call it clean.",
+  "prompt": "Spec: strip and lowercase `tag`, add it to `tags` if non-empty and new, and return the tuple without leaking across separate calls. Review this helper — tap a line if it breaks the spec, or let it pass.",
   "segments": [
     {
       "id": 1,
@@ -37,7 +37,7 @@
     {
       "id": 5,
       "label": "L5",
-      "text": "    tags = tags + (cleaned,)"
+      "text": "    tags += (cleaned,)"
     },
     {
       "id": 6,
@@ -106,16 +106,16 @@
     },
     "5": {
       "diagnosis": [
-        "Adding `(cleaned,)` mutates the default `tags=()` in place, leaking `cleaned` into the next call.",
-        "Writing `(cleaned,)` with a trailing comma creates a 2-element tuple with `None` as the second item.",
-        "Tuples don't support the `+` operator in Python — this raises TypeError.",
-        "Reassigning `tags` inside the function fails because `tags` is an immutable parameter."
+        "Augmented assignment `tags += (cleaned,)` mutates the default `tags=()` in place, leaking `cleaned` into the next call.",
+        "Writing `(cleaned,)` with a trailing comma creates a 2-element tuple with `None` as the second entry.",
+        "Tuples are immutable in Python, so `tags += (cleaned,)` raises TypeError at runtime.",
+        "Using `+=` on a parameter modifies the caller's tuple outside the function."
       ],
       "fix": [
-        "Drop the trailing comma and write `tags + (cleaned)` so it's a 1-element tuple.",
-        "Convert to a list first: `list(tags).append(cleaned)`.",
-        "Use `tags += (cleaned,)` so Python allocates a new tuple instead of mutating.",
-        "Build a fresh variable `result = (*tags, cleaned)` so the default `tags` isn't touched."
+        "Replace `tags += (cleaned,)` with `tags = tags + (cleaned,)` so it stops mutating in place.",
+        "Drop the trailing comma and write `tags += (cleaned)` so it stays a 1-element tuple.",
+        "Convert to a list first with `list(tags).append(cleaned)` before returning.",
+        "Assign to a new local variable `out = (*tags, cleaned)` so `tags` isn't touched."
       ]
     },
     "6": {
@@ -138,9 +138,9 @@
     "    cleaned = tag.strip().lower()",
     "    if not cleaned or cleaned in tags:",
     "        return tags",
-    "    tags = tags + (cleaned,)",
+    "    tags += (cleaned,)",
     "    return tags"
   ],
-  "clean_conclusion": "Default `[]` leaks across calls because lists mutate in place. `()` is an immutable tuple, and `tags + (cleaned,)` creates a brand-new tuple and rebinds the local name — the default `()` is never touched.",
-  "explanation": "Default `[]` leaks across calls because lists mutate in place. `()` is an immutable tuple, and `tags + (cleaned,)` creates a brand-new tuple and rebinds the local name — the default `()` is never touched."
+  "clean_conclusion": "Default `[]` leaks because lists mutate in place under `+=`. `()` is an immutable tuple, so `tags += (cleaned,)` allocates a brand-new tuple and rebinds the local name without ever touching the default.",
+  "explanation": "Default `[]` leaks because lists mutate in place under `+=`. `()` is an immutable tuple, so `tags += (cleaned,)` allocates a brand-new tuple and rebinds the local name without ever touching the default."
 }

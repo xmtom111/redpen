@@ -9,33 +9,33 @@
   "estimated_seconds": 55,
   "id": "logic-chat-equal-time-drive",
   "lang": "en",
-  "title": "Highway pace",
+  "title": "Highway drive",
   "topic": "A friend averages two driving speeds from a holiday trip",
-  "blurb": "Two speeds, one simple average, and a very confident mileage total.",
-  "prompt": "A friend just dropped this in the group chat after getting home. Tap a line if something doesn't add up, or call it clean.",
+  "blurb": "A friend is recapping their Sunday night drive home.",
+  "prompt": "A friend just sent this in the group chat. Tap a line if something doesn't add up, or let it pass.",
   "segments": [
     {
       "id": 1,
       "label": "The drive",
-      "text": "Drove back from my sister's place — two hours straight, no stops."
+      "text": "Drove home from my sister's last night — left right at 6:00, pulled into the driveway at 8:00, no stops."
     },
     {
       "id": 2,
       "label": "The split",
-      "text": "First hour was stuck behind holiday traffic at 40 mph, second hour opened right up at 70 mph."
+      "text": "Crawled at 40 mph until 7:00 in holiday traffic, then cruised at 70 mph the rest of the way."
     },
     {
       "id": 3,
       "label": "The math",
-      "text": "Average of 40 and 70 is 55, so I averaged 55 mph and covered 110 miles."
+      "text": "40 and 70 averages out to 55, so I did 55 mph overall — 110 miles door to door."
     },
     {
       "id": 4,
       "label": "The brag",
-      "text": "Not bad for Sunday night traffic."
+      "text": "Way better than last Christmas when it took almost three hours."
     }
   ],
-  "conclusion": "40 mph for the first hour and 70 mph for the second comes out to 55 mph average and 110 miles.",
+  "conclusion": "40 mph until 7:00 and 70 mph until 8:00 averages to 55 mph and 110 miles total.",
   "flaws": [],
   "segment_distractors": {
     "1": {
@@ -96,10 +96,10 @@
     }
   },
   "clean_segments": [
-    "Drove back from my sister's place — two hours straight, no stops.",
-    "First hour was stuck behind holiday traffic at 40 mph, second hour opened right up at 70 mph.",
-    "Average of 40 and 70 is 55, so I averaged 55 mph and covered 110 miles.",
-    "Not bad for Sunday night traffic."
+    "Drove home from my sister's last night — left right at 6:00, pulled into the driveway at 8:00, no stops.",
+    "Crawled at 40 mph until 7:00 in holiday traffic, then cruised at 70 mph the rest of the way.",
+    "40 and 70 averages out to 55, so I did 55 mph overall — 110 miles door to door.",
+    "Way better than last Christmas when it took almost three hours."
   ],
   "clean_conclusion": "The plain average actually works here — the two legs lasted the same amount of time (an hour each), not the same distance. 40 miles plus 70 miles in 2 hours really is 55 mph.",
   "explanation": "The plain average actually works here — the two legs lasted the same amount of time (an hour each), not the same distance. 40 miles plus 70 miles in 2 hours really is 55 mph."

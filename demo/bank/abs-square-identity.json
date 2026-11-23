@@ -1,23 +1,23 @@
 {
   "kind": "trick_clean",
-  "title": "Dropping the absolute value and cancelling x",
-  "problem": "Given a positive real number \\(x > 0\\), an AI tutor simplified \\(\\frac{\\sqrt{9x^2} + x}{2x}\\). Tap a slip if you spot one, or call it clean.",
+  "title": "Radical fraction",
+  "problem": "Given \\(x > 0\\), simplify \\(\\frac{\\sqrt{9x^2} + x}{2x}\\). Check this solution — tap a step if it slips, or let it pass.",
   "steps": [
-    "We are given \\(x > 0\\), so both \\(x\\) and \\(3x\\) are strictly positive.",
-    "Split the radical of a product of non-negative terms: \\(\\sqrt{9x^2} = \\sqrt{9}\\sqrt{x^2} = 3|x|\\).",
-    "Since \\(x > 0\\), we have \\(|x| = x\\), so \\(\\sqrt{9x^2} = 3x\\).",
-    "Combine the numerator: \\(3x + x = 4x\\).",
-    "Because \\(x > 0\\) (in particular \\(x \\neq 0\\)), cancel \\(x\\) in \\(\\frac{4x}{2x} = 2\\)."
+    "Start with \\(\\frac{\\sqrt{9x^2} + x}{2x}\\) where \\(x > 0\\).",
+    "Take the square root: \\(\\sqrt{9x^2} = 3x\\).",
+    "Add like terms in the numerator: \\(3x + x = 4x\\).",
+    "Cancel \\(x\\) from numerator and denominator: \\(\\frac{4x}{2x} = 2\\).",
+    "So the expression equals \\(2\\) for every \\(x > 0\\)."
   ],
   "final_answer": "\\(2\\)",
   "key": {
     "level": 0,
     "clean_steps": [
-      "We are given \\(x > 0\\), so both \\(x\\) and \\(3x\\) are strictly positive.",
-      "Split the radical of a product of non-negative terms: \\(\\sqrt{9x^2} = \\sqrt{9}\\sqrt{x^2} = 3|x|\\).",
-      "Since \\(x > 0\\), we have \\(|x| = x\\), so \\(\\sqrt{9x^2} = 3x\\).",
-      "Combine the numerator: \\(3x + x = 4x\\).",
-      "Because \\(x > 0\\) (in particular \\(x \\neq 0\\)), cancel \\(x\\) in \\(\\frac{4x}{2x} = 2\\)."
+      "Start with \\(\\frac{\\sqrt{9x^2} + x}{2x}\\) where \\(x > 0\\).",
+      "Take the square root: \\(\\sqrt{9x^2} = 3x\\).",
+      "Add like terms in the numerator: \\(3x + x = 4x\\).",
+      "Cancel \\(x\\) from numerator and denominator: \\(\\frac{4x}{2x} = 2\\).",
+      "So the expression equals \\(2\\) for every \\(x > 0\\)."
     ],
     "clean_final_answer": "\\(2\\)",
     "errors": [],
@@ -33,7 +33,7 @@
     "mode": "0",
     "difficulty": "standard",
     "focus": [],
-    "blurb": "It dropped the absolute value bars AND cancelled \\(x\\) from a fraction — wait, is that actually legal here?"
+    "blurb": "Simplifying \\(\\frac{\\sqrt{9x^2} + x}{2x}\\) for \\(x > 0\\)."
   },
   "explanation": "Replacing \\(\\sqrt{x^2}\\) with \\(x\\) and cancelling \\(x\\) are classic traps in general, except \\(x > 0\\) already rules out negatives and zero."
 }

@@ -6,13 +6,13 @@
   "code_language": "python",
   "lang": "en",
   "kind": "clean",
-  "title": "Task completion percentage",
+  "title": "Completion rate",
   "topic": "Clamping and dividing `done / total` in Python 3",
-  "blurb": "Integer division? Inverted `min`/`max` clamp? Rounding drift? Check this 5-line progress helper.",
+  "blurb": "A 5-line Python 3 helper returning a clamped completion percentage.",
   "difficulty": "intro",
   "level": 0,
   "estimated_seconds": 45,
-  "prompt": "Spec: return task completion percentage (0.0 to 100.0, rounded to 1 decimal place) in Python 3, returning `0.0` if `total <= 0`. Tap a buggy line, or call it clean.",
+  "prompt": "Spec: return task completion percentage (0.0–100.0, rounded to 1 decimal) in Python 3, returning `0.0` when `total <= 0`. Review this helper — tap a line if it breaks the spec, or let it pass.",
   "segments": [
     {
       "id": 1,

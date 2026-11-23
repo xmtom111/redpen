@@ -10,7 +10,7 @@
   "difficulty": "standard",
   "level": 1,
   "estimated_seconds": 60,
-  "prompt": "A bank support AI auto-drafted this freeze notice. If a line doesn't follow from the facts, tap it.",
+  "prompt": "A bank support AI drafted this freeze notice after your card was declined. Tap any line that doesn't hold up, or mark it clean.",
   "segments": [
     {
       "id": 1,
@@ -67,19 +67,19 @@
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Count out of 1,000: ~1 real fraud vs ~10 false alerts means roughly 9% of alerts are fraud — verify first."
+          "label": "Out of 1,000 charges: ~1 real fraud vs ~10 false alerts (~9% real) — confirm first."
         },
         {
           "id": "f2",
-          "label": "Subtract the 1% false alert rate from 99% to report a 98% chance of real fraud."
+          "label": "Subtract the 1% false-alert rate from 99% to report a 98% chance of real fraud on every alert."
         },
         {
           "id": "f3",
-          "label": "Multiply 99% by 99% (98.01%) to get the probability after both accuracy checks."
+          "label": "Multiply 99% by 99% (98.01%) to get the combined probability after both accuracy checks."
         },
         {
           "id": "f4",
-          "label": "Drop the alert threshold until false alerts hit 5% so real fraud catches reach 100%."
+          "label": "Raise the alert threshold until false alerts hit 5% so real fraud catches reach 100%."
         }
       ],
       "fix_answer": "f1",

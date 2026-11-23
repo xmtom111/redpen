@@ -5,13 +5,13 @@
   "renderer": "code",
   "code_language": "python",
   "lang": "zh",
-  "title": "两个购物车，居然串味了",
+  "title": "加入购物车",
   "topic": "AI 打包票说「每次调用都是新购物车」的小函数",
-  "blurb": "第一次加商品完美。下一位顾客一进来，车里已经躺着别人的菜。",
+  "blurb": "一段把商品放进购物车的 5 行 Python 函数。",
   "difficulty": "intro",
   "level": 1,
   "estimated_seconds": 45,
-  "prompt": "AI 刚提了这个 5 行「加入购物车」的 PR，信誓旦旦说两个顾客绝不会共用一辆车。合并前看一眼。",
+  "prompt": "需求：校验非空字符串后加入 `cart`（未传时新建空车），不同顾客之间不能串车。看下这段代码，觉得哪行有问题就点它，觉得没问题就放行。",
   "segments": [
     {
       "id": 1,
@@ -68,19 +68,19 @@
       "fix_choices": [
         {
           "id": "f1",
-          "label": "默认写成 `cart=None`，在函数体里写 `if cart is None: cart = []`。"
+          "label": "写成 `cart=None`，函数内再 `if cart is None: cart = []`。"
         },
         {
           "id": "f2",
-          "label": "签名改成 `cart=list()` 让 Python 每次调用分配一个新列表。"
+          "label": "把函数签名改成 `cart=list()`，让 Python 在每次调用时都分配一个新列表。"
         },
         {
           "id": "f3",
-          "label": "保留 `cart=[]`，把第 4 行改成 `cart += [item.strip()]`。"
+          "label": "保留 `cart=[]` 不动，只把第 4 行的 `.append` 改成 `cart += [item.strip()]`。"
         },
         {
           "id": "f4",
-          "label": "在第 4 行追加完之后再写 `cart = cart[:]` 返回切片。"
+          "label": "在第 4 行追加完之后再加一句 `cart = cart[:]`，返回浅拷贝切片就行。"
         }
       ],
       "fix_answer": "f1",

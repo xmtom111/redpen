@@ -6,13 +6,13 @@
   "code_language": "python",
   "lang": "zh",
   "kind": "clean",
-  "title": "任务完成率计算",
+  "title": "任务完成率",
   "topic": "Python 3 里的边界截断与百分比除法",
-  "blurb": "整数除法截断成 0？`min`/`max` 套反了？检查这段 5 行进度条函数。",
+  "blurb": "一段计算并截断任务完成百分比的 5 行 Python 3 函数。",
   "difficulty": "intro",
   "level": 0,
   "estimated_seconds": 45,
-  "prompt": "需求：在 Python 3 中返回任务完成百分比（截断在 `0.0` 到 `100.0` 之间，保留 1 位小数），当 `total <= 0` 时返回 `0.0`。发现 bug 就点对应行，觉得没问题就放行。",
+  "prompt": "需求：在 Python 3 中返回保留 1 位小数的完成百分比（0.0–100.0），`total <= 0` 时返回 `0.0`。看下这段代码，觉得哪行有问题就点它，觉得没问题就放行。",
   "segments": [
     {
       "id": 1,

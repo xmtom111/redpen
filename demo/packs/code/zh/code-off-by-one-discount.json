@@ -5,13 +5,13 @@
   "renderer": "code",
   "code_language": "python",
   "lang": "zh",
-  "title": "这场闪购结账，满 500 永远打不到 75 折",
+  "title": "大促满减结算",
   "topic": "AI 一个下午「写完」的节日折扣",
-  "blurb": "需求写明满 500 减 25%。AI 的函数非常肯定自己做到了。大订单会不同意。",
+  "blurb": "一段带两档满减折扣的结算函数。",
   "difficulty": "standard",
   "level": 2,
   "estimated_seconds": 75,
-  "prompt": "需求：汇总所有商品，满 500 减 25%，满 100 减 10%，返回应付金额。AI 实习生把这段代码交去闪购上线。请审查。",
+  "prompt": "需求：累加 `prices` 所有商品，满 500 打七五折、满 100 打九折，返回保留两位小数的总价。看下这段代码，觉得哪行有问题就点它，觉得没问题就放行。",
   "segments": [
     {
       "id": 1,
@@ -83,15 +83,15 @@
       "fix_choices": [
         {
           "id": "f1",
-          "label": "直接把所有商品求和：`subtotal = sum(prices)`（或 `range(len(prices))`）。"
+          "label": "直接求和 `subtotal = sum(prices)`（或 `range(len(prices))`）。"
         },
         {
           "id": "f2",
-          "label": "改成 `range(1, len(prices))` 让循环覆盖到最后一件。"
+          "label": "把循环改成 `range(1, len(prices))`，让下标往后移一位覆盖到最后一件。"
         },
         {
           "id": "f3",
-          "label": "改成 `range(len(prices) + 1)` 防止漏掉末项下标。"
+          "label": "把循环改成 `range(len(prices) + 1)`，防止闭区间边界漏掉最后一项下标。"
         },
         {
           "id": "f4",
@@ -135,19 +135,19 @@
       "fix_choices": [
         {
           "id": "f1",
-          "label": "先判更高门槛：`if subtotal >= 500:`（0.25），再 `elif subtotal >= 100:`（0.10）。"
+          "label": "先判 `if subtotal >= 500:`（0.25），再 `elif subtotal >= 100:`（0.10）。"
         },
         {
           "id": "f2",
-          "label": "把第 5 行改成 `elif subtotal < 500:` 避免条件重叠。"
+          "label": "把第 5 行改成 `elif subtotal < 500:`，避免 500 以上的区间和前面重叠。"
         },
         {
           "id": "f3",
-          "label": "删掉第 7 行 `else:` 让两个档位各自独立生效。"
+          "label": "把第 7 行的 `else:` 删掉，让两个满减档位各自独立生效不互相拦截。"
         },
         {
           "id": "f4",
-          "label": "保持门槛顺序不动，把第 4 行的 `0.10` 和第 6 行的 `0.25` 互换。"
+          "label": "保持原来的门槛判断顺序不动，只把第 4 行的 `0.10` 和第 6 行的 `0.25` 互换。"
         }
       ],
       "fix_answer": "f1",

@@ -5,13 +5,13 @@
   "renderer": "code",
   "code_language": "javascript",
   "lang": "en",
-  "title": "Change one user's retries, rewrite everyone's",
+  "title": "Per-request retries",
   "topic": "A spread that looks like a clone",
-  "blurb": "The AI copied the default config with `{ ...obj }`. Then one override quietly edits the original.",
+  "blurb": "A config helper that overrides `retries` without touching defaults.",
   "difficulty": "standard",
   "level": 1,
   "estimated_seconds": 55,
-  "prompt": "This helper is supposed to give one request more retries without touching `DEFAULT_CONFIG`. The AI says the object spread makes a clean clone. Check it.",
+  "prompt": "Spec: return a config with `limits.retries` set to `retries` without ever mutating `DEFAULT_CONFIG`. Review this helper — tap a line if it breaks the spec, or let it pass.",
   "segments": [
     {
       "id": 1,
@@ -73,19 +73,19 @@
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Clone the nested object too: `{ ...DEFAULT_CONFIG, limits: { ...DEFAULT_CONFIG.limits } }`."
+          "label": "Clone `limits` too: `{ ...DEFAULT_CONFIG, limits: { ...DEFAULT_CONFIG.limits } }`."
         },
         {
           "id": "f2",
-          "label": "Replace `{ ...DEFAULT_CONFIG }` with `Object.assign({}, DEFAULT_CONFIG)` to copy nested keys."
+          "label": "Replace `{ ...DEFAULT_CONFIG }` with `Object.assign({}, DEFAULT_CONFIG)` so nested objects copy cleanly."
         },
         {
           "id": "f3",
-          "label": "Change `const cfg` to `let cfg` so the spread creates a mutable deep copy."
+          "label": "Change `const cfg` to `let cfg` so the spread allocates a mutable deep clone of `DEFAULT_CONFIG`."
         },
         {
           "id": "f4",
-          "label": "Call `Object.freeze(cfg)` on line 3 so `DEFAULT_CONFIG.limits` cannot be changed."
+          "label": "Call `Object.freeze(cfg)` right after line 3 so `DEFAULT_CONFIG.limits` can't be mutated."
         }
       ],
       "fix_answer": "f1",

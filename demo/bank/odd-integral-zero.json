@@ -1,23 +1,23 @@
 {
   "kind": "trick_clean",
-  "title": "Calling a messy integral zero without integrating",
-  "problem": "An AI tutor evaluated \\(\\int_{-2}^{2} x^3 \\cos(x^2)\\, dx\\) without ever finding an antiderivative. Tap a slip if you spot one, or call it clean.",
+  "title": "Symmetric integral",
+  "problem": "Evaluate \\(\\int_{-2}^{2} x^3 \\cos(x^2)\\, dx\\). Check this solution — tap a step if it slips, or let it pass.",
   "steps": [
-    "Let \\(f(x) = x^3 \\cos(x^2)\\), which is continuous everywhere on \\([-2, 2]\\).",
-    "Check \\(f(-x)\\): \\((-x)^3 \\cos((-x)^2) = -x^3 \\cos(x^2) = -f(x)\\).",
-    "So \\(f\\) is an odd function integrated over the symmetric interval \\([-2, 2]\\).",
-    "Splitting at \\(0\\), the integral over \\([-2, 0]\\) is the exact negative of the integral over \\([0, 2]\\).",
-    "Therefore \\(\\int_{-2}^{2} x^3 \\cos(x^2)\\, dx = 0\\), with no antiderivative needed."
+    "We want \\(\\int_{-2}^{2} x^3 \\cos(x^2)\\, dx\\).",
+    "Flipping the sign of \\(x\\) flips the sign of \\(x^3 \\cos(x^2)\\), and \\([-2, 2]\\) is symmetric around \\(0\\).",
+    "So everything on \\([-2, 0]\\) cancels everything on \\([0, 2]\\).",
+    "Therefore \\(\\int_{-2}^{2} x^3 \\cos(x^2)\\, dx = 0\\), without finding any antiderivative.",
+    "Not even a messy \\(\\sin 4\\) or \\(\\cos 4\\) survives at the endpoints."
   ],
   "final_answer": "\\(0\\)",
   "key": {
     "level": 0,
     "clean_steps": [
-      "Let \\(f(x) = x^3 \\cos(x^2)\\), which is continuous everywhere on \\([-2, 2]\\).",
-      "Check \\(f(-x)\\): \\((-x)^3 \\cos((-x)^2) = -x^3 \\cos(x^2) = -f(x)\\).",
-      "So \\(f\\) is an odd function integrated over the symmetric interval \\([-2, 2]\\).",
-      "Splitting at \\(0\\), the integral over \\([-2, 0]\\) is the exact negative of the integral over \\([0, 2]\\).",
-      "Therefore \\(\\int_{-2}^{2} x^3 \\cos(x^2)\\, dx = 0\\), with no antiderivative needed."
+      "We want \\(\\int_{-2}^{2} x^3 \\cos(x^2)\\, dx\\).",
+      "Flipping the sign of \\(x\\) flips the sign of \\(x^3 \\cos(x^2)\\), and \\([-2, 2]\\) is symmetric around \\(0\\).",
+      "So everything on \\([-2, 0]\\) cancels everything on \\([0, 2]\\).",
+      "Therefore \\(\\int_{-2}^{2} x^3 \\cos(x^2)\\, dx = 0\\), without finding any antiderivative.",
+      "Not even a messy \\(\\sin 4\\) or \\(\\cos 4\\) survives at the endpoints."
     ],
     "clean_final_answer": "\\(0\\)",
     "errors": [],
@@ -33,7 +33,7 @@
     "mode": "0",
     "difficulty": "standard",
     "focus": [],
-    "blurb": "It never integrated a single term and just wrote down \\(0\\) — clever shortcut or total bluff?"
+    "blurb": "Evaluating \\(\\int_{-2}^{2} x^3 \\cos(x^2)\\, dx\\)."
   },
   "explanation": "Skipping the antiderivative sounds lazy, except \\(x^3\\) is odd and \\(\\cos(x^2)\\) is even, so their product is strictly odd and cancels out over \\([-2, 2]\\)."
 }

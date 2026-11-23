@@ -6,13 +6,13 @@
   "code_language": "javascript",
   "lang": "zh",
   "kind": "trick_clean",
-  "title": "重试循环里的闭包",
+  "title": "重试任务列表",
   "topic": "在 JS `for` 循环里 `push` 捕获了 `i` 的箭头函数",
-  "blurb": "经典 JS 面试坑：循环里把带 `i` 的回调塞进数组——调起来是不是全变成最后一个值？",
+  "blurb": "一段在循环里生成各次重试回调的 JS 函数。",
   "difficulty": "standard",
   "level": 0,
   "estimated_seconds": 55,
-  "prompt": "需求：`steps = 3` 时返回 3 个无参函数，调用它们依次得到 `{ attempt: 1, delayMs: 200 }`、`{ attempt: 2, delayMs: 400 }`、`{ attempt: 3, delayMs: 600 }`。发现 bug 就点对应行，觉得没问题就放行。",
+  "prompt": "需求：`steps = 3` 时返回 3 个无参函数，调用依次返回 `{ attempt: 1, delayMs: 200 }` 到 `{ attempt: 3, delayMs: 600 }`。看下这段代码，觉得哪行有问题就点它，觉得没问题就放行。",
   "segments": [
     {
       "id": 1,

@@ -9,33 +9,33 @@
   "estimated_seconds": 60,
   "id": "logic-chat-same-denom-ratio",
   "lang": "en",
-  "title": "Rainy-day late orders",
+  "title": "Bakery deliveries",
   "topic": "A shop owner compares rainy-day and dry-day late deliveries without total rain counts",
-  "blurb": "They say the number of rainy days doesn't even matter — and sound way too sure about it.",
-  "prompt": "A friend who runs a local bakery sent this after auditing delivery tickets. Tap a line if it breaks, or call it clean.",
+  "blurb": "A friend who runs a bakery is reviewing recent late delivery tickets.",
+  "prompt": "A friend just sent this in the group chat. Tap a line if something doesn't add up, or let it pass.",
   "segments": [
     {
       "id": 1,
       "label": "The batch",
-      "text": "Pulled our bakery's last 300 local deliveries to see where late orders are landing."
+      "text": "Pulled our bakery's last 300 local deliveries to see where late orders are coming from."
     },
     {
       "id": 2,
       "label": "The counts",
-      "text": "Out of those 300 orders, 42 were both rainy-day and late, and 14 were both dry-day and late."
+      "text": "42 of those 300 orders were rainy-day and late; 14 were dry-day and late."
     },
     {
       "id": 3,
       "label": "The ratio",
-      "text": "So if you pick a random late order from that batch, it's three times more likely to be from a rainy day than a dry day — doesn't even matter how many rainy days we had."
+      "text": "So grab any late ticket from that pile and it's 3× as likely to be a rain day as a dry day — doesn't even matter how often it rained."
     },
     {
       "id": 4,
       "label": "The plan",
-      "text": "Even if that's just because we had a wet month, three-quarters of our late tickets sit on rain days, so I'm auditing rainy-day routing first."
+      "text": "Three-quarters of our late tickets sit on rain days, so I'm auditing rainy-day routes first."
     }
   ],
-  "conclusion": "A random late order from the batch is three times more likely to come from a rainy day than a dry day, regardless of how often it rained.",
+  "conclusion": "A random late order from that batch is 3× as likely to be from a rainy day, regardless of how often it rained.",
   "flaws": [],
   "segment_distractors": {
     "1": {
@@ -96,10 +96,10 @@
     }
   },
   "clean_segments": [
-    "Pulled our bakery's last 300 local deliveries to see where late orders are landing.",
-    "Out of those 300 orders, 42 were both rainy-day and late, and 14 were both dry-day and late.",
-    "So if you pick a random late order from that batch, it's three times more likely to be from a rainy day than a dry day — doesn't even matter how many rainy days we had.",
-    "Even if that's just because we had a wet month, three-quarters of our late tickets sit on rain days, so I'm auditing rainy-day routing first."
+    "Pulled our bakery's last 300 local deliveries to see where late orders are coming from.",
+    "42 of those 300 orders were rainy-day and late; 14 were dry-day and late.",
+    "So grab any late ticket from that pile and it's 3× as likely to be a rain day as a dry day — doesn't even matter how often it rained.",
+    "Three-quarters of our late tickets sit on rain days, so I'm auditing rainy-day routes first."
   ],
   "clean_conclusion": "How often it rained only matters if you ask whether rain *causes* lateness. Here they asked the reverse — grab one of the 56 late tickets, and 42/56 vs 14/56 really is 3-to-1.",
   "explanation": "How often it rained only matters if you ask whether rain *causes* lateness. Here they asked the reverse — grab one of the 56 late tickets, and 42/56 vs 14/56 really is 3-to-1."

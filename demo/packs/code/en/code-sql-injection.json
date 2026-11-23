@@ -5,13 +5,13 @@
   "renderer": "code",
   "code_language": "python",
   "lang": "en",
-  "title": "It stripped the email, so the SQL is 'safe'",
+  "title": "Support user lookup",
   "topic": "A support lookup that trusts a little cleanup",
-  "blurb": "The AI lowercased the address, then dropped it straight into the query. It calls that sanitizing.",
+  "blurb": "A support-desk helper that queries a customer by email.",
   "difficulty": "intro",
   "level": 1,
   "estimated_seconds": 45,
-  "prompt": "This AI-written helper looks up a customer by email for the support desk. The author says `.strip().lower()` makes the SQL safe. Find the hole.",
+  "prompt": "Spec: normalize `email` and safely fetch that single user's `id` and `role` from `users`. Review this helper — tap a line if it breaks the spec, or let it pass.",
   "segments": [
     {
       "id": 1,
@@ -68,7 +68,7 @@
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Bind as a parameter: `conn.execute(\"SELECT id, role FROM users WHERE email = ?\", (cleaned,))`."
+          "label": "Use a placeholder: `conn.execute(\"SELECT ... WHERE email = ?\", (cleaned,))`."
         },
         {
           "id": "f2",
@@ -76,11 +76,11 @@
         },
         {
           "id": "f3",
-          "label": "Replace the f-string with `\"SELECT ... '\" + cleaned + \"'\"` concatenation instead."
+          "label": "Replace the f-string with `\"SELECT ... '\" + cleaned + \"'\"` string concatenation instead."
         },
         {
           "id": "f4",
-          "label": "Add `LIMIT 1` to the f-string query so it can never return more than one customer."
+          "label": "Add `LIMIT 1` to the f-string query so it can never return more than one customer row."
         }
       ],
       "fix_answer": "f1",

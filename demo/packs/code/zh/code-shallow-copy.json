@@ -5,13 +5,13 @@
   "renderer": "code",
   "code_language": "javascript",
   "lang": "zh",
-  "title": "改一个人的重试次数，所有人的默认值被改了",
+  "title": "单次请求重试配置",
   "topic": "看起来像拷贝的对象展开",
-  "blurb": "AI 用 `{ ...obj }` 复制了默认配置。一次覆盖，却悄悄改掉了原件。",
+  "blurb": "一段基于默认配置覆盖 `retries` 的 JS 函数。",
   "difficulty": "standard",
   "level": 1,
   "estimated_seconds": 55,
-  "prompt": "这个函数本该只给某次请求加多重试次数，而不动 `DEFAULT_CONFIG`。AI 说对象展开就是一次干净的克隆。检查一下。",
+  "prompt": "需求：返回把 `limits.retries` 改成指定值的新配置，绝对不能修改全局 `DEFAULT_CONFIG`。看下这段代码，觉得哪行有问题就点它，觉得没问题就放行。",
   "segments": [
     {
       "id": 1,
@@ -54,38 +54,38 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "对象展开 `{ ...obj }` 是浅拷贝，`cfg.limits` 仍指向 `DEFAULT_CONFIG.limits`。"
+          "label": "`{ ...obj }` 是浅拷贝，`cfg.limits` 仍指向原默认对象。"
         },
         {
           "id": "d2",
-          "label": "`const` 会深度冻结 `DEFAULT_CONFIG`，导致第 4 行改 `retries` 抛 TypeError。"
+          "label": "`const` 声明会深度冻结 `DEFAULT_CONFIG`，导致第 4 行修改 `retries` 时直接抛 TypeError。"
         },
         {
           "id": "d3",
-          "label": "对象展开只复制数字字段 `timeout`，会直接跳过嵌套对象 `limits`。"
+          "label": "对象展开语法只会复制第一层的数字字段 `timeout`，会直接跳过嵌套对象 `limits`。"
         },
         {
           "id": "d4",
-          "label": "用 `const cfg` 声明后，严格模式下第 4 行不能再修改 `cfg.limits.retries`。"
+          "label": "用 `const cfg` 声明之后，严格模式下第 4 行就不能再修改 `cfg.limits.retries`。"
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "把嵌套对象也一并拷贝：`{ ...DEFAULT_CONFIG, limits: { ...DEFAULT_CONFIG.limits } }`。"
+          "label": "嵌套字段也拷贝：`{ ...DEFAULT_CONFIG, limits: { ...DEFAULT_CONFIG.limits } }`。"
         },
         {
           "id": "f2",
-          "label": "把 `{ ...DEFAULT_CONFIG }` 换成 `Object.assign({}, DEFAULT_CONFIG)`。"
+          "label": "把对象展开 `{ ...DEFAULT_CONFIG }` 换成更标准的 `Object.assign({}, DEFAULT_CONFIG)`。"
         },
         {
           "id": "f3",
-          "label": "把 `const cfg` 改成 `let cfg`，让展开后的副本可以独立修改。"
+          "label": "把第 3 行的 `const cfg` 改成 `let cfg`，让展开出来的副本对象可以独立修改。"
         },
         {
           "id": "f4",
-          "label": "在第 3 行加上 `Object.freeze(cfg)` 防止改动默认配置。"
+          "label": "在第 3 行拷贝完后立即加上 `Object.freeze(cfg)`，防止后面的代码改动默认配置。"
         }
       ],
       "fix_answer": "f1",

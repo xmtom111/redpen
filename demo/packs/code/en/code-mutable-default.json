@@ -5,13 +5,13 @@
   "renderer": "code",
   "code_language": "python",
   "lang": "en",
-  "title": "Two shoppers, one leaking cart",
+  "title": "Add to cart",
   "topic": "A tiny helper the AI swore would stay private",
-  "blurb": "First click looks perfect. The next shopper inherits yesterday's groceries.",
+  "blurb": "A 5-line helper that appends an item to a shopper's cart.",
   "difficulty": "intro",
   "level": 1,
   "estimated_seconds": 45,
-  "prompt": "An AI just opened this PR: a 5-line 'add to cart' helper. It swears two shoppers will never share a cart. Check it before merge.",
+  "prompt": "Spec: append a non-empty trimmed string to `cart` (creating a fresh cart when omitted) so separate shoppers never share items. Review this helper — tap a line if it breaks the spec, or let it pass.",
   "segments": [
     {
       "id": 1,

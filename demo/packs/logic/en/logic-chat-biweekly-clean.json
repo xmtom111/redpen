@@ -10,8 +10,8 @@
   "lang": "en",
   "title": "Housekeeping",
   "topic": "A friend is putting a regular cleaner into the yearly budget",
-  "blurb": "A friend just booked a cleaner and is doing the yearly math in the chat.",
-  "prompt": "A friend just texted this in the group chat. If one line doesn't add up, tap it.",
+  "blurb": "A friend just booked a regular cleaner and is setting the yearly budget.",
+  "prompt": "A friend just sent this in the group chat. Tap a line if something doesn't add up, or let it pass.",
   "segments": [
     {
       "id": 1,
@@ -21,7 +21,7 @@
     {
       "id": 2,
       "label": "The month",
-      "text": "That's twice a month, so $120 a month."
+      "text": "Runs $120 in a typical month."
     },
     {
       "id": 3,
@@ -63,7 +63,7 @@
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Budget 26 visits (52 ÷ 2 × $60 = $1,560), not 24 visits ($1,440)."
+          "label": "Budget 26 visits (52 ÷ 2 × $60 = $1,560), not 24."
         },
         {
           "id": "f2",
@@ -75,7 +75,7 @@
         },
         {
           "id": "f4",
-          "label": "Drop two holiday visits from the schedule so the budget comes down to $1,320."
+          "label": "Drop two holiday visits from the schedule so the yearly budget drops to $1,320."
         }
       ],
       "fix_answer": "f1",
@@ -91,7 +91,7 @@
   ],
   "clean_segments": [
     "Finally booked a cleaner — $60 a visit, coming every two weeks.",
-    "That's twice a month, so $120 a month.",
+    "Runs $120 in a typical month.",
     "Every two weeks is 26 visits a year, not 24. At $60 that's $1,560, not $1,440.",
     "If it works out, I'll send you their number."
   ],

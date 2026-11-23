@@ -6,13 +6,13 @@
   "code_language": "javascript",
   "lang": "en",
   "kind": "trick_clean",
-  "title": "Closures inside a retry loop",
+  "title": "Retry schedule",
   "topic": "Pushing arrow functions that capture `i` inside a JS `for` loop",
-  "blurb": "Classic JS interview trap: pushing `() => ({ attempt: i + 1 })` inside a `for` loop. Wait — does every callback return `steps + 1`?",
+  "blurb": "A JS helper that builds per-attempt retry callbacks in a loop.",
   "difficulty": "standard",
   "level": 0,
   "estimated_seconds": 55,
-  "prompt": "Spec: for `steps = 3`, return 3 zero-arg functions that produce `{ attempt: 1, delayMs: 200 }`, `{ attempt: 2, delayMs: 400 }`, `{ attempt: 3, delayMs: 600 }`. Tap a buggy line, or call it clean.",
+  "prompt": "Spec: for `steps = 3`, return 3 zero-arg functions returning `{ attempt: 1, delayMs: 200 }` through `{ attempt: 3, delayMs: 600 }`. Review this helper — tap a line if it breaks the spec, or let it pass.",
   "segments": [
     {
       "id": 1,

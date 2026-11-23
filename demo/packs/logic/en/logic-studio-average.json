@@ -11,7 +11,7 @@
   "difficulty": "intro",
   "level": 1,
   "estimated_seconds": 60,
-  "prompt": "The manager asked an AI to check this capacity review. If a line doesn't follow, tap it.",
+  "prompt": "The studio manager wrote this note after members said the rooms felt crowded. Tap any line that doesn't hold up, or mark it clean.",
   "segments": [
     {
       "id": 1,
@@ -68,19 +68,19 @@
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Weigh by rider, not by class: 60% of riders (60/100) experience a 30-person class — add evening capacity."
+          "label": "Weigh by rider: 60 of 100 riders are in 30-person classes — add evening capacity."
         },
         {
           "id": "f2",
-          "label": "Average 5 and 30 directly to report an average class size of 17.5 riders."
+          "label": "Average 5 and 30 directly to report an unbiased average class size of 17.5 riders per session."
         },
         {
           "id": "f3",
-          "label": "Fix the headcount to 110 riders (11 per class) and add one more daytime slot."
+          "label": "Fix the headcount to 110 riders (11 per class) and add one more daytime session to balance it."
         },
         {
           "id": "f4",
-          "label": "Use the median class size (5 riders) instead of the mean (10) so evening outliers don't skew the report."
+          "label": "Use the median class size (5 riders) instead of the mean (10) so evening outliers don't skew it."
         }
       ],
       "fix_answer": "f1",

@@ -11,7 +11,7 @@
   "difficulty": "intro",
   "level": 1,
   "estimated_seconds": 60,
-  "prompt": "You asked an AI to summarize this HR memo. If a line doesn't add up, tap it.",
+  "prompt": "HR sent this adjusted offer after last year's salary cut. Tap any line that doesn't hold up, or mark it clean.",
   "segments": [
     {
       "id": 1,

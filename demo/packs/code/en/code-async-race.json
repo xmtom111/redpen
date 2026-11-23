@@ -5,13 +5,13 @@
   "renderer": "code",
   "code_language": "javascript",
   "lang": "en",
-  "title": "Double-tap Withdraw: 'you can't go negative'",
+  "title": "Wallet withdrawal",
   "topic": "A wallet check that only works one click at a time",
-  "blurb": "The user has $100 and mashes Withdraw $80 twice. The AI says the balance check makes that impossible.",
+  "blurb": "A Node.js withdrawal handler checking balances before deducting.",
   "difficulty": "standard",
   "level": 1,
   "estimated_seconds": 60,
-  "prompt": "An AI wrote this Node.js withdrawal handler for a wallet app. A user with $100 double-taps 'Withdraw $80'. Find the bug before it ships.",
+  "prompt": "Spec: reject withdrawals above the user's current balance, even under concurrent double-taps. Review this helper — tap a line if it breaks the spec, or let it pass.",
   "segments": [
     {
       "id": 1,
@@ -78,7 +78,7 @@
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Use an atomic DB update: `UPDATE ... SET balance = balance - ? WHERE id = ? AND balance >= ?`."
+          "label": "Use one atomic DB debit (`WHERE id = ? AND balance >= ?`)."
         },
         {
           "id": "f2",

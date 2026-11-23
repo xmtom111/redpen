@@ -1,6 +1,6 @@
 {
-  "title": "One confident log equation",
-  "problem": "Asked to solve \\(\\ln x + \\ln(x - 2) = \\ln 3\\) over the reals, an AI tutor produced this confident solution.",
+  "title": "Logarithm equation",
+  "problem": "Solve \\(\\ln x + \\ln(x - 2) = \\ln 3\\) over the reals. Check this solution — tap a step if it slips, or let it pass.",
   "steps": [
     "Logarithms accept every real input, so no domain restriction is required.",
     "Apply the sum rule \\(\\ln a + \\ln b = \\ln(a+b)\\): \\(\\ln x + \\ln(x-2) = \\ln(2x-2)\\).",
@@ -63,7 +63,7 @@
     "mode": "2",
     "difficulty": "standard",
     "focus": [],
-    "blurb": "It combines the logs in one neat step and names a single answer.",
+    "blurb": "Solving \\(\\ln x + \\ln(x - 2) = \\ln 3\\) over the reals.",
     "kind": "planted"
   },
   "kind": "planted"
