@@ -1,0 +1,144 @@
+{
+  "schema_version": 2,
+  "domain": "logic",
+  "renderer": "prose",
+  "opener": true,
+  "kind": "planted",
+  "difficulty": "intro",
+  "level": 1,
+  "estimated_seconds": 60,
+  "id": "logic-chat-round-trip-wind",
+  "lang": "en",
+  "title": "River bike loop",
+  "topic": "A friend assumes a steady headwind out and tailwind back cancel out on an out-and-back ride",
+  "blurb": "A friend is timing an out-and-back ride before dinner.",
+  "prompt": "A friend just sent this in the group chat. Tap a line if something doesn't add up, or let it pass.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The route",
+      "text": "Doing a quick 24-mile ride along the river path before dinner — 12 miles out to the dam and 12 miles straight back."
+    },
+    {
+      "id": 2,
+      "label": "The wind",
+      "text": "Steady wind down the valley today, so I'm figuring 8 mph pushing out and 16 mph flying back."
+    },
+    {
+      "id": 3,
+      "label": "The math",
+      "text": "Works out to my usual 12 mph average, so rolling out at 4:00 gets me back in the shower by 6:00."
+    },
+    {
+      "id": 4,
+      "label": "The take",
+      "text": "Still plenty of time to make our 6:30 table."
+    }
+  ],
+  "conclusion": "8 mph out and 16 mph back averages 12 mph, so rolling out at 4:00 gets me home by 6:00.",
+  "flaws": [
+    {
+      "segment_id": 3,
+      "error_type": "equal-distance-speeds",
+      "original": "12 miles at 8 mph takes 1.5 hours and 12 miles back at 16 mph takes 45 minutes — that's 2 hours 15 minutes, so you won't get home until 6:15.",
+      "corrupted": "Works out to my usual 12 mph average, so rolling out at 4:00 gets me back in the shower by 6:00.",
+      "diagnosis_choices": [
+        {
+          "id": "d1",
+          "label": "12 miles at 8 mph is 1.5h and back at 16 mph is 45m — you get home at 6:15, not 6:00."
+        },
+        {
+          "id": "d2",
+          "label": "Air drag grows with speed squared, so a headwind slows you more than 4 mph and puts you back at 6:20."
+        },
+        {
+          "id": "d3",
+          "label": "12 miles at 8 mph is 1.5h and 12 miles at 16 mph is 0.5h, which hits 6:00 only with zero turnaround stop."
+        },
+        {
+          "id": "d4",
+          "label": "Your average speed is 12 mph only if you ride the tailwind leg first and save your legs for the climb back."
+        }
+      ],
+      "diagnosis_answer": "d1",
+      "fix_choices": [
+        {
+          "id": "f1",
+          "label": "Add the two leg times (1.5h + 0.75h = 2h 15m): roll out at 3:45 to be back by 6:00."
+        },
+        {
+          "id": "f2",
+          "label": "Use 7 mph out and 15 mph back to model air drag, and leave 20 minutes earlier."
+        },
+        {
+          "id": "f3",
+          "label": "Start with the tailwind first so you bank speed before turning around at the dam."
+        },
+        {
+          "id": "f4",
+          "label": "Turn around at 5:00 sharp instead of the 12-mile dam so both halves take one hour."
+        }
+      ],
+      "fix_answer": "f1",
+      "explanation": "You spend 1.5 hours grinding at 8 mph and only 45 minutes flying back at 16 mph — 2 hours 15 minutes total, so you won't walk in until 6:15.",
+      "why_tempting": "8 and 16 average straight to 12, and 24 ÷ 12 = 2 hours feels seamless. You only catch it when you time each 12-mile leg separately.",
+      "catch_rule": "When two legs cover the same distance at different speeds, compute the time for each leg separately — the slower leg always drags the total down.",
+      "hint": "How long does 12 miles at 8 mph take? Now how long does 12 miles back at 16 mph take?",
+      "practice": {
+        "problem": "A ferry crosses a 6-mile channel at 6 mph against the current and returns 6 miles at 12 mph with it. Does the round trip average 9 mph?",
+        "answer": "No — 1 hour out plus 0.5 hours back is 1.5 hours for 12 miles, which is 8 mph, not 9."
+      }
+    }
+  ],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "12 miles out and 12 miles back at 12 mph is 2 hours only if you turn around instantaneously with zero pause.",
+        "A 24-mile round trip at 12 mph takes 2.4 hours, not 2 hours, once you include the turnaround.",
+        "Cruising at 12 mph normally means your average speed is slower than 12 mph because of starts and stops.",
+        "You can't compare a windy ride against a calm 2-hour baseline without knowing the trail's elevation gain."
+      ],
+      "fix": [
+        "Add a 10-minute water break at the 12-mile mark before timing the ride.",
+        "Measure the trail's slope before assuming both legs take the same effort.",
+        "Use your door-to-door pace instead of cruising speed as the baseline.",
+        "Check whether the river trail is 12 miles total or 12 miles each way."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "A 4 mph wind doesn't simply subtract 4 and add 4 to your bike speed — rolling resistance stays fixed.",
+        "If the wind blows down the river, going 8 mph out and 16 mph back means the wind was 8 mph, not 4.",
+        "Headwinds usually shift direction over two hours, so assuming a steady 4 mph wind invalidates the whole ride.",
+        "12 minus 4 is 8 and 12 plus 4 is 16, which is a 2× speed gap — too wide for a mild 4 mph breeze."
+      ],
+      "fix": [
+        "Estimate 10 mph out and 14 mph back instead of adding and subtracting the full 4 mph.",
+        "Check the forecast to see if the wind drops before your return leg.",
+        "Note that an 8-to-16 mph swing actually corresponds to an 8 mph wind.",
+        "Use a power meter instead of adding and subtracting wind speed directly."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Wind doesn't slow you down on a flat out-and-back, it just makes the outbound half feel harder.",
+        "Wind actually speeds you up overall on an out-and-back because 16 mph is double 8 mph.",
+        "Wind only slows you down if it blows across the trail as a crosswind, not straight along it.",
+        "Calling a 2-hour ride unaffected ignores that your legs are twice as tired after 8 mph."
+      ],
+      "fix": [
+        "Say wind costs extra effort even though the clock stays at 2 hours.",
+        "Check whether the wind is a crosswind before assuming it cancels out.",
+        "Acknowledge that fighting 8 mph drains your legs before the tailwind starts.",
+        "Flip the claim: a headwind-tailwind out-and-back always takes longer than a calm day."
+      ]
+    }
+  },
+  "clean_segments": [
+    "Doing a quick 24-mile ride along the river path before dinner — 12 miles out to the dam and 12 miles straight back.",
+    "Steady wind down the valley today, so I'm figuring 8 mph pushing out and 16 mph flying back.",
+    "12 miles at 8 mph takes 1.5 hours and 12 miles back at 16 mph takes 45 minutes — that's 2 hours 15 minutes, so you won't get home until 6:15.",
+    "Still plenty of time to make our 6:30 table."
+  ],
+  "clean_conclusion": "1.5 hours out plus 45 minutes back puts you home at 6:15, not 6:00."
+}

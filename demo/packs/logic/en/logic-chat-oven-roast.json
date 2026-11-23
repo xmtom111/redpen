@@ -1,0 +1,106 @@
+{
+  "schema_version": 2,
+  "domain": "logic",
+  "renderer": "prose",
+  "opener": true,
+  "kind": "clean",
+  "difficulty": "intro",
+  "level": 0,
+  "estimated_seconds": 55,
+  "id": "logic-chat-oven-roast",
+  "lang": "en",
+  "title": "Sunday dinner",
+  "topic": "A friend works backward from 7 PM dinner with preheat, roast, and rest times",
+  "blurb": "A friend hosting dinner is checking the oven schedule.",
+  "prompt": "A friend just sent this in the group chat. Tap a line if something doesn't add up, or let it pass.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The target",
+      "text": "Dinner's at 7:00 PM — the roast chicken needs 1 hour 25 minutes in the oven plus 15 minutes resting."
+    },
+    {
+      "id": 2,
+      "label": "The prep",
+      "text": "Oven takes 15 minutes to heat up, which is plenty of time to season the bird."
+    },
+    {
+      "id": 3,
+      "label": "The clock",
+      "text": "Turned the oven on at 5:05 PM, so we'll be carving right at 7:00."
+    },
+    {
+      "id": 4,
+      "label": "The relief",
+      "text": "Rare win for my kitchen timing."
+    }
+  ],
+  "conclusion": "Oven on at 5:05 PM with 15m preheat, 1h 25m roast, and 15m rest lands right on 7:00 PM.",
+  "flaws": [],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "1 hour 25 minutes plus 15 minutes resting is 1 hour 50 minutes, not 1 hour 40 minutes.",
+        "Resting happens inside the cooling oven, so you shouldn't add 15 minutes on top of the roast time.",
+        "A chicken takes another 10 minutes to carve, so dinner can't start at 7:00 if it rests until 7:00.",
+        "Mixing hours and minutes (1h 25m + 15m) hides that you actually need two full hours of cooking."
+      ],
+      "fix": [
+        "Add 1h 25m and 15m carefully as 1h 50m and start 10 minutes earlier.",
+        "Count the 15-minute rest inside the 1h 25m oven timer instead of adding it.",
+        "Push the oven start back to 4:50 PM so carving is done before 7:00.",
+        "Budget a flat 2 hours from oven-on to table."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "Seasoning and preheating can't overlap — you need 15 minutes to season first, then 15 minutes to preheat.",
+        "Opening the oven door to put the chicken in drops the temperature, adding another 15 minutes to preheat.",
+        "You forgot to add the 15-minute preheat on top of the 5:05 start, so the bird can't go in at 5:20.",
+        "If seasoning finishes during preheat, you still have to add 15 minutes before 5:05, meaning 4:50 PM."
+      ],
+      "fix": [
+        "Add 15 minutes for seasoning before preheating, so start at 4:50 PM.",
+        "Start preheating at 4:55 PM to cover the heat lost when opening the door.",
+        "Don't overlap prep and preheat — budget 30 minutes total before the bird goes in.",
+        "Put the chicken in cold at 5:05 PM to save the 15-minute preheat."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "5:20 PM plus 1 hour 25 minutes is 6:55 PM, not 6:45 PM — you'll be carving at 7:10.",
+        "5:05 to 7:00 is only 1 hour 55 minutes, while 15 + 85 + 15 adds up to 125 minutes (2h 05m).",
+        "You counted the 15-minute rest twice by starting at 5:05 instead of 5:20.",
+        "If the oven went on at 5:05, the bird goes in at 5:20 and comes out at 6:35, leaving 25 minutes to go cold."
+      ],
+      "fix": [
+        "Fix the roast end time: 5:20 + 1h 25m is 6:55 PM, so start at 4:55 PM instead.",
+        "Start the oven at 4:55 PM because 15 + 85 + 15 is 2 hours 5 minutes.",
+        "Wait until 5:20 PM to turn the oven on so you don't double-count the 15 minutes.",
+        "Recalculate 5:20 + 1h 25m as 6:35 PM and pull the bird out 10 minutes later."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "You're actually 10 minutes behind schedule once you add 5:20 plus 1h 25m properly.",
+        "Because seasoning wasn't given its own 15 minutes, dinner is really going to land at 7:15.",
+        "Turning the oven on at 5:05 leaves zero buffer, so any 5-minute delay ruins 7:00 dinner.",
+        "You finished 10 minutes early (6:50), not right on schedule at 7:00."
+      ],
+      "fix": [
+        "Text everyone that dinner will really be closer to 7:15 PM.",
+        "Bump the oven up 25 degrees to make up the missing 10 minutes.",
+        "Shorten the rest to 5 minutes so you still carve at 7:00.",
+        "Start 15 minutes earlier next time to leave room for seasoning."
+      ]
+    }
+  },
+  "clean_segments": [
+    "Dinner's at 7:00 PM — the roast chicken needs 1 hour 25 minutes in the oven plus 15 minutes resting.",
+    "Oven takes 15 minutes to heat up, which is plenty of time to season the bird.",
+    "Turned the oven on at 5:05 PM, so we'll be carving right at 7:00.",
+    "Rare win for my kitchen timing."
+  ],
+  "clean_conclusion": "The timeline checks out to the minute: 5:05 + 15m preheat (seasoning overlaps) = 5:20; 5:20 + 1h 25m = 6:45; 6:45 + 15m rest = 7:00.",
+  "explanation": "The timeline checks out to the minute: 5:05 + 15m preheat (seasoning overlaps) = 5:20; 5:20 + 1h 25m = 6:45; 6:45 + 15m rest = 7:00."
+}

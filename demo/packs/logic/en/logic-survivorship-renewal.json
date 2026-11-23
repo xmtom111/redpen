@@ -11,7 +11,7 @@
   "difficulty": "intro",
   "level": 1,
   "estimated_seconds": 60,
-  "prompt": "An AI analyst wrote this launch recap. If a line reaches further than the evidence, tap it.",
+  "prompt": "The product team shared this recap after the dating-app redesign. Tap any line that doesn't hold up, or mark it clean.",
   "segments": [
     {
       "id": 1,
@@ -49,30 +49,38 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "The survey only reached people who had just renewed, so it leaves out everyone who already left."
+          "label": "You only surveyed people actively renewing — everyone who hated the redesign already canceled."
         },
         {
           "id": "d2",
-          "label": "1,200 is too small a sample to say anything about an app with many users."
+          "label": "1,200 respondents is too small a sample to represent a global app, even if they were chosen randomly."
         },
         {
           "id": "d3",
-          "label": "A 4-star rating is not high enough to count as a success."
+          "label": "Three months isn't long enough for people to get used to new profiles, so the 96% score is artificially low."
+        },
+        {
+          "id": "d4",
+          "label": "Combining 4-star and 5-star ratings inflates the result; you should only count 5-star reviews."
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Report the 96% as the view of renewing members only, and also measure people who cancelled or never renewed."
+          "label": "Track overall retention/churn since launch and survey canceled users too, not just renewers."
         },
         {
           "id": "f2",
-          "label": "Raise the cutoff to 5 stars only, then the 96% can stand for all users."
+          "label": "Increase the renewal-screen survey from 1,200 members to 10,000 before rolling out globally."
         },
         {
           "id": "f3",
-          "label": "Repeat the same renewal-day survey in every country, which turns it into a global result."
+          "label": "Report only the share of 5-star ratings out of the 1,200 renewing members."
+        },
+        {
+          "id": "f4",
+          "label": "Wait another three months and re-survey the same 1,200 renewing members."
         }
       ],
       "fix_answer": "f1",
@@ -98,50 +106,58 @@
   "segment_distractors": {
     "1": {
       "diagnosis": [
-        "The changes were scheduled for three months in the future.",
-        "Only profile pages changed, so the matching rollout should be dated later.",
-        "Profiles were redesigned before the old algorithm was first introduced."
+        "Launching a new matching algorithm and redesigned profiles at the same time makes it impossible to know which worked.",
+        "Three months ago is too recent — matching algorithms need a full year to produce real couples.",
+        "Launching without a 50/50 control group means you can't tell if 96% beat the old design.",
+        "Users always dislike UI redesigns at first, so three months biases ratings downward."
       ],
       "fix": [
-        "Move both launches three months into the future.",
-        "Place the matching rollout after the profile launch.",
-        "Date the redesign before the original matching system."
+        "Split the matching algorithm and the profile redesign into two separate tests.",
+        "Compare renewal-rate changes against the three months before launch.",
+        "Wait a full 12 months before grading a dating-app algorithm.",
+        "Hold back 20% of users on the old design as a baseline."
       ]
     },
     "2": {
       "diagnosis": [
-        "The survey recorded 1,200 renewals per day.",
-        "The 1,200 responses all came from members who cancelled.",
-        "The survey took place three months before the launch."
+        "1,200 members is only a tiny sliver of the app's users, so the margin of error makes 96% meaningless.",
+        "Surveying right at the renewal screen interrupts checkout and makes annoyed users rate lower.",
+        "Running the survey only for one week misses users whose billing dates fall in the other three weeks.",
+        "Asking people to rate the app right after paying biases them toward justifying their payment."
       ],
       "fix": [
-        "Multiply 1,200 by seven for the weekly sample.",
-        "Describe the sampled group as members who had already cancelled.",
-        "Move the survey to before the launch."
+        "Run the renewal survey across all four weeks of the billing cycle.",
+        "Move the survey out of the checkout screen into an email a week later.",
+        "Sample 1,200 users randomly from *everyone* who was active before launch, including churned accounts.",
+        "Boost the sample size to 5,000 renewals for tighter error bars."
       ]
     },
     "3": {
       "diagnosis": [
-        "A four-star rating should be counted as below four stars.",
-        "96% of 1,200 means 96 individual ratings.",
-        "The reported 96% consists exclusively of five-star ratings."
+        "96% giving 4 or 5 stars hides the distribution — most of them might be lukewarm 4s instead of 5s.",
+        "A 5-point star scale doesn't capture whether users actually got more matches under the new algorithm.",
+        "4% of 1,200 is 48 unhappy renewers, which proves even paying users dislike the redesign.",
+        "96% is suspiciously high, which means bots must have filled out the renewal survey."
       ],
       "fix": [
-        "Count only ratings below four stars in the 96%.",
-        "Report 96 positive responses out of 1,200.",
-        "Relabel the 96% as five-star ratings only."
+        "Break out 5-star vs 4-star ratings separately instead of combining them.",
+        "Track actual match and reply rates instead of star ratings.",
+        "Investigate the 48 low-star renewers before claiming 96% satisfaction.",
+        "Check for duplicate survey submissions from the same accounts."
       ]
     },
     "5": {
       "diagnosis": [
-        "A global rollout means only serving the current survey respondents.",
-        "Keeping the design means restoring the previous profile pages.",
-        "Rolling it out now means first ending monthly renewals."
+        "Rolling out globally without localizing the profile design ignores regional dating norms.",
+        "Even if 96% of renewers love it, you should roll out to 10% of global markets first as a canary.",
+        "Global rollout doesn't need further changes only if the churn rate actually dropped too.",
+        "You can't roll out globally until the other 4% of respondents are satisfied."
       ],
       "fix": [
-        "Define the global rollout as releasing to just the 1,200 people surveyed.",
-        "Put the old profile pages back for the rollout.",
-        "Cancel monthly renewals before any release."
+        "Pause the global rollout until you compare overall churn before vs after launch.",
+        "Test the redesign in two new countries first before a full global launch.",
+        "Localize the profile prompts for each region before rolling out.",
+        "Wait for churned-user feedback to fix what drove cancelers away."
       ]
     }
   }

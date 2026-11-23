@@ -5,13 +5,13 @@
   "renderer": "code",
   "code_language": "python",
   "lang": "en",
-  "title": "Two shoppers, one leaking cart",
+  "title": "Add to cart",
   "topic": "A tiny helper the AI swore would stay private",
-  "blurb": "First click looks perfect. The next shopper inherits yesterday's groceries.",
+  "blurb": "A 5-line helper that appends an item to a shopper's cart.",
   "difficulty": "intro",
   "level": 1,
   "estimated_seconds": 45,
-  "prompt": "An AI just opened this PR: a 5-line 'add to cart' helper. It swears two shoppers will never share a cart. Check it before merge.",
+  "prompt": "Spec: append a non-empty trimmed string to `cart` (creating a fresh cart when omitted) so separate shoppers never share items. Review this helper — tap a line if it breaks the spec, or let it pass.",
   "segments": [
     {
       "id": 1,
@@ -49,30 +49,38 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "Mutable default `cart=[]` is created once at definition time and shared across all calls."
+          "label": "Default `cart=[]` is built once at `def` time and shared by every call."
         },
         {
           "id": "d2",
-          "label": "Python does not allow a default value on a second parameter unless the first also has one."
+          "label": "Python forbids giving a default value to parameter 2 unless parameter 1 also has one."
         },
         {
           "id": "d3",
-          "label": "The parameter name `cart` collides with a built-in Python keyword."
+          "label": "Empty list `[]` is falsy in Python, so `cart` resets to `None` on every second call."
+        },
+        {
+          "id": "d4",
+          "label": "Returning a parameter list directly causes Python to drop items after the first call."
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Default to `cart=None` and initialize `if cart is None: cart = []` inside the function."
+          "label": "Use `cart=None` and create `if cart is None: cart = []` inside the function."
         },
         {
           "id": "f2",
-          "label": "Write `cart=list()` in the signature so Python allocates a new list on every call."
+          "label": "Write `cart=list()` in the signature so Python allocates a fresh list each call."
         },
         {
           "id": "f3",
-          "label": "Use `cart += [item.strip()]` instead of `append` while keeping `cart=[]`."
+          "label": "Keep `cart=[]` in the signature and replace `cart.append(...)` with `cart += [...]`."
+        },
+        {
+          "id": "f4",
+          "label": "Add `cart = cart[:]` only after calling `cart.append(item.strip())` on line 4."
         }
       ],
       "fix_answer": "f1",
@@ -100,50 +108,58 @@
   "segment_distractors": {
     "2": {
       "diagnosis": [
-        "The condition rejects all strings because of isinstance.",
-        "Whitespace-only strings should pass the nonempty check.",
-        "The two rejection tests should both be true before rejecting."
+        "Operator precedence parses `not (isinstance(item, str) or not item.strip())`, rejecting every valid string.",
+        "If `item` is an integer, `item.strip()` still runs on the right of `or` and raises AttributeError.",
+        "Checking `not item.strip()` mutates `item` to an empty string before line 4.",
+        "Using `isinstance(item, str)` rejects valid `str` subclasses in Python."
       ],
       "fix": [
-        "Reject when isinstance(item, str) is true.",
-        "Treat a whitespace-only string as a valid item.",
-        "Join the two rejection tests with and."
+        "Add parentheses: `if (not isinstance(item, str)) or (not item.strip()):`.",
+        "Split into two `if` lines so `item.strip()` never runs on non-strings.",
+        "Store `cleaned = item.strip()` first, then check `isinstance`.",
+        "Use `type(item) != str` instead of `isinstance`."
       ]
     },
     "3": {
       "diagnosis": [
-        "Invalid items belong in the cart as error-message strings.",
-        "The ValueError should fire after every append.",
-        "Invalid item validation should silently report a successful addition."
+        "Raising `ValueError` for a non-string `item` is wrong — it should raise `TypeError` or return `cart`.",
+        "Raising `ValueError` here leaves the previous shopper's items stuck inside `cart`.",
+        "Double quotes inside `ValueError(...)` fail when `item` uses single quotes.",
+        "Raising an exception stops the caller from reusing `cart` on later calls."
       ],
       "fix": [
-        "Append the validation message in place of the invalid item.",
-        "Move the raise below the append and remove the condition.",
-        "Return the unmodified cart as if the addition succeeded."
+        "Return `cart` unchanged instead of raising `ValueError`.",
+        "Clear `cart.clear()` before raising `ValueError`.",
+        "Raise `TypeError` for all invalid inputs on line 3.",
+        "Return `None` when `item` is blank."
       ]
     },
     "4": {
       "diagnosis": [
-        "strip should remove all spaces inside the item name.",
-        "append adds the string character by character.",
-        "Adding this item should replace the previous last item."
+        "`cart.append(item.strip())` mutates the caller's list in place instead of returning a new list.",
+        "`append()` returns `None`, which silently wipes `cart` before line 5.",
+        "Calling `item.strip()` a second time strips the first and last characters of `item`.",
+        "Using `append` adds `item` as a list of characters instead of a single string."
       ],
       "fix": [
-        "Remove interior spaces before appending the name.",
-        "Use extend(item.strip()) to append one name.",
-        "Assign the name to cart[-1] instead."
+        "Use `cart = cart + [item.strip()]` so the default or caller list isn't mutated in place.",
+        "Assign `cart = cart.append(item.strip())` so the updated list is kept.",
+        "Use `cart.extend(item.strip())` instead of `append`.",
+        "Save `stripped = item.strip()` on line 2 so you don't strip twice."
       ]
     },
     "5": {
       "diagnosis": [
-        "The function should return only the stripped item text.",
-        "The returned cart should omit the item just appended.",
-        "A boolean should replace the updated cart."
+        "Returning `cart` returns a direct reference to the shared default list instead of a copy.",
+        "Returning `cart` returns `None` because `.append()` runs in place.",
+        "Returning `cart` returns only the last appended item instead of the whole cart.",
+        "Should return `len(cart)` so shoppers don't mutate the returned list."
       ],
       "fix": [
-        "Return item.strip() instead of cart.",
-        "Return cart[:-1].",
-        "Return True in place of the cart."
+        "Return `list(cart)` so each shopper gets a separate list copy.",
+        "Return `cart.copy()` and keep `cart=[]` in the signature.",
+        "Return `[item.strip()]` when no `cart` was passed.",
+        "Return `tuple(cart)` so it can't be mutated later."
       ]
     }
   }

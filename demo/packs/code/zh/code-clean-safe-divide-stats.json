@@ -1,0 +1,126 @@
+{
+  "schema_version": 2,
+  "id": "code-clean-safe-divide-stats",
+  "domain": "code",
+  "renderer": "code",
+  "code_language": "python",
+  "lang": "zh",
+  "kind": "clean",
+  "title": "任务完成率",
+  "topic": "Python 3 里的边界截断与百分比除法",
+  "blurb": "一段计算并截断任务完成百分比的 5 行 Python 3 函数。",
+  "difficulty": "intro",
+  "level": 0,
+  "estimated_seconds": 45,
+  "prompt": "需求：在 Python 3 中返回保留 1 位小数的完成百分比（0.0–100.0），`total <= 0` 时返回 `0.0`。看下这段代码，觉得哪行有问题就点它，觉得没问题就放行。",
+  "segments": [
+    {
+      "id": 1,
+      "label": "L1",
+      "text": "def completion_rate(done, total):"
+    },
+    {
+      "id": 2,
+      "label": "L2",
+      "text": "    if total <= 0:"
+    },
+    {
+      "id": 3,
+      "label": "L3",
+      "text": "        return 0.0"
+    },
+    {
+      "id": 4,
+      "label": "L4",
+      "text": "    clamped = max(0, min(done, total))"
+    },
+    {
+      "id": 5,
+      "label": "L5",
+      "text": "    return round((clamped / total) * 100, 1)"
+    }
+  ],
+  "conclusion": "AI 总结：拦住非正总数、把 `done` 钳制在 `[0, total]` 内，再用真除法算出保留 1 位小数的百分比。",
+  "flaws": [],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "入参 `done` 和 `total` 都是整数，不转成浮点会导致第 5 行做整数除法直接归零。",
+        "`done` 传 `0` 时会被当成假值跳过计算。",
+        "没给 `total` 设默认值 `1`，漏传参数会触发除零异常。",
+        "不写类型转换，负数 `done` 会直接穿透到除法。"
+      ],
+      "fix": [
+        "开头先把 `done, total = float(done), float(total)` 转成浮点。",
+        "把默认值设为 `total=1` 避免除零。",
+        "在第一行后面补上 `if not done: return 0.0`。",
+        "给参数加上 `int` 类型检查。"
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "只判断了 `total <= 0`，漏判 `done < 0`，传负数 `done` 会算出负百分比。",
+        "用 `<=` 而不是 `==` 会掩盖负数 `total` 异常。",
+        "如果 `total` 是浮点 `0.0`，`total <= 0` 判断会失效。",
+        "没判断 `done == 0`，会导致下面 `0 / total` 报除零错。"
+      ],
+      "fix": [
+        "改成 `if done <= 0 or total <= 0:` 顺手拦住负数 `done`。",
+        "把 `<= 0` 改成 `== 0`，负数 `total` 应该抛异常。",
+        "改成 `if total < 1:` 拦住小数总数。",
+        "在 `total <= 0` 时抛 `ValueError` 而不是返回 `0.0`。"
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "`total == 0` 表示没有待办任务，完成率应该是 `100.0` 而不是 `0.0`。",
+        "这里返回浮点 `0.0`，但满额完成时第 5 行返回整数，类型不统一。",
+        "提前返回跳过了第 4 行对 `done` 的钳制逻辑。",
+        "没写 `round(0.0, 1)`，小数位格式和第 5 行不一致。"
+      ],
+      "fix": [
+        "`total == 0` 时改为返回 `100.0`。",
+        "改为返回整数 `0` 保持类型一致。",
+        "显式写成 `return round(0.0, 1)`。",
+        "把第 4 行钳制移到 `if` 判断之前。"
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "`max(0, min(done, total))` 套反了，正确写法是 `min(0, max(done, total))`，现在会一直卡成 `0`。",
+        "当 `done > total` 时 `min(done, total)` 会返回 `done`，导致百分比超过 `100.0`。",
+        "当 `done < 0` 时因为先算 `min`，结果会保住负数 `done` 而不是 `0`。",
+        "把结果钳制成整数会导致第 5 行触发整数除法归零。"
+      ],
+      "fix": [
+        "把嵌套反过来写成 `clamped = min(0, max(done, total))`。",
+        "改成 `clamped = min(max(done, 0), 100)` 防止超过 100。",
+        "外层包一层 `float(...)` 防止第 5 行整数除法。",
+        "改用 `abs(done)` 处理负数输入。"
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "整数除法坑：`done < total` 时（比如 `1 / 3`），`clamped / total` 会向下取整成 `0`，未完成的任务全变成 `0.0%`。",
+        "先除再乘 `100` 会丢精度，必须改成 `(clamped * 100) // total`。",
+        "`round(..., 1)` 是四舍五入到十位，保留一位小数应该传 `-1`。",
+        "`round` 对 `1/3 * 100` 会四舍五入成整数 `33` 而不是 `33.3`。"
+      ],
+      "fix": [
+        "改成 `round((float(clamped) / total) * 100, 1)` 强制浮点除法。",
+        "改成 `(clamped * 100) // total` 先乘后整除。",
+        "把 `round` 的第二个参数改成 `2` 保留乘 100 后的一位小数。",
+        "改用 `clamped // total * 100` 避免循环小数。"
+      ]
+    }
+  },
+  "clean_segments": [
+    "def completion_rate(done, total):",
+    "    if total <= 0:",
+    "        return 0.0",
+    "    clamped = max(0, min(done, total))",
+    "    return round((clamped / total) * 100, 1)"
+  ],
+  "clean_conclusion": "每一行都稳：`total <= 0` 拦住除零，`max(0, min(done, total))` 把 `done` 牢牢卡在 `[0, total]`，Python 3 里的 `/` 本来就是浮点真除法。",
+  "explanation": "每一行都稳：`total <= 0` 拦住除零，`max(0, min(done, total))` 把 `done` 牢牢卡在 `[0, total]`，Python 3 里的 `/` 本来就是浮点真除法。"
+}

@@ -5,13 +5,13 @@
   "renderer": "code",
   "code_language": "python",
   "lang": "en",
-  "title": "It stripped the email, so the SQL is 'safe'",
+  "title": "Support user lookup",
   "topic": "A support lookup that trusts a little cleanup",
-  "blurb": "The AI lowercased the address, then dropped it straight into the query. It calls that sanitizing.",
+  "blurb": "A support-desk helper that queries a customer by email.",
   "difficulty": "intro",
   "level": 1,
   "estimated_seconds": 45,
-  "prompt": "This AI-written helper looks up a customer by email for the support desk. The author says `.strip().lower()` makes the SQL safe. Find the hole.",
+  "prompt": "Spec: normalize `email` and safely fetch that single user's `id` and `role` from `users`. Review this helper — tap a line if it breaks the spec, or let it pass.",
   "segments": [
     {
       "id": 1,
@@ -49,30 +49,38 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "Interpolating untrusted input into SQL enables SQL injection (e.g. `' OR '1'='1`)."
+          "label": "Putting untrusted `cleaned` in an f-string allows SQL injection (`' OR '1'='1`)."
         },
         {
           "id": "d2",
-          "label": "SQL requires double quotes around string literals; single quotes cause a syntax error."
+          "label": "SQL requires double quotes around string literals; single quotes around `{cleaned}` fail."
         },
         {
           "id": "d3",
-          "label": "Python f-strings cannot be passed into `conn.execute`."
+          "label": "Python f-strings evaluate `{cleaned}` only once at `def` time, caching the first email."
+        },
+        {
+          "id": "d4",
+          "label": "Querying only `id, role` without `email` breaks `WHERE email = ...` in SQLite."
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Use a parameterized query: `conn.execute(\"SELECT id, role FROM users WHERE email = ?\", (cleaned,))`."
+          "label": "Use a placeholder: `conn.execute(\"SELECT ... WHERE email = ?\", (cleaned,))`."
         },
         {
           "id": "f2",
-          "label": "Call `cleaned.replace(' ', '')` before building the f-string."
+          "label": "Strip spaces with `cleaned.replace(' ', '')` so SQL keywords can't run inside the f-string."
         },
         {
           "id": "f3",
-          "label": "Switch from an f-string to `\"...\" + cleaned + \"...\"` string concatenation."
+          "label": "Replace the f-string with `\"SELECT ... '\" + cleaned + \"'\"` string concatenation instead."
+        },
+        {
+          "id": "f4",
+          "label": "Add `LIMIT 1` to the f-string query so it can never return more than one customer row."
         }
       ],
       "fix_answer": "f1",
@@ -98,50 +106,58 @@
   "segment_distractors": {
     "1": {
       "diagnosis": [
-        "The email argument should contain the database connection too.",
-        "The lookup function should receive a number instead of an email.",
-        "find_user should take a cursor as the email argument."
+        "Passing `conn` directly opens a new database session on every support lookup.",
+        "If `email` is `None`, line 1 should default to `email=\"\"` or SQLite crashes.",
+        "The function has no rate limit, so support staff can brute-force every email.",
+        "Parameter name `email` collides with Python's standard-library `email` module."
       ],
       "fix": [
-        "Combine the connection and email into one email string.",
-        "Replace the email parameter with a numeric customer ID without changing the lookup.",
-        "Use a cursor object as the email argument."
+        "Rename parameter `email` to `addr` so it doesn't shadow the `email` module.",
+        "Default `email=\"\"` in the signature.",
+        "Open and close `conn` inside `find_user` instead of passing it in.",
+        "Validate `\"@\" in email` right on line 1."
       ]
     },
     "2": {
       "diagnosis": [
-        "Whitespace padding should be kept during email lookup.",
-        "The normalized email must use uppercase.",
-        "The domain part should be removed from the lookup key."
+        "`.strip().lower()` doesn't remove spaces inside the email, which breaks exact matching.",
+        "Lowercasing an email breaks RFC 5321 because the local part before `@` is case-sensitive.",
+        "Calling `.strip().lower()` mutates `email` in place for the caller.",
+        "`.strip()` only removes trailing spaces, leaving leading whitespace in `cleaned`."
       ],
       "fix": [
-        "Use email.lower() and leave surrounding whitespace.",
-        "Use email.strip().upper().",
-        "Look up only the part before @."
+        "Call `email.replace(' ', '').lower()` to strip inner spaces too.",
+        "Keep the part before `@` case-sensitive and lowercase only the domain.",
+        "Use `email.lstrip().rstrip().lower()` to strip both ends.",
+        "Remove `.lower()` so lookups stay exact."
       ]
     },
     "4": {
       "diagnosis": [
-        "This line should execute the lookup twice to obtain a usable cursor.",
-        "The database connection object should itself be the cursor.",
-        "The normalized email is the result of executing the lookup."
+        "Calling `conn.execute(sql)` without `conn.commit()` never runs the SELECT query.",
+        "`conn.execute` doesn't return a cursor in Python DB-API — you must call `conn.cursor()` first.",
+        "Passing a single string `sql` to `conn.execute` always rejects `WHERE` clauses.",
+        "Not closing `cursor` leaks a database lock on every lookup."
       ],
       "fix": [
-        "Execute the same lookup twice and keep the second cursor.",
-        "Assign cursor = conn directly.",
-        "Use cleaned in place of the returned cursor."
+        "Call `conn.commit()` right after `conn.execute(sql)`.",
+        "Create `cur = conn.cursor()` and run `cur.execute(sql)`.",
+        "Wrap `conn.execute(sql)` in `with conn:` so the SELECT commits.",
+        "Pass `multi=False` to `conn.execute(sql)`."
       ]
     },
     "5": {
       "diagnosis": [
-        "A user lookup should return every matching row as a list.",
-        "The function is supposed to return the cursor object.",
-        "No rows should be read from the cursor."
+        "`fetchone()` raises IndexError instead of returning `None` when no customer matches.",
+        "Using `fetchone()` returns only the first row even if an injection matches every user — switching to `fetchall()` fixes it.",
+        "`fetchone()` returns a dict when support callers expect a tuple.",
+        "Returning `cursor.fetchone()` leaves the cursor open and unread."
       ],
       "fix": [
-        "Return cursor.fetchall().",
-        "Return cursor directly.",
-        "Return None without fetching."
+        "Wrap in `try/except IndexError: return None`.",
+        "Use `cursor.fetchall()` and verify `len(rows) == 1`.",
+        "Convert with `tuple(cursor.fetchone())` before returning.",
+        "Close `cursor.close()` before returning `cursor.fetchone()`."
       ]
     }
   }

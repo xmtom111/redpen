@@ -1,0 +1,186 @@
+{
+  "schema_version": 2,
+  "id": "code-trick-adjacent-diff",
+  "domain": "code",
+  "renderer": "code",
+  "code_language": "python",
+  "lang": "en",
+  "kind": "trick_clean",
+  "title": "Daily price jump",
+  "topic": "A loop over `range(len(prices) - 1)` that looks one short",
+  "blurb": "A helper scanning consecutive days for the largest price increase.",
+  "difficulty": "standard",
+  "level": 0,
+  "estimated_seconds": 55,
+  "prompt": "Spec: return the largest single-day increase (`prices[i+1] - prices[i]`), or `0` if prices never rose or fewer than 2 days exist. Review this helper — tap a line if it breaks the spec, or let it pass.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "L1",
+      "text": "def max_daily_jump(prices):"
+    },
+    {
+      "id": 2,
+      "label": "L2",
+      "text": "    if len(prices) < 2:"
+    },
+    {
+      "id": 3,
+      "label": "L3",
+      "text": "        return 0"
+    },
+    {
+      "id": 4,
+      "label": "L4",
+      "text": "    best = 0"
+    },
+    {
+      "id": 5,
+      "label": "L5",
+      "text": "    for i in range(len(prices) - 1):"
+    },
+    {
+      "id": 6,
+      "label": "L6",
+      "text": "        jump = prices[i + 1] - prices[i]"
+    },
+    {
+      "id": 7,
+      "label": "L7",
+      "text": "        if jump > best: best = jump"
+    },
+    {
+      "id": 8,
+      "label": "L8",
+      "text": "    return best"
+    }
+  ],
+  "conclusion": "AI summary: Checks every consecutive day pair and returns the largest positive jump, or 0 for short/falling series.",
+  "flaws": [],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "Accepting `prices` without a default `prices=[]` causes a TypeError if called with an empty list.",
+        "Function signature should annotate `prices: list[float]` or Python treats entries as strings.",
+        "Passing a list by reference here lets the loop overwrite `prices` in place.",
+        "`max_daily_jump` shadows Python's built-in `max` function."
+      ],
+      "fix": [
+        "Change the signature to `def max_daily_jump(prices=None):`.",
+        "Clone `prices = list(prices)` before iterating.",
+        "Add type annotations `prices: list[float] -> float`.",
+        "Rename the helper so it doesn't start with `max_`."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "Checking `len(prices) < 2` rejects two-day inputs when `len(prices) == 2`.",
+        "Should be `len(prices) <= 2` because two prices only form one jump, not a max.",
+        "If `prices` is empty `[]`, `len(prices)` raises an IndexError before `< 2` runs.",
+        "Checking `< 2` skips the case where prices drop on every day."
+      ],
+      "fix": [
+        "Change the guard to `if len(prices) <= 1:` and handle `len == 2` separately.",
+        "Change `< 2` to `<= 2` so two-day lists return early.",
+        "Check `if prices is None or len(prices) == 0:` instead of `< 2`.",
+        "Remove the guard — the loop already handles single-element lists."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "Returning `0` for fewer than 2 days hides missing data; it should return `None`.",
+        "Returning integer `0` breaks float callers when `prices` holds decimals.",
+        "Returning `0` here exits before checking if `prices[0]` is positive.",
+        "Returning early inside `if` prevents `best` from ever being initialized."
+      ],
+      "fix": [
+        "Return `None` instead of `0` when fewer than 2 days are passed.",
+        "Return `0.0` so the return type is always float.",
+        "Return `prices[0]` for a single-day list.",
+        "Initialize `best = 0` before the `if` check."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Initializing `best = 0` breaks when every daily change is negative — it should start at `float('-inf')`.",
+        "Setting `best = 0` ignores the first day's price `prices[0]` as a starting baseline.",
+        "`best` should start at `prices[1] - prices[0]` or the first pair never gets compared.",
+        "Starting `best` at `0` means a 0-dollar jump can't be distinguished from an empty list."
+      ],
+      "fix": [
+        "Initialize `best = float('-inf')` so negative daily drops are preserved.",
+        "Initialize `best = prices[0]` before starting the loop.",
+        "Set `best = prices[1] - prices[0]` and start the loop at index `1`.",
+        "Initialize `best = None` and update on the first iteration."
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "Off-by-one: `range(len(prices) - 1)` stops before the last element, silently dropping the final day's jump.",
+        "`range(len(prices) - 1)` runs 0 times on a 2-element list, returning 0 for `[10, 25]`.",
+        "Subtracting 1 from `len(prices)` makes `i` negative when `prices` has length 1.",
+        "Using `range(len(prices) - 1)` skips `prices[0]` because Python stops short on both ends."
+      ],
+      "fix": [
+        "Use `for i in range(len(prices)):` so the last day is included.",
+        "Use `for i in range(1, len(prices)):` to cover the last element.",
+        "Use `for i in range(len(prices) + 1):` so the final index isn't dropped.",
+        "Iterate with `for price in prices:` instead of indexing."
+      ]
+    },
+    "6": {
+      "diagnosis": [
+        "Subtracting `prices[i + 1] - prices[i]` reads past the end of the list on the final iteration.",
+        "The subtraction is reversed — it should be `prices[i] - prices[i + 1]` for a price jump.",
+        "Computing `prices[i + 1] - prices[i]` only compares adjacent days and misses multi-day rallies.",
+        "`prices[i + 1]` skips index `0`, so the first day is never used."
+      ],
+      "fix": [
+        "Change to `jump = prices[i] - prices[i - 1]` with `range(1, len(prices))` to avoid IndexError.",
+        "Flip the subtraction to `prices[i] - prices[i + 1]`.",
+        "Track `min_so_far` and compute `prices[i] - min_so_far` instead.",
+        "Guard `if i + 1 < len(prices):` inside the loop so it never crashes."
+      ]
+    },
+    "7": {
+      "diagnosis": [
+        "Using strict `>` instead of `>=` misses ties when two days have the same max jump.",
+        "Putting `best = jump` on the same line after `:` is a syntax error in Python.",
+        "Checking `jump > best` skips jumps that equal `prices[0]`.",
+        "Updating `best` inside the loop overwrites earlier peaks with smaller later increases."
+      ],
+      "fix": [
+        "Change `jump > best` to `jump >= best` so equal jumps aren't dropped.",
+        "Move `best = jump` onto its own indented line.",
+        "Replace with `best += jump` to accumulate total gains.",
+        "Break out of the loop as soon as `jump > best` is True."
+      ]
+    },
+    "8": {
+      "diagnosis": [
+        "Returning `best` outside the loop returns `0` whenever the jump happened on the final day.",
+        "If all prices were equal, returning `best` returns `-1` instead of `0`.",
+        "`return best` is indented at the wrong level and runs after the first iteration.",
+        "Returning `best` without `abs(best)` can return a negative jump."
+      ],
+      "fix": [
+        "Return `abs(best)` so the result is never negative.",
+        "Return `max(best, prices[-1] - prices[-2])` to catch the final day.",
+        "Return `best or None` when no positive jump occurred.",
+        "Move `return best` inside the `if jump > best:` block."
+      ]
+    }
+  },
+  "clean_segments": [
+    "def max_daily_jump(prices):",
+    "    if len(prices) < 2:",
+    "        return 0",
+    "    best = 0",
+    "    for i in range(len(prices) - 1):",
+    "        jump = prices[i + 1] - prices[i]",
+    "        if jump > best: best = jump",
+    "    return best"
+  ],
+  "clean_conclusion": "`range(len(prices) - 1)` looks off by one, except line 6 reads `prices[i + 1]` — changing it to `len(prices)` would crash with `IndexError` on the last day.",
+  "explanation": "`range(len(prices) - 1)` looks off by one, except line 6 reads `prices[i + 1]` — changing it to `len(prices)` would crash with `IndexError` on the last day."
+}

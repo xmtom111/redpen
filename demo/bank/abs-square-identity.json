@@ -1,0 +1,39 @@
+{
+  "kind": "trick_clean",
+  "title": "Radical fraction",
+  "problem": "Given \\(x > 0\\), simplify \\(\\frac{\\sqrt{9x^2} + x}{2x}\\). Check this solution — tap a step if it slips, or let it pass.",
+  "steps": [
+    "Start with \\(\\frac{\\sqrt{9x^2} + x}{2x}\\) where \\(x > 0\\).",
+    "Take the square root: \\(\\sqrt{9x^2} = 3x\\).",
+    "Add like terms in the numerator: \\(3x + x = 4x\\).",
+    "Cancel \\(x\\) from numerator and denominator: \\(\\frac{4x}{2x} = 2\\).",
+    "So the expression equals \\(2\\) for every \\(x > 0\\)."
+  ],
+  "final_answer": "\\(2\\)",
+  "key": {
+    "level": 0,
+    "clean_steps": [
+      "Start with \\(\\frac{\\sqrt{9x^2} + x}{2x}\\) where \\(x > 0\\).",
+      "Take the square root: \\(\\sqrt{9x^2} = 3x\\).",
+      "Add like terms in the numerator: \\(3x + x = 4x\\).",
+      "Cancel \\(x\\) from numerator and denominator: \\(\\frac{4x}{2x} = 2\\).",
+      "So the expression equals \\(2\\) for every \\(x > 0\\)."
+    ],
+    "clean_final_answer": "\\(2\\)",
+    "errors": [],
+    "checks": [
+      "(3*x + x)/(2*x) == 2",
+      "(sqrt(9*4**2) + 4)/(2*4) == 2"
+    ],
+    "reference_check": "none"
+  },
+  "meta": {
+    "kind": "trick_clean",
+    "topic": "Simplifying a radical under a positivity premise",
+    "mode": "0",
+    "difficulty": "standard",
+    "focus": [],
+    "blurb": "Simplifying \\(\\frac{\\sqrt{9x^2} + x}{2x}\\) for \\(x > 0\\)."
+  },
+  "explanation": "Replacing \\(\\sqrt{x^2}\\) with \\(x\\) and cancelling \\(x\\) are classic traps in general, except \\(x > 0\\) already rules out negatives and zero."
+}

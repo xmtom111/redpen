@@ -1,0 +1,146 @@
+{
+  "schema_version": 2,
+  "id": "code-clean-debounce-merge",
+  "domain": "code",
+  "renderer": "code",
+  "code_language": "javascript",
+  "lang": "zh",
+  "kind": "clean",
+  "title": "组装鉴权请求头",
+  "topic": "展开 `BASE_OPTS` 和 `BASE_OPTS.headers` 组装请求配置",
+  "blurb": "一段基于公共配置拼装单次请求头的 JS 函数。",
+  "difficulty": "standard",
+  "level": 0,
+  "estimated_seconds": 50,
+  "prompt": "需求：基于 `BASE_OPTS` 生成单次请求配置，有 `token` 时加上 `authorization`，绝不修改 `BASE_OPTS` 或 `headers`。看下这段代码，觉得哪行有问题就点它，觉得没问题就放行。",
+  "segments": [
+    {
+      "id": 1,
+      "label": "L1",
+      "text": "const BASE_OPTS = { timeout: 2000, headers: { accept: \"application/json\" } };"
+    },
+    {
+      "id": 2,
+      "label": "L2",
+      "text": "function buildRequestOpts(token) {"
+    },
+    {
+      "id": 3,
+      "label": "L3",
+      "text": "  const headers = { ...BASE_OPTS.headers };"
+    },
+    {
+      "id": 4,
+      "label": "L4",
+      "text": "  if (token) headers.authorization = `Bearer ${token}`;"
+    },
+    {
+      "id": 5,
+      "label": "L5",
+      "text": "  return { ...BASE_OPTS, headers };"
+    },
+    {
+      "id": 6,
+      "label": "L6",
+      "text": "}"
+    }
+  ],
+  "conclusion": "AI 总结：先把 `headers` 单独拷一份再写 `authorization`，返回时用新 `headers` 覆盖，全局默认配置完全不受影响。",
+  "flaws": [],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "`BASE_OPTS` 用 `const` 声明会把嵌套的 `headers` 冻住，导致第 4 行赋值抛 TypeError。",
+        "`accept` 写成全小写而不是 `Accept`，展开时会丢失这个请求头。",
+        "`BASE_OPTS` 放在模块顶层，会让每次调用共享同一份 `headers` 引用。",
+        "这里没用 `Object.freeze` 冻结，导致第 3 行还是会改坏它。"
+      ],
+      "fix": [
+        "把 `const BASE_OPTS` 改成 `let BASE_OPTS` 才能改副本。",
+        "把 `BASE_OPTS` 移到函数体里，每次调用重新建。",
+        "用 `Object.freeze(BASE_OPTS)` 锁死嵌套对象。",
+        "把 `headers` 改成 `Map` 存储。"
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "参数没写默认值 `token = \"\"`，不传参调用时第 4 行会报 ReferenceError。",
+        "没对 `token` 做类型判断，传 `undefined` 时会直接污染默认配置。",
+        "函数没标 `async`，返回值没法直接传给 `fetch`。",
+        "参数名 `token` 会遮蔽浏览器全局属性。"
+      ],
+      "fix": [
+        "改成 `function buildRequestOpts(token = null)` 防止无参报错。",
+        "把参数改名为 `authToken` 避免重名。",
+        "在函数前加上 `async` 关键字。",
+        "开头补上 `typeof token === 'string'` 校验。"
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "对象展开 `{ ...BASE_OPTS.headers }` 是浅拷贝，`headers` 依然指向全局 `BASE_OPTS.headers`，第 4 行会污染默认配置。",
+        "用 `const headers` 声明后，第 4 行不能再给它新增 `authorization` 属性。",
+        "只展开 `BASE_OPTS.headers` 会丢掉 `timeout: 2000`。",
+        "必须先展开外层 `BASE_OPTS` 才能展开内层 `headers`。"
+      ],
+      "fix": [
+        "改用 `structuredClone(BASE_OPTS.headers)`，别用浅拷贝 `{ ... }`。",
+        "把 `const headers` 改成 `let headers` 才能新增字段。",
+        "第 3 行先展开 `{ ...BASE_OPTS }` 再取 `headers`。",
+        "改用 `Object.assign(BASE_OPTS.headers, {})` 做拷贝。"
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "给 `headers.authorization` 赋值会改脏全局 `BASE_OPTS.headers`，导致下一次匿名请求带上别人的 Token。",
+        "`if` 后面没写花括号，会导致第 5 行 `return` 只在有 `token` 时才执行。",
+        "反引号模板字符串里 `${token}` 不会展开变量，必须用加号拼接。",
+        "`token` 为空时没写 `else` 清理，会残留上一次调用的 `authorization`。"
+      ],
+      "fix": [
+        "补上 `else delete headers.authorization;` 防止匿名请求串 Token。",
+        "给 `if` 加上花括号 `{ ... }` 避免影响第 5 行。",
+        "改成字符串拼接 `'Bearer ' + token`。",
+        "改成重新展开一份 `const h2 = { ...headers, authorization: ... }`。"
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "顺序写反了：`{ ...BASE_OPTS, headers }` 会用旧的 `BASE_OPTS.headers` 覆盖掉新 `headers`，丢掉 `authorization`。",
+        "简写 `headers` 会嵌套出一层 `{ headers: { headers: ... } }`。",
+        "展开 `BASE_OPTS` 是浅拷贝，所以返回对象的 `headers` 依然和全局共享。",
+        "这样写会把 `timeout` 丢掉，只剩下 `headers`。"
+      ],
+      "fix": [
+        "把 `headers` 放到前面：`return { headers, ...BASE_OPTS };`。",
+        "别用简写，显式写成 `headers: { ...headers }`。",
+        "改用 `Object.assign(BASE_OPTS, { headers })` 合并。",
+        "显式写成 `{ timeout: BASE_OPTS.timeout, headers }`。"
+      ]
+    },
+    "6": {
+      "diagnosis": [
+        "函数结束前没有清理 `BASE_OPTS.headers`，Token 会留给下一次调用。",
+        "连续两次调用会返回同一个对象引用。",
+        "严格模式下函数结尾少了分号会报语法错误。",
+        "局部 `headers` 没释放，会泄漏到外层作用域。"
+      ],
+      "fix": [
+        "返回前加上 `delete BASE_OPTS.headers.authorization;`。",
+        "把返回值套一层 `structuredClone(...)`。",
+        "函数结尾补上分号 `};`。",
+        "用 `Object.freeze(...)` 冻结返回值。"
+      ]
+    }
+  },
+  "clean_segments": [
+    "const BASE_OPTS = { timeout: 2000, headers: { accept: \"application/json\" } };",
+    "function buildRequestOpts(token) {",
+    "  const headers = { ...BASE_OPTS.headers };",
+    "  if (token) headers.authorization = `Bearer ${token}`;",
+    "  return { ...BASE_OPTS, headers };",
+    "}"
+  ],
+  "clean_conclusion": "这回真的把嵌套对象拷干净了：第 3 行先把 `headers` 单独浅拷出一份新对象（它里面只有字符串值），第 5 行新 `headers` 写在 `...BASE_OPTS` 后面覆盖旧属性，`BASE_OPTS` 丝毫未动。",
+  "explanation": "这回真的把嵌套对象拷干净了：第 3 行先把 `headers` 单独浅拷出一份新对象（它里面只有字符串值），第 5 行新 `headers` 写在 `...BASE_OPTS` 后面覆盖旧属性，`BASE_OPTS` 丝毫未动。"
+}

@@ -1,6 +1,6 @@
 {
-  "title": "One confident log equation",
-  "problem": "Asked to solve \\(\\ln x + \\ln(x - 2) = \\ln 3\\) over the reals, an AI tutor produced this confident solution.",
+  "title": "Logarithm equation",
+  "problem": "Solve \\(\\ln x + \\ln(x - 2) = \\ln 3\\) over the reals. Check this solution — tap a step if it slips, or let it pass.",
   "steps": [
     "Logarithms accept every real input, so no domain restriction is required.",
     "Apply the sum rule \\(\\ln a + \\ln b = \\ln(a+b)\\): \\(\\ln x + \\ln(x-2) = \\ln(2x-2)\\).",
@@ -26,7 +26,7 @@
       {
         "step": 1,
         "category": "domain",
-        "original": "Require both arguments to be positive: \\(x > 0\\) and \\(x - 2 > 0\\), so the domain is \\(x > 2\\).",
+        "original": "Require both arguments to be positive: $x > 0$ and $x - 2 > 0$, so the domain is $x > 2$.",
         "corrupted": "Logarithms accept every real input, so no domain restriction is required.",
         "why_wrong": "\\(\\ln t\\) is defined only for positive \\(t\\). Each argument needs its own inequality, and together they restrict the domain to \\(x > 2\\).",
         "why_tempting": "Once both logarithms are already written down, the restriction feels like bookkeeping rather than part of solving.",
@@ -40,7 +40,7 @@
       {
         "step": 2,
         "category": "exponent-log",
-        "original": "Apply the product identity \\(\\ln a + \\ln b = \\ln(ab)\\), so \\(\\ln x + \\ln(x-2) = \\ln(x(x-2))\\).",
+        "original": "Apply the product identity $\\ln a + \\ln b = \\ln(ab)$, so $\\ln x + \\ln(x-2) = \\ln(x(x-2))$.",
         "corrupted": "Apply the sum rule \\(\\ln a + \\ln b = \\ln(a+b)\\): \\(\\ln x + \\ln(x-2) = \\ln(2x-2)\\).",
         "why_wrong": "A sum of logarithms is the logarithm of a product, \\(\\ln a + \\ln b = \\ln(ab)\\), not the logarithm of a sum. The swapped operation changes \\(x(x-2) = 3\\) into \\(2x - 2 = 3\\).",
         "why_tempting": "The plus sign between the logarithms is easy to copy inside as a plus, on the model of distributing the function over addition.",
@@ -63,6 +63,8 @@
     "mode": "2",
     "difficulty": "standard",
     "focus": [],
-    "blurb": "It combines the logs in one neat step and names a single answer."
-  }
+    "blurb": "Solving \\(\\ln x + \\ln(x - 2) = \\ln 3\\) over the reals.",
+    "kind": "planted"
+  },
+  "kind": "planted"
 }

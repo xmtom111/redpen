@@ -5,13 +5,13 @@
   "renderer": "code",
   "code_language": "javascript",
   "lang": "zh",
-  "title": "改一个人的重试次数，所有人的默认值被改了",
+  "title": "单次请求重试配置",
   "topic": "看起来像拷贝的对象展开",
-  "blurb": "AI 用 `{ ...obj }` 复制了默认配置。一次覆盖，却悄悄改掉了原件。",
+  "blurb": "一段基于默认配置覆盖 `retries` 的 JS 函数。",
   "difficulty": "standard",
   "level": 1,
   "estimated_seconds": 55,
-  "prompt": "这个函数本该只给某次请求加多重试次数，而不动 `DEFAULT_CONFIG`。AI 说对象展开就是一次干净的克隆。检查一下。",
+  "prompt": "需求：返回把 `limits.retries` 改成指定值的新配置，绝对不能修改全局 `DEFAULT_CONFIG`。看下这段代码，觉得哪行有问题就点它，觉得没问题就放行。",
   "segments": [
     {
       "id": 1,
@@ -54,30 +54,38 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "`{ ...DEFAULT_CONFIG }` 只是浅拷贝，`cfg.limits` 和 `DEFAULT_CONFIG.limits` 指向同一个嵌套对象。"
+          "label": "`{ ...obj }` 是浅拷贝，`cfg.limits` 仍指向原默认对象。"
         },
         {
           "id": "d2",
-          "label": "`const` 会深度冻结对象，第 4 行修改属性会直接抛出 TypeError。"
+          "label": "`const` 声明会深度冻结 `DEFAULT_CONFIG`，导致第 4 行修改 `retries` 时直接抛 TypeError。"
         },
         {
           "id": "d3",
-          "label": "展开运算符只拷贝数字字段，会直接忽略嵌套对象。"
+          "label": "对象展开语法只会复制第一层的数字字段 `timeout`，会直接跳过嵌套对象 `limits`。"
+        },
+        {
+          "id": "d4",
+          "label": "用 `const cfg` 声明之后，严格模式下第 4 行就不能再修改 `cfg.limits.retries`。"
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "连同嵌套对象一起拷贝：`{ ...DEFAULT_CONFIG, limits: { ...DEFAULT_CONFIG.limits, retries } }`（或用 `structuredClone`）。"
+          "label": "嵌套字段也拷贝：`{ ...DEFAULT_CONFIG, limits: { ...DEFAULT_CONFIG.limits } }`。"
         },
         {
           "id": "f2",
-          "label": "把 `{ ...DEFAULT_CONFIG }` 换成 `Object.assign({}, DEFAULT_CONFIG)`。"
+          "label": "把对象展开 `{ ...DEFAULT_CONFIG }` 换成更标准的 `Object.assign({}, DEFAULT_CONFIG)`。"
         },
         {
           "id": "f3",
-          "label": "把 `const cfg` 改成 `let cfg` 避免引用共享。"
+          "label": "把第 3 行的 `const cfg` 改成 `let cfg`，让展开出来的副本对象可以独立修改。"
+        },
+        {
+          "id": "f4",
+          "label": "在第 3 行拷贝完后立即加上 `Object.freeze(cfg)`，防止后面的代码改动默认配置。"
         }
       ],
       "fix_answer": "f1",
@@ -102,50 +110,72 @@
   "segment_distractors": {
     "1": {
       "diagnosis": [
-        "默认重试次数应该用超时数值来表示。",
-        "timeout 可以兼作重试次数，无需 limits 子对象。",
-        "模板一开始就不应该有 retries 字段。"
+        "`DEFAULT_CONFIG` 用 `const` 声明会把 `limits.retries` 永远锁死在 `2`。",
+        "把常量写在函数外面，函数里访问不到它。",
+        "用 `const` 声明的嵌套对象不能使用展开语法 `{ ... }`。",
+        "没写 `Object.freeze` 没关系，只有 `var` 声明的配置才会被污染。"
       ],
       "fix": [
-        "把默认重试次数设为 3000。",
-        "去掉 limits，重试次数改读 timeout。",
-        "从 DEFAULT_CONFIG 删去 retries。"
+        "把 `const DEFAULT_CONFIG` 改成 `let DEFAULT_CONFIG`。",
+        "把 `DEFAULT_CONFIG` 当作第二个参数传进函数。",
+        "把配置拍平成 `{ timeout: 3000, retries: 2 }`。",
+        "把默认配置放到独立 JSON 文件里读取。"
       ]
     },
     "2": {
       "diagnosis": [
-        "参数应是 timeout，与配置的第一个属性一致。",
-        "重试次数应该永远固定为两次。",
-        "每次调用都必须指定新超时值。"
+        "传 `retries = 0` 时会被当成假值，保留默认的 `2`。",
+        "参数名 `retries` 和属性名 `limits.retries` 重名，会导致变量遮蔽。",
+        "没写默认值 `retries = 2`，不传参会抛 ReferenceError。",
+        "函数没标 `async`，并发请求会共享同一个 `cfg`。"
       ],
       "fix": [
-        "把签名改成 withRetries(timeout)。",
-        "删除 retries 参数，固定为两次。",
-        "要求额外传入 timeout 参数。"
+        "把参数改名为 `maxRetries` 避免和 `limits.retries` 重名。",
+        "补上默认值 `retries = 2`。",
+        "开头加上 `if (!retries) return DEFAULT_CONFIG;`。",
+        "给函数加上 `async` 隔离并发调用。"
       ]
     },
     "4": {
       "diagnosis": [
-        "重试次数要写进 timeout 字段。",
-        "新次数应累加到默认次数上。",
-        "应拿一个数字替换整个 limits 对象。"
+        "`cfg` 是 `const` 声明的，给 `cfg.limits.retries` 赋值会抛 TypeError。",
+        "点号赋值 `cfg.limits.retries` 会新建一个顶层键而不是改嵌套对象。",
+        "`retries` 为 `0` 时这一行不会生效。",
+        "修改 `cfg.limits.retries` 会顺手把 `cfg.timeout` 清成 `undefined`。"
       ],
       "fix": [
-        "赋值 cfg.timeout = retries。",
-        "改为 cfg.limits.retries += retries。",
-        "赋值 cfg.limits = retries。"
+        "先把第 3 行的 `const cfg` 改成 `let cfg`。",
+        "改用中括号写法 `cfg['limits']['retries'] = retries;`。",
+        "改用 `Object.defineProperty` 写入 `retries`。",
+        "在第 4 行后面补一句 `cfg.timeout = 3000;`。"
       ]
     },
     "5": {
       "diagnosis": [
-        "这个函数应该只返回重试次数。",
-        "调用方只需要 limits 子对象。",
-        "返回值应直接用默认对象。"
+        "直接 `return cfg` 会把整个 `DEFAULT_CONFIG` 原对象返回出去，包括 `timeout`。",
+        "严格模式下直接返回 `cfg` 会把嵌套的 `limits` 丢掉。",
+        "应该只返回 `cfg.limits` 而不是整个 `cfg`。",
+        "返回前没冻结，外部改 `cfg.timeout` 会污染全局默认超时。"
       ],
       "fix": [
-        "改为返回 retries。",
-        "改为返回 cfg.limits。",
-        "返回 DEFAULT_CONFIG。"
+        "改成 `return { ...cfg }` 断开与默认配置的关联。",
+        "改成 `return Object.freeze(cfg)`。",
+        "直接 `return cfg.limits`。",
+        "用 `JSON.stringify(cfg)` 返回序列化字符串。"
+      ]
+    },
+    "6": {
+      "diagnosis": [
+        "严格模式下函数结尾少了分号会报错。",
+        "函数结束前没把 `DEFAULT_CONFIG.limits.retries` 恢复成 `2`。",
+        "没写 `export` 导出，外面没法调用。",
+        "局部变量 `cfg` 没清理，会泄漏到全局。"
+      ],
+      "fix": [
+        "返回前把 `DEFAULT_CONFIG.limits.retries` 改回 `2`。",
+        "末尾补上分号 `};`。",
+        "加上 `export default withRetries;`。",
+        "结束前加上 `cfg = null;`。"
       ]
     }
   }

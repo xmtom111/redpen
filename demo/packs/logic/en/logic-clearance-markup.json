@@ -11,7 +11,7 @@
   "difficulty": "intro",
   "level": 1,
   "estimated_seconds": 60,
-  "prompt": "The manager asked an AI to check this weekend sale plan. If a line doesn't add up, tap it.",
+  "prompt": "The shop manager drafted this weekend sale plan to clear summer jackets. Tap any line that doesn't hold up, or mark it clean.",
   "segments": [
     {
       "id": 1,
@@ -49,30 +49,38 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "The 50% was added to cost, but the 40% is taken off the higher ticket price, so 50% − 40% is not a 10% profit."
+          "label": "40% comes off the $150 tag, not the $100 cost — sale price is $90, a $10 loss per jacket."
         },
         {
           "id": "d2",
-          "label": "A 40% discount is illegal on goods that were already marked up 50%."
+          "label": "50% markup on $100 is $150, and 40% of $150 is $60, so you still keep $110 ($10 profit)."
         },
         {
           "id": "d3",
-          "label": "Wholesale cost should have been $150, so the markup was calculated on the wrong number."
+          "label": "You have to multiply 50% × 40% = 20%, which leaves a 20% profit margin ($120 sale price)."
+        },
+        {
+          "id": "d4",
+          "label": "The 10% margin is right on the jacket cost, it just forgets store rent and staff wages."
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Sale price is $150 × 0.60 = $90, which is $10 below the $100 cost — a 10% loss, not a 10% profit."
+          "label": "40% off $150 is $90 (a $10 loss); cap the discount at 33% to break even."
         },
         {
           "id": "f2",
-          "label": "Subtract the percentages: 50 − 40 = 10, so each jacket still makes $10."
+          "label": "Subtract 40% from $100 ($60) and add the $50 markup back to confirm a $110 sale price."
         },
         {
           "id": "f3",
-          "label": "Take 40% off the $100 cost instead, leaving a $60 sale price and a healthy margin."
+          "label": "Set the weekend sale to 45% off so you still keep a 5% margin above the $100 wholesale cost."
+        },
+        {
+          "id": "f4",
+          "label": "Raise the rack tag to $160 first so 50% minus 40% leaves $16 profit on every jacket."
         }
       ],
       "fix_answer": "f1",
@@ -98,26 +106,58 @@
   "segment_distractors": {
     "1": {
       "diagnosis": [
-        "The markup is measured against the price tag.",
-        "A 50% markup doubles the wholesale cost.",
-        "The markup adds a fixed $50 to any wholesale cost."
+        "$100 marked up to $150 is a 33.3% markup (50/150), not a 50% markup.",
+        "Adding 50% to $100 gives $200, not $150, so the rack price is already underpriced.",
+        "A 50% markup on $100 ignores shipping and handling, making the true wholesale cost $120.",
+        "Retail markups are always measured off the $150 tag price, never off wholesale cost."
       ],
       "fix": [
-        "Use $50 / $150 as the stated markup.",
-        "Change the ticket price to $200.",
-        "Describe the policy as a flat $50 surcharge at every cost."
+        "Recalculate the markup as $50 ÷ $150 = 33.3% instead of 50%.",
+        "Raise the rack price to $200 for a true 50% markup.",
+        "Add $20 of overhead to the $100 wholesale cost before setting the sale.",
+        "Quote the $50 gain in dollars only so percentages don't shift."
       ]
     },
     "2": {
       "diagnosis": [
-        "The 40% discount should be applied to wholesale cost.",
-        "40% off means the customer pays 40% of the ticket price.",
-        "The markdown applies only to the markup amount."
+        "Taking 40% off $150 means customers pay 40% ($60), not 60% ($90).",
+        "40% off $150 is $110 (subtracting $40), which still clears $10 above the $100 cost.",
+        "Weekend clearance discounts apply to the $100 wholesale price, not the $150 ticket.",
+        "Discounting only for one weekend won't clear all remaining summer sizes."
       ],
       "fix": [
-        "Take 40% of $100 off the ticket price.",
-        "Charge 40% of $150.",
-        "Apply the 40% discount only to the $50 difference."
+        "Compute 40% of $150 = $60 as the sale price.",
+        "Subtract $40 from $150 to get a $110 weekend price.",
+        "Take 40% off the $50 markup ($20 off) so the jacket sells for $130.",
+        "Run the sale for two full weeks instead of one weekend."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Clearing summer jackets by Monday matters more than keeping a 10% margin, so losing $10 isn't a flaw.",
+        "If the fall shipment arrives Monday, discounting 40% only sells popular sizes and leaves odd sizes stuck.",
+        "Moving stock before Monday means you have to cut the price to $50, not $90.",
+        "Waiting until the weekend leaves only two days to clear the rack before Monday."
+      ],
+      "fix": [
+        "Start the sale Wednesday instead of waiting for the weekend.",
+        "Keep the 40% off anyway if clearing rack space is worth a $10 loss per jacket.",
+        "Bundle slow summer sizes with fall arrivals instead of discounting.",
+        "Cut the price to $100 flat so every jacket breaks even before Monday."
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "Printing flyers this afternoon leaves no time to run a test discount first.",
+        "The owner will immediately spot that 40% off $150 is $60, losing $40 per jacket.",
+        "Approval isn't needed for a 10%-margin sale because it still clears $10 profit.",
+        "Printing flyers costs extra money that wipes out the $10 profit per jacket."
+      ],
+      "fix": [
+        "Hold the flyer and change the headline to 30% off ($105) so you still clear $5 per jacket.",
+        "Skip printed flyers and post the 40%-off sale on social media to save printing costs.",
+        "Ask the owner to approve $60 clearance pricing before printing.",
+        "Wait until Monday after checking how many fall boxes arrive."
       ]
     }
   }

@@ -10,8 +10,8 @@
   "lang": "en",
   "title": "Guest room",
   "topic": "A friend is measuring a bigger guest bed against the walkway",
-  "blurb": "A friend is swapping the guest bed and doing the measurements in the chat.",
-  "prompt": "A friend just texted this in the group chat. If one line doesn't add up, tap it.",
+  "blurb": "A friend is swapping the guest bed and checking the walkway.",
+  "prompt": "A friend just sent this in the group chat. Tap a line if something doesn't add up, or let it pass.",
   "segments": [
     {
       "id": 1,
@@ -21,12 +21,12 @@
     {
       "id": 2,
       "label": "The layout",
-      "text": "The current bed is pushed along the window wall, leaving a 2-foot walkway on the closet side."
+      "text": "The current bed sits tucked under the window, leaving a 2-foot aisle in front of the closet doors."
     },
     {
       "id": 3,
       "label": "The math",
-      "text": "The new one is a foot wider, so that's half a foot off each side — still a 1.5-foot walkway, plenty of room to open the closet."
+      "text": "Going up a foot in width trims half a foot per side, leaving a 1.5-foot aisle — still clears the closet."
     },
     {
       "id": 4,
@@ -40,34 +40,42 @@
       "segment_id": 3,
       "error_type": "wall-side-symmetry",
       "original": "One side is already against the wall, so the whole extra foot comes out of the walkway — that's 1 foot left, not 1.5.",
-      "corrupted": "The new one is a foot wider, so that's half a foot off each side — still a 1.5-foot walkway, plenty of room to open the closet.",
+      "corrupted": "Going up a foot in width trims half a foot per side, leaving a 1.5-foot aisle — still clears the closet.",
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "The bed is already against the wall, so the whole extra foot comes out of the walkway — you'll have 1 foot, not 1.5."
+          "label": "One side is against the wall, so the walkway loses a full foot — 1 foot left, not 1.5."
         },
         {
           "id": "d2",
-          "label": "A 6-foot bed plus a 2-foot walkway is 8 feet, and the room is only 7, so the bed won't fit at all."
+          "label": "A 6-foot bed plus a 2-foot walkway takes 8 feet, and the 7-foot room can't fit a 6-foot bed at all."
         },
         {
           "id": "d3",
-          "label": "Closet doors need a full 2 feet to open, so even a 1.5-foot walkway would be too tight."
+          "label": "Closet doors need a full 2-foot clearance to swing open, so even a 1.5-foot walkway already blocks them."
+        },
+        {
+          "id": "d4",
+          "label": "Splitting 1 foot into two halves only trims 6 inches off the room total, leaving the walkway at 1.5."
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Take the whole extra foot from the walkway: 2 feet minus 1 foot leaves 1 foot, not 1.5."
+          "label": "Subtract the full extra foot from the walkway: 2 feet minus 1 leaves 1 foot."
         },
         {
           "id": "f2",
-          "label": "Pull the bed off the wall so the extra width can split on both sides."
+          "label": "Pull the 6-foot bed 6 inches off the window wall so both sides split the extra width evenly."
         },
         {
           "id": "f3",
-          "label": "Keep the 5-foot bed; a 6-foot bed can never leave a walkway in this room."
+          "label": "Keep the 5-foot bed because a 6-foot bed won't leave any usable walkway in a 7-foot room."
+        },
+        {
+          "id": "f4",
+          "label": "Push the bed flush against the closet instead so the 1.5-foot walkway sits along the window."
         }
       ],
       "fix_answer": "f1",
@@ -83,7 +91,7 @@
   ],
   "clean_segments": [
     "Putting a 6-foot bed in the guest room to replace the 5-foot one that's in there now.",
-    "The current bed is pushed along the window wall, leaving a 2-foot walkway on the closet side.",
+    "The current bed sits tucked under the window, leaving a 2-foot aisle in front of the closet doors.",
     "One side is already against the wall, so the whole extra foot comes out of the walkway — that's 1 foot left, not 1.5.",
     "I'll order it tonight before the weekend sale ends."
   ],
@@ -92,26 +100,44 @@
   "segment_distractors": {
     "1": {
       "diagnosis": [
-        "Moving from a 5-foot bed to a 6-foot bed makes it narrower.",
-        "The new bed adds six feet to the old width.",
-        "Replacing the old bed means adding their widths."
+        "Standard queen beds are 5 feet wide and kings are 6.5 feet, so a 6-foot bed leaves out the bed frame width.",
+        "Replacing a 5-foot bed with a 6-foot one adds 20% to the footprint, which doesn't match the 1-foot math later.",
+        "A 6-foot bed is also longer head-to-foot, so comparing width alone misses the wall by the door.",
+        "Swapping from 5 feet to 6 feet adds 12 inches, which shrinks the room by 2 feet when you count both sides."
       ],
       "fix": [
-        "Treat the new bed as saving one foot.",
-        "Plan for an 11-foot replacement bed.",
-        "Count both beds in the room after replacement."
+        "Measure the bed frame width (usually 6.3–6.5 feet) instead of the 6-foot mattress size.",
+        "Check the length from headboard to wall before comparing widths.",
+        "Account for the 20% width jump on both the window and closet walls.",
+        "Stick with a 5.5-foot bed frame so the extra width stays under a foot."
       ]
     },
     "2": {
       "diagnosis": [
-        "The 2-foot walkway is split between the sides of the bed.",
-        "The wall side is where the closet walkway sits.",
-        "The 2-foot figure is the width of the existing bed."
+        "A 5-foot bed plus a 2-foot walkway makes the room 7 feet wide, which is too narrow for a closet door anyway.",
+        "Pushing the bed against the window wall blocks the curtain, so you already have a 6-inch gap there.",
+        "Measuring the walkway from the mattress edge ignores the 6-inch baseboard and frame overhang.",
+        "Leaving 2 feet on one side means 1 foot on each side if you center the bed, not 2 feet total."
       ],
       "fix": [
-        "Use one foot of clearance on each side.",
-        "Put the walkway between the bed and window wall.",
-        "Use two feet as the current bed width."
+        "Measure wall-to-closet directly instead of adding 5 feet plus 2 feet.",
+        "Center the current 5-foot bed so there is a 1-foot walkway on both sides.",
+        "Subtract 6 inches for curtains and trim before sizing the walkway.",
+        "Check whether the closet has sliding doors before worrying about the 2-foot gap."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Ordering tonight before measuring the stairwell means a 6-foot mattress might not make the turn upstairs.",
+        "Weekend sales usually extend into Monday, so rushing tonight risks a restocking fee.",
+        "Ordering without checking the closet door swing means even 1.5 feet might jam the hinge.",
+        "Ordering a 6-foot bed tonight locks you into an 8-foot layout in a 7-foot room."
+      ],
+      "fix": [
+        "Measure the closet door swing and stairwell width before placing the order.",
+        "Wait until tomorrow and tape a 6-foot rectangle on the guest room floor first.",
+        "Check the store's return fee in case the 1-foot walkway is too tight.",
+        "Order the 5-foot replacement tonight instead while the sale is still on."
       ]
     }
   }

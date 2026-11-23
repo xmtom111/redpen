@@ -1,0 +1,186 @@
+{
+  "schema_version": 2,
+  "id": "code-trick-adjacent-diff",
+  "domain": "code",
+  "renderer": "code",
+  "code_language": "python",
+  "lang": "zh",
+  "kind": "trick_clean",
+  "title": "单日最大涨幅",
+  "topic": "看着像少循环一次的 `range(len(prices) - 1)`",
+  "blurb": "一段扫描相邻两天最大价格涨幅的 Python 函数。",
+  "difficulty": "standard",
+  "level": 0,
+  "estimated_seconds": 55,
+  "prompt": "需求：返回相邻两天最大单日涨幅（`prices[i+1] - prices[i]`），未上涨或不足两天返回 `0`。看下这段代码，觉得哪行有问题就点它，觉得没问题就放行。",
+  "segments": [
+    {
+      "id": 1,
+      "label": "L1",
+      "text": "def max_daily_jump(prices):"
+    },
+    {
+      "id": 2,
+      "label": "L2",
+      "text": "    if len(prices) < 2:"
+    },
+    {
+      "id": 3,
+      "label": "L3",
+      "text": "        return 0"
+    },
+    {
+      "id": 4,
+      "label": "L4",
+      "text": "    best = 0"
+    },
+    {
+      "id": 5,
+      "label": "L5",
+      "text": "    for i in range(len(prices) - 1):"
+    },
+    {
+      "id": 6,
+      "label": "L6",
+      "text": "        jump = prices[i + 1] - prices[i]"
+    },
+    {
+      "id": 7,
+      "label": "L7",
+      "text": "        if jump > best: best = jump"
+    },
+    {
+      "id": 8,
+      "label": "L8",
+      "text": "    return best"
+    }
+  ],
+  "conclusion": "AI 总结：遍历每一对相邻日期，返回最大正涨幅，数据不足或一路下跌时返回 0。",
+  "flaws": [],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "参数 `prices` 没写默认值 `prices=[]`，传空列表时会报 TypeError。",
+        "不写类型标注 `list[float]`，Python 会把价格当字符串相减。",
+        "列表按引用传入，循环里会顺手改坏原列表 `prices`。",
+        "函数名以 `max_` 开头，容易和内置 `max` 冲突。"
+      ],
+      "fix": [
+        "改成 `def max_daily_jump(prices=None):`。",
+        "进入函数先拷贝一份 `prices = list(prices)`。",
+        "补上类型标注 `prices: list[float] -> float`。",
+        "把函数改名为 `largest_daily_jump`。"
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "`len(prices) < 2` 会把两天的数据也拦截掉，导致两天价格直接返回 0。",
+        "应该写成 `len(prices) <= 2`，两天只有一次差值算不上最大涨幅。",
+        "传入空列表 `[]` 时，`len(prices)` 在比较前就会抛 IndexError。",
+        "这里只防了长度小于 2，漏防了价格一路下跌的情况。"
+      ],
+      "fix": [
+        "改成 `if len(prices) <= 1:` 并单独处理两天列表。",
+        "把 `< 2` 改成 `<= 2` 提前拦截两天列表。",
+        "改成 `if not prices or len(prices) == 0:`。",
+        "删掉这个判断，循环本身就能处理单元素列表。"
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "不足两天时返回 `0` 会和『零涨幅』混淆，应该返回 `None`。",
+        "返回整数 `0` 而不是浮点 `0.0`，当 `prices` 是小数时会类型不一致。",
+        "这里提前 `return 0` 漏掉了单日价格本身就是正数的情况。",
+        "提前返回导致后面的 `best` 永远不会被初始化。"
+      ],
+      "fix": [
+        "不足两天时改为 `return None`。",
+        "改为 `return 0.0` 保持浮点返回类型。",
+        "只有一天时改为返回 `prices[0]`。",
+        "把 `best = 0` 移到 `if` 判断前面。"
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "`best = 0` 写错了——如果每天都在跌，应该初始化成 `float('-inf')` 才能保留负值。",
+        "把 `best` 设为 `0` 忽略了第一天的基准价 `prices[0]`。",
+        "`best` 必须初始化为 `prices[1] - prices[0]`，不然第一对差值不会被比较。",
+        "初始值为 `0` 会导致涨幅正好为 0 时和空列表分不清。"
+      ],
+      "fix": [
+        "把初始值改成 `best = float('-inf')` 保留下跌幅度。",
+        "初始化为 `best = prices[0]`。",
+        "先算 `best = prices[1] - prices[0]` 再从下标 1 开始循环。",
+        "初始化为 `best = None`，第一次循环再赋值。"
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "经典的边界差一：`range(len(prices) - 1)` 提前停了，会漏算最后一天的涨幅。",
+        "当列表只有 2 个元素（如 `[10, 25]`）时，`range(len(prices) - 1)` 一次都不跑。",
+        "`len(prices) - 1` 在列表长度为 1 时会算出负数下标。",
+        "`range(len(prices) - 1)` 同时漏掉了首项和末项。"
+      ],
+      "fix": [
+        "改成 `for i in range(len(prices)):` 把最后一天算进去。",
+        "改成 `for i in range(1, len(prices)):` 覆盖到最后一个元素。",
+        "改成 `for i in range(len(prices) + 1):` 避免漏掉末项。",
+        "改用 `for price in prices:` 直接遍历元素。"
+      ]
+    },
+    "6": {
+      "diagnosis": [
+        "循环最后一步访问 `prices[i + 1]` 会触发 `IndexError` 越界。",
+        "减法方向写反了，算涨幅应该是 `prices[i] - prices[i + 1]`。",
+        "只算 `prices[i + 1] - prices[i]` 漏掉了隔天买入卖出的跨日最大涨幅。",
+        "写 `prices[i + 1]` 会跳过 `prices[0]`，第一天的价格没参与计算。"
+      ],
+      "fix": [
+        "改成 `prices[i] - prices[i - 1]` 配合 `range(1, len(prices))` 防止越界。",
+        "调换减数方向为 `prices[i] - prices[i + 1]`。",
+        "维护历史最低价 `min_so_far`，改算 `prices[i] - min_so_far`。",
+        "在循环里补上 `if i + 1 < len(prices):` 防止越界。"
+      ]
+    },
+    "7": {
+      "diagnosis": [
+        "只写 `jump > best` 没写 `>=`，如果两天涨幅并列最大会漏更新。",
+        "Python 里把 `if` 和 `best = jump` 写在同一行会报语法错。",
+        "在循环里不断覆盖 `best`，会把前面更大的涨幅冲掉。",
+        "当 `jump` 等于 `0` 时 `>` 不触发，导致结果出错。"
+      ],
+      "fix": [
+        "把 `>` 改成 `>=`，避免并列最大涨幅被跳过。",
+        "把 `best = jump` 拆到下一行缩进。",
+        "改成 `best += jump` 累加所有正涨幅。",
+        "一旦满足 `jump > best` 就立刻 `break` 退出。"
+      ]
+    },
+    "8": {
+      "diagnosis": [
+        "如果最大涨幅刚好发生在最后一天，这里返回的 `best` 会漏掉它。",
+        "如果每天价格都一样，函数会返回 `-1` 而不是 `0`。",
+        "`return best` 缩进错了，第一轮循环结束就直接返回了。",
+        "不包一层 `abs(best)` 的话可能返回负数。"
+      ],
+      "fix": [
+        "改为 `return abs(best)` 保证非负。",
+        "改成 `return max(best, prices[-1] - prices[-2])` 补上最后一天。",
+        "改成 `return best or None` 区分无涨幅情况。",
+        "把 `return best` 放进 `if` 分支里。"
+      ]
+    }
+  },
+  "clean_segments": [
+    "def max_daily_jump(prices):",
+    "    if len(prices) < 2:",
+    "        return 0",
+    "    best = 0",
+    "    for i in range(len(prices) - 1):",
+    "        jump = prices[i + 1] - prices[i]",
+    "        if jump > best: best = jump",
+    "    return best"
+  ],
+  "clean_conclusion": "`range(len(prices) - 1)` 看着像少循环了一次，但第 6 行读的是 `prices[i + 1]`——真改成 `len(prices)` 反而会在最后一天 `IndexError` 崩溃。",
+  "explanation": "`range(len(prices) - 1)` 看着像少循环了一次，但第 6 行读的是 `prices[i + 1]`——真改成 `len(prices)` 反而会在最后一天 `IndexError` 崩溃。"
+}

@@ -5,13 +5,13 @@
   "renderer": "code",
   "code_language": "javascript",
   "lang": "en",
-  "title": "Change one user's retries, rewrite everyone's",
+  "title": "Per-request retries",
   "topic": "A spread that looks like a clone",
-  "blurb": "The AI copied the default config with `{ ...obj }`. Then one override quietly edits the original.",
+  "blurb": "A config helper that overrides `retries` without touching defaults.",
   "difficulty": "standard",
   "level": 1,
   "estimated_seconds": 55,
-  "prompt": "This helper is supposed to give one request more retries without touching `DEFAULT_CONFIG`. The AI says the object spread makes a clean clone. Check it.",
+  "prompt": "Spec: return a config with `limits.retries` set to `retries` without ever mutating `DEFAULT_CONFIG`. Review this helper — tap a line if it breaks the spec, or let it pass.",
   "segments": [
     {
       "id": 1,
@@ -54,30 +54,38 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "Object spread `{ ...obj }` is a shallow copy, so `cfg.limits` still references `DEFAULT_CONFIG.limits`."
+          "label": "Spread `{ ...obj }` is shallow, so `cfg.limits` still points to `DEFAULT_CONFIG.limits`."
         },
         {
           "id": "d2",
-          "label": "`const` freezes `DEFAULT_CONFIG` deeply, so line 4 will throw a TypeError."
+          "label": "`const` deeply freezes `DEFAULT_CONFIG`, so mutating `cfg.limits.retries` throws TypeError."
         },
         {
           "id": "d3",
-          "label": "Spread syntax only copies numeric fields and skips nested objects entirely."
+          "label": "Object spread only copies primitive keys like `timeout` and skips nested objects like `limits`."
+        },
+        {
+          "id": "d4",
+          "label": "Declaring `const cfg` prevents line 4 from updating `cfg.limits.retries` in strict mode."
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Clone the nested object too (e.g. `{ ...DEFAULT_CONFIG, limits: { ...DEFAULT_CONFIG.limits, retries } }` or `structuredClone`)."
+          "label": "Clone `limits` too: `{ ...DEFAULT_CONFIG, limits: { ...DEFAULT_CONFIG.limits } }`."
         },
         {
           "id": "f2",
-          "label": "Replace `{ ...DEFAULT_CONFIG }` with `Object.assign({}, DEFAULT_CONFIG)`."
+          "label": "Replace `{ ...DEFAULT_CONFIG }` with `Object.assign({}, DEFAULT_CONFIG)` so nested objects copy cleanly."
         },
         {
           "id": "f3",
-          "label": "Change `const cfg` to `let cfg` so the copy is mutable."
+          "label": "Change `const cfg` to `let cfg` so the spread allocates a mutable deep clone of `DEFAULT_CONFIG`."
+        },
+        {
+          "id": "f4",
+          "label": "Call `Object.freeze(cfg)` right after line 3 so `DEFAULT_CONFIG.limits` can't be mutated."
         }
       ],
       "fix_answer": "f1",
@@ -102,50 +110,72 @@
   "segment_distractors": {
     "1": {
       "diagnosis": [
-        "The default retry allowance should be represented by the timeout.",
-        "The nested limits object is unnecessary because timeout doubles as retries.",
-        "The template must start with no retry field at all."
+        "`DEFAULT_CONFIG` is declared with `const`, which freezes `limits.retries` at `2` forever.",
+        "Putting `DEFAULT_CONFIG` outside `withRetries` makes it inaccessible inside the function.",
+        "Nested objects inside a `const` declaration cannot be spread in JavaScript.",
+        "Missing `Object.freeze(DEFAULT_CONFIG)` is fine — only `var` configs can be mutated."
       ],
       "fix": [
-        "Use 3000 as the default retry count.",
-        "Remove limits and read retries from timeout.",
-        "Remove retries from DEFAULT_CONFIG."
+        "Change `const DEFAULT_CONFIG` to `let DEFAULT_CONFIG` so overrides work.",
+        "Pass `DEFAULT_CONFIG` as a second parameter to `withRetries`.",
+        "Flatten `DEFAULT_CONFIG` to `{ timeout: 3000, retries: 2 }`.",
+        "Move `DEFAULT_CONFIG` into a separate JSON file."
       ]
     },
     "2": {
       "diagnosis": [
-        "The argument should be a timeout to match the first config property.",
-        "The retry count should always be fixed at two.",
-        "A new timeout is required on every call."
+        "If `retries` is `0`, JavaScript treats it as falsy and keeps `2` instead of `0`.",
+        "Parameter `retries` collides with the nested property name `limits.retries`.",
+        "Missing default `retries = 2` throws ReferenceError when called with no args.",
+        "`withRetries` isn't marked `async`, so concurrent requests share `cfg`."
       ],
       "fix": [
-        "Change the signature to withRetries(timeout).",
-        "Remove the retries parameter and always use two.",
-        "Require a second timeout parameter on every call."
+        "Rename parameter `retries` to `maxRetries` so it doesn't shadow `limits.retries`.",
+        "Add a default `retries = 2` in the function signature.",
+        "Guard `if (!retries) return DEFAULT_CONFIG;` on line 2.",
+        "Mark the function `async` so each request gets its own stack."
       ]
     },
     "4": {
       "diagnosis": [
-        "The retry count belongs in the timeout field.",
-        "The requested retries should be added to the preset count.",
-        "The nested limits object should be replaced by the bare retry count."
+        "Assigning `cfg.limits.retries = retries` throws TypeError because `cfg` was declared with `const`.",
+        "Dot notation `cfg.limits.retries` creates a new top-level key `'limits.retries'` instead of updating `limits`.",
+        "If `retries` is `0`, line 4 is a no-op and leaves `retries` at `2`.",
+        "Mutating `cfg.limits.retries` also overwrites `cfg.timeout` to `undefined`."
       ],
       "fix": [
-        "Set cfg.timeout = retries.",
-        "Set cfg.limits.retries += retries.",
-        "Set cfg.limits = retries."
+        "Change `const cfg` to `let cfg` before line 4.",
+        "Use bracket notation `cfg['limits']['retries'] = retries;`.",
+        "Use `Object.defineProperty(cfg.limits, 'retries', { value: retries })`.",
+        "Reset `cfg.timeout = 3000;` right after line 4."
       ]
     },
     "5": {
       "diagnosis": [
-        "The helper should return the retry count on its own.",
-        "Callers only need the limits sub-object.",
-        "The return should ignore cfg and use the default object."
+        "Returning `cfg` returns a reference to `DEFAULT_CONFIG` itself, not just `limits`.",
+        "Returning `cfg` strips nested objects like `limits` in strict mode.",
+        "Should return `cfg.limits` instead of the full `cfg` object.",
+        "Returning `cfg` without cloning lets the caller mutate `DEFAULT_CONFIG.timeout`."
       ],
       "fix": [
-        "Return retries.",
-        "Return cfg.limits.",
-        "Return DEFAULT_CONFIG instead of cfg."
+        "Return `{ ...cfg }` on line 5 so `DEFAULT_CONFIG` stays untouched.",
+        "Return `Object.freeze(cfg)` on line 5.",
+        "Return `cfg.limits` directly.",
+        "Return `JSON.stringify(cfg)` so callers can't mutate it."
+      ]
+    },
+    "6": {
+      "diagnosis": [
+        "Missing semicolon after `}` causes syntax errors in strict mode.",
+        "Leaving `withRetries` without resetting `DEFAULT_CONFIG.limits.retries = 2` causes the leak — just reset it here.",
+        "Nothing exports `withRetries` for other modules to call.",
+        "Closing brace leaves `cfg` allocated on the global object."
+      ],
+      "fix": [
+        "Reset `DEFAULT_CONFIG.limits.retries = 2` before returning.",
+        "Add `};` at the end of the function.",
+        "Add `export default withRetries;`.",
+        "Set `cfg = null;` before closing."
       ]
     }
   }

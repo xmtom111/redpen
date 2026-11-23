@@ -1,0 +1,106 @@
+{
+  "schema_version": 2,
+  "domain": "logic",
+  "renderer": "prose",
+  "opener": true,
+  "kind": "trick_clean",
+  "difficulty": "intro",
+  "level": 0,
+  "estimated_seconds": 50,
+  "id": "logic-chat-trivia-halves",
+  "lang": "en",
+  "title": "Pub trivia",
+  "topic": "A friend averages two percentages from two halves of a trivia night",
+  "blurb": "A friend is recapping their team's score after trivia night.",
+  "prompt": "A friend just sent this in the group chat. Tap a line if something doesn't add up, or let it pass.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The format",
+      "text": "Pub trivia had two 20-question halves tonight — music in the first half, geography in the second."
+    },
+    {
+      "id": 2,
+      "label": "The halves",
+      "text": "We nailed 75% in the music half and limped through 45% in geography."
+    },
+    {
+      "id": 3,
+      "label": "The total",
+      "text": "75 plus 45 divided by 2 is 60, so we finished at 60% overall."
+    },
+    {
+      "id": 4,
+      "label": "The gripe",
+      "text": "Good enough for third place — missed the free nachos by one question."
+    }
+  ],
+  "conclusion": "75% in the first 20-question half and 45% in the second comes out to 60% overall.",
+  "flaws": [],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "Music and geography questions usually carry different point weights in trivia, so 20 questions each isn't equal.",
+        "Two halves of 20 is 40 questions, which isn't a clean base-100 total for adding percentages.",
+        "Splitting into two topics hides bonus questions that usually sit between halves.",
+        "Having 20 questions per half doesn't let you average percentages unless you got the same count right."
+      ],
+      "fix": [
+        "Check whether geography questions were worth double points before combining halves.",
+        "Convert the 40 questions into raw points instead of working with percentages.",
+        "Include the halftime bonus question in the denominator before scoring.",
+        "Compare each half against the other teams separately instead of pooling them."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "75% and 45% come from two different categories, so you can't treat them on the same percentage scale.",
+        "45% of 20 isn't a whole number of questions, so the geography score has to be rounded.",
+        "75% of 20 is 14 questions and 45% is 8, so the raw numbers don't even match those percentages.",
+        "Quoting percentages instead of raw hits hides how many questions you actually missed."
+      ],
+      "fix": [
+        "Convert to raw counts first: 14 in music and 8 in geography.",
+        "Check the geography score sheet since 45% of 20 rounds awkwardly.",
+        "Report 15 out of 20 and 9 out of 20 instead of percentages.",
+        "Keep the two categories separate since music is easier than geography."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "You can't just average two percentages — adding 75% and 45% and dividing by 2 ignores how each half is weighted.",
+        "75% of 20 is 15 and 45% of 20 is 9; 24 out of 40 is 58%, not 60%.",
+        "When you combine two halves, the denominator doubles to 40, so you have to divide by 4, not 2.",
+        "Averaging 75% and 45% only works if you got the same number of wrong answers in both halves."
+      ],
+      "fix": [
+        "Add the raw hits first (15 + 9 = 24) and weight by each half's difficulty.",
+        "Divide 24 by 40 properly — that's 58%, not 60%.",
+        "Don't average percentages; report 75% on music and 45% on geography separately.",
+        "Use the weighted average formula instead of (75 + 45) / 2."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Missing by one question out of 40 is a 5% gap, which means second place had 65%, not 62.5%.",
+        "60% is 24 questions, and one more is 25 — you can't tell how close third place was without knowing total teams.",
+        "If you actually scored 58%, you were more than one question away from free nachos.",
+        "One question in a 20-question half is 5%, so missing by one question changes the overall average by 5 points."
+      ],
+      "fix": [
+        "Check how many questions second place got — one question out of 40 is 2.5%, not 5%.",
+        "Re-check whether 25 out of 40 would have tied or beaten second place.",
+        "Fix the overall percentage first before blaming a single missed geography question.",
+        "Count total points including tiebreakers before saying it was one question."
+      ]
+    }
+  },
+  "clean_segments": [
+    "Pub trivia had two 20-question halves tonight — music in the first half, geography in the second.",
+    "We nailed 75% in the music half and limped through 45% in geography.",
+    "75 plus 45 divided by 2 is 60, so we finished at 60% overall.",
+    "Good enough for third place — missed the free nachos by one question."
+  ],
+  "clean_conclusion": "Averaging two percentages usually burns you — except both halves had the exact same 20 questions. 15 right plus 9 right out of 40 really is 60%.",
+  "explanation": "Averaging two percentages usually burns you — except both halves had the exact same 20 questions. 15 right plus 9 right out of 40 really is 60%."
+}

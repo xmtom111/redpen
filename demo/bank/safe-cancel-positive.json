@@ -1,0 +1,39 @@
+{
+  "kind": "trick_clean",
+  "title": "Factored cubic",
+  "problem": "Find all real solutions of \\((x^2 + 1)(x - 3) = 2(x^2 + 1)\\). Check this solution — tap a step if it slips, or let it pass.",
+  "steps": [
+    "Start from \\((x^2 + 1)(x - 3) = 2(x^2 + 1)\\) over the reals.",
+    "Divide both sides by \\(x^2 + 1\\) to get \\(x - 3 = 2\\).",
+    "Add \\(3\\) to both sides: \\(x = 5\\).",
+    "Substitute \\(x = 5\\): \\((5^2 + 1)(5 - 3) = 52\\) and \\(2(5^2 + 1) = 52\\).",
+    "So \\(x = 5\\) is the only real solution."
+  ],
+  "final_answer": "\\(x = 5\\)",
+  "key": {
+    "level": 0,
+    "clean_steps": [
+      "Start from \\((x^2 + 1)(x - 3) = 2(x^2 + 1)\\) over the reals.",
+      "Divide both sides by \\(x^2 + 1\\) to get \\(x - 3 = 2\\).",
+      "Add \\(3\\) to both sides: \\(x = 5\\).",
+      "Substitute \\(x = 5\\): \\((5^2 + 1)(5 - 3) = 52\\) and \\(2(5^2 + 1) = 52\\).",
+      "So \\(x = 5\\) is the only real solution."
+    ],
+    "clean_final_answer": "\\(x = 5\\)",
+    "errors": [],
+    "checks": [
+      "expand((x**2 + 1)*(x - 3) - 2*(x**2 + 1)) == expand((x**2 + 1)*(x - 5))",
+      "(5**2 + 1)*(5 - 3) == 2*(5**2 + 1)"
+    ],
+    "reference_check": "none"
+  },
+  "meta": {
+    "kind": "trick_clean",
+    "topic": "Cancelling a strictly positive factor",
+    "mode": "0",
+    "difficulty": "standard",
+    "focus": [],
+    "blurb": "Solving \\((x^2 + 1)(x - 3) = 2(x^2 + 1)\\) over the reals."
+  },
+  "explanation": "Dividing by \\(x^2 + 1\\) looks like a lost-root trap, except \\(x^2 + 1 \\ge 1\\) can never hit zero for any real \\(x\\)."
+}

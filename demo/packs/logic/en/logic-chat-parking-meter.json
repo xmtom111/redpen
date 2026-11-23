@@ -1,0 +1,106 @@
+{
+  "schema_version": 2,
+  "domain": "logic",
+  "renderer": "prose",
+  "opener": true,
+  "kind": "clean",
+  "difficulty": "intro",
+  "level": 0,
+  "estimated_seconds": 55,
+  "id": "logic-chat-parking-meter",
+  "lang": "en",
+  "title": "Sunday garage",
+  "topic": "A friend adds up a Sunday parking tab across a free-after-6 cutoff",
+  "blurb": "A friend is checking their Sunday movie parking receipt.",
+  "prompt": "A friend just sent this in the group chat. Tap a line if something doesn't add up, or let it pass.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The sign",
+      "text": "Downtown garage is $4 for the first hour, $2.50 each extra half hour, and Sundays are free after 6 PM."
+    },
+    {
+      "id": 2,
+      "label": "The stay",
+      "text": "Pulled in at 3:30 PM Sunday for the movie and drove out at 7:15 PM."
+    },
+    {
+      "id": 3,
+      "label": "The tab",
+      "text": "Paid $11.50 at the kiosk — way cheaper than the $18 flat lot across the street."
+    },
+    {
+      "id": 4,
+      "label": "The win",
+      "text": "Definitely using that garage next weekend too."
+    }
+  ],
+  "conclusion": "3:30 PM to 7:15 PM on Sunday comes out to $11.50 at the kiosk.",
+  "flaws": [],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "Garages that say 'free after 6 PM' only apply if you enter after 6 PM, not if your ticket started earlier.",
+        "$2.50 per half hour is $5 an hour, so the first hour is cheaper and can't be added directly to half-hour blocks.",
+        "Sunday rates usually replace the hourly sign with a flat weekend maximum instead of mixing both.",
+        "Listing an hour rate and a half-hour rate without mentioning the grace period makes the 7:15 exit billable."
+      ],
+      "fix": [
+        "Count the full 3 hours 45 minutes at hourly rates since you entered before 6 PM.",
+        "Convert the first hour to two half-hours ($5) before summing the stay.",
+        "Check if the garage charges a Sunday flat fee before assuming free after 6.",
+        "Verify whether the 15 minutes past 7:00 triggers an extra half-hour charge."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "From 3:30 PM to 7:15 PM is 4 hours and 15 minutes, not 3 hours and 45 minutes.",
+        "Driving out at 7:15 PM means you stayed past 7:00, so the kiosk rounds up to four full hours.",
+        "Entering at 3:30 PM puts the half-hour boundaries on :00 and :30, so 7:15 adds an extra block.",
+        "Leaving at 7:15 PM is 1 hour 15 minutes after 6:00 — that's 65 minutes, not 75."
+      ],
+      "fix": [
+        "Recount 3:30 to 7:15 as 4 hours 15 minutes before pricing the ticket.",
+        "Round the 7:15 exit up to 7:30 since garages bill partial half-hours in full.",
+        "Change the free window from 75 minutes to 65 minutes.",
+        "Exit before 7:00 PM next time to avoid crossing into a fourth paid hour."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "3:30 to 6:00 is five half-hours at $2.50 ($12.50), or 4:30 to 6:00 is four blocks ($14.00) — $11.50 is off.",
+        "Three half-hours at $2.50 is $6.50, not $7.50, so the kiosk overcharged you by $1 (should be $10.50).",
+        "Since you entered before 6 PM, the full 3 hours 45 minutes gets billed ($19.00) — $1 more than the $18 lot.",
+        "Leaving at 7:15 PM adds 15 minutes past 7:00, which pushes the bill up by another $2.50 to $14.00."
+      ],
+      "fix": [
+        "Recount 4:30 to 6:00 as four half-hour blocks: $4 + $10 = $14.00.",
+        "Fix $4 + 3 × $2.50 to $10.50 and ask for a $1 refund.",
+        "Bill the full stay through 7:15 PM ($19.00) since entry was before 6 PM.",
+        "Use the $18 flat lot next time if Sunday stays past 6 PM lose the free rate."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Next Saturday isn't Sunday — the free-after-6 rule only applies on Sundays, so Saturday 3:30–7:15 costs $19.",
+        "If the garage only charged $11.50 by mistake, next weekend's kiosk will bill the full $19.",
+        "Weekend movies run longer, so arriving at 3:30 next weekend still risks missing the 6 PM cutoff.",
+        "At $14.00 for four half-hours, the $18 lot is barely different once you add the walk."
+      ],
+      "fix": [
+        "Make sure you go on Sunday next weekend, not Saturday, or the after-6 free rate disappears.",
+        "Budget $19 for next weekend in case the kiosk charges past 6 PM.",
+        "Park at the $18 flat lot if you go on a Saturday evening.",
+        "Leave before 6 PM next time so you don't rely on the Sunday rule."
+      ]
+    }
+  },
+  "clean_segments": [
+    "Downtown garage is $4 for the first hour, $2.50 each extra half hour, and Sundays are free after 6 PM.",
+    "Pulled in at 3:30 PM Sunday for the movie and drove out at 7:15 PM.",
+    "Paid $11.50 at the kiosk — way cheaper than the $18 flat lot across the street.",
+    "Definitely using that garage next weekend too."
+  ],
+  "clean_conclusion": "Every block checks out: 3:30–4:30 is $4, 4:30–6:00 is three half-hours ($7.50), and 6:00–7:15 (75 minutes) is free on Sunday — $11.50 exact.",
+  "explanation": "Every block checks out: 3:30–4:30 is $4, 4:30–6:00 is three half-hours ($7.50), and 6:00–7:15 (75 minutes) is free on Sunday — $11.50 exact."
+}

@@ -1,6 +1,6 @@
 {
-  "title": "The AI already found every real solution",
-  "problem": "A student asked an AI tutor for every real solution of \\(x^3 = 4x\\). This is the write-up it handed back, ending with a very sure answer.",
+  "title": "Cubic equation",
+  "problem": "Find all real solutions of \\(x^3 = 4x\\). Check this solution — tap a step if it slips, or let it pass.",
   "steps": [
     "Start from the equation \\(x^3 = 4x\\).",
     "Divide both sides by \\(x\\) to obtain \\(x^2 = 4\\).",
@@ -24,7 +24,7 @@
       {
         "step": 2,
         "category": "division-by-zero",
-        "original": "Move every term to one side and factor: \\(x(x^2 - 4) = 0\\).",
+        "original": "Move every term to one side and factor: $x(x^2 - 4) = 0$.",
         "corrupted": "Divide both sides by \\(x\\) to obtain \\(x^2 = 4\\).",
         "why_wrong": "Dividing by \\(x\\) assumes \\(x \\neq 0\\), which discards the solution \\(x = 0\\).",
         "why_tempting": "Cancelling a common factor looks like simplifying, and the later substitutions agree with the two roots that remain.",
@@ -46,6 +46,8 @@
     "mode": "1",
     "difficulty": "standard",
     "focus": [],
-    "blurb": "It checked two values, declared the job done, and moved on."
-  }
+    "blurb": "Solving \\(x^3 = 4x\\) over the reals.",
+    "kind": "planted"
+  },
+  "kind": "planted"
 }

@@ -10,8 +10,8 @@
   "lang": "en",
   "title": "Weekend cabin",
   "topic": "A friend is closing out the cabin and grocery money in the group chat",
-  "blurb": "A friend is wrapping up the weekend cabin expenses in the group chat.",
-  "prompt": "A friend just texted this in the group chat. If one line doesn't add up, tap it.",
+  "blurb": "A friend is wrapping up the weekend cabin and grocery split.",
+  "prompt": "A friend just sent this in the group chat. Tap a line if something doesn't add up, or let it pass.",
   "segments": [
     {
       "id": 1,
@@ -44,30 +44,38 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "Jake's $30 for groceries went to you, not Mia. She paid $260 and you paid $200 — she just bought your dinner."
+          "label": "Jake's $30 for food went to you, not Mia — she paid $260 while you paid $200."
         },
         {
           "id": "d2",
-          "label": "The $90 groceries should have been split four ways, because you also bought snacks on the drive."
+          "label": "The $90 groceries should be split four ways because you brought snacks for the drive up."
         },
         {
           "id": "d3",
-          "label": "Jake still owes $10, because $600 plus $90 is $690, and $230 plus $170 is only $400."
+          "label": "Jake still owes $10 because $600 + $90 is $690, and $230 + $170 only adds up to $400."
+        },
+        {
+          "id": "d4",
+          "label": "Mia already put $90 on her card for groceries, so she shouldn't send you anything past $110."
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Send Mia the $30 Jake gave you, or have her send you $140 instead of $170."
+          "label": "Pass Jake's $30 to Mia (or have Mia send $140 instead of $170)."
         },
         {
           "id": "f2",
-          "label": "Ask Jake for another $30 so Mia can be paid back from a new transfer."
+          "label": "Have Jake send Mia another $30 directly while keeping your $170 and $230 transfers."
         },
         {
           "id": "f3",
-          "label": "Let Mia keep a larger share of the cabin, which cancels the groceries on her side only."
+          "label": "Have Mia send $110 ($200 minus her full $90) and Jake send you $200 for the room."
+        },
+        {
+          "id": "f4",
+          "label": "Split the $90 groceries fresh from scratch while leaving the $170 and $230 as settled."
         }
       ],
       "fix_answer": "f1",
@@ -92,26 +100,44 @@
   "segment_distractors": {
     "1": {
       "diagnosis": [
-        "The room bill should be split only between the two people who did not pay up front.",
-        "Each guest owes the entire room price.",
-        "Mia’s groceries are included in the $600 room charge."
+        "Putting $600 on your card means each of the two friends owes $300, not $200.",
+        "You can't split the $600 room evenly before subtracting credit-card points you earned on the booking.",
+        "A $600 cabin split three ways is $200 each only if everyone got the same size bedroom.",
+        "You have to add the $90 groceries to the $600 first ($230 each) before anyone calculates transfers."
       ],
       "fix": [
-        "Use $300 as each guest’s room share.",
-        "Assign $600 of room cost to each guest.",
-        "Deduct the $90 groceries from the room price first."
+        "Collect $300 each from Mia and Jake to cover the $600 card charge.",
+        "Combine $600 + $90 = $690 ($230 each) and net everyone against $230.",
+        "Split the $600 by bedroom size before adding groceries.",
+        "Wait until the credit-card statement posts with taxes before splitting $600."
       ]
     },
     "2": {
       "diagnosis": [
-        "The $90 is already a per-person cost.",
-        "Mia’s grocery share is zero because she paid.",
-        "The groceries were bought for only the two people who did not pay."
+        "Mia's $90 groceries should be split only between you and Jake ($45 each) since she shopped for it.",
+        "You have to subtract $90 from the $600 room first ($510 ÷ 3 = $170 each) before settling up.",
+        "$90 for three people is $30 each, which means Mia is owed $90 back, not $60.",
+        "Groceries shouldn't be mixed with lodging — settle the $600 room and $90 groceries in separate threads."
       ],
       "fix": [
-        "Record total groceries as $270.",
-        "Exclude Mia from her own share of the groceries.",
-        "Divide the grocery cost between the other two guests only."
+        "Have Mia keep her $30 share and collect $45 each from you and Jake.",
+        "Subtract $90 from $600 first and have everyone pay $170.",
+        "Send Mia $90 straight back before splitting the cabin.",
+        "Keep room and groceries separate: both send you $200, and you and Jake each send Mia $30."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Dropping the $600 cabin receipt without Mia's $90 grocery receipt hides the $30 error.",
+        "The receipt will show $600, which proves you were shortchanged $200 after receiving only $400.",
+        "Sharing the receipt after everyone already sent money means you can't fix the $30 slip.",
+        "You don't need to drop the receipt because $170 + $230 = $400 already matches your $400 owed."
+      ],
+      "fix": [
+        "Have Mia drop the $90 grocery receipt too so everyone sees the $690 total.",
+        "Check each person's net out-of-pocket against $230 before posting the receipt.",
+        "Send Mia $30 back along with the receipt so the ledger is actually even.",
+        "Verify the $600 receipt includes cleaning fees before calling it settled."
       ]
     }
   }

@@ -1,0 +1,53 @@
+{
+  "kind": "planted",
+  "title": "Square-root equation",
+  "problem": "Find all real solutions of \\(\\sqrt{x + 6} = x\\). Check this solution — tap a step if it slips, or let it pass.",
+  "steps": [
+    "Start from \\(\\sqrt{x + 6} = x\\).",
+    "Square both sides to clear the square root: \\(x + 6 = x^2\\).",
+    "Move all terms to one side: \\(x^2 - x - 6 = 0\\).",
+    "Factor the quadratic: \\((x - 3)(x + 2) = 0\\), giving \\(x = 3\\) or \\(x = -2\\).",
+    "Check both values in \\(x + 6 = x^2\\): \\(3 + 6 = 9 = 3^2\\) and \\(-2 + 6 = 4 = (-2)^2\\), so both \\(x = 3\\) and \\(x = -2\\) are valid solutions."
+  ],
+  "final_answer": "\\(x \\in \\{-2, 3\\}\\)",
+  "key": {
+    "level": 1,
+    "clean_steps": [
+      "Start from \\(\\sqrt{x + 6} = x\\). Since the principal square root is non-negative, any real solution must satisfy \\(x \\ge 0\\).",
+      "Square both sides to get \\(x + 6 = x^2\\).",
+      "Rearrange: \\(x^2 - x - 6 = 0\\).",
+      "Factor: \\((x - 3)(x + 2) = 0\\), giving candidates \\(x = 3\\) or \\(x = -2\\).",
+      "Check in the original equation \\(\\sqrt{x + 6} = x\\): \\(\\sqrt{9} = 3\\) works, but \\(\\sqrt{4} = 2 \\neq -2\\), so \\(x = -2\\) is extraneous. Only \\(x = 3\\) solves the equation."
+    ],
+    "clean_final_answer": "\\(x = 3\\)",
+    "errors": [
+      {
+        "step": 5,
+        "category": "extraneous-root",
+        "original": "Check both candidates in the original equation \\(\\sqrt{x + 6} = x\\): \\(\\sqrt{9} = 3\\) holds, while \\(\\sqrt{4} = 2 \\neq -2\\), so only \\(x = 3\\) is a solution.",
+        "corrupted": "Check both values in \\(x + 6 = x^2\\): \\(3 + 6 = 9 = 3^2\\) and \\(-2 + 6 = 4 = (-2)^2\\), so both \\(x = 3\\) and \\(x = -2\\) are valid solutions.",
+        "why_wrong": "Checking in the squared equation \\(x + 6 = x^2\\) can't catch extraneous roots created by squaring. In the original equation, \\(\\sqrt{-2 + 6} = 2 \\neq -2\\), so \\(x = -2\\) fails.",
+        "why_tempting": "Both substitutions look completely honest and accurate — it's easy to miss that they plugged into step 2 instead of step 1.",
+        "catch_rule": "After squaring both sides of an equation, always plug every candidate back into the original equation (before squaring).",
+        "hint": "Plug \\(x = -2\\) into the original equation \\(\\sqrt{x + 6} = x\\), not the squared one.",
+        "practice": {
+          "problem": "Solve \\(\\sqrt{x + 2} = x\\) over the reals.",
+          "answer": "\\(x = 2\\) (\\(x = -1\\) is extraneous since \\(\\sqrt{1} = 1 \\neq -1\\))."
+        }
+      }
+    ],
+    "checks": [
+      "solve(sqrt(x + 6) - x, x) == [3]",
+      "sqrt(3 + 6) == 3"
+    ],
+    "reference_check": "none"
+  },
+  "meta": {
+    "kind": "planted",
+    "topic": "Checking candidate roots after squaring",
+    "mode": "1",
+    "difficulty": "standard",
+    "focus": [],
+    "blurb": "Solving \\(\\sqrt{x + 6} = x\\) over the reals."
+  }
+}

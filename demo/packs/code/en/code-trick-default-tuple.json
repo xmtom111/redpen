@@ -1,0 +1,146 @@
+{
+  "schema_version": 2,
+  "id": "code-trick-default-tuple",
+  "domain": "code",
+  "renderer": "code",
+  "code_language": "python",
+  "lang": "en",
+  "kind": "trick_clean",
+  "title": "Tag list helper",
+  "topic": "Using `tags=()` as a default argument and rebinding with `+`",
+  "blurb": "A small Python helper that appends normalized tags.",
+  "difficulty": "standard",
+  "level": 0,
+  "estimated_seconds": 50,
+  "prompt": "Spec: strip and lowercase `tag`, add it to `tags` if non-empty and new, and return the tuple without leaking across separate calls. Review this helper — tap a line if it breaks the spec, or let it pass.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "L1",
+      "text": "def append_tag(tag, tags=()):"
+    },
+    {
+      "id": 2,
+      "label": "L2",
+      "text": "    cleaned = tag.strip().lower()"
+    },
+    {
+      "id": 3,
+      "label": "L3",
+      "text": "    if not cleaned or cleaned in tags:"
+    },
+    {
+      "id": 4,
+      "label": "L4",
+      "text": "        return tags"
+    },
+    {
+      "id": 5,
+      "label": "L5",
+      "text": "    tags += (cleaned,)"
+    },
+    {
+      "id": 6,
+      "label": "L6",
+      "text": "    return tags"
+    }
+  ],
+  "conclusion": "AI summary: Calling `append_tag('VIP')` then `append_tag('Sale')` returns `('vip',)` and `('sale',)` — completely isolated.",
+  "flaws": [],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "Default container `tags=()` is created once at `def` time, so later calls leak tags from earlier calls.",
+        "Python forbids an empty tuple `()` as a default parameter value.",
+        "Using `tags=()` means callers can't pass an existing tuple like `('vip',)`.",
+        "Default `tags=()` is shared across calls, so calling `append_tag('sale')` second returns `('vip', 'sale')`."
+      ],
+      "fix": [
+        "Change to `tags=None` and initialize `if tags is None: tags = ()` inside to stop leaks.",
+        "Use `tags=tuple()` in the signature so Python allocates a fresh tuple each call.",
+        "Switch the default to `tags=[]` and convert to tuple at the end.",
+        "Require callers to always pass `tags` explicitly with no default."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "Calling `.strip().lower()` mutates `tag` in place, changing the caller's string.",
+        "Running `.strip()` before `.lower()` misses uppercase spaces at the start of `tag`.",
+        "`tag.strip().lower()` returns `None` when `tag` is already lowercase.",
+        "If `tag` has spaces in the middle like `'vip pass'`, `.strip()` removes them."
+      ],
+      "fix": [
+        "Call `tag.lower().strip()` instead of `.strip().lower()`.",
+        "Clone `tag` with `str(tag)` before calling `.strip().lower()`.",
+        "Use `tag.replace(' ', '').lower()` so whitespace is handled.",
+        "Check `if tag:` before calling `.strip().lower()`."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "`cleaned in tags` raises TypeError when `tags` is the empty tuple `()`.",
+        "Operator precedence parses `not (cleaned or cleaned in tags)`, inverting the duplicate check.",
+        "`in` checks substring membership on tuples, so `'vi'` matches `'vip'`.",
+        "Using `or` instead of `and` skips valid tags whenever `tags` is empty."
+      ],
+      "fix": [
+        "Add explicit parentheses: `if (not cleaned) or (cleaned in tags):`.",
+        "Guard `if tags and cleaned in tags:` so empty `()` doesn't raise.",
+        "Replace `or` with `and` so non-empty unique tags pass through.",
+        "Convert `tags` to a `set` before checking `cleaned in tags`."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Returning `tags` directly returns a shared reference to the default tuple, leaking future edits.",
+        "When `cleaned` is empty, returning `tags` should return `None` instead of `()`.",
+        "Returning early leaves `cleaned` bound in the default tuple.",
+        "Returning `tags` skips converting it to a list."
+      ],
+      "fix": [
+        "Return `tuple(tags)` so the default `()` isn't exposed.",
+        "Return `None` when `cleaned` is empty.",
+        "Return `()` explicitly instead of `tags`.",
+        "Return `list(tags)` for consistency."
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "Augmented assignment `tags += (cleaned,)` mutates the default `tags=()` in place, leaking `cleaned` into the next call.",
+        "Writing `(cleaned,)` with a trailing comma creates a 2-element tuple with `None` as the second entry.",
+        "Tuples are immutable in Python, so `tags += (cleaned,)` raises TypeError at runtime.",
+        "Using `+=` on a parameter modifies the caller's tuple outside the function."
+      ],
+      "fix": [
+        "Replace `tags += (cleaned,)` with `tags = tags + (cleaned,)` so it stops mutating in place.",
+        "Drop the trailing comma and write `tags += (cleaned)` so it stays a 1-element tuple.",
+        "Convert to a list first with `list(tags).append(cleaned)` before returning.",
+        "Assign to a new local variable `out = (*tags, cleaned)` so `tags` isn't touched."
+      ]
+    },
+    "6": {
+      "diagnosis": [
+        "Returning `tags` returns the mutated default tuple shared with every future call.",
+        "Because tuples are immutable, line 5 was a no-op and line 6 still returns `()`.",
+        "Returning `tags` returns a nested tuple `((), 'vip')` on the first call.",
+        "Should return `cleaned` instead of `tags`."
+      ],
+      "fix": [
+        "Return `tuple(tags)` to copy away from the default.",
+        "Return `(cleaned,)` directly when `tags` was empty.",
+        "Unpack `return (*tags,)` so it isn't nested.",
+        "Return `list(tags)` so callers can iterate over it."
+      ]
+    }
+  },
+  "clean_segments": [
+    "def append_tag(tag, tags=()):",
+    "    cleaned = tag.strip().lower()",
+    "    if not cleaned or cleaned in tags:",
+    "        return tags",
+    "    tags += (cleaned,)",
+    "    return tags"
+  ],
+  "clean_conclusion": "Default `[]` leaks because lists mutate in place under `+=`. `()` is an immutable tuple, so `tags += (cleaned,)` allocates a brand-new tuple and rebinds the local name without ever touching the default.",
+  "explanation": "Default `[]` leaks because lists mutate in place under `+=`. `()` is an immutable tuple, so `tags += (cleaned,)` allocates a brand-new tuple and rebinds the local name without ever touching the default."
+}

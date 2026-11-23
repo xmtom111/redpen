@@ -1,0 +1,184 @@
+{
+  "schema_version": 2,
+  "id": "code-js-sort-numbers",
+  "domain": "code",
+  "renderer": "code",
+  "code_language": "javascript",
+  "lang": "en",
+  "kind": "planted",
+  "title": "Top three scores",
+  "topic": "A leaderboard helper that passed every single-digit test",
+  "blurb": "A leaderboard helper that returns the three highest numeric scores.",
+  "difficulty": "intro",
+  "level": 1,
+  "estimated_seconds": 50,
+  "prompt": "Spec: return the three highest numeric scores from `scores` in descending order without mutating the input array. Review this helper — tap a line if it breaks the spec, or let it pass.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "L1",
+      "text": "function topThreeScores(scores) {"
+    },
+    {
+      "id": 2,
+      "label": "L2",
+      "text": "  const copy = [...scores];"
+    },
+    {
+      "id": 3,
+      "label": "L3",
+      "text": "  copy.sort();"
+    },
+    {
+      "id": 4,
+      "label": "L4",
+      "text": "  copy.reverse();"
+    },
+    {
+      "id": 5,
+      "label": "L5",
+      "text": "  return copy.slice(0, 3);"
+    },
+    {
+      "id": 6,
+      "label": "L6",
+      "text": "}"
+    }
+  ],
+  "conclusion": "AI summary: Copies the array, sorts ascending, reverses to descending, and slices the top 3.",
+  "flaws": [
+    {
+      "segment_id": 3,
+      "error_type": "lexicographic-sort",
+      "original": "  copy.sort((a, b) => a - b);",
+      "corrupted": "  copy.sort();",
+      "diagnosis_choices": [
+        {
+          "id": "d1",
+          "label": "With no comparator, JS `.sort()` compares numbers as strings — so `'9'` beats `'100'` and high scores drop off."
+        },
+        {
+          "id": "d2",
+          "label": "`.sort()` returns a brand-new array instead of sorting in place, so `copy` stays unsorted."
+        },
+        {
+          "id": "d3",
+          "label": "Calling `.sort()` on a `const` array throws TypeError because `const` prevents mutation."
+        },
+        {
+          "id": "d4",
+          "label": "`.sort()` already sorts numbers from highest to lowest, so line 4 flips them upside down."
+        }
+      ],
+      "diagnosis_answer": "d1",
+      "fix_choices": [
+        {
+          "id": "f1",
+          "label": "Pass a numeric comparator: `copy.sort((a, b) => a - b)` (or `b - a` and drop `.reverse()`)."
+        },
+        {
+          "id": "f2",
+          "label": "Reassign `copy = copy.sort()` so the sorted array isn't discarded."
+        },
+        {
+          "id": "f3",
+          "label": "Change `const copy` to `let copy` so `.sort()` can mutate it."
+        },
+        {
+          "id": "f4",
+          "label": "Remove `copy.reverse()` since `.sort()` is already descending."
+        }
+      ],
+      "fix_answer": "f1",
+      "explanation": "In JavaScript, `.sort()` with no callback converts elements to strings and sorts alphabetically. So `[2, 10, 9, 100]` becomes `[10, 100, 2, 9]`, and reversed top-3 puts `9` ahead of `100`.",
+      "why_tempting": "On single-digit test cases like `[5, 2, 9, 7]`, string order and numeric order match — and Python's `.sort()` really is numeric by default.",
+      "catch_rule": "Never call `.sort()` without a comparator on JS numbers; always write `.sort((a, b) => a - b)` or `(a, b) => b - a`.",
+      "hint": "Run `[2, 10, 9, 100].sort()` in your head as strings instead of numbers.",
+      "practice": {
+        "problem": "What does `[1, 20, 3, 100].sort()` return in JavaScript?",
+        "answer": "`[1, 100, 20, 3]` — sorted alphabetically as `'1'`, `'100'`, `'20'`, `'3'`."
+      }
+    }
+  ],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "If `scores` has fewer than 3 items, calling `topThreeScores` throws RangeError on line 5.",
+        "Function doesn't check for `scores` being empty, which makes `.sort()` crash.",
+        "Missing default `scores = []` prevents spreading arrays.",
+        "Accepting `scores` directly mutates the caller's array even with `[...scores]`."
+      ],
+      "fix": [
+        "Guard `if (scores.length < 3) return scores;` at the top.",
+        "Default `scores = []` in the parameter list.",
+        "Return `null` when `scores` has fewer than 3 elements.",
+        "Use `structuredClone(scores)` on line 1."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "`[...scores]` is a shallow copy, so `copy.sort()` still reorders the caller's `scores` array.",
+        "Using `const copy` freezes the array and makes `copy.sort()` throw TypeError.",
+        "Spreading `scores` converts numeric entries into strings, breaking line 3.",
+        "`[...scores]` drops duplicate scores like `[9, 9, 7]`."
+      ],
+      "fix": [
+        "Change `const copy` to `let copy` so it can be sorted in place.",
+        "Use `scores.map(Number)` instead of `[...scores]` to keep numbers.",
+        "Use `structuredClone(scores)` because spread still mutates the original.",
+        "Use `Array.from(scores)` so duplicates aren't removed."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "`copy.reverse()` returns a new array and leaves `copy` ascending, so line 5 returns the three *lowest* scores.",
+        "Calling `.reverse()` mutates the original `scores` array passed by the caller.",
+        "Reversing after sorting breaks tie order on equal numbers and drops duplicates.",
+        "`.reverse()` skips index 0 on even-length arrays."
+      ],
+      "fix": [
+        "Capture the return value: `const desc = copy.reverse();`.",
+        "Drop `.reverse()` and slice from the end with `copy.slice(-3)`.",
+        "Clone again before reversing: `[...copy].reverse()`.",
+        "Sort descending directly and keep `.reverse()` as a fallback."
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "`copy.slice(0, 3)` is off by one and returns 4 elements (indices `0, 1, 2, 3`).",
+        "When `scores` has only 2 items, `slice(0, 3)` pads the third slot with `undefined`.",
+        "`slice(0, 3)` mutates `copy` and returns the removed elements instead of the top three.",
+        "`slice(0, 3)` skips index 0 and returns indices `1, 2, 3`."
+      ],
+      "fix": [
+        "Change to `copy.slice(0, 2)` so only 3 elements are returned.",
+        "Guard `copy.slice(0, Math.min(3, copy.length))` so short arrays don't get `undefined`.",
+        "Replace `slice(0, 3)` with `splice(0, 3)` so it doesn't pad.",
+        "Use `copy.slice(1, 4)` to grab the first three slots."
+      ]
+    },
+    "6": {
+      "diagnosis": [
+        "Missing semicolon after the function causes strict-mode syntax errors.",
+        "`copy` isn't cleared before returning, leaking memory across calls.",
+        "Closing brace ends the function before `copy.reverse()` finishes.",
+        "Should export `topThreeScores` or callers can't pass arrays."
+      ],
+      "fix": [
+        "Add `};` at the end of the function.",
+        "Add `copy.length = 0;` after slicing.",
+        "Wrap the function in `export function topThreeScores(scores)`.",
+        "Return a `Set` so the top three are always unique."
+      ]
+    }
+  },
+  "clean_segments": [
+    "function topThreeScores(scores) {",
+    "  const copy = [...scores];",
+    "  copy.sort((a, b) => a - b);",
+    "  copy.reverse();",
+    "  return copy.slice(0, 3);",
+    "}"
+  ],
+  "clean_conclusion": "In JS, `.sort()` without a comparator turns numbers into strings — `'9'` beats `'100'`. Passing `(a, b) => a - b` (or `b - a`) actually sorts by value."
+}

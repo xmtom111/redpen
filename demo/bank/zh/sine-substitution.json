@@ -1,6 +1,6 @@
 {
-  "title": "换元之后，答案停在了 −2",
-  "problem": "AI 计算器对 \\(\\int_0^{\\pi/2} \\sin(2x)\\, dx\\) 做了换元，然后报出一个干净的最终值。",
+  "title": "三角换元定积分",
+  "problem": "计算 \\(\\int_0^{\\pi/2} \\sin(2x)\\, dx\\)。检查这份过程，觉得哪一步错了就点它，觉得没问题就放行。",
   "steps": [
     "令 \\(u = 2x\\)。则 \\(du = 2\\, dx\\)，所以 \\(dx = \\frac{1}{2}\\, du\\)。",
     "更换积分限：\\(x = 0\\) 时 \\(u = 0\\)，\\(x = \\frac{\\pi}{2}\\) 时 \\(u = \\pi\\)。",
@@ -25,11 +25,11 @@
       {
         "step": 3,
         "category": "integration",
-        "original": "计入 \\(dx = \\frac{1}{2}\\, du\\)：\\(\\int_0^{\\pi} \\sin u \\cdot \\frac{1}{2}\\, du = \\frac{1}{2}\\int_0^{\\pi} \\sin u\\, du\\)。",
+        "original": "计入 $dx = \\frac{1}{2}\\, du$：$\\int_0^{\\pi} \\sin u \\cdot \\frac{1}{2}\\, du = \\frac{1}{2}\\int_0^{\\pi} \\sin u\\, du$。",
         "corrupted": "用新变量写出的积分是 \\(\\int_0^{\\pi} \\sin u\\, du\\)。",
         "why_wrong": "由 \\(du = 2\\, dx\\) 可知微分会带上因子 \\(\\frac{1}{2}\\)。丢掉这个因子，积分的值会变成两倍。",
-        "why_tempting": "积分限已经改写成 \\(u\\) 之后，会觉得 \\(du\\) 只是把 \\(dx\\) 换了个名字。",
-        "catch_rule": "换元之后，把 \\(dx\\) 用 \\(du\\) 写出来，并检查这个常数因子出现在新的积分里。",
+        "why_tempting": "积分限已经改写成 $u$ 之后，会觉得 $du$ 只是把 $dx$ 换了个名字。",
+        "catch_rule": "换元之后，把 $dx$ 用 $du$ 写出来，并检查这个常数因子出现在新的积分里。",
         "hint": "\\(du\\) 和 \\(dx\\) 的关系里有一个常数。这个常数应该出现在哪里？",
         "practice": {
           "problem": "用代换 \\(u = 3x\\) 计算 \\(\\int_0^{1} e^{3x}\\, dx\\)。",
@@ -39,7 +39,7 @@
       {
         "step": 4,
         "category": "sign",
-        "original": "\\(\\sin u\\) 的一个原函数是 \\(-\\cos u\\)，因为 \\(\\cos u\\) 的导数是 \\(-\\sin u\\)。",
+        "original": "$\\sin u$ 的一个原函数是 $-\\cos u$，因为 $\\cos u$ 的导数是 $-\\sin u$。",
         "corrupted": "\\(\\sin u\\) 的一个原函数是 \\(\\cos u\\)。",
         "why_wrong": "\\(\\cos u\\) 的导数是 \\(-\\sin u\\)，所以 \\(\\sin u\\) 的原函数是 \\(-\\cos u\\)，不是 \\(\\cos u\\)。少掉的负号会把值的正负反过来。",
         "why_tempting": "求导时正弦和余弦会互换，而负号正是容易滑掉的那一部分。",
@@ -63,6 +63,8 @@
     "mode": "2",
     "difficulty": "standard",
     "focus": [],
-    "blurb": "换元看起来很正规，最后一行是干净的 −2。核对一下过程。"
-  }
+    "blurb": "用换元法计算 \\(\\int_0^{\\pi/2} \\sin(2x)\\, dx\\)。",
+    "kind": "planted"
+  },
+  "kind": "planted"
 }

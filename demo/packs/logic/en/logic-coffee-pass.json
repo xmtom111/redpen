@@ -11,7 +11,7 @@
   "difficulty": "intro",
   "level": 1,
   "estimated_seconds": 60,
-  "prompt": "A coworker asked an AI to check this cafe-pass note. If a line doesn't add up, tap it.",
+  "prompt": "A coworker wrote up whether the cafe's monthly pass is worth it. Tap any line that doesn't hold up, or mark it clean.",
   "segments": [
     {
       "id": 1,
@@ -49,30 +49,38 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "The pass pays itself back at the $1 you save per cup, not at the $5 full price, so you need 20 drinks, not 4."
+          "label": "20% off a $5 latte only saves $1 per cup — you need 21 cups a month to beat $20, not 5."
         },
         {
           "id": "d2",
-          "label": "A 20% discount on a $5 latte is $2 off, so you break even after 10 drinks."
+          "label": "Four $5 lattes cost $20, so buying exactly 4 coffees breaks even and you need 5 to profit — wait, $20/4 = 5."
         },
         {
           "id": "d3",
-          "label": "The $20 pass already includes four free lattes, so the fifth drink is when you start saving."
+          "label": "The $20 pass includes 4 free lattes up front, so you actually come out ahead on cup 4, not cup 5."
+        },
+        {
+          "id": "d4",
+          "label": "20% off $5 is $4 per latte, so 5 lattes cost $20 total — you break even at 5, not 4."
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "Each latte costs $4 with the pass, a $1 saving. $20 ÷ $1 = 20 cups to break even."
+          "label": "$20 ÷ $1 saved per cup = 20 lattes to break even (profit at 21)."
         },
         {
           "id": "f2",
-          "label": "Divide $20 by $5 and add one, so the pass pays off on the fifth coffee."
+          "label": "Divide $20 by the $4 discounted latte price: break-even is 5 lattes, profit starts at cup 6."
         },
         {
           "id": "f3",
-          "label": "Compare $20 with 20% of a $5 latte, which already shows a profit after the first drink."
+          "label": "Count the $20 pass as 4 free lattes up front, so anyone buying 4+ lattes breaks even."
+        },
+        {
+          "id": "f4",
+          "label": "Multiply $20 by 20% ($4) and add 4 cups to get 8 lattes a month to break even."
         }
       ],
       "fix_answer": "f1",
@@ -98,38 +106,58 @@
   "segment_distractors": {
     "1": {
       "diagnosis": [
-        "The $5 is the price of five lattes.",
-        "The $5 is already the member price.",
-        "The price is per week rather than per latte."
+        "$5 doesn't include tax and tip, so the true cup price is closer to $6 and breaks the break-even math.",
+        "Other drinks at the cafe cost $3 or $7, so using a $5 latte misrepresents the pass.",
+        "At $5 a latte, 20% off is $1.25 off per cup, not $1.00.",
+        "You can't judge the pass from a $5 latte without comparing against brewing coffee at home ($0.50)."
       ],
       "fix": [
-        "Budget $1 per latte.",
-        "Treat $5 as 80% of the ordinary latte price.",
-        "Budget $5 per week regardless of how many lattes are bought."
+        "Include a $1 tip so each latte is $6 ($1.20 saved per cup).",
+        "Average the cafe's whole menu price instead of picking a $5 latte.",
+        "Compare the pass against home-brewed coffee before recommending it.",
+        "Check whether specialty oat-milk lattes ($6.50) qualify for the 20% off."
       ]
     },
     "2": {
       "diagnosis": [
-        "20% off means the drink costs one fifth of its original price.",
-        "The pass is a credit automatically subtracted from the first order.",
-        "The discounted rate starts after the first drink each month."
+        "20% off every drink means you pay 20% ($1 per latte), saving $4 a cup.",
+        "A $20 monthly pass auto-renews, so one forgotten month doubles the break-even to 8 lattes.",
+        "20% off only applies after you spend $20 on full-price drinks first.",
+        "The $20 fee is credited toward your first four drinks, so it isn't an extra cost."
       ],
       "fix": [
-        "Charge $1 instead of $4 for a $5 latte.",
-        "Apply the full $20 pass fee as a credit at checkout.",
-        "Charge full price for the first drink of the month."
+        "Confirm whether the $20 fee is store credit or a pure membership fee.",
+        "Check if 20% off has a daily cap of one drink per workday.",
+        "Turn off auto-renew so you don't pay $20 during vacation months.",
+        "Calculate savings at $4 per cup (80% off) vs $1 per cup (20% off)."
       ]
     },
     "4": {
       "diagnosis": [
-        "Ten workdays means only ten visits across the whole floor.",
-        "At least ten means nobody buys coffee on an eleventh workday.",
-        "The count is ten days per week."
+        "10 workdays a month is only half of the ~20 workdays in a month, so the floor barely drinks coffee.",
+        "Saying 'most people' buys at least 10 coffees ignores teammates who only visit the office twice a week.",
+        "At 10 lattes a month, you only save $10 on a $20 pass — you actually *lose* $10, not come out ahead.",
+        "Ten $5 lattes cost $50, and 20% off $50 is $40, leaving zero profit after the $20 pass."
       ],
       "fix": [
-        "Split ten visits across all people on the floor.",
-        "Set every qualifying buyer’s frequency to exactly ten visits.",
-        "Use ten workdays of coffee purchases every week."
+        "Count 10 lattes × $1 saved = $10 saved vs $20 pass — a $10 loss, not a win.",
+        "Only recommend the pass to people who buy 21+ lattes (nearly every workday).",
+        "Check whether hybrid workers really hit 10 workdays in the office.",
+        "Survey exact monthly cup counts before recommending the pass to the floor."
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "Buying before the 1st of the month wastes the remaining days of the current month.",
+        "Buying before the 1st doesn't save money if the pass starts a rolling 30-day clock on purchase.",
+        "Recommending the pass to 10-coffee drinkers locks them into losing $10 every month.",
+        "Waiting until the 2nd of the month lets you see if you even want coffee that week."
+      ],
+      "fix": [
+        "Don't buy the pass unless you order 21+ $5 drinks a month; 10-cup drinkers lose $10.",
+        "Wait until your first coffee of the new month if the pass runs 30 rolling days.",
+        "Try tracking how many coffees you buy next month before signing up.",
+        "Share one pass between two 10-cup coworkers if the cafe allows it."
       ]
     }
   }

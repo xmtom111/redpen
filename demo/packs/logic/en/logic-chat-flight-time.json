@@ -1,0 +1,144 @@
+{
+  "schema_version": 2,
+  "domain": "logic",
+  "renderer": "prose",
+  "opener": true,
+  "kind": "planted",
+  "difficulty": "intro",
+  "level": 1,
+  "estimated_seconds": 55,
+  "id": "logic-chat-flight-time",
+  "lang": "en",
+  "title": "Holiday flight",
+  "topic": "A friend subtracts local takeoff and landing times on a coast-to-coast flight",
+  "blurb": "A friend is packing movies for an upcoming flight.",
+  "prompt": "A friend just sent this in the group chat. Tap a line if something doesn't add up, or let it pass.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "The ticket",
+      "text": "Booked my Christmas flight from San Francisco to Boston — leaves 8:30 AM local, lands 5:00 PM local."
+    },
+    {
+      "id": 2,
+      "label": "The clock",
+      "text": "My sister's picking me up at 5:30 Boston time (2:30 back home) so we can beat the dinner rush."
+    },
+    {
+      "id": 3,
+      "label": "The prep",
+      "text": "Eight and a half hours in a middle seat is brutal, so I'm downloading four movies tonight."
+    },
+    {
+      "id": 4,
+      "label": "The seat",
+      "text": "Throwing a power bank in my backpack so my tablet survives the flight."
+    }
+  ],
+  "conclusion": "8:30 AM to 5:00 PM is 8.5 hours in a middle seat, so I'm downloading four movies.",
+  "flaws": [
+    {
+      "segment_id": 3,
+      "error_type": "timezone-subtraction",
+      "original": "8:30 AM in San Francisco is already 11:30 AM in Boston — landing at 5:00 PM is only 5.5 hours in the air, not 8.5.",
+      "corrupted": "Eight and a half hours in a middle seat is brutal, so I'm downloading four movies tonight.",
+      "diagnosis_choices": [
+        {
+          "id": "d1",
+          "label": "8:30 AM in SF is already 11:30 AM in Boston — you're only in the air 5.5 hours, not 8.5."
+        },
+        {
+          "id": "d2",
+          "label": "Since Boston is 3 hours ahead, add 3 hours to 8.5 — the flight is actually 11.5 hours."
+        },
+        {
+          "id": "d3",
+          "label": "8:30 AM to 5:00 PM is 9.5 hours, not 8.5, so four movies won't cover the flight."
+        },
+        {
+          "id": "d4",
+          "label": "Boarding and taxiing eat an hour of the 8.5 hours, leaving 7.5 hours for movies."
+        }
+      ],
+      "diagnosis_answer": "d1",
+      "fix_choices": [
+        {
+          "id": "f1",
+          "label": "Put both clocks in Boston time (11:30 AM to 5:00 PM): 5.5 hours in the air, two movies tops."
+        },
+        {
+          "id": "f2",
+          "label": "Add the 3-hour jump for an 11.5-hour flight and download six movies instead."
+        },
+        {
+          "id": "f3",
+          "label": "Subtract an hour for taxiing so you download three movies for 7.5 hours."
+        },
+        {
+          "id": "f4",
+          "label": "Recount 8:30 AM to 5:00 PM as 9.5 hours and download a fifth movie."
+        }
+      ],
+      "fix_answer": "f1",
+      "explanation": "8:30 AM in San Francisco is already 11:30 AM in Boston. Those three missing hours are the time-zone jump, not flying time — it's a 5.5-hour flight.",
+      "why_tempting": "8:30 to 5:00 is instant clock subtraction, and the time-zone conversion already showed up on line 2 for dinner pickup, so your brain thinks it's handled.",
+      "catch_rule": "Before subtracting departure and arrival times, put both clocks in the same time zone.",
+      "hint": "When the plane lifts off at 8:30 AM in San Francisco, what time is it in Boston?",
+      "practice": {
+        "problem": "A flight leaves New York at 6:00 PM local and lands in Los Angeles (3 hours behind) at 9:15 PM local. How long is the flight?",
+        "answer": "6 hours 15 minutes — 6:00 PM in NY is 3:00 PM in LA, and 3:00 PM to 9:15 PM is 6h 15m."
+      }
+    }
+  ],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "Airlines print both departure and arrival in departure-city time, so 5:00 PM is still San Francisco time.",
+        "8:30 AM to 5:00 PM crosses noon, so subtracting without 24-hour time drops an hour.",
+        "Local landing time already includes 45 minutes of taxiing and baggage claim at Logan.",
+        "A nonstop eastbound flight can't take off at 8:30 AM and land at 5:00 PM — there must be a hidden layover."
+      ],
+      "fix": [
+        "Check if 5:00 PM on the itinerary is Pacific time instead of Boston time.",
+        "Convert 5:00 PM to 17:00 before subtracting 8:30.",
+        "Confirm the flight doesn't include a 3-hour stopover in Chicago.",
+        "Subtract 45 minutes for baggage claim from the 5:00 PM arrival."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "5:30 PM Boston time is 8:30 PM San Francisco time, not 2:30 PM — you reversed the 3-hour difference.",
+        "Landing at 5:00 PM only leaves 30 minutes to get off the plane and reach pickup by 5:30.",
+        "Because of winter daylight saving time, Boston is only 2 hours ahead of San Francisco in December.",
+        "Checking in at 2:30 PM body time means you won't even be hungry for a 5:30 PM dinner."
+      ],
+      "fix": [
+        "Flip the conversion: 5:30 PM Boston time is 8:30 PM back home.",
+        "Push pickup to 6:00 PM so 30 minutes at baggage claim doesn't make her circle.",
+        "Check whether the winter gap between SF and Boston is 2 hours instead of 3.",
+        "Eat a late lunch on the plane instead of planning a 5:30 dinner."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Four movies only run about 6 hours, so a power bank won't even be needed on an 8.5-hour flight.",
+        "Airlines ban power banks in backpacks under the seat — they have to stay in checked luggage.",
+        "A tablet lasts 10+ hours on airplane mode, so carrying a power bank for 8.5 hours is extra weight.",
+        "You'll need a wall plug for the middle seat anyway since four movies run 11.5 hours with the time jump."
+      ],
+      "fix": [
+        "Skip the power bank — two movies on a 5.5-hour flight won't drain a tablet.",
+        "Put the power bank in your checked bag before TSA security.",
+        "Charge the tablet to 100% at the gate and leave the battery pack at home.",
+        "Bring a second cable in case the seatback USB port works."
+      ]
+    }
+  },
+  "clean_segments": [
+    "Booked my Christmas flight from San Francisco to Boston — leaves 8:30 AM local, lands 5:00 PM local.",
+    "My sister's picking me up at 5:30 Boston time (2:30 back home) so we can beat the dinner rush.",
+    "8:30 AM in San Francisco is already 11:30 AM in Boston — landing at 5:00 PM is only 5.5 hours in the air, not 8.5.",
+    "Throwing a power bank in my backpack so my tablet survives the flight."
+  ],
+  "clean_conclusion": "8:30 AM in SF is 11:30 AM in Boston — you're only in the air 5.5 hours, not 8.5."
+}

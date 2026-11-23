@@ -1,0 +1,186 @@
+{
+  "schema_version": 2,
+  "id": "code-trick-js-let-loop",
+  "domain": "code",
+  "renderer": "code",
+  "code_language": "javascript",
+  "lang": "en",
+  "kind": "trick_clean",
+  "title": "Retry schedule",
+  "topic": "Pushing arrow functions that capture `i` inside a JS `for` loop",
+  "blurb": "A JS helper that builds per-attempt retry callbacks in a loop.",
+  "difficulty": "standard",
+  "level": 0,
+  "estimated_seconds": 55,
+  "prompt": "Spec: for `steps = 3`, return 3 zero-arg functions returning `{ attempt: 1, delayMs: 200 }` through `{ attempt: 3, delayMs: 600 }`. Review this helper — tap a line if it breaks the spec, or let it pass.",
+  "segments": [
+    {
+      "id": 1,
+      "label": "L1",
+      "text": "function makeRetryPlan(steps) {"
+    },
+    {
+      "id": 2,
+      "label": "L2",
+      "text": "  const tasks = [];"
+    },
+    {
+      "id": 3,
+      "label": "L3",
+      "text": "  for (let i = 0; i < steps; i++) {"
+    },
+    {
+      "id": 4,
+      "label": "L4",
+      "text": "    const delayMs = (i + 1) * 200;"
+    },
+    {
+      "id": 5,
+      "label": "L5",
+      "text": "    tasks.push(() => ({ attempt: i + 1, delayMs }));"
+    },
+    {
+      "id": 6,
+      "label": "L6",
+      "text": "  }"
+    },
+    {
+      "id": 7,
+      "label": "L7",
+      "text": "  return tasks;"
+    },
+    {
+      "id": 8,
+      "label": "L8",
+      "text": "}"
+    }
+  ],
+  "conclusion": "AI summary: Each returned function keeps its own `attempt` (1..steps) and `delayMs` (200..steps*200).",
+  "flaws": [],
+  "segment_distractors": {
+    "1": {
+      "diagnosis": [
+        "Missing `async` keyword means `delayMs` never pauses execution when callbacks run.",
+        "If `steps` is `0`, JavaScript throws a RangeError without an early guard.",
+        "Function declarations aren't hoisted when they return arrow functions.",
+        "`steps` should default to `1` or `for` loops silently execute once."
+      ],
+      "fix": [
+        "Mark the function `async function makeRetryPlan(steps)`.",
+        "Add `if (steps <= 0) return [];` at the top.",
+        "Rewrite as `const makeRetryPlan = (steps = 1) => ...`.",
+        "Convert `steps` with `Math.max(1, steps)`."
+      ]
+    },
+    "2": {
+      "diagnosis": [
+        "Declaring `const tasks = []` freezes the array, so `tasks.push(...)` throws TypeError.",
+        "Using `const` inside a function shares one `tasks` array across calls.",
+        "`tasks` must be declared with `let` before pushing closures into it.",
+        "Creating `tasks` before the loop causes every closure to share the same scope."
+      ],
+      "fix": [
+        "Change `const tasks = []` to `let tasks = []` so `.push()` is allowed.",
+        "Use `new Array(steps)` instead of `[]` so indices match.",
+        "Move `const tasks = []` inside the `for` loop.",
+        "Return `tasks.slice()` on line 7 to avoid sharing."
+      ]
+    },
+    "3": {
+      "diagnosis": [
+        "Off-by-one: `i < steps` stops at `steps - 1`, so `steps = 3` only creates 2 tasks.",
+        "Using `i++` increments `i` before `delayMs` is computed on the first iteration.",
+        "Looping from `0` makes the first `attempt` equal `0` instead of `1`.",
+        "`let i` is hoisted to the function top in JavaScript, so all closures share the final value of `i`."
+      ],
+      "fix": [
+        "Change `i < steps` to `i <= steps` so the last retry isn't dropped.",
+        "Start at `for (let i = 1; i <= steps; i++)` to avoid off-by-one attempts.",
+        "Wrap the loop body in an IIFE `(function(n) { ... })(i)` so `i` isn't shared.",
+        "Replace `i++` with `++i` so the step counter advances cleanly."
+      ]
+    },
+    "4": {
+      "diagnosis": [
+        "Declaring `const delayMs` inside a loop throws SyntaxError on the second iteration because `const` cannot be reassigned.",
+        "`(i + 1) * 200` produces `200, 400, 600` only if `i` starts at 1; starting at 0 gives `0, 200, 400`.",
+        "`delayMs` is overwritten on every iteration, so every closure reads the final `600`.",
+        "Operator precedence computes `1 * 200` before adding `i`, giving `200, 201, 202`."
+      ],
+      "fix": [
+        "Change `const delayMs` to `let delayMs` declared before the `for` loop.",
+        "Multiply `i * 200` instead of `(i + 1) * 200`.",
+        "Inline `(i + 1) * 200` inside the object literal instead of using `const`.",
+        "Add extra parentheses `((i + 1) * 200)` to fix precedence."
+      ]
+    },
+    "5": {
+      "diagnosis": [
+        "Closure trap: every pushed arrow function captures the same loop variable `i`, so calling any of them returns `{ attempt: 4, delayMs: 600 }`.",
+        "Arrow function `() => ({ ... })` treats `{ ... }` as a block body instead of an object literal, returning `undefined`.",
+        "Object shorthand `delayMs` inside the arrow function references `undefined` once the loop exits.",
+        "`tasks.push` immediately invokes the arrow function instead of storing a callable task."
+      ],
+      "fix": [
+        "Wrap the push in an IIFE `((idx) => tasks.push(() => ...))(i)` so each closure gets its own `i`.",
+        "Replace `() => ({ ... })` with `() => { return { attempt: i + 1, delayMs }; }`.",
+        "Copy `const attempt = i + 1` and return `Object.freeze({ attempt, delayMs })`.",
+        "Use `tasks[i] = ...` instead of `tasks.push(...)` so the closure binds early."
+      ]
+    },
+    "6": {
+      "diagnosis": [
+        "Missing semicolon after the `for` block causes JS automatic semicolon insertion to break `return`.",
+        "Exiting the loop destroys `delayMs` before the closures can read it.",
+        "The closing brace terminates `makeRetryPlan` early, making `return tasks` unreachable.",
+        "Leaving the loop leaves `i` equal to `steps`, overwriting all saved `attempt` values."
+      ],
+      "fix": [
+        "Add a semicolon `};` after the `for` loop.",
+        "Save `delayMs` on `this.delayMs` so it survives the block exit.",
+        "Move `return tasks;` inside the loop before the closing brace.",
+        "Snapshot `i` with `tasks.map` after the loop instead."
+      ]
+    },
+    "7": {
+      "diagnosis": [
+        "Returning `tasks` returns functions instead of `{ attempt, delayMs }` objects.",
+        "Returning `tasks` before calling each function means `delayMs` is never evaluated.",
+        "`tasks` is out of scope here because it was mutated inside the loop.",
+        "Returning `tasks` directly returns a shared array if `makeRetryPlan` is called twice."
+      ],
+      "fix": [
+        "Return `tasks.map(fn => fn())` so callers get the objects directly.",
+        "Return `[...tasks]` so callers get a fresh array copy.",
+        "Return `Object.freeze(tasks)` to lock in the closure values.",
+        "Call `tasks.reverse()` before returning so attempt 1 runs first."
+      ]
+    },
+    "8": {
+      "diagnosis": [
+        "Missing `module.exports` makes `makeRetryPlan` impossible to call.",
+        "Closing the function without freeing `i` leaks `i` onto the global object.",
+        "JavaScript requires `return;` at the end of functions that build closures.",
+        "Unclosed parenthesis on line 5 causes a syntax error at the closing brace."
+      ],
+      "fix": [
+        "Add `export default makeRetryPlan;` after the closing brace.",
+        "Add `i = 0;` before the closing brace to prevent a global leak.",
+        "Check the parentheses around `({ attempt: i + 1, delayMs })`.",
+        "Wrap the whole function in `'use strict';`."
+      ]
+    }
+  },
+  "clean_segments": [
+    "function makeRetryPlan(steps) {",
+    "  const tasks = [];",
+    "  for (let i = 0; i < steps; i++) {",
+    "    const delayMs = (i + 1) * 200;",
+    "    tasks.push(() => ({ attempt: i + 1, delayMs }));",
+    "  }",
+    "  return tasks;",
+    "}"
+  ],
+  "clean_conclusion": "The closure-in-a-loop bug only bites with `var`. In JS, `for (let i = ...)` creates a fresh binding for `i` on every iteration, so each callback keeps its own `attempt` (1, 2, 3) and `delayMs` (200, 400, 600).",
+  "explanation": "The closure-in-a-loop bug only bites with `var`. In JS, `for (let i = ...)` creates a fresh binding for `i` on every iteration, so each callback keeps its own `attempt` (1, 2, 3) and `delayMs` (200, 400, 600)."
+}

@@ -5,13 +5,13 @@
   "renderer": "code",
   "code_language": "python",
   "lang": "zh",
-  "title": "这场闪购结账，满 500 永远打不到 75 折",
+  "title": "大促满减结算",
   "topic": "AI 一个下午「写完」的节日折扣",
-  "blurb": "需求写明满 500 减 25%。AI 的函数非常肯定自己做到了。大订单会不同意。",
+  "blurb": "一段带两档满减折扣的结算函数。",
   "difficulty": "standard",
   "level": 2,
   "estimated_seconds": 75,
-  "prompt": "需求：汇总所有商品，满 500 减 25%，满 100 减 10%，返回应付金额。AI 实习生把这段代码交去闪购上线。请审查。",
+  "prompt": "需求：累加 `prices` 所有商品，满 500 打七五折、满 100 打九折，返回保留两位小数的总价。看下这段代码，觉得哪行有问题就点它，觉得没问题就放行。",
   "segments": [
     {
       "id": 1,
@@ -64,30 +64,38 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "边界差一错误：`range(len(prices) - 1)` 漏掉了最后一件商品（只有 1 件商品时总价甚至是 0）。"
+          "label": "边界差一：`range(len(prices) - 1)` 提前停了，悄悄漏算最后一件商品。"
         },
         {
           "id": "d2",
-          "label": "`range(len(prices) - 1)` 在非空列表上会触发 IndexError 越界。"
+          "label": "当购物车只有一件商品时，`range(len(prices) - 1)` 会抛 IndexError。"
         },
         {
           "id": "d3",
-          "label": "Python 的 `sum()` 不支持接收生成器表达式。"
+          "label": "Python 的 `sum()` 必须传列表 `[...]`，传生成器会返回 `0`。"
+        },
+        {
+          "id": "d4",
+          "label": "`range` 从下标 `1` 开始，所以每一单都漏掉了第一件 `prices[0]`。"
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "直接对列表求和：`subtotal = sum(prices)`（或用 `range(len(prices))`）。"
+          "label": "直接求和 `subtotal = sum(prices)`（或 `range(len(prices))`）。"
         },
         {
           "id": "f2",
-          "label": "改成 `range(1, len(prices))` 把最后一项算进去。"
+          "label": "把循环改成 `range(1, len(prices))`，让下标往后移一位覆盖到最后一件。"
         },
         {
           "id": "f3",
-          "label": "改成 `range(len(prices) + 1)` 保证覆盖末尾元素。"
+          "label": "把循环改成 `range(len(prices) + 1)`，防止闭区间边界漏掉最后一项下标。"
+        },
+        {
+          "id": "f4",
+          "label": "把生成器外面加上方括号 `[prices[i] for i in range(len(prices) - 1)]`。"
         }
       ],
       "fix_answer": "f1",
@@ -108,30 +116,38 @@
       "diagnosis_choices": [
         {
           "id": "d1",
-          "label": "死分支：所有 `>= 500` 的金额在第 3 行 `>= 100` 时就已经被截胡，永远走不到 25% 折扣。"
+          "label": "死分支：凡是 `>= 500` 的金额在第 3 行 `>= 100` 就已经被拦截了。"
         },
         {
           "id": "d2",
-          "label": "Python 不允许在同一个 `if/elif` 里两次比较同一个变量。"
+          "label": "Python 不允许在 `if` 和 `elif` 里连续比较同一个变量 `subtotal`。"
         },
         {
           "id": "d3",
-          "label": "满 500 不包含 500，这里必须写成 `> 500`。"
+          "label": "写成 `>= 500` 会让正好 500 元的订单错享 75 折，应该用 `> 500`。"
+        },
+        {
+          "id": "d4",
+          "label": "`elif` 会在 `if` 之后继续执行，导致大额订单叠加享受 35% 折扣。"
         }
       ],
       "diagnosis_answer": "d1",
       "fix_choices": [
         {
           "id": "f1",
-          "label": "先判断高门槛：`if subtotal >= 500:` 给 0.25，再 `elif subtotal >= 100:` 给 0.10。"
+          "label": "先判 `if subtotal >= 500:`（0.25），再 `elif subtotal >= 100:`（0.10）。"
         },
         {
           "id": "f2",
-          "label": "把第 5 行改成 `elif subtotal <= 500:`。"
+          "label": "把第 5 行改成 `elif subtotal < 500:`，避免 500 以上的区间和前面重叠。"
         },
         {
           "id": "f3",
-          "label": "删掉 `else` 分支，让 Python 同时执行 `if` 和 `elif`。"
+          "label": "把第 7 行的 `else:` 删掉，让两个满减档位各自独立生效不互相拦截。"
+        },
+        {
+          "id": "f4",
+          "label": "保持原来的门槛判断顺序不动，只把第 4 行的 `0.10` 和第 6 行的 `0.25` 互换。"
         }
       ],
       "fix_answer": "f1",
@@ -161,74 +177,86 @@
   "segment_distractors": {
     "1": {
       "diagnosis": [
-        "checkout_total 应接收单个金额。",
-        "每个商品价格必须占一个参数。",
-        "参数应该是折扣率，不能是价格。"
+        "`prices` 为空列表时没有提前返回，后面 `sum` 会抛 ValueError。",
+        "没给 `prices` 设默认值 `[]`，空购物车调用会报错。",
+        "入参直接收浮点数，不转 `Decimal` 会导致 `>= 100` 判断失效。",
+        "函数在求和过程中会原地修改入参 `prices`。"
       ],
       "fix": [
-        "把 prices 改成单个 price。",
-        "分别接收 price1 和 price2。",
-        "把签名改成 checkout_total(discount)。"
+        "开头先补上 `if not prices: return 0.0`。",
+        "签名改成 `def checkout_total(prices=[]):`。",
+        "开头先执行 `prices = list(map(int, prices))`。",
+        "先拷贝一份 `prices = list(prices)`。"
       ]
     },
     "3": {
       "diagnosis": [
-        "刚好 100 不该满足减 10% 的门槛。",
-        "只需用第一件商品的价格比门槛。",
-        "不到 100 才该进入这个分支。"
+        "满 100 打 9 折写成 `>= 100` 会让刚好 100 元的订单不该打折却打了折。",
+        "第 3 行应该写成 `if 100 <= subtotal < 500:`，单独写 `>= 100` 语法上不完整。",
+        "浮点数 `100.0` 跟整数 `100` 比较可能判断失败。",
+        "应该先判断 `subtotal > 0` 再判断 `>= 100`。"
       ],
       "fix": [
-        "把 >= 100 改成 > 100。",
-        "用 prices[0] 与 100 比较。",
-        "把判断改为 subtotal < 100。"
+        "把 `>= 100` 改成 `> 100`。",
+        "改成 `if 100 <= subtotal < 500:` 显式限制上限。",
+        "把 `100` 改成浮点 `100.0`。",
+        "先判断 `if subtotal < 100: discount = 0.0`。"
       ]
     },
     "4": {
       "diagnosis": [
-        "减 10% 应存成 10。",
-        "discount 应存顾客实付的比例。",
-        "这一档只该固定减 0.10 元。"
+        "`discount = 0.10` 在第 8 行会变成打 1 折（减 90%），应该写 `0.90`。",
+        "折扣应该写成百分数 `10`，写 `0.10` 缩小了 100 倍。",
+        "`discount` 在 `if` 块里定义，出了块到第 8 行会报未定义。",
+        "这一行赋值后会被第 7 行的 `else` 覆盖掉。"
       ],
       "fix": [
-        "设 discount = 10。",
-        "保持最后的 1 - discount 公式，把 discount 改为 0.90。",
-        "把这一档改为固定减 0.10 元。"
+        "把 `0.10` 改成 `0.90` 代表九折实付。",
+        "在 L3 之前先初始化 `discount = 0.0` 扩大作用域。",
+        "改成 `discount = 10`，第 8 行再除以 100。",
+        "直接在这里 `return round(subtotal * 0.9, 2)`。"
       ]
     },
     "6": {
       "diagnosis": [
-        "高档折扣的 discount 应存成 0.75。",
-        "减 25% 应存为 2.5。",
-        "高档折扣应该加价。"
+        "写 `0.25` 意味着只收 25% 的钱，75 折应该写 `0.75`。",
+        "已经满足 10% 折扣了，这里应该只补 `0.15` 免得叠成 35%。",
+        "这一行没写 `return`，执行完会继续掉进第 7 行的 `else` 被清零。",
+        "浮点 `0.25` 有精度误差，应该写成 `1 / 4`。"
       ],
       "fix": [
-        "设 discount = 0.75。",
-        "设 discount = 2.5。",
-        "设 discount = -0.25。"
+        "把 `0.25` 改成 `0.75`。",
+        "改成 `discount = 0.15` 防止叠加折扣。",
+        "在 `discount = 0.25` 后面立刻 `return`。",
+        "写成 `discount = 25` 到第 8 行再除以 100。"
       ]
     },
     "7": {
       "diagnosis": [
-        "无折扣时 discount 应记为 1。",
-        "低于门槛也有 10% 优惠。",
-        "低于门槛时整单应免费。"
+        "把 `discount = 0.0` 紧跟在 `else:` 同一行在 Python 里会报语法错。",
+        "这个 `else:` 只配对第 5 行的 `elif`，导致 100 到 499 元的订单全被清零成无折扣。",
+        "设成 `0.0` 会让第 8 行乘以 `0`，小额订单直接免费。",
+        "这里没写 `return`，不满 100 元的订单会返回 `None`。"
       ],
       "fix": [
-        "默认折扣率改成 1。",
-        "默认折扣率改成 0.10。",
-        "在这个分支里直接把应付金额设为零。"
+        "把 `discount = 0.0` 换行缩进到 `else:` 下面。",
+        "在 L3 之前先写 `discount = 0.0` 并删掉 `else:`。",
+        "把 `0.0` 改成 `1.0` 代表原价。",
+        "在 `else:` 里直接 `return round(subtotal, 2)`。"
       ]
     },
     "8": {
       "diagnosis": [
-        "函数应该返回优惠金额。",
-        "应把折扣率当作固定金额从小计里减去。",
-        "结账应取两位有效数字。"
+        "公式写反了：`1 - discount` 算出来的是省掉的钱，不是实付金额。",
+        "应该是 `subtotal * discount` 才能得到折后价。",
+        "`round(..., 2)` 会把所有金额向下截断，每单少收几分钱。",
+        "应该直接写 `subtotal - discount` 减去折扣。"
       ],
       "fix": [
-        "改为返回 round(subtotal * discount, 2)。",
-        "改为返回 round(subtotal - discount, 2)。",
-        "把应付款取两位有效数字。"
+        "改成 `round(subtotal * discount, 2)`。",
+        "改成 `round(subtotal / (1 + discount), 2)`。",
+        "改成 `int(subtotal * (1 - discount))` 避免浮点误差。",
+        "改成 `round(subtotal - discount, 2)`。"
       ]
     }
   }

@@ -1,0 +1,39 @@
+{
+  "kind": "trick_clean",
+  "title": "Symmetric integral",
+  "problem": "Evaluate \\(\\int_{-2}^{2} x^3 \\cos(x^2)\\, dx\\). Check this solution — tap a step if it slips, or let it pass.",
+  "steps": [
+    "We want \\(\\int_{-2}^{2} x^3 \\cos(x^2)\\, dx\\).",
+    "Flipping the sign of \\(x\\) flips the sign of \\(x^3 \\cos(x^2)\\), and \\([-2, 2]\\) is symmetric around \\(0\\).",
+    "So everything on \\([-2, 0]\\) cancels everything on \\([0, 2]\\).",
+    "Therefore \\(\\int_{-2}^{2} x^3 \\cos(x^2)\\, dx = 0\\), without finding any antiderivative.",
+    "Not even a messy \\(\\sin 4\\) or \\(\\cos 4\\) survives at the endpoints."
+  ],
+  "final_answer": "\\(0\\)",
+  "key": {
+    "level": 0,
+    "clean_steps": [
+      "We want \\(\\int_{-2}^{2} x^3 \\cos(x^2)\\, dx\\).",
+      "Flipping the sign of \\(x\\) flips the sign of \\(x^3 \\cos(x^2)\\), and \\([-2, 2]\\) is symmetric around \\(0\\).",
+      "So everything on \\([-2, 0]\\) cancels everything on \\([0, 2]\\).",
+      "Therefore \\(\\int_{-2}^{2} x^3 \\cos(x^2)\\, dx = 0\\), without finding any antiderivative.",
+      "Not even a messy \\(\\sin 4\\) or \\(\\cos 4\\) survives at the endpoints."
+    ],
+    "clean_final_answer": "\\(0\\)",
+    "errors": [],
+    "checks": [
+      "integrate(x**3 * cos(x**2), (x, -2, 2)) == 0",
+      "(-x)**3 * cos((-x)**2) == -(x**3 * cos(x**2))"
+    ],
+    "reference_check": "none"
+  },
+  "meta": {
+    "kind": "trick_clean",
+    "topic": "Odd symmetry on a symmetric definite integral",
+    "mode": "0",
+    "difficulty": "standard",
+    "focus": [],
+    "blurb": "Evaluating \\(\\int_{-2}^{2} x^3 \\cos(x^2)\\, dx\\)."
+  },
+  "explanation": "Skipping the antiderivative sounds lazy, except \\(x^3\\) is odd and \\(\\cos(x^2)\\) is even, so their product is strictly odd and cancels out over \\([-2, 2]\\)."
+}

@@ -1,0 +1,39 @@
+{
+  "kind": "clean",
+  "title": "Quadratic minimum",
+  "problem": "Find the minimum value of \\(f(x) = 2x^2 - 12x + 23\\) for real \\(x\\). Check this solution — tap a step if it slips, or let it pass.",
+  "steps": [
+    "Factor \\(2\\) out of the \\(x\\)-terms only: \\(f(x) = 2(x^2 - 6x) + 23\\).",
+    "Complete the square inside the parentheses by adding and subtracting \\(9\\): \\(f(x) = 2(x^2 - 6x + 9 - 9) + 23\\).",
+    "Pull the \\(-9\\) outside the parentheses, multiplying it by \\(2\\): \\(f(x) = 2(x - 3)^2 - 18 + 23\\).",
+    "Combine the constants: \\(f(x) = 2(x - 3)^2 + 5\\).",
+    "Since \\(2(x - 3)^2 \\ge 0\\) with equality at \\(x = 3\\), the minimum value is \\(5\\)."
+  ],
+  "final_answer": "\\(5\\)",
+  "key": {
+    "level": 0,
+    "clean_steps": [
+      "Factor \\(2\\) out of the \\(x\\)-terms only: \\(f(x) = 2(x^2 - 6x) + 23\\).",
+      "Complete the square inside the parentheses by adding and subtracting \\(9\\): \\(f(x) = 2(x^2 - 6x + 9 - 9) + 23\\).",
+      "Pull the \\(-9\\) outside the parentheses, multiplying it by \\(2\\): \\(f(x) = 2(x - 3)^2 - 18 + 23\\).",
+      "Combine the constants: \\(f(x) = 2(x - 3)^2 + 5\\).",
+      "Since \\(2(x - 3)^2 \\ge 0\\) with equality at \\(x = 3\\), the minimum value is \\(5\\)."
+    ],
+    "clean_final_answer": "\\(5\\)",
+    "errors": [],
+    "checks": [
+      "expand(2*(x - 3)**2 + 5) == 2*x**2 - 12*x + 23",
+      "2*3**2 - 12*3 + 23 == 5"
+    ],
+    "reference_check": "none"
+  },
+  "meta": {
+    "kind": "clean",
+    "topic": "Completing the square with a leading coefficient",
+    "mode": "0",
+    "difficulty": "intro",
+    "focus": [],
+    "blurb": "Finding the minimum of \\(2x^2 - 12x + 23\\)."
+  },
+  "explanation": "Factoring \\(2\\) only from the \\(x\\)-terms and multiplying the pulled-out \\(-9\\) by \\(2\\) to get \\(-18\\) is exact: \\(2(x-3)^2 + 5 = 2x^2 - 12x + 23\\)."
+}
