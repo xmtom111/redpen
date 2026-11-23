@@ -508,7 +508,7 @@
       const li = app.querySelector(`[data-seg-item="${state.justFlagged}"]`);
       if (li) {
         li.classList.add("just-flagged");
-        const drawer = li.querySelector(".choice-drawer");
+        const drawer = app.querySelector(`.choice-drawer[data-sel-step="${state.justFlagged}"]`);
         if (drawer && drawer.scrollIntoView) {
           drawer.scrollIntoView({ behavior: "smooth", block: "nearest" });
         }
@@ -525,7 +525,7 @@
       const panel = app.querySelector(".results-stage");
       if (panel) {
         panel.classList.add("just-graded");
-        if (panel.scrollIntoView) panel.scrollIntoView({ behavior: "smooth", block: "start" });
+        if (panel.scrollIntoView) panel.scrollIntoView({ block: "nearest" });
       }
       state.justGraded = false;
     }
@@ -808,7 +808,6 @@
     }
   }
 
-  const CIRCLED = ["①", "②", "③", "④", "⑤"];
   const INK_PATHS = [
     "M2,11 C46,7 118,14 184,9 C212,7 228,10 238,9",
     "M3,9 C52,13 108,7 176,12 C206,14 224,9 237,11",
@@ -858,7 +857,9 @@
     }
     const doneToday = todayResults();
     const currentId = state.view === "play" && state.round ? state.round.worksheet_id : "";
-    topNav.innerHTML = state.daily.map((item, idx) => {
+    const position = state.daily.findIndex((item) => item.id === currentId) + 1;
+    const progress = position ? `${position} / ${state.daily.length}` : String(state.daily.length);
+    const slots = state.daily.map((item, idx) => {
       const res = doneToday[item.id];
       const active = currentId === item.id;
       const passed = isPassedResult(res);
@@ -867,13 +868,13 @@
         active ? "active" : "",
         res ? (passed ? "done done-good" : "done done-miss") : "",
       ].filter(Boolean).join(" ");
-      const glyph = res ? (passed ? "✓" : "✕") : (CIRCLED[idx] || String(idx + 1));
+      const status = res ? (passed ? (zh ? "，通过" : ", passed") : (zh ? "，已判读" : ", judged")) : "";
       const aria = zh
-        ? `今日第 ${idx + 1} 题（${domainLabel(item.domain)}）`
-        : `Daily ${idx + 1} (${domainLabel(item.domain)})`;
-      const sep = idx > 0 ? `<span class="daily-sep" aria-hidden="true"></span>` : "";
-      return `${sep}<button type="button" class="${cls}" data-daily-id="${esc(item.id)}" aria-label="${esc(aria)}"${active ? ' aria-current="step"' : ""}>${esc(glyph)}</button>`;
+        ? `今日第 ${idx + 1} 题（${domainLabel(item.domain)}）${status}`
+        : `Daily ${idx + 1} (${domainLabel(item.domain)})${status}`;
+      return `<button type="button" class="${cls}" data-daily-id="${esc(item.id)}" aria-label="${esc(aria)}"${active ? ' aria-current="step"' : ""}></button>`;
     }).join("");
+    topNav.innerHTML = `<span class="daily-count" aria-hidden="true">${progress}</span><span class="daily-slots">${slots}</span>`;
     topNav.querySelectorAll("[data-daily-id]").forEach((btn) => {
       btn.addEventListener("click", async () => {
         const entry = state.byId.get(btn.dataset.dailyId);
@@ -1085,33 +1086,34 @@
     if (!ctx) return;
     ctx.scale(scale, scale);
 
-    const sans = '-apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif';
+    const theme = getComputedStyle(document.documentElement);
+    const color = (name) => theme.getPropertyValue(name).trim();
+    const sans = color("--font-sans");
     const mono = 'ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace';
 
-    ctx.fillStyle = "#F6F5F1";
+    ctx.fillStyle = color("--ground");
     ctx.fillRect(0, 0, width, height);
 
-    ctx.fillStyle = "#FFFFFF";
-    ctx.fillRect(18, 18, width - 36, height - 36);
-    ctx.strokeStyle = "#18181B";
-    ctx.lineWidth = 1;
-    ctx.strokeRect(18.5, 18.5, width - 37, height - 37);
-    ctx.fillStyle = "#18181B";
-    ctx.fillRect(18, 18, width - 36, 4);
+    ctx.beginPath();
+    ctx.roundRect(18.5, 18.5, width - 37, height - 37, 14);
+    ctx.fillStyle = color("--white");
+    ctx.fill();
+    ctx.strokeStyle = color("--line");
+    ctx.stroke();
 
     // Header
     ctx.font = `700 14px ${mono}`;
-    ctx.fillStyle = "#18181B";
+    ctx.fillStyle = color("--ink");
     ctx.fillText(zh ? `RedPen 红笔 · #${d.num}` : `RedPen · #${d.num}`, 36, 52);
     ctx.font = `400 12px ${mono}`;
-    ctx.fillStyle = "#71717A";
+    ctx.fillStyle = color("--muted");
     const dateW = ctx.measureText(d.dateStr).width;
     ctx.fillText(d.dateStr, width - 36 - dateW, 52);
 
     // Dashed rule
     ctx.save();
     ctx.setLineDash([4, 3]);
-    ctx.strokeStyle = "#D4D4D8";
+    ctx.strokeStyle = color("--line");
     ctx.beginPath();
     ctx.moveTo(36, 66);
     ctx.lineTo(width - 36, 66);
@@ -1122,15 +1124,15 @@
     d.rows.forEach((row, i) => {
       const y = 100 + i * 34;
       ctx.font = `600 12px ${mono}`;
-      ctx.fillStyle = "#71717A";
+      ctx.fillStyle = color("--muted");
       ctx.fillText(`0${row.idx}`, 36, y);
       ctx.font = `500 15px ${sans}`;
-      ctx.fillStyle = "#18181B";
+      ctx.fillStyle = color("--ink");
       ctx.fillText(row.kind, 66, y);
 
       const rightText = `${row.mark}  ${row.scoreLabel}`;
       ctx.font = `700 14px ${mono}`;
-      ctx.fillStyle = row.tone === "good" ? "#15803D" : row.tone === "mid" ? "#92400E" : "#D92D20";
+      ctx.fillStyle = row.tone === "good" ? color("--good") : row.tone === "mid" ? color("--amber") : color("--red");
       const tw = ctx.measureText(rightText).width;
       ctx.fillText(rightText, width - 36 - tw, y);
     });
@@ -1138,7 +1140,7 @@
     // Bottom dashed rule
     ctx.save();
     ctx.setLineDash([4, 3]);
-    ctx.strokeStyle = "#D4D4D8";
+    ctx.strokeStyle = color("--line");
     ctx.beginPath();
     ctx.moveTo(36, 198);
     ctx.lineTo(width - 36, 198);
@@ -1147,7 +1149,7 @@
 
     // Dry verdict line
     ctx.font = `600 14px ${sans}`;
-    ctx.fillStyle = "#18181B";
+    ctx.fillStyle = color("--ink");
     ctx.fillText(d.verdict, 36, 228, width - 72);
 
     // Meta line (score, time, streak)
@@ -1157,7 +1159,7 @@
     ];
     if (d.streak > 0) metaParts.push(text.streak(d.streak));
     ctx.font = `400 12px ${mono}`;
-    ctx.fillStyle = "#71717A";
+    ctx.fillStyle = color("--muted");
     ctx.fillText(metaParts.join(" · "), 36, 256);
 
     const a = document.createElement("a");
@@ -1226,6 +1228,19 @@
     const sel = (round.selections || []).find((s) => s.step === step);
     if (!sel) return "";
     const choices = (round.light_choices && round.light_choices[String(step)]) || { diagnosis: [], fix: [] };
+    if (evidenceKind(round) === "chat") {
+      const fields = [
+        ["diag", text.whyWrongPick, choices.diagnosis, sel.diagnosis_id],
+        ["fix", text.howFixPick, choices.fix, sel.fix_id],
+      ].map(([kind, label, options, picked]) => `
+        <label>${esc(label)}
+          <select data-choice="${kind}" data-step="${step}" title="${esc((options.find((opt) => opt.id === picked) || {}).label || "")}">
+            <option value="" disabled ${picked ? "" : "selected"}>${zh ? "请选择" : "Choose one"}</option>
+            ${options.map((opt) => `<option value="${esc(opt.id)}" data-pick-${kind}="${esc(opt.id)}" ${opt.id === picked ? "selected" : ""}>${esc(opt.label)}</option>`).join("")}
+          </select>
+        </label>`).join("");
+      return `<div class="choice-drawer choice-selects" data-sel-step="${step}">${fields}</div>`;
+    }
     const diagBtns = (choices.diagnosis || []).map((opt, idx) => {
       const picked = sel.diagnosis_id === opt.id;
       const letter = CHOICE_LETTERS[idx] || String(idx + 1);
@@ -1253,37 +1268,22 @@
   function playDockHtml(round) {
     const ready = lightReady(round);
     const hasFlags = !round.cleanClaim && (round.selections || []).length > 0;
-    const incomplete = hasFlags && !ready;
-
-    let subHtml;
-    if (round.cleanClaim) {
-      subHtml = `<p class="dock-note clean-ready">${esc(text.noFlawsNote)}</p>`;
-    } else if (incomplete) {
-      subHtml = `<p class="dock-note">${esc(text.needPicks)}</p>`;
-    } else if (ready) {
-      subHtml = `<p class="dock-note ready">${esc(text.readyToScore)}</p>`;
-    } else {
-      subHtml = `<p class="judge-sub">${esc(text.judgeSub)}</p>`;
-    }
-
-    const ctaClass = round.cleanClaim
-      ? "is-clean-go"
-      : ready
-        ? ""
-        : "is-idle";
+    const ctaClass = round.cleanClaim ? "is-clean-go" : !hasFlags ? "is-idle" : "";
+    const drawers = evidenceKind(round) === "chat" && hasFlags
+      ? round.selections.map((sel) => choiceDrawerHtml(round, sel.step)).join("")
+      : "";
     const ctaLabel = round.cleanClaim ? text.confirmClean : text.submitLight;
 
     return `
-      <div class="play-dock ${ready ? "is-ready" : ""}">
-        <p class="judge-q">${esc(text.judgeQ)}</p>
-        ${subHtml}
+      <div class="play-dock ${hasFlags ? "has-flags" : ""}">
+        ${drawers}
         ${round.hintText ? `<p class="hint" role="status">${esc(round.hintText)}</p>` : ""}
         ${state.error ? `<p class="error" role="alert">${esc(state.error)}</p>` : ""}
         <div class="dock-actions">
           <button type="button" class="btn ghost ${round.cleanClaim ? "active" : ""}" data-act="toggle-clean" aria-pressed="${round.cleanClaim ? "true" : "false"}">
             ${round.cleanClaim ? "✓ " : ""}${esc(round.cleanClaim ? text.noFlawsActive : text.noFlawsBtn)}
           </button>
-          <button class="btn primary-cta ${ctaClass}" type="button" data-act="submit" ${state.busy ? "disabled" : ""}>${esc(ctaLabel)}</button>
+          <button class="btn primary-cta ${ctaClass}" type="button" data-act="submit" ${state.busy || !ready ? "disabled" : ""}>${esc(ctaLabel)}</button>
         </div>
         <div class="dock-meta-row">
           <details class="stuck-menu">
@@ -1298,71 +1298,33 @@
       </div>`;
   }
 
+  const pencilSvg = '<svg class="seg-pencil" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 15-1 5 5-1L20 8l-4-4L5 15Zm9-9 4 4"/></svg>';
+
   function renderEvidenceHtml(round, segs, ctx) {
     const { kind, debrief, light, selectedSteps, hitSteps, missedSteps, alarmSteps } = ctx;
 
     if (kind === "chat") {
-      let prevSpeaker = null;
-      const items = segs.map((seg, idx) => {
+      let previousSpeaker = null;
+      const items = segs.map((seg) => {
         const id = seg.id;
-        let cls = "seg-item";
-        let stamp = "";
-        let drawer = "";
-        let slashed = false;
-
-        if (debrief) {
-          if (hitSteps.has(id)) {
-            cls += " seg-hit";
-            slashed = true;
-            stamp = `<span class="seg-stamp hit">✓ ${esc(text.hitTag)}</span>`;
-          } else if (missedSteps.has(id)) {
-            cls += " seg-missed";
-            slashed = true;
-            stamp = `<span class="seg-stamp missed">! ${esc(text.missedTag)}</span>`;
-          } else if (alarmSteps.has(id)) {
-            cls += " seg-alarm";
-            stamp = `<span class="seg-stamp alarm">× ${esc(text.alarmTag)}</span>`;
-          }
-        } else if (selectedSteps.has(id)) {
-          cls += " selected";
-          slashed = true;
-          stamp = `<span class="seg-stamp flagged">${esc(text.markedTag)}</span>`;
-          if (light && !round.cleanClaim) drawer = choiceDrawerHtml(round, id);
-        }
-
-        const speaker = seg.speaker || (zh ? "友" : "F");
-        const showAvatar = idx === 0 || (seg.speaker && seg.speaker !== prevSpeaker);
-        const showSpeakerName = !!(seg.speaker && seg.speaker !== prevSpeaker);
-        prevSpeaker = speaker;
-        const avatarChar = String(speaker).trim().slice(0, 1) || (zh ? "友" : "F");
-        const avatarHtml = `<span class="chat-avatar${showAvatar ? "" : " spacer"}" aria-hidden="true">${esc(avatarChar)}</span>`;
-        const bubbleInner = `
-          ${showSpeakerName ? `<span class="chat-speaker">${esc(seg.speaker)}</span>` : ""}
-          <span class="seg-body"><span class="seg-text">${esc(seg.text)}${slashed ? inkSlashSvg(id) : ""}</span>${stamp ? `<span class="chat-bubble-meta">${stamp}</span>` : ""}</span>`;
-
-        if (debrief) {
-          return `<li class="${cls}" data-seg-item="${id}">
-            <div class="chat-row seg-static">${avatarHtml}<div class="chat-bubble">${bubbleInner}</div></div>
-          </li>`;
-        }
-        const canFlag = !supportsLightPlay(round) || !!(round.light_choices && round.light_choices[id]);
-        if (!canFlag) {
-          return `<li class="${cls}" data-seg-item="${id}">
-            <div class="chat-row seg-static seg-background">${avatarHtml}<div class="chat-bubble">${bubbleInner}</div></div>
-          </li>`;
-        }
-        return `<li class="${cls}" data-seg-item="${id}">
-          <button type="button" class="chat-row seg-btn" data-seg="${id}" aria-pressed="${selectedSteps.has(id) ? "true" : "false"}">
-            ${avatarHtml}
-            <span class="chat-bubble">${bubbleInner}</span>
-          </button>
-          ${drawer}
+        const selected = selectedSteps.has(id);
+        const speaker = seg.speaker && seg.speaker !== previousSpeaker
+          ? `<span class="chat-speaker">${esc(seg.speaker)}</span>`
+          : "";
+        previousSpeaker = seg.speaker;
+        const body = `<span class="seg-body">${speaker}<span class="seg-text">${esc(seg.text)}${selected ? inkSlashSvg(id) : ""}</span></span>`;
+        const canFlag = !debrief && (!supportsLightPlay(round) || !!round.light_choices[id]);
+        return `<li class="seg-item${selected ? " selected" : ""}" data-seg-item="${id}">
+          ${canFlag
+            ? `<button type="button" class="chat-row seg-btn" data-seg="${id}" aria-pressed="${selected}">${body}${pencilSvg}</button>`
+            : `<div class="chat-row seg-static">${body}</div>`}
         </li>`;
       }).join("");
 
+      const dense = segs.length > 4 || segs.some((seg) => seg.text.length > 45);
       return `
         ${!isOpenerRound(round) && round.problem ? `<p class="evidence-brief">${esc(round.problem)}</p>` : ""}
-        <div class="evidence-chat"><ol class="segments segments-chat">${items}</ol></div>
+        <div class="evidence-chat${dense ? " evidence-dense" : ""}"><ol class="segments segments-chat">${items}</ol></div>
         ${!isOpenerRound(round) && round.final_answer ? `<div class="evidence-conclusion"><span class="evidence-conclusion-label">${esc(text.finalAnswer)}</span>${esc(round.final_answer)}</div>` : ""}`;
     }
 
@@ -1372,16 +1334,14 @@
       let cls = "seg-item";
       let stamp = "";
       let drawer = "";
-      let slashed = false;
+      const slashed = selectedSteps.has(id);
 
       if (debrief) {
         if (hitSteps.has(id)) {
           cls += " seg-hit";
-          slashed = true;
           stamp = `<span class="seg-stamp hit">✓ ${esc(text.hitTag)}</span>`;
         } else if (missedSteps.has(id)) {
           cls += " seg-missed";
-          slashed = true;
           stamp = `<span class="seg-stamp missed">! ${esc(text.missedTag)}</span>`;
         } else if (alarmSteps.has(id)) {
           cls += " seg-alarm";
@@ -1389,7 +1349,6 @@
         }
       } else if (selectedSteps.has(id)) {
         cls += " selected";
-        slashed = true;
         stamp = `<span class="seg-stamp flagged">${esc(text.markedTag)}</span>`;
         if (light && !round.cleanClaim) drawer = choiceDrawerHtml(round, id);
       }
@@ -1411,7 +1370,7 @@
         return `<li class="${cls}" data-seg-item="${id}"><div class="seg-static seg-background">${rowInner}</div></li>`;
       }
       return `<li class="${cls}" data-seg-item="${id}">
-        <button type="button" class="seg-btn" data-seg="${id}" aria-pressed="${selectedSteps.has(id) ? "true" : "false"}">${rowInner}</button>
+        <button type="button" class="seg-btn" data-seg="${id}" aria-pressed="${selectedSteps.has(id) ? "true" : "false"}">${rowInner}${pencilSvg}</button>
         ${drawer}
       </li>`;
     }).join("");
@@ -1445,12 +1404,7 @@
     const kind = evidenceKind(round);
     const segs = normalizeSegments(round);
     const light = !debrief && isLightPlay(round);
-    const dailyIndex = dailyIds().indexOf(round.worksheet_id);
     const kindLabel = text.evidenceKinds[kind] || domainLabel(round.domain || "math");
-    const dossierPrefix = dailyIndex >= 0
-      ? (zh ? `第 ${dailyIndex + 1} 题 · ${kindLabel}` : `0${dailyIndex + 1} · ${kindLabel}`)
-      : kindLabel;
-
     const selectedSteps = new Set((round.selections || []).map((s) => s.step));
     const hitSteps = new Set((debrief && debrief.errors || []).filter((e) => e.found).map((e) => e.step));
     const missedSteps = new Set((debrief && debrief.errors || []).filter((e) => !e.found).map((e) => e.step));
@@ -1463,18 +1417,28 @@
       ? debriefHtml(debrief)
       : (light ? playDockHtml(round) : composerHtml(round));
 
+    const hasFlags = selectedSteps.size > 0;
+    const help = round.cleanClaim ? text.noFlawsNote
+      : hasFlags ? (zh ? "已标出证据。选好理由和改法，就能落笔。" : text.needPicks)
+      : text.judgeSub;
+    const helpHtml = zh && !hasFlags && !round.cleanClaim
+      ? help.split("；").map(esc).join("；<br>") + "。"
+      : esc(help);
+
     return `
-      <div class="play-stage">
-        <div class="dossier-head">
-          <span class="dossier-id">
-            <span>${esc(dossierPrefix)}</span>
-            <span aria-hidden="true">·</span>
-            <span class="dossier-title">${esc(round.title)}</span>
-          </span>
-          ${blind ? `<span class="dossier-tag">${esc(text.blindPill)}</span>` : ""}
+      <div class="play-stage${debrief ? " is-revealed" : ""}">
+        <div class="judge-question">
+          <h1 class="judge-q">${esc(text.judgeQ)}</h1>
+          ${!debrief ? `<p class="judge-sub">${helpHtml}</p>` : ""}
         </div>
-        ${!debrief && state.error && !light ? `<p class="error" role="alert">${esc(state.error)}</p>` : ""}
-        ${evidenceHtml}
+        <section class="judge-evidence" aria-labelledby="evidence-title">
+          <div class="dossier-head">
+            <h2 class="dossier-title" id="evidence-title">${esc(round.title)}</h2>
+            <span>${esc(kindLabel)}${blind ? ` · ${esc(text.blindPill)}` : ""}</span>
+          </div>
+          ${!debrief && state.error && !light ? `<p class="error" role="alert">${esc(state.error)}</p>` : ""}
+          ${evidenceHtml}
+        </section>
         ${afterSheet}
       </div>`;
   }
@@ -1598,6 +1562,10 @@
     const dailyComplete = isDailyComplete();
     const inDaily = dailyIds().includes(round.worksheet_id);
     const celebrate = celebrateCopy(debrief);
+    const isChat = evidenceKind(round) === "chat";
+    const firstError = debrief.errors && debrief.errors[0];
+    const punchline = debrief.explanation || (isChat && firstError && firstError.why_wrong);
+    const compact = isChat && !!punchline;
     const missClass = (!debrief.revealed && debrief.score < 50) ? "is-miss" : "";
 
     const primaryCta = nextInfo && nextInfo.entry
@@ -1636,6 +1604,12 @@
         ? text.whoReveal
         : text.whoAuto;
 
+    const supportingDetails = `<div class="debrief-list">
+          ${errors || (debrief.planted === 0 && !debrief.explanation ? `<p class="clean-msg">${esc(text.cleanRound)}</p>` : "")}
+        </div>
+        ${bounties ? `<h3 class="sub-head">${zh ? "额外发现" : "Bounties"}</h3><ul class="alarm-list">${bounties}</ul>` : ""}
+        ${alarms ? `<h3 class="sub-head">${esc(text.falseAlarms)}</h3><ul class="alarm-list">${alarms}</ul>` : ""}`;
+
     const showDailyDocket = dailyComplete && inDaily;
     const showSingleDocket = !inDaily;
     const docketHtml = showDailyDocket
@@ -1645,7 +1619,7 @@
         : "";
 
     return `
-      <section class="results-stage ${missClass}" aria-live="polite">
+      <section class="results-stage ${missClass}${compact ? " has-punchline" : ""}" aria-live="polite">
         <div class="verdict-head">
           <div class="verdict-stamp-row">
             <p class="celebrate ${tone}">${esc(celebrate)}</p>
@@ -1655,12 +1629,8 @@
             ${!debrief.revealed ? `<span class="accuracy-pill">${esc(text.accuracy(acc))}</span>` : ""}
           </div>
         </div>
-        ${debrief.explanation ? `<p class="debrief-punch">${esc(legacyMathDelims(debrief.explanation))}</p>` : ""}
-        <div class="debrief-list">
-          ${errors || (debrief.planted === 0 && !debrief.explanation ? `<p class="clean-msg">${esc(text.cleanRound)}</p>` : "")}
-        </div>
-        ${bounties ? `<h3 class="sub-head">${zh ? "额外发现" : "Bounties"}</h3><ul class="alarm-list">${bounties}</ul>` : ""}
-        ${alarms ? `<h3 class="sub-head">${esc(text.falseAlarms)}</h3><ul class="alarm-list">${alarms}</ul>` : ""}
+        ${punchline ? `<p class="debrief-punch">${esc(legacyMathDelims(punchline))}</p>` : ""}
+        ${compact ? "" : supportingDetails}
         ${docketHtml}
         ${state.shareMessage ? `<p class="share-status" role="status">${esc(state.shareMessage)}</p>` : ""}
         ${state.shareText ? `<div class="share-preview"><p class="small-muted">${esc(text.copyFallback)}</p><pre>${esc(state.shareText)}</pre></div>` : ""}
@@ -1669,6 +1639,7 @@
         </div>
         <details class="more-details" ${round.ai ? "open" : ""}>
           <summary>${esc(text.moreDetails)}</summary>
+          ${compact ? supportingDetails : ""}
           <div class="clean">
             <h3>${esc(text.cleanTitle)}</h3>
             <ol>${clean}</ol>
@@ -1797,7 +1768,7 @@
     app.querySelectorAll("[data-unflag]").forEach((btn) => {
       btn.addEventListener("click", () => toggleSegment(Number(btn.dataset.unflag)));
     });
-    app.querySelectorAll("[data-pick-diag]").forEach((btn) => {
+    app.querySelectorAll("button[data-pick-diag]").forEach((btn) => {
       btn.addEventListener("click", () => {
         const step = Number(btn.dataset.step);
         const sel = (state.round.selections || []).find((s) => s.step === step);
@@ -1809,7 +1780,7 @@
         render();
       });
     });
-    app.querySelectorAll("[data-pick-fix]").forEach((btn) => {
+    app.querySelectorAll("button[data-pick-fix]").forEach((btn) => {
       btn.addEventListener("click", () => {
         const step = Number(btn.dataset.step);
         const sel = (state.round.selections || []).find((s) => s.step === step);
@@ -1817,6 +1788,23 @@
         sel.fix_id = btn.dataset.pickFix;
         state.justPicked = { step, kind: "fix", id: sel.fix_id };
         render();
+      });
+    });
+
+    app.querySelectorAll("select[data-choice]").forEach((select) => {
+      select.addEventListener("change", () => {
+        const { step, choice } = select.dataset;
+        const sel = state.round.selections.find((item) => item.step === Number(step));
+        if (!sel) return;
+        if (choice === "diag") {
+          sel.diagnosis_id = select.value;
+          sel.diagnosis_label = select.selectedOptions[0].textContent.trim();
+        } else {
+          sel.fix_id = select.value;
+        }
+        select.title = select.selectedOptions[0].textContent.trim();
+        app.querySelector('[data-act="submit"]').disabled = state.busy || !lightReady(state.round);
+        persistActive();
       });
     });
 
