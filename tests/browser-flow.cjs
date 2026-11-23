@@ -32,8 +32,8 @@ const draft = JSON.parse(fs.readFileSync(path.join(root, 'demo/bank/cubic-lost-r
         // Tap-to-flag light mode on the first Daily puzzle.
         await page.locator('button.seg-btn[data-seg="1"]').click();
         await page.locator('.choice-drawer[data-sel-step="1"]').waitFor();
-        await page.locator('[data-pick-diag]').first().click();
-        await page.locator('[data-pick-fix]').first().click();
+        await page.locator('select[data-choice=diag]').selectOption({ index: 1 });
+        await page.locator('select[data-choice=fix]').selectOption({ index: 1 });
         await page.locator('[data-act=submit]').click();
         await page.locator('.score').waitFor();
         assert.equal(await page.locator('.accuracy-pill').count(), 1);
