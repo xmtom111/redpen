@@ -1,5 +1,5 @@
 /* Deterministic Daily RedPen selector, localStorage streak tracker,
-   and Wordle-style spoiler-free share card generator. No backend required. */
+   and spoiler-free ticket formatter. No backend required. */
 (function (root, factory) {
   const api = factory();
   if (typeof module === "object" && module.exports) module.exports = api;
@@ -64,82 +64,71 @@
     return copy;
   }
 
-  function isOpener(item) {
-    return item && item.opener === true;
-  }
+  const DAILY_SEED = "redpen:daily:v4";
 
-  function permuteCycle(pool, seedPrefix, cycle) {
-    // A two-item cycle always alternates, including at cycle boundaries.
-    if (pool.length === 2) return shuffleDeterministic(pool, `${seedPrefix}:0`);
-    const perm = shuffleDeterministic(pool, `${seedPrefix}:${cycle}`);
-    // If a new cycle would start with the previous cycle's last item,
-    // swap the first two so consecutive days never repeat across the seam.
-    if (cycle > 0 && perm.length > 1) {
-      const prev = shuffleDeterministic(pool, `${seedPrefix}:${cycle - 1}`);
-      if (perm[0].id === prev[prev.length - 1].id) {
-        const tmp = perm[0];
-        perm[0] = perm[1];
-        perm[1] = tmp;
+  function cyclePicker(pool, name) {
+    let cycle = 0;
+    let remaining = [];
+    return (used, previous) => {
+      if (!remaining.length) {
+        remaining = shuffleDeterministic(pool, `${DAILY_SEED}:${name}:${cycle++}`);
+        // Keep yesterday's items at the far end of a fresh cycle.
+        remaining.sort((a, b) => Number(previous.has(a.id)) - Number(previous.has(b.id)));
       }
-    }
-    return perm;
+      let index = remaining.findIndex((item) => !used.has(item.id) && !previous.has(item.id));
+      if (index < 0) index = remaining.findIndex((item) => !used.has(item.id));
+      if (index < 0) return pool.find((item) => !used.has(item.id));
+      return remaining.splice(index, 1)[0];
+    };
   }
 
-  function pickFromPool(pool, dayIdx, seedPrefix) {
-    if (!pool.length) return null;
-    const cycle = Math.floor(dayIdx / pool.length);
-    const offset = dayIdx % pool.length;
-    return permuteCycle(pool, seedPrefix, cycle)[offset];
-  }
-
-  /**
-   * Deterministically pick `count` daily puzzles (default 3) for `dateStr`.
-   * Slot 1 is drawn from everyday aha items tagged `opener: true` (falling
-   * back to the logic pack if none are tagged). Remaining slots target code
-   * then math. Uses per-cycle permutation so puzzles do not repeat
-   * back-to-back, and falls back deterministically if a pool is short.
-   */
   function selectDaily(worksheets, dateStr, count = 3) {
-    const items = (worksheets || []).slice().sort((a, b) => {
-      if (a.id < b.id) return -1;
-      return a.id === b.id ? 0 : 1;
-    });
-    const targetCount = Math.min(count, items.length);
-    if (targetCount < 1) return [];
+    const general = (worksheets || []).filter((item) => item.domain === "logic").sort((a, b) =>
+      a.id < b.id ? -1 : a.id === b.id ? 0 : 1);
+    const planted = general.filter((item) => item.kind ? item.kind === "planted" : item.level !== 0);
+    const correct = general.filter((item) => !planted.includes(item));
+    const preferred = correct.filter((item) => item.kind === "trick_clean" || item.daily_priority);
+    // Four items can cover two clean slots on successive days.
+    const clean = preferred.length >= 4 ? preferred : correct;
+    const target = Math.min(count, planted.length + clean.length);
+    if (target < 1) return [];
+
+    const openers = planted.filter((item) => item.opener);
+    const otherPlanted = planted.filter((item) => !item.opener);
+    const pickOpener = cyclePicker(openers, "opener");
+    const pickPlanted = cyclePicker(otherPlanted, "planted");
+    const pickClean = cyclePicker(clean, "clean");
     const dayIdx = dayNumber(dateStr) - 1;
-    const picked = [];
-    const usedIds = new Set();
-
-    const openerPool = items.filter((item) => isOpener(item) && !usedIds.has(item.id));
-    const slot1Pool = openerPool.length
-      ? openerPool
-      : items.filter((item) => (item.domain || "math") === "logic" && !usedIds.has(item.id));
-    const first = pickFromPool(slot1Pool, dayIdx, "redpen:daily:v3:opener");
-    if (first) {
-      picked.push(first);
-      usedIds.add(first.id);
-    }
-
-    for (const domain of ["code", "math"]) {
-      if (picked.length >= targetCount) break;
-      const pool = items.filter((item) => (item.domain || "math") === domain && !usedIds.has(item.id));
-      const chosen = pickFromPool(pool, dayIdx, `redpen:daily:v3:${domain}`);
-      if (chosen) {
-        picked.push(chosen);
-        usedIds.add(chosen.id);
-      }
-    }
-
-    if (picked.length < targetCount) {
-      const remaining = items.filter((item) => !usedIds.has(item.id));
-      const perm = shuffleDeterministic(remaining, `redpen:daily:v3:fallback:${dateStr}`);
-      for (const item of perm) {
-        if (picked.length >= targetCount) break;
+    let previous = new Set();
+    let picked = [];
+    let plantedDraws = 0;
+    let openerDraws = 0;
+    for (let day = 0; day <= dayIdx; day += 1) {
+      const roll = mulberry32(fnv1a(`${DAILY_SEED}:budget:${day}`))();
+      const budget = roll < 0.52 ? 0 : roll < 0.94 ? 1 : 2;
+      const cleanCount = Math.max(target - planted.length, Math.min(budget, clean.length, target));
+      const plantedCount = target - cleanCount;
+      plantedDraws += plantedCount;
+      // Keep the opener and other planted queues in proportion over time.
+      const openerTarget = Math.round(plantedDraws * openers.length / Math.max(1, planted.length));
+      const openerCount = Math.max(
+        plantedCount - otherPlanted.length,
+        cleanCount === 0 && openers.length ? 1 : 0,
+        Math.min(openerTarget - openerDraws, openers.length, plantedCount)
+      );
+      openerDraws += openerCount;
+      picked = [];
+      const used = new Set();
+      for (let slot = 0; slot < target; slot += 1) {
+        const pick = slot < openerCount ? pickOpener : slot < plantedCount ? pickPlanted : pickClean;
+        const item = pick(used, previous);
         picked.push(item);
-        usedIds.add(item.id);
+        used.add(item.id);
       }
+      previous = used;
     }
-    return picked;
+    return shuffleDeterministic(picked, `${DAILY_SEED}:order:${dayIdx}`)
+      .sort((a, b) => Number(!!b.opener) - Number(!!a.opener));
   }
 
   function storageKey(locale) {
@@ -185,7 +174,6 @@
     if (!dailyIds.includes(puzzleId)) return state;
     const day = state.days[dateStr] || { results: {}, completedAt: null };
     day.results[puzzleId] = {
-      score: result.score == null ? 0 : result.score,
       found: Number(result.found) || 0,
       planted: Number(result.planted) || 0,
       falseAlarms: Number(result.false_alarms != null ? result.false_alarms : result.falseAlarms) || 0,
@@ -195,8 +183,8 @@
       revealed: !!result.revealed,
     };
     const allDone = dailyIds.length > 0 && dailyIds.every((id) => !!day.results[id]);
-    if (allDone && !day.completedAt) {
-      day.completedAt = new Date().toISOString();
+    if (allDone) {
+      day.completedAt ||= new Date().toISOString();
       if (state.lastCompletedDate !== dateStr) {
         if (state.lastCompletedDate === prevDateStr(dateStr)) {
           state.streak = (state.streak || 0) + 1;
@@ -230,12 +218,34 @@
     return mins > 0 ? `${mins}m ${pad2(secs)}s` : `${secs}s`;
   }
 
-  function resultSquare(res) {
-    if (!res) return "⬜";
-    if (res.revealed) return "🟥";
-    if (res.score === 100 && res.falseAlarms === 0) return "🟩";
-    if (res.score >= 60) return "🟨";
-    return "🟥";
+  const stamps = {
+    zh: { caught: "一针见血", missed: "放虎归山", alarm: "冤假错案", held: "没上钩", revealed: "已摊牌" },
+    en: { caught: "Sharp catch", missed: "Let it slip", alarm: "False alarm", held: "Saw through the bait", revealed: "Revealed" },
+  };
+
+  function verdictOf(result) {
+    if (!result) return null;
+    if (result.revealed) return "revealed";
+    if (result.false_alarms || result.falseAlarms) return "alarm";
+    if (result.found) return "caught";
+    return result.planted ? "missed" : "held";
+  }
+
+  function stampLabel(result, locale) {
+    return stamps[locale === "zh" ? "zh" : "en"][verdictOf(result)] || "—";
+  }
+
+  function docketLine(results, locale) {
+    const verdicts = results.map(verdictOf);
+    const alarms = verdicts.filter((verdict) => verdict === "alarm").length;
+    const misses = verdicts.filter((verdict) => verdict === "missed").length;
+    if (alarms > misses) return locale === "zh" ? "今天看谁都像有案底。" : "Today, everybody looked like a suspect.";
+    if (misses > alarms) return locale === "zh" ? "今天耳根子有点软。" : "I was a little too easy to talk past today.";
+    if (verdicts.every((verdict) => verdict === "caught" || verdict === "held")) {
+      return locale === "zh" ? "今天红笔只在该落的地方落。" : "The red pen knew when to stay in its pocket.";
+    }
+    if (alarms) return locale === "zh" ? "有漏网的，也有被冤枉的。" : "Some got away. Some got stopped for nothing.";
+    return locale === "zh" ? "今天翻了翻答案，也算审完了。" : "I peeked at the key. Case closed, technically.";
   }
 
   function domainLabel(domain, locale) {
@@ -245,27 +255,15 @@
   }
 
   /**
-   * Build a Wordle-style spoiler-free share card (never mentions step numbers or flaws).
+   * Build a spoiler-free ticket with verdicts, timing, and streak.
    */
   function formatShareCard({ locale, dateStr, dailyItems, dayResults, streak, url }) {
     const lang = locale === "zh" ? "zh" : "en";
     const num = dayNumber(dateStr);
-    const entries = (dailyItems || []).map((item) => ({
-      item,
-      res: (dayResults || {})[item.id] || null,
-    }));
-    const tiles = entries.map(({ item, res }) =>
-      `${resultSquare(res)} ${domainLabel(item.domain || "math", lang)}`
-    ).join(" · ");
-
-    const completed = entries.filter((e) => e.res);
-    const avgScore = completed.length
-      ? Math.round(completed.reduce((acc, e) => acc + (e.res.revealed ? 0 : e.res.score), 0) / completed.length)
-      : 0;
-    const totalFound = completed.reduce((acc, e) => acc + e.res.found, 0);
-    const totalPlanted = completed.reduce((acc, e) => acc + e.res.planted, 0);
-    const totalAlarms = completed.reduce((acc, e) => acc + e.res.falseAlarms, 0);
-    const totalSec = completed.reduce((acc, e) => acc + e.res.elapsedSec, 0);
+    const results = (dailyItems || []).map((item) => (dayResults || {})[item.id]);
+    const tiles = results.map((result) => stampLabel(result, lang)).join(" · ");
+    const totalSec = results.reduce((acc, result) => acc + (result ? result.elapsedSec : 0), 0);
+    const line = docketLine(results, lang);
     const link = url || (lang === "zh" ? "https://xmtom111.github.io/redpen/zh/" : "https://xmtom111.github.io/redpen/");
 
     if (lang === "zh") {
@@ -273,7 +271,8 @@
       return [
         `🖍️ 今日红笔 #${num} (${dateStr})`,
         tiles,
-        `得分 ${avgScore}/100 · 命中 ${totalFound}/${totalPlanted} · 误报 ${totalAlarms} · 用时 ${formatDuration(totalSec, "zh")}${streakPart}`,
+        line,
+        `${formatDuration(totalSec, "zh")}${streakPart}`,
         "红笔抓错：这段话站得住脚吗？",
         link,
       ].join("\n");
@@ -282,7 +281,8 @@
     return [
       `🖍️ RedPen Daily #${num} (${dateStr})`,
       tiles,
-      `Score ${avgScore}/100 · Hits ${totalFound}/${totalPlanted} · False alarms ${totalAlarms} · ${formatDuration(totalSec, "en")}${streakPart}`,
+      line,
+      `${formatDuration(totalSec, "en")}${streakPart}`,
       "Does this hold up?",
       link,
     ].join("\n");
@@ -290,26 +290,21 @@
 
   function formatSingleShareCard({ locale, domain, title, debrief, elapsedSec, url }) {
     const lang = locale === "zh" ? "zh" : "en";
-    const sq = resultSquare({
-      score: debrief.score,
-      falseAlarms: debrief.false_alarms,
-      revealed: debrief.revealed,
-    });
-    const scoreText = debrief.revealed ? (lang === "zh" ? "已看答案" : "Revealed") : `${debrief.score}/100`;
+    const stamp = stampLabel(debrief, lang);
     const link = url || (lang === "zh" ? "https://xmtom111.github.io/redpen/zh/" : "https://xmtom111.github.io/redpen/");
     if (lang === "zh") {
       return [
         `🖍️ 红笔抓错 · ${domainLabel(domain || "math", "zh")}`,
-        `${sq} ${title}`,
-        `得分 ${scoreText} · 命中 ${debrief.found}/${debrief.planted} · 误报 ${debrief.false_alarms} · 用时 ${formatDuration(elapsedSec, "zh")}`,
+        title,
+        `${stamp} · ${formatDuration(elapsedSec, lang)}`,
         "这段话站得住脚吗？",
         link,
       ].join("\n");
     }
     return [
       `🖍️ RedPen · ${domainLabel(domain || "math", "en")}`,
-      `${sq} ${title}`,
-      `Score ${scoreText} · Hits ${debrief.found}/${debrief.planted} · False alarms ${debrief.false_alarms} · ${formatDuration(elapsedSec, "en")}`,
+      title,
+        `${stamp} · ${formatDuration(elapsedSec, lang)}`,
       "Does this hold up?",
       link,
     ].join("\n");
@@ -325,7 +320,9 @@
     recordDailyResult,
     currentStreak,
     formatDuration,
-    resultSquare,
+    verdictOf,
+    stampLabel,
+    docketLine,
     formatShareCard,
     formatSingleShareCard,
   };
