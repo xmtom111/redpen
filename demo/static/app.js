@@ -278,6 +278,7 @@
     shareText: "",
     justFlagged: 0,
     justGraded: false,
+    justAdvanced: false,
   };
 
   let timerHandle = null;
@@ -756,6 +757,26 @@
     });
   }
 
+  const midloop = {
+    caught: {
+      slips: [["这一笔，我先记着。", "I’ll remember that stroke."], ["行，这一笔算你的。", "Fine. That one’s yours."]],
+      choices: [["invite", "尽管再来", "Bring it on"], ["file", "照例归档", "File it"]],
+    },
+    alarm: {
+      slips: [["红笔挺快，判词先欠着。", "Quick pen. Shame about the verdict."], ["这一笔，我可不认。", "I dispute that stroke."]],
+      choices: [["concede", "这笔认了", "I concede"], ["shrug", "翻篇再审", "Moving on"]],
+    },
+  };
+  const shortStamps = { caught: "Caught", missed: "Missed", alarm: "Alarm", held: "Held", revealed: "Shown" };
+
+  function advanceBeat(entry) {
+    if (state.view !== "play" || !state.round?.debrief) return null;
+    const from = dailyIds().indexOf(state.round.worksheet_id);
+    const to = dailyIds().indexOf(entry.id);
+    if (from < 0 || to <= from || todayResults()[entry.id]) return null;
+    return midloop[RedPenDaily.verdictOf(state.round.debrief)] || null;
+  }
+
   function renderTopNav() {
     bindChromeNav();
     const inDaily = state.view === "play" && state.round && dailyIds().includes(state.round.worksheet_id);
@@ -771,35 +792,22 @@
     }
     const doneToday = todayResults();
     const currentId = state.view === "play" && state.round ? state.round.worksheet_id : "";
-    const position = state.daily.findIndex((item) => item.id === currentId) + 1;
-    const progress = position ? `${position} / ${state.daily.length}` : String(state.daily.length);
+    const complete = state.daily.every((item) => doneToday[item.id]);
+    const previous = new Set([...topNav.querySelectorAll(".daily-slot.done")].map((btn) => btn.dataset.dailyId));
     const slots = state.daily.map((item, idx) => {
-      const res = doneToday[item.id];
       const active = currentId === item.id;
-      const passed = isPassedResult(res);
-      const cls = [
-        "daily-slot",
-        active ? "active" : "",
-        res ? (passed ? "done done-good" : "done done-miss") : "",
-      ].filter(Boolean).join(" ");
-      const status = res ? (passed ? (zh ? "，通过" : ", passed") : (zh ? "，已判读" : ", judged")) : "";
-      const aria = zh
-        ? `今日第 ${idx + 1} 题（${domainLabel(item.domain)}）${status}`
-        : `Daily ${idx + 1} (${domainLabel(item.domain)})${status}`;
-      return `<button type="button" class="${cls}" data-daily-id="${esc(item.id)}" aria-label="${esc(aria)}"${active ? ' aria-current="step"' : ""}></button>`;
+      const res = active && !complete && state.round.debrief ? null : doneToday[item.id];
+      const status = res ? RedPenDaily.stampLabel(res, locale) : "";
+      const aria = zh ? `今日第 ${idx + 1} 题${status ? "，" + status : ""}` : `Daily ${idx + 1}${status ? ", " + status : ""}`;
+      const mark = zh ? status : shortStamps[RedPenDaily.verdictOf(res)] || "";
+      const landing = res && !previous.has(item.id) && (state.justGraded || state.justAdvanced);
+      return `<button type="button" class="daily-slot${res ? " done" : ""}" data-daily-id="${esc(item.id)}" aria-label="${esc(aria)}"${active ? ' aria-current="step"' : ""}>
+        <span class="daily-slot-mark${landing ? " just-stamped" : ""}" aria-hidden="true">${esc(mark)}</span>
+      </button>`;
     }).join("");
-    topNav.innerHTML = `<span class="daily-count" aria-hidden="true">${progress}</span><span class="daily-slots">${slots}</span>`;
+    topNav.innerHTML = `<span class="daily-slots">${slots}</span>`;
     topNav.querySelectorAll("[data-daily-id]").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        const entry = state.byId.get(btn.dataset.dailyId);
-        if (!entry || state.busy) return;
-        state.busy = true;
-        render();
-        await startEntry(entry, false, true);
-        state.busy = false;
-        render();
-        window.scrollTo(0, 0);
-      });
+      btn.addEventListener("click", () => begin({ worksheet_id: btn.dataset.dailyId }));
     });
   }
 
@@ -1153,6 +1161,9 @@
 
   function renderEvidenceHtml(round, segs, ctx) {
     const { kind, debrief, selectedSteps } = ctx;
+    const retort = round.retort?.date === state.dateStr ? round.retort.line : "";
+    const cardClass = `evidence-stack${state.justAdvanced && retort ? " just-slid" : ""}`;
+    const slip = retort ? `<aside class="retort-slip" aria-label="${zh ? "送审方附言" : "From the submitter"}">${esc(retort)}</aside>` : "";
 
     if (kind === "chat") {
       let previousSpeaker = null;
@@ -1175,7 +1186,10 @@
       const dense = segs.length > 4 || segs.some((seg) => seg.text.length > 45);
       return `
         ${!isOpenerRound(round) && round.problem ? `<p class="evidence-brief">${esc(round.problem)}</p>` : ""}
-        <div class="evidence-chat${dense ? " evidence-dense" : ""}"><ol class="segments segments-chat">${items}</ol></div>
+        <div class="${cardClass}">
+          ${slip}
+          <div class="evidence-chat${dense ? " evidence-dense" : ""}"><ol class="segments segments-chat">${items}</ol></div>
+        </div>
         ${!isOpenerRound(round) && round.final_answer ? `<div class="evidence-conclusion"><span class="evidence-conclusion-label">${esc(text.finalAnswer)}</span>${esc(round.final_answer)}</div>` : ""}`;
     }
 
@@ -1218,8 +1232,9 @@
     return `
       <div class="evidence-block ${kind === "math" ? "evidence-math" : ""}">
         ${round.problem ? `<p class="evidence-brief">${esc(round.problem)}</p>` : ""}
-        <div class="evidence-paper">
-          <ol class="segments segments-prose">${items}</ol>
+        <div class="${cardClass}">
+          ${slip}
+          <div class="evidence-paper"><ol class="segments segments-prose">${items}</ol></div>
         </div>
         ${round.final_answer ? `<div class="evidence-conclusion"><span class="evidence-conclusion-label">${esc(text.finalAnswer)}</span>${esc(round.final_answer)}</div>` : ""}
       </div>`;
@@ -1386,8 +1401,14 @@
       || (!debrief.planted && debrief.clean_final_answer);
     const compact = everyday && !!punchline;
 
-    const primaryCta = nextInfo && nextInfo.entry
-      ? `<button class="btn next-btn" type="button" data-next-id="${esc(nextInfo.entry.id)}">${esc(nextInfo.label)}</button>`
+    const beat = nextInfo?.isDaily ? advanceBeat(nextInfo.entry) : null;
+    const choices = beat && !Object.values(todayResults()).some((result) => result.attitude)
+      ? beat.choices
+      : null;
+    const primaryCta = nextInfo?.entry
+      ? (choices || [[null, nextInfo.label, nextInfo.label]]).map(([attitude, zhLabel, enLabel]) =>
+        `<button class="btn next-btn" type="button" data-next-id="${esc(nextInfo.entry.id)}"${attitude ? ` data-attitude="${attitude}"` : ""}${state.busy ? " disabled" : ""}>${esc(zh ? zhLabel : enLabel)}</button>`
+      ).join("")
       : "";
 
     const sep = zh ? "：" : ": ";
@@ -1447,7 +1468,7 @@
         ${docketHtml}
         ${state.shareMessage ? `<p class="share-status" role="status">${esc(state.shareMessage)}</p>` : ""}
         ${state.shareText ? `<div class="share-preview"><p class="small-muted">${esc(text.copyFallback)}</p><pre>${esc(state.shareText)}</pre></div>` : ""}
-        <div class="next-bar">
+        <div class="next-bar${choices ? " has-attitudes" : ""}">
           ${primaryCta}
         </div>
         <details class="more-details" ${round.ai ? "open" : ""}>
@@ -1495,19 +1516,6 @@
   }
 
   function bind() {
-    // Daily strip buttons
-    app.querySelectorAll("[data-daily-id]").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        const entry = state.byId.get(btn.dataset.dailyId);
-        if (!entry || state.busy) return;
-        state.busy = true;
-        render();
-        await startEntry(entry, false, true);
-        state.busy = false;
-        render();
-      });
-    });
-
     // Pack filters & cards
     app.querySelectorAll("[data-filter]").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -1522,7 +1530,7 @@
       btn.addEventListener("click", () => begin({ blind: true }));
     });
     app.querySelectorAll("[data-next-id]").forEach((btn) => {
-      btn.addEventListener("click", () => begin({ worksheet_id: btn.dataset.nextId }));
+      btn.addEventListener("click", () => begin({ worksheet_id: btn.dataset.nextId, attitude: btn.dataset.attitude }));
     });
 
     // Inline navigation links (e.g. Back to Daily from Packs/Workshop)
@@ -1716,17 +1724,29 @@
     }
     const entry = state.byId.get(body.worksheet_id);
     if (!entry) return;
-    if (state.kind === "server") {
-      state.busy = true;
-      render();
-      await startEntry(entry, false, true);
-      state.busy = false;
-      render();
-      window.scrollTo(0, 0);
-      return;
+    const previousRound = state.round;
+    const beat = advanceBeat(entry);
+    state.busy = true;
+    if (state.kind === "server") render();
+    await startEntry(entry, false, true);
+    state.busy = false;
+    if (state.round !== previousRound) {
+      state.justAdvanced = true;
+      if (beat) {
+        const pick = (RedPenDaily.dayNumber(state.dateStr) + dailyIds().indexOf(entry.id)) % beat.slips.length;
+        state.round.retort = { date: state.dateStr, line: beat.slips[pick][zh ? 0 : 1] };
+        if (beat.choices.some(([id]) => id === body.attitude)) {
+          const ds = dailyState();
+          const result = ds.days[state.dateStr]?.results[previousRound.worksheet_id];
+          if (result) {
+            result.attitude = body.attitude;
+            RedPenDaily.saveState(locale, ds);
+          }
+        }
+      }
     }
-    openStatic(entry, false, true);
     render();
+    state.justAdvanced = false;
     window.scrollTo(0, 0);
   }
 
