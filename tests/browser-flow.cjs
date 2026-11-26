@@ -29,14 +29,13 @@ const draft = JSON.parse(fs.readFileSync(path.join(root, 'demo/bank/cubic-lost-r
         assert.equal(await page.locator('#live-form').count(), 0, 'API/live form must not block first screen');
         assert.equal(await page.locator('.daily-slot').count(), 3, 'Daily strip should show 3 slots');
 
-        // Tap-to-flag light mode on the first Daily puzzle.
+        // A single tap commits and reveals a qualitative verdict.
         await page.locator('button.seg-btn[data-seg="1"]').click();
-        await page.locator('.choice-drawer[data-sel-step="1"]').waitFor();
-        await page.locator('select[data-choice=diag]').selectOption({ index: 1 });
-        await page.locator('select[data-choice=fix]').selectOption({ index: 1 });
-        await page.locator('[data-act=submit]').click();
-        await page.locator('.score').waitFor();
-        assert.equal(await page.locator('.accuracy-pill').count(), 1);
+        await page.locator('.verdict-stamp').waitFor();
+        await page.locator('[data-seg-item="1"] .ink-slash-svg').waitFor();
+        assert.ok(await page.locator('.seg-stamp').count() > 1);
+        assert.equal(await page.locator('.score, .accuracy-pill, .choice-drawer').count(), 0);
+        assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem('redpen:history')).at(-1).score), null);
         await page.locator('[data-next-id]').waitFor();
 
         // Mid-daily: no induced share prompt. The docket appears after the third verdict.
@@ -45,46 +44,45 @@ const draft = JSON.parse(fs.readFileSync(path.join(root, 'demo/bank/cubic-lost-r
         // Advance to Daily #2 and #3 via Next button and complete Daily.
         await page.locator('[data-next-id]').click();
         await page.locator('[data-act="toggle-clean"]').click();
-        await page.locator('[data-act="submit"]').click();
         await page.locator('[data-next-id]').waitFor();
+        assert.match(await page.locator('.verdict-stamp').textContent(), lang ? /放虎归山|没上钩/ : /Let it slip|Saw through the bait/);
 
         await page.locator('[data-next-id]').click();
         await page.locator('[data-act="toggle-clean"]').click();
-        await page.locator('[data-act="submit"]').click();
         await page.locator('[data-share-daily]').first().waitFor();
 
-        // Copy spoiler-free Daily score card.
+        // Copy a spoiler-free Daily ticket.
+        assert.equal(await page.locator(".docket-mark").count(), 3);
         await page.locator('[data-share-daily]').first().click();
         await page.locator('.share-preview pre').waitFor();
         const shareCard = await page.locator('.share-preview pre').textContent();
         assert.match(shareCard, lang ? /今日红笔 #\d+/ : /RedPen Daily #\d+/);
-        assert.doesNotMatch(shareCard, /Step \d|步骤 \d/i);
+        assert.doesNotMatch(shareCard, /Step \d|步骤 \d|\/100|Accuracy|准确度/i);
 
-        // Math renders offline in the setup, steps, drawer, final answer and debrief.
+        // Code remains available as a pack with the same immediate verdict.
+        await page.locator('[data-nav="packs"]').click();
+        await page.locator('[data-filter="code"]').click();
+        await page.locator('[data-id="code-clean-binary-search"]').click();
+        await page.locator('[data-seg="1"]').click();
+        assert.equal(await page.locator('.verdict-stamp').textContent(), lang ? '冤假错案' : 'False alarm');
+        await page.locator('[data-nav="packs"]').click();
+        await page.locator('[data-filter="all"]').click();
+
+        // Math renders offline before and after a single tap in a pack.
         await page.locator('[data-nav="packs"]').click();
         await page.locator('[data-id="sine-substitution"]').click();
         await page.locator('.evidence-brief .katex').first().waitFor();
         await page.locator('.seg-body .katex').first().waitFor();
         await page.locator('.evidence-conclusion .katex').first().waitFor();
         await page.locator('[data-seg="2"]').click();
-        await page.locator('[data-pick-fix] .katex').first().waitFor();
-        const oldLabels = await page.locator('[data-pick-diag]').allTextContents();
-        await page.locator('[data-pick-diag]').first().click();
-        await page.locator('[data-act="toggle-clean"]').click();
-        assert.equal(await page.locator('.choice-drawer').count(), 0);
-        assert.equal(await page.locator('[data-act="toggle-clean"]').getAttribute('aria-pressed'), 'true');
+        await page.locator('.verdict-stamp').waitFor();
+        await page.locator('.debrief-line .katex').first().waitFor();
+        assert.equal(await page.locator('.katex-error').count(), 0);
 
         await page.locator('[data-nav="packs"]').click();
         await page.locator('[data-id="cubic-lost-root"]').click();
-        assert.equal(await page.locator('[data-act="toggle-clean"]').getAttribute('aria-pressed'), 'false');
-        assert.equal(await page.locator('.choice-drawer').count(), 0);
-        await page.locator('[data-seg="1"]').click();
-        assert.notDeepEqual(await page.locator('[data-pick-diag]').allTextContents(), oldLabels);
-        await page.locator('.stuck-menu > summary').click();
-        page.once("dialog", dialog => dialog.accept());
-        await page.locator('[data-act="reveal"]').click();
-        await page.locator('.debrief-line .katex').first().waitFor();
-        assert.equal(await page.locator('.katex-error').count(), 0);
+        await page.locator('[data-seg="2"]').click();
+        assert.equal(await page.locator('.verdict-stamp').textContent(), lang ? '一针见血' : 'Sharp catch');
 
         await page.locator('[data-nav="packs"]').click();
         await page.locator('[data-id="logic-chat-cabin-split"]').click();
@@ -107,8 +105,7 @@ const draft = JSON.parse(fs.readFileSync(path.join(root, 'demo/bank/cubic-lost-r
         await page.locator('[data-act=hint]').click();
         await page.locator('.hint').waitFor();
         await page.locator('[data-act=submit]').click();
-        await page.locator('.score').waitFor();
-        assert.equal(await page.locator('.score').textContent(), '83/100');
+        assert.equal(await page.locator('.verdict-stamp').textContent(), lang ? '一针见血' : 'Sharp catch');
         await page.locator('.more-details > summary').click();
         await page.locator('[data-act=verify]').click();
         await page.locator('.verify-status').waitFor({state: 'attached'});
@@ -118,9 +115,7 @@ const draft = JSON.parse(fs.readFileSync(path.join(root, 'demo/bank/cubic-lost-r
         await page.locator('[data-nav="packs"]').click();
         await page.locator('[data-id="definite-integral"]').click();
         await page.locator('[data-act="toggle-clean"]').click();
-        await page.locator('[data-act="submit"]').click();
-        await page.locator('.score').waitFor();
-        assert.equal(await page.locator('.score').textContent(), '100/100');
+        assert.equal(await page.locator('.verdict-stamp').textContent(), lang ? '没上钩' : 'Saw through the bait');
         assert.ok(await page.evaluate(() => JSON.parse(localStorage.getItem('redpen:history')).length >= 5));
         assert.deepEqual(errors, []);
         await page.close();
@@ -203,8 +198,8 @@ const draft = JSON.parse(fs.readFileSync(path.join(root, 'demo/bank/cubic-lost-r
     console.log('PASS workshop AI settings, upload, live round, symbols, model grade, AI comparison');
     await page.close();
 
-    // 5. Tamper rejection & mobile viewport (390x844) layout check (no horizontal overflow).
-    const tamper = await browser.newPage({ viewport: { width: 390, height: 844 } });
+    // 5. Tamper rejection & mobile viewport (375x667) layout check (no horizontal overflow).
+    const tamper = await browser.newPage({ viewport: { width: 375, height: 667 } });
     await tamper.route('https://cdn.jsdelivr.net/**', (r) => r.abort());
     await tamper.route('**/secrets/cubic-lost-root.json*', async (route) => {
       const data = { key: structuredClone(draft.key) };
@@ -213,22 +208,21 @@ const draft = JSON.parse(fs.readFileSync(path.join(root, 'demo/bank/cubic-lost-r
     });
     await tamper.goto(`http://127.0.0.1:18972${staticPath}zh/`);
     await tamper.locator('button.seg-btn[data-seg="1"]').waitFor();
+    const holdBounds = await tamper.locator('[data-act="toggle-clean"]').boundingBox();
+    assert(holdBounds && holdBounds.y + holdBounds.height <= 667, 'Hold should fit in the first viewport');
     assert(await tamper.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'Mobile first screen overflowed');
     await tamper.locator('button.seg-btn[data-seg="1"]').click();
-    await tamper.locator('.choice-drawer[data-sel-step="1"]').waitFor();
-    assert(await tamper.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'Mobile light mode choices overflowed');
+    await tamper.locator('.verdict-stamp').waitFor();
+    assert(await tamper.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'Mobile reveal overflowed');
 
     await tamper.locator('[data-nav="packs"]').click();
     await tamper.locator('[data-id="cubic-lost-root"]').click();
     await tamper.locator('button.seg-btn[data-seg="2"]').click();
-    await tamper.locator('[data-pick-diag]').first().click();
-    await tamper.locator('[data-pick-fix]').first().click();
-    await tamper.locator('[data-act=submit]').click();
     await tamper.locator('.error').waitFor();
     assert.match(await tamper.locator('.error').textContent(), /承诺/);
-    assert.equal(await tamper.locator('.score').count(), 0);
+    assert.equal(await tamper.locator('.verdict-stamp').count(), 0);
     await tamper.close();
-    console.log('PASS mobile layout (first screen + tap-to-flag) and tamper rejection');
+    console.log('PASS mobile layout (first screen + tap-to-reveal) and tamper rejection');
   } finally {
     await browser.close();
   }

@@ -246,6 +246,7 @@ def card(entry: dict) -> dict:
         "level_name": level_names(lang)[entry["level"]],
         "difficulty": entry["difficulty"],
         "opener": bool(entry.get("opener")),
+        "daily_priority": entry.get("kind") == "trick_clean",
         "problem": entry["problem"],
         "segments": entry.get("segments") or [
             {"id": idx, "label": f"{'步骤' if lang == 'zh' else 'Step'} {idx}", "text": step}
@@ -322,7 +323,7 @@ def public_round(rnd: dict) -> dict:
 
 
 def build_debrief(entry: dict, mode: str, hints_used: int, grade: dict, *, revealed: bool = False,
-                  grader: str = "auto") -> dict:
+                  grader: str = "auto", verdict_only: bool = False) -> dict:
     """Structured debrief. The raw key's check expressions are not included."""
     meta = {
         "id": entry["id"],
@@ -340,13 +341,22 @@ def build_debrief(entry: dict, mode: str, hints_used: int, grade: dict, *, revea
     }
     key = entry["key"]
     redpen.validate_grade(grade, len(key["errors"]))
-    scored = redpen.score_round(len(key["errors"]), grade, hints_used)
-    result = dict(scored)
+    if verdict_only:
+        result = {
+            "score": None,
+            "found": sum(row["found"] for row in grade["errors"]),
+            "planted": len(key["errors"]),
+            "false_alarms": len(grade["false_alarms"]),
+            "bounties": len(grade["bounties"]),
+            "hints_used": hints_used,
+        }
+    else:
+        result = redpen.score_round(len(key["errors"]), grade, hints_used)
     result["grade"] = grade
     if revealed:
         result["score"] = None
         result["revealed"] = True
-    result["next"] = redpen.next_command(meta, key, result)
+    result["next"] = "" if verdict_only else redpen.next_command(meta, key, result)
     errors = []
     for index, (error, row) in enumerate(zip(key["errors"], grade["errors"]), 1):
         errors.append({
@@ -692,7 +702,7 @@ class DemoHandler(BaseHTTPRequestHandler):
     def _submit(self, rnd: dict, body: dict) -> dict:
         if rnd["graded"]:
             raise DemoError("This round is already graded.", 409)
-        if "selections" in body or body.get("mode") == "light":
+        if "selections" in body or body.get("mode") in ("light", "verdict"):
             selections = body.get("selections")
             if selections is None:
                 selections = []
@@ -700,7 +710,10 @@ class DemoHandler(BaseHTTPRequestHandler):
                 raise DemoError("Send selections as a list.")
             clean_claim = bool(body.get("clean_claim"))
             grade = grade_selections(rnd["entry"], selections, clean_claim=clean_claim)
-            debrief = build_debrief(rnd["entry"], rnd["mode"], rnd["hints_used"], grade, grader="auto")
+            debrief = build_debrief(
+                rnd["entry"], rnd["mode"], rnd["hints_used"], grade, grader="auto",
+                verdict_only=body.get("mode") == "verdict",
+            )
             rnd["graded"] = True
             rnd["debrief"] = debrief
             return debrief

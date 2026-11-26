@@ -4,16 +4,14 @@
 
 **Does this hold up?** *(Code · Math · Logic)*
 
-Convincing AI explanations still need human verification. RedPen drops you straight into a short, checkable puzzle — code snippets, logic & statistics briefs, or worked math solutions — with deliberately planted flaws (or none at all). Flag a line and choose a diagnosis and fix, or clear the worksheet as solid. Get instant red-pen feedback.
+Convincing AI explanations still need human verification. RedPen drops you straight into a short, checkable puzzle — code snippets, logic & statistics briefs, or worked math solutions — with deliberately planted flaws (or none at all). Tap a line or clear the worksheet as solid to reveal the red-pen verdict.
 
 ## Web-first play
 
-1. **Open and play immediately.** Visiting `/` or `/zh/` starts today's **Daily RedPen** (3 deterministic puzzles across Logic, Code, and Math) with no login, backend, or API key.
-2. **Tap & pick (default) or free-text.** Tap the suspicious line and the diagnosis/fix choices open right underneath — or mark the item clean if nothing is wrong. Switch to free text from **Stuck?** if you want to write the diagnosis yourself.
-3. **Track streaks & share without spoilers.** Progress and streaks stay in your browser (`localStorage`). Finishing Daily RedPen reveals a spoiler-free, screenshot-friendly score card you can share or copy (Wordle-style, no step numbers or answers).
+1. **Open and play immediately.** Visiting `/` or `/zh/` starts today's **Daily RedPen** (three deterministic puzzles from the everyday logic pool) with no login, backend, or API key.
+2. **Tap to judge.** Tap the suspicious line or choose **Holds up** to reveal the explanation. Switch to free text from **Stuck?** to write your own diagnosis.
+3. **See your Daily ticket.** Progress and streaks stay in your browser (`localStorage`). The completed ticket shows three verdict stamps and has controls to copy the text or save an image.
 4. **Explore packs or build custom rounds.** Browse Logic, Code, Math, and Blind rounds under **Packs**. **Workshop** (optional, secondary) lets you plug in your own API key to generate custom AI rounds.
-
-Scoring: each planted flaw is worth 3 points (1 locate, 1 diagnosis, 1 fix); extra flags on valid lines lower accuracy (−1); hints cost 0.5. Level 0 items are completely clean.
 
 ## Custom practice (Workshop)
 

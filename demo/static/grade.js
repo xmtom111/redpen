@@ -667,10 +667,17 @@
     return hints;
   }
 
-  function buildDebrief(entry, mode, hintsUsed, grade, revealed, grader) {
+  function buildDebrief(entry, mode, hintsUsed, grade, revealed, grader, verdictOnly = false) {
     const key = entry.key;
     const lang = sheetLang(entry);
-    const scored = scoreRound(key.errors.length, grade, hintsUsed);
+    const scored = verdictOnly ? {
+      score: null,
+      found: grade.errors.filter((row) => row.found).length,
+      planted: key.errors.length,
+      false_alarms: grade.false_alarms.length,
+      bounties: grade.bounties.length,
+      hints_used: hintsUsed,
+    } : scoreRound(key.errors.length, grade, hintsUsed);
     const score = revealed ? null : scored.score;
     const errors = key.errors.map((error, index) => {
       const row = grade.errors[index];
@@ -709,7 +716,7 @@
       commitment_ok: commitmentOk(key, entry.commitment),
       verified: entry.verified,
       feedback: grade.feedback || "",
-      next: nextCommand(entry.topic, entry.title, mode, entry.level, score),
+      next: verdictOnly ? "" : nextCommand(entry.topic, entry.title, mode, entry.level, score),
       clean_steps: key.clean_steps.slice(),
       clean_final_answer: key.clean_final_answer,
       explanation: key.explanation || "",

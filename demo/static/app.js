@@ -27,22 +27,9 @@
       copyFallback: "Copy this docket:",
       judgeQ: "Does this hold up?",
       judgeSub: "Tap a shaky line, or clear it as solid.",
-      needPicks: "Pick what's off and what fixes it, then mark.",
-      readyToScore: "Ready to mark.",
       stuck: "Stuck?",
       writeOwn: "Write your own diagnosis",
-      backToTap: "Back to tap & pick",
-      celebratePerfect: "Caught it clean.",
-      celebrateGood: "Sharp catch.",
-      celebrateOk: "Caught part of it.",
-      celebrateLow: "That one slipped past.",
-      celebrateReveal: "Revealed.",
-      celebrateCleanHit: "Good call — it holds up.",
-      celebrateCleanMiss: "This one actually held up.",
-      docketLinePerfect: "Three for three. Nothing got past the red pen.",
-      docketLineGood: "Sharp eye. Only a sliver slipped through.",
-      docketLineMid: "Caught half, cleared half. Close calls today.",
-      docketLineLow: "A few smooth talkers got past you today.",
+      backToTap: "Back to tap",
       elapsedLine: (label) => `${label}`,
       domains: { all: "All", logic: "Logic", code: "Code", math: "Math" },
       evidenceKinds: { chat: "Group chat", code: "Code review", math: "Derivation", prose: "Argument" },
@@ -52,25 +39,16 @@
       blindTitle: "Blind round",
       blindBlurb: "Random L0–L2 puzzle — could even be completely clean.",
       noFlawsBtn: "Holds up",
-      noFlawsActive: "Marked: holds up",
-      noFlawsNote: "Clearing this as solid. Confirm when sure.",
-      confirmClean: "Clear as solid",
-      modeLight: "Tap & pick",
+      modeLight: "Tap to judge",
       modeText: "Free text",
       panelTitle: "Red Pen",
-      whyWrongPick: "What's off?",
-      howFixPick: "What fixes it?",
-      unmark: "Unmark",
-      markedTag: "Flagged",
       hitTag: "Caught",
       missedTag: "Missed",
       alarmTag: "Holds up",
-      submitLight: "Mark the flaw",
       submitText: "Submit",
       hintBtn: "Hint",
       reveal: "Reveal",
       revealed: "Revealed",
-      accuracy: (pct) => `Accuracy ${pct}%`,
       nextDaily: () => "Next →",
       nextPuzzle: "Next →",
       keepPlaying: "Keep reading →",
@@ -163,22 +141,9 @@
       copyFallback: "请复制以下审结单：",
       judgeQ: "这段话站得住脚吗？",
       judgeSub: "觉得不对就用红笔点那一句；若没漏洞也可以直接放行",
-      needPicks: "选出「哪儿不对」与「怎么改」，即可落笔。",
-      readyToScore: "已选好，可以落笔。",
       stuck: "卡了？",
       writeOwn: "自己写诊断",
       backToTap: "返回点选",
-      celebratePerfect: "抓得准。",
-      celebrateGood: "眼挺尖。",
-      celebrateOk: "拦住了一部分。",
-      celebrateLow: "这回被它糊弄过去了。",
-      celebrateReveal: "已摊牌。",
-      celebrateCleanHit: "放行得对，确实站得住。",
-      celebrateCleanMiss: "其实这段没漏洞。",
-      docketLinePerfect: "三道全抓，今天没被糊弄过去。",
-      docketLineGood: "眼挺尖，只漏了点边角料。",
-      docketLineMid: "拦住了一半，另一半差一点就放行了。",
-      docketLineLow: "今天红笔手软了，明天再来。",
       elapsedLine: (label) => `${label}`,
       domains: { all: "全部", logic: "逻辑", code: "代码", math: "数学" },
       evidenceKinds: { chat: "日常聊天", code: "代码审阅", math: "数学推导", prose: "逻辑辨析" },
@@ -188,25 +153,16 @@
       blindTitle: "盲测一题",
       blindBlurb: "从级别 0–2 随机抽一题——也可能完全无错。",
       noFlawsBtn: "没毛病，站得住",
-      noFlawsActive: "已选：站得住",
-      noFlawsNote: "准备直接放行。确认无漏洞后点右侧确认。",
-      confirmClean: "确认放行",
       modeLight: "点选模式",
       modeText: "自由输入",
       panelTitle: "红笔批注",
-      whyWrongPick: "哪儿不对？",
-      howFixPick: "怎么改才对？",
-      unmark: "取消",
-      markedTag: "已标",
       hitTag: "抓到了",
       missedTag: "漏掉了",
       alarmTag: "站得住",
-      submitLight: "落笔抓错",
       submitText: "提交",
       hintBtn: "提示",
       reveal: "看答案",
       revealed: "已摊牌",
-      accuracy: (pct) => `准确度 ${pct}%`,
       nextDaily: () => "下一题 →",
       nextPuzzle: "下一题 →",
       keepPlaying: "继续翻题 →",
@@ -321,7 +277,6 @@
     shareMessage: "",
     shareText: "",
     justFlagged: 0,
-    justPicked: null,
     justGraded: false,
   };
 
@@ -468,39 +423,12 @@
     return set;
   }
 
-  function hasLightChoices(round) {
-    return !!(round && round.light_choices && Object.keys(round.light_choices).length > 0);
-  }
-
   function supportsLightPlay(round) {
-    return !!(round && round.light_play);
+    return !!(round && !round.live);
   }
 
   function isLightPlay(round) {
     return !!(round && supportsLightPlay(round) && round.inputMode !== "text");
-  }
-
-  function lightReady(round) {
-    if (!round) return false;
-    if (round.cleanClaim) return true;
-    const sels = round.selections || [];
-    return sels.length > 0 && sels.every((s) => s.diagnosis_id && s.fix_id);
-  }
-
-  function canNativeShare() {
-    return typeof navigator !== "undefined" && typeof navigator.share === "function";
-  }
-
-  function celebrateCopy(debrief) {
-    if (!debrief) return "";
-    if (debrief.revealed) return text.celebrateReveal;
-    if (debrief.planted === 0) {
-      return debrief.false_alarms === 0 ? text.celebrateCleanHit : text.celebrateCleanMiss;
-    }
-    if (debrief.score === 100 && debrief.false_alarms === 0) return text.celebratePerfect;
-    if (debrief.score >= 80) return text.celebrateGood;
-    if (debrief.score >= 50) return text.celebrateOk;
-    return text.celebrateLow;
   }
 
   function applyPlayMotion() {
@@ -508,23 +436,14 @@
       const li = app.querySelector(`[data-seg-item="${state.justFlagged}"]`);
       if (li) {
         li.classList.add("just-flagged");
-        const drawer = app.querySelector(`.choice-drawer[data-sel-step="${state.justFlagged}"]`);
-        if (drawer && drawer.scrollIntoView) {
-          drawer.scrollIntoView({ behavior: "smooth", block: "nearest" });
-        }
       }
-      state.justFlagged = 0;
-    }
-    if (state.justPicked) {
-      const kind = state.justPicked.kind === "fix" ? "data-pick-fix" : "data-pick-diag";
-      const btn = app.querySelector(`[data-step="${state.justPicked.step}"][${kind}="${state.justPicked.id}"]`);
-      if (btn) btn.classList.add("just-picked");
-      state.justPicked = null;
+      if (!state.busy) state.justFlagged = 0;
     }
     if (state.justGraded) {
       const panel = app.querySelector(".results-stage");
       if (panel) {
         panel.classList.add("just-graded");
+        panel.focus({ preventScroll: true });
         if (panel.scrollIntoView) panel.scrollIntoView({ block: "nearest" });
       }
       state.justGraded = false;
@@ -663,7 +582,7 @@
     const firstUnfinishedDaily = state.daily.find((item) => !doneToday[item.id]);
     if (firstUnfinishedDaily) return firstUnfinishedDaily;
     const solved = solvedIds();
-    const nextUnplayed = state.worksheets.find((item) => !solved.has(item.id));
+    const nextUnplayed = state.worksheets.find((item) => item.domain === "logic" && !solved.has(item.id));
     if (nextUnplayed) return nextUnplayed;
     return state.daily[0] || state.worksheets[0] || null;
   }
@@ -721,11 +640,9 @@
 
   function initRoundState(round) {
     state.justFlagged = 0;
-    state.justPicked = null;
     state.justGraded = false;
     round.segments = normalizeSegments(round);
-    round.selections = Array.isArray(round.selections) ? round.selections : [];
-    round.cleanClaim = !!round.cleanClaim;
+    round.selections = [];
     round.inputMode = round.inputMode || (supportsLightPlay(round) ? "light" : "text");
     round.startedAt = round.startedAt || Date.now();
     round.hintText = round.hintText || "";
@@ -759,8 +676,6 @@
       segments: entry.segments,
       steps: entry.steps,
       final_answer: entry.final_answer,
-      light_play: !!entry.light_play,
-      light_choices: entry.light_choices || {},
       mode: blind ? "blind" : String(entry.level),
       level: blind ? null : entry.level,
       level_name: blind ? null : entry.level_name,
@@ -786,7 +701,6 @@
     state.shareMessage = "";
     state.shareText = "";
     state.justFlagged = 0;
-    state.justPicked = null;
     state.justGraded = false;
     if (state.kind === "server") {
       try {
@@ -814,7 +728,6 @@
     "M2,12 C60,8 124,13 190,8 C214,7 228,11 238,10",
     "M4,10 C54,14 116,8 178,12 C208,13 226,8 236,10",
   ];
-  const CHOICE_LETTERS = ["A", "B", "C", "D", "E", "F"];
 
   function inkSlashSvg(seed) {
     const d = INK_PATHS[Math.abs(Number(seed) || 0) % INK_PATHS.length];
@@ -831,7 +744,8 @@
 
   function isPassedResult(res) {
     if (!res) return false;
-    return !res.revealed && res.score >= 80 && (res.falseAlarms || 0) === 0;
+    const verdict = RedPenDaily.verdictOf(res);
+    return verdict === "caught" || verdict === "held";
   }
 
   function bindChromeNav() {
@@ -878,7 +792,7 @@
     topNav.querySelectorAll("[data-daily-id]").forEach((btn) => {
       btn.addEventListener("click", async () => {
         const entry = state.byId.get(btn.dataset.dailyId);
-        if (!entry) return;
+        if (!entry || state.busy) return;
         state.busy = true;
         render();
         await startEntry(entry, false, true);
@@ -890,6 +804,7 @@
   }
 
   async function navigate(target) {
+    if (state.busy) return;
     state.error = "";
     state.shareMessage = "";
     state.shareText = "";
@@ -1050,28 +965,15 @@
     const rows = state.daily.map((item, idx) => {
       const res = results[item.id] || null;
       const passed = isPassedResult(res);
-      const mid = res && !res.revealed && res.score >= 50 && !passed;
       const kind = item.opener ? text.evidenceKinds.chat : domainLabel(item.domain);
-      const mark = !res ? "—" : passed ? "✓" : mid ? "△" : "✕";
-      const tone = !res ? "" : passed ? "good" : mid ? "mid" : "miss";
-      const scoreLabel = !res ? "" : res.revealed ? text.revealed : `${res.score}`;
-      return { idx: idx + 1, kind, mark, tone, scoreLabel, res };
+      const tone = passed ? "good" : "";
+      return { idx: idx + 1, kind, tone, stamp: RedPenDaily.stampLabel(res, locale), res };
     });
-    const completed = rows.map((r) => r.res).filter(Boolean);
-    const avg = completed.length
-      ? Math.round(completed.reduce((acc, res) => acc + (res.revealed ? 0 : res.score), 0) / completed.length)
-      : 0;
+    const completed = rows.map((row) => row.res).filter(Boolean);
     const totalSec = completed.reduce((acc, res) => acc + (res.elapsedSec || 0), 0);
     const timeLabel = RedPenDaily.formatDuration(totalSec, locale);
-    const allClean = rows.length > 0 && rows.every((r) => r.tone === "good");
-    const verdict = allClean
-      ? text.docketLinePerfect
-      : avg >= 80
-        ? text.docketLineGood
-        : avg >= 50
-          ? text.docketLineMid
-          : text.docketLineLow;
-    return { num, dateStr: state.dateStr, rows, avg, timeLabel, streak, verdict };
+    const verdict = RedPenDaily.docketLine(completed, locale);
+    return { num, dateStr: state.dateStr, rows, timeLabel, streak, verdict };
   }
 
   function saveDocketImage() {
@@ -1130,9 +1032,9 @@
       ctx.fillStyle = color("--ink");
       ctx.fillText(row.kind, 66, y);
 
-      const rightText = `${row.mark}  ${row.scoreLabel}`;
-      ctx.font = `700 14px ${mono}`;
-      ctx.fillStyle = row.tone === "good" ? color("--good") : row.tone === "mid" ? color("--amber") : color("--red");
+      const rightText = row.stamp;
+      ctx.font = `700 14px ${sans}`;
+      ctx.fillStyle = row.tone === "good" ? color("--good") : color("--ink");
       const tw = ctx.measureText(rightText).width;
       ctx.fillText(rightText, width - 36 - tw, y);
     });
@@ -1152,11 +1054,7 @@
     ctx.fillStyle = color("--ink");
     ctx.fillText(d.verdict, 36, 228, width - 72);
 
-    // Meta line (score, time, streak)
-    const metaParts = [
-      zh ? `均分 ${d.avg}/100` : `Avg ${d.avg}/100`,
-      d.timeLabel,
-    ];
+    const metaParts = [d.timeLabel];
     if (d.streak > 0) metaParts.push(text.streak(d.streak));
     ctx.font = `400 12px ${mono}`;
     ctx.fillStyle = color("--muted");
@@ -1176,12 +1074,9 @@
       const rowsHtml = d.rows.map((r) => `
         <li class="docket-row">
           <span class="docket-row-left"><span class="docket-idx">0${r.idx}</span><span>${esc(r.kind)}</span></span>
-          <span class="docket-mark ${esc(r.tone)}">${esc(r.mark)} ${esc(r.scoreLabel)}</span>
+          <span class="docket-mark ${esc(r.tone)}">${esc(r.stamp)}</span>
         </li>`).join("");
-      const metaParts = [
-        zh ? `均分 ${d.avg}/100` : `Avg ${d.avg}/100`,
-        d.timeLabel,
-      ];
+      const metaParts = [d.timeLabel];
       if (d.streak > 0) metaParts.push(text.streak(d.streak));
       return `
         <aside class="share-card" aria-label="${esc(zh ? "今日审结单" : "Daily docket")}">
@@ -1200,10 +1095,8 @@
     }
     const round = state.round;
     if (!round || !round.debrief) return "";
-    const passed = !round.debrief.revealed && round.debrief.score >= 80 && round.debrief.false_alarms === 0;
-    const mark = passed ? "✓" : "✕";
-    const tone = passed ? "good" : "miss";
-    const scoreText = round.debrief.revealed ? text.revealed : `${round.debrief.score}/100`;
+    const tone = isPassedResult(round.debrief) ? "good" : "";
+    const stamp = RedPenDaily.stampLabel(round.debrief, locale);
     const timeLabel = RedPenDaily.formatDuration(elapsedSeconds(round), locale);
     return `
       <aside class="share-card" aria-label="${esc(zh ? "审结记录" : "Round slip")}">
@@ -1214,7 +1107,7 @@
         <ul class="docket-rows">
           <li class="docket-row">
             <span>${esc(round.title)}</span>
-            <span class="docket-mark ${tone}">${esc(mark)} ${esc(scoreText)}</span>
+            <span class="docket-mark ${tone}">${esc(stamp)}</span>
           </li>
         </ul>
         <p class="docket-meta">${esc(timeLabel)}</p>
@@ -1224,66 +1117,13 @@
       </aside>`;
   }
 
-  function choiceDrawerHtml(round, step) {
-    const sel = (round.selections || []).find((s) => s.step === step);
-    if (!sel) return "";
-    const choices = (round.light_choices && round.light_choices[String(step)]) || { diagnosis: [], fix: [] };
-    if (evidenceKind(round) === "chat") {
-      const fields = [
-        ["diag", text.whyWrongPick, choices.diagnosis, sel.diagnosis_id],
-        ["fix", text.howFixPick, choices.fix, sel.fix_id],
-      ].map(([kind, label, options, picked]) => `
-        <label>${esc(label)}
-          <select data-choice="${kind}" data-step="${step}" title="${esc((options.find((opt) => opt.id === picked) || {}).label || "")}">
-            <option value="" disabled ${picked ? "" : "selected"}>${zh ? "请选择" : "Choose one"}</option>
-            ${options.map((opt) => `<option value="${esc(opt.id)}" data-pick-${kind}="${esc(opt.id)}" ${opt.id === picked ? "selected" : ""}>${esc(opt.label)}</option>`).join("")}
-          </select>
-        </label>`).join("");
-      return `<div class="choice-drawer choice-selects" data-sel-step="${step}">${fields}</div>`;
-    }
-    const diagBtns = (choices.diagnosis || []).map((opt, idx) => {
-      const picked = sel.diagnosis_id === opt.id;
-      const letter = CHOICE_LETTERS[idx] || String(idx + 1);
-      return `<button type="button" class="choice-btn ${picked ? "picked" : ""}" data-step="${step}" data-pick-diag="${esc(opt.id)}" aria-pressed="${picked ? "true" : "false"}"><span class="choice-key" aria-hidden="true">${esc(letter)}</span><span class="choice-text">${esc(opt.label)}</span></button>`;
-    }).join("");
-    const fixBtns = (choices.fix || []).map((opt, idx) => {
-      const picked = sel.fix_id === opt.id;
-      const letter = CHOICE_LETTERS[idx] || String(idx + 1);
-      return `<button type="button" class="choice-btn ${picked ? "picked" : ""}" data-step="${step}" data-pick-fix="${esc(opt.id)}" aria-pressed="${picked ? "true" : "false"}"><span class="choice-key" aria-hidden="true">${esc(letter)}</span><span class="choice-text">${esc(opt.label)}</span></button>`;
-    }).join("");
-    const fresh = state.justFlagged === step;
-    return `
-      <div class="choice-drawer sel-card ${fresh ? "is-new" : ""}" data-sel-step="${step}">
-        <div class="sel-card-head">
-          <strong>${esc(segmentLabel(round, step))}</strong>
-          <button type="button" class="linkish small-link" data-unflag="${step}">${esc(text.unmark)} ×</button>
-        </div>
-        <p class="choice-heading">${esc(text.whyWrongPick)}</p>
-        <div class="choice-list">${diagBtns}</div>
-        <p class="choice-heading">${esc(text.howFixPick)}</p>
-        <div class="choice-list">${fixBtns}</div>
-      </div>`;
-  }
-
   function playDockHtml(round) {
-    const ready = lightReady(round);
-    const hasFlags = !round.cleanClaim && (round.selections || []).length > 0;
-    const ctaClass = round.cleanClaim ? "is-clean-go" : !hasFlags ? "is-idle" : "";
-    const drawers = evidenceKind(round) === "chat" && hasFlags
-      ? round.selections.map((sel) => choiceDrawerHtml(round, sel.step)).join("")
-      : "";
-    const ctaLabel = round.cleanClaim ? text.confirmClean : text.submitLight;
-
     return `
-      <div class="play-dock ${hasFlags ? "has-flags" : ""}">
-        ${drawers}
+      <div class="play-dock">
         ${round.hintText ? `<p class="hint" role="status">${esc(round.hintText)}</p>` : ""}
         ${state.error ? `<p class="error" role="alert">${esc(state.error)}</p>` : ""}
         <div class="dock-actions">
-          <button type="button" class="btn ghost ${round.cleanClaim ? "active" : ""}" data-act="toggle-clean" aria-pressed="${round.cleanClaim ? "true" : "false"}">
-            ${round.cleanClaim ? "✓ " : ""}${esc(round.cleanClaim ? text.noFlawsActive : text.noFlawsBtn)}
-          </button>
-          <button class="btn primary-cta ${ctaClass}" type="button" data-act="submit" ${state.busy || !ready ? "disabled" : ""}>${esc(ctaLabel)}</button>
+          <button type="button" class="btn ghost" data-act="toggle-clean" ${state.busy ? "disabled" : ""}>${esc(text.noFlawsBtn)}</button>
         </div>
         <div class="dock-meta-row">
           <details class="stuck-menu">
@@ -1300,8 +1140,19 @@
 
   const pencilSvg = '<svg class="seg-pencil" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 15-1 5 5-1L20 8l-4-4L5 15Zm9-9 4 4"/></svg>';
 
+  function evidenceStamp(id, { debrief, hitSteps, missedSteps, alarmSteps }, showHolds) {
+    if (!debrief) return "";
+    const hit = hitSteps.has(id);
+    const missed = missedSteps.has(id);
+    const alarm = alarmSteps.has(id);
+    if (!hit && !missed && !alarm && !showHolds) return "";
+    const tone = hit ? "hit" : missed ? "missed" : alarm ? "alarm" : "holds";
+    const label = hit ? text.hitTag : missed ? text.missedTag : text.alarmTag;
+    return `<span class="seg-stamp ${tone}">${esc(label)}</span>`;
+  }
+
   function renderEvidenceHtml(round, segs, ctx) {
-    const { kind, debrief, light, selectedSteps, hitSteps, missedSteps, alarmSteps } = ctx;
+    const { kind, debrief, selectedSteps } = ctx;
 
     if (kind === "chat") {
       let previousSpeaker = null;
@@ -1313,11 +1164,11 @@
           : "";
         previousSpeaker = seg.speaker;
         const body = `<span class="seg-body">${speaker}<span class="seg-text">${esc(seg.text)}${selected ? inkSlashSvg(id) : ""}</span></span>`;
-        const canFlag = !debrief && (!supportsLightPlay(round) || !!round.light_choices[id]);
+        const stamp = evidenceStamp(id, ctx, true);
         return `<li class="seg-item${selected ? " selected" : ""}" data-seg-item="${id}">
-          ${canFlag
-            ? `<button type="button" class="chat-row seg-btn" data-seg="${id}" aria-pressed="${selected}">${body}${pencilSvg}</button>`
-            : `<div class="chat-row seg-static">${body}</div>`}
+          ${!debrief
+            ? `<button type="button" class="chat-row seg-btn" data-seg="${id}" ${state.busy ? "disabled" : ""}>${body}${pencilSvg}</button>`
+            : `<div class="chat-row seg-static">${body}${stamp}</div>`}
         </li>`;
       }).join("");
 
@@ -1331,27 +1182,9 @@
     const isCode = kind === "code";
     const items = segs.map((seg) => {
       const id = seg.id;
-      let cls = "seg-item";
-      let stamp = "";
-      let drawer = "";
       const slashed = selectedSteps.has(id);
-
-      if (debrief) {
-        if (hitSteps.has(id)) {
-          cls += " seg-hit";
-          stamp = `<span class="seg-stamp hit">✓ ${esc(text.hitTag)}</span>`;
-        } else if (missedSteps.has(id)) {
-          cls += " seg-missed";
-          stamp = `<span class="seg-stamp missed">! ${esc(text.missedTag)}</span>`;
-        } else if (alarmSteps.has(id)) {
-          cls += " seg-alarm";
-          stamp = `<span class="seg-stamp alarm">× ${esc(text.alarmTag)}</span>`;
-        }
-      } else if (selectedSteps.has(id)) {
-        cls += " selected";
-        stamp = `<span class="seg-stamp flagged">${esc(text.markedTag)}</span>`;
-        if (light && !round.cleanClaim) drawer = choiceDrawerHtml(round, id);
-      }
+      const cls = slashed ? "seg-item selected" : "seg-item";
+      const stamp = evidenceStamp(id, ctx, round.domain === "logic");
 
       const labelText = (isCode || kind === "math")
         ? String(id).padStart(2, "0")
@@ -1365,13 +1198,8 @@
       if (debrief) {
         return `<li class="${cls}" data-seg-item="${id}"><div class="seg-static">${rowInner}</div></li>`;
       }
-      const canFlag = !supportsLightPlay(round) || !!(round.light_choices && round.light_choices[id]);
-      if (!canFlag) {
-        return `<li class="${cls}" data-seg-item="${id}"><div class="seg-static seg-background">${rowInner}</div></li>`;
-      }
       return `<li class="${cls}" data-seg-item="${id}">
-        <button type="button" class="seg-btn" data-seg="${id}" aria-pressed="${selectedSteps.has(id) ? "true" : "false"}">${rowInner}${pencilSvg}</button>
-        ${drawer}
+        <button type="button" class="seg-btn" data-seg="${id}" ${state.busy ? "disabled" : ""}>${rowInner}${pencilSvg}</button>
       </li>`;
     }).join("");
 
@@ -1410,20 +1238,18 @@
     const missedSteps = new Set((debrief && debrief.errors || []).filter((e) => !e.found).map((e) => e.step));
     const alarmSteps = new Set((debrief && debrief.false_alarm_details || []).map((a) => a.step));
 
+    if (debrief && isLightPlay(round) && !debrief.revealed) {
+      for (const step of [...hitSteps, ...alarmSteps]) selectedSteps.add(step);
+    }
+
     const evidenceHtml = renderEvidenceHtml(round, segs, {
-      kind, debrief, light, selectedSteps, hitSteps, missedSteps, alarmSteps,
+      kind, debrief, selectedSteps, hitSteps, missedSteps, alarmSteps,
     });
     const afterSheet = debrief
       ? debriefHtml(debrief)
       : (light ? playDockHtml(round) : composerHtml(round));
 
-    const hasFlags = selectedSteps.size > 0;
-    const help = round.cleanClaim ? text.noFlawsNote
-      : hasFlags ? (zh ? "已标出证据。选好理由和改法，就能落笔。" : text.needPicks)
-      : text.judgeSub;
-    const helpHtml = zh && !hasFlags && !round.cleanClaim
-      ? help.split("；").map(esc).join("；<br>") + "。"
-      : esc(help);
+    const helpHtml = zh ? text.judgeSub.split("；").map(esc).join("；<br>") + "。" : esc(text.judgeSub);
 
     return `
       <div class="play-stage${debrief ? " is-revealed" : ""}">
@@ -1468,7 +1294,6 @@
       <div class="symbols">${[["分数 / frac", "\\frac{a}{b}"], ["√", "\\sqrt{x}"], ["x²", "x^{2}"], ["x₁", "x_{1}"], ["d/dx", "\\frac{d}{dx}"], ["∫", "\\int_{a}^{b}"], ["α", "\\alpha"], ["θ", "\\theta"], ["π", "\\pi"]].map(([label, value]) => `<button type="button" data-symbol="${esc(value)}">${esc(label)}</button>`).join("")}</div>
       <div id="math-preview" aria-live="polite"></div>` : "";
     return `
-      <p class="small-muted">${zh ? "定位、诊断、修正各 1 分；误报影响准确度并扣 1 分。" : "Locate, diagnose, and fix: 1 pt each. False alarms lower accuracy (−1)."}</p>
       ${findingRows(round)}
       <button class="btn secondary small" type="button" id="add-finding">${zh ? "+ 添加一处" : "+ Add finding"}</button>
       ${mathTools}
@@ -1521,14 +1346,6 @@
     }
   }
 
-  function calcAccuracy(debrief) {
-    if (debrief.revealed) return 0;
-    if (debrief.planted === 0) return debrief.false_alarms === 0 ? 100 : 0;
-    const totalFlags = debrief.found + debrief.false_alarms;
-    if (totalFlags === 0) return 0;
-    return Math.round((100 * debrief.found) / totalFlags);
-  }
-
   function nextPuzzleTarget() {
     const doneToday = todayResults();
     const nextDaily = state.daily.find((item) => !doneToday[item.id] && (!state.round || item.id !== state.round.worksheet_id));
@@ -1544,7 +1361,9 @@
     const anyUnsolved = state.worksheets.find((w) => !solved.has(w.id) && w.id !== currentId);
     const currentIdx = state.worksheets.findIndex((w) => w.id === currentId);
     const wrapped = state.worksheets[(currentIdx + 1) % Math.max(1, state.worksheets.length)];
-    const chosen = sameDomain || anyUnsolved || wrapped;
+    const chosen = sameDomain || (state.round?.domain === "logic"
+      ? state.worksheets.find((item) => item.domain === "logic" && item.id !== currentId)
+      : anyUnsolved || wrapped);
     return {
       entry: chosen,
       isDaily: false,
@@ -1555,18 +1374,17 @@
 
   function debriefHtml(debrief) {
     const round = state.round;
-    const score = debrief.revealed ? text.revealed : `${debrief.score}/100`;
-    const tone = debrief.revealed ? "" : debrief.score >= 80 ? "good" : debrief.score >= 50 ? "mid" : "low";
-    const acc = calcAccuracy(debrief);
+    const stamp = RedPenDaily.stampLabel(debrief, locale);
+    const tone = isPassedResult(debrief) ? "good" : "";
     const nextInfo = nextPuzzleTarget();
     const dailyComplete = isDailyComplete();
     const inDaily = dailyIds().includes(round.worksheet_id);
-    const celebrate = celebrateCopy(debrief);
-    const isChat = evidenceKind(round) === "chat";
     const firstError = debrief.errors && debrief.errors[0];
-    const punchline = debrief.explanation || (isChat && firstError && firstError.why_wrong);
-    const compact = isChat && !!punchline;
-    const missClass = (!debrief.revealed && debrief.score < 50) ? "is-miss" : "";
+    const everyday = round.domain === "logic";
+    const punchline = debrief.explanation
+      || (everyday && firstError && firstError.why_wrong)
+      || (!debrief.planted && debrief.clean_final_answer);
+    const compact = everyday && !!punchline;
 
     const primaryCta = nextInfo && nextInfo.entry
       ? `<button class="btn next-btn" type="button" data-next-id="${esc(nextInfo.entry.id)}">${esc(nextInfo.label)}</button>`
@@ -1577,7 +1395,7 @@
       <article class="debrief-error ${error.found ? "is-hit" : "is-missed"}">
         <div class="debrief-loc">
           <span class="debrief-loc-name">${esc(segmentLabel(round, error.step))}</span>
-          <span class="status-chip ${error.found ? "hit" : "missed"}">${error.found ? esc(text.foundDetail(error.diagnosis, error.fix)) : esc(text.missedTag)}</span>
+          <span class="status-chip ${error.found ? "hit" : "missed"}">${error.found ? esc(isLightPlay(round) ? text.hitTag : text.foundDetail(error.diagnosis, error.fix)) : esc(text.missedTag)}</span>
         </div>
         <p class="debrief-punch">${esc(legacyMathDelims(error.why_wrong))}</p>
         <p class="debrief-line"><strong>${esc(text.theFix)}${sep}</strong>${esc(legacyMathDelims(error.correct))}</p>
@@ -1619,15 +1437,10 @@
         : "";
 
     return `
-      <section class="results-stage ${missClass}${compact ? " has-punchline" : ""}" aria-live="polite">
+      <section class="results-stage${compact ? " has-punchline" : ""}" tabindex="-1" aria-live="polite">
         <div class="verdict-head">
-          <div class="verdict-stamp-row">
-            <p class="celebrate ${tone}">${esc(celebrate)}</p>
-          </div>
-          <div class="score-stamp">
-            <p class="score ${tone}">${esc(score)}</p>
-            ${!debrief.revealed ? `<span class="accuracy-pill">${esc(text.accuracy(acc))}</span>` : ""}
-          </div>
+          <p class="verdict-stamp ${tone}">${esc(stamp)}</p>
+          ${round.live && !debrief.revealed ? `<p class="score ${tone}">${debrief.score}/100</p>` : ""}
         </div>
         ${punchline ? `<p class="debrief-punch">${esc(legacyMathDelims(punchline))}</p>` : ""}
         ${compact ? "" : supportingDetails}
@@ -1654,24 +1467,16 @@
           </div>
           ${round.verifyText ? `<p class="verify-status" role="status">${esc(round.verifyText)}</p>` : ""}
           <button class="btn secondary small" type="button" data-act="ai" ${state.busy ? "disabled" : ""}>${esc(text.aiCompare)}</button>
-          ${round.ai ? `<p class="small-muted">${zh ? "AI 得分" : "AI score"}: ${esc(round.ai.debrief.score)}/100 · ${zh ? "你的得分" : "Your score"}: ${esc(debrief.score)}/100</p><pre>${esc(round.ai.findings)}</pre>` : ""}
+          ${round.ai ? `<p class="small-muted">AI · ${round.live ? `${round.ai.debrief.score}/100` : esc(RedPenDaily.stampLabel(round.ai.debrief, locale))}</p><pre>${esc(round.ai.findings)}</pre>` : ""}
         </details>
       </section>`;
   }
 
   function toggleSegment(stepNum) {
     const r = state.round;
-    if (!r || r.graded || (supportsLightPlay(r) && !r.light_choices[stepNum])) return;
-    if (r.inputMode === "light" && supportsLightPlay(r)) {
-      r.cleanClaim = false;
-      const idx = (r.selections || []).findIndex((s) => s.step === stepNum);
-      if (idx >= 0) {
-        r.selections.splice(idx, 1);
-      } else {
-        r.selections.push({ step: stepNum, diagnosis_id: "", fix_id: "", diagnosis_label: "" });
-        state.justFlagged = stepNum;
-      }
-      render();
+    if (!r || r.graded || state.busy) return;
+    if (isLightPlay(r)) {
+      commitVerdict(stepNum);
       return;
     }
     // Free-text mode helper: tapping a segment selects or appends a finding row for that step.
@@ -1694,7 +1499,7 @@
     app.querySelectorAll("[data-daily-id]").forEach((btn) => {
       btn.addEventListener("click", async () => {
         const entry = state.byId.get(btn.dataset.dailyId);
-        if (!entry) return;
+        if (!entry || state.busy) return;
         state.busy = true;
         render();
         await startEntry(entry, false, true);
@@ -1744,69 +1549,15 @@
     // Input mode switch
     app.querySelectorAll("[data-input-mode]").forEach((btn) => {
       btn.addEventListener("click", () => {
-        if (!state.round || state.round.graded) return;
+        if (!state.round || state.round.graded || state.busy) return;
         state.round.inputMode = btn.dataset.inputMode;
+        state.round.selections = [];
         render();
       });
     });
 
-    // Light mode controls
-    const toggleClean = app.querySelector("[data-act=toggle-clean]");
-    if (toggleClean) {
-      toggleClean.addEventListener("click", () => {
-        if (!state.round || state.round.graded) return;
-        state.error = "";
-        state.round.cleanClaim = !state.round.cleanClaim;
-        if (state.round.cleanClaim) {
-          state.round.selections = [];
-          state.justFlagged = 0;
-          state.justPicked = null;
-        }
-        render();
-      });
-    }
-    app.querySelectorAll("[data-unflag]").forEach((btn) => {
-      btn.addEventListener("click", () => toggleSegment(Number(btn.dataset.unflag)));
-    });
-    app.querySelectorAll("button[data-pick-diag]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const step = Number(btn.dataset.step);
-        const sel = (state.round.selections || []).find((s) => s.step === step);
-        if (!sel) return;
-        sel.diagnosis_id = btn.dataset.pickDiag;
-        const labelEl = btn.querySelector(".choice-text");
-        sel.diagnosis_label = (labelEl || btn).textContent.trim();
-        state.justPicked = { step, kind: "diag", id: sel.diagnosis_id };
-        render();
-      });
-    });
-    app.querySelectorAll("button[data-pick-fix]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const step = Number(btn.dataset.step);
-        const sel = (state.round.selections || []).find((s) => s.step === step);
-        if (!sel) return;
-        sel.fix_id = btn.dataset.pickFix;
-        state.justPicked = { step, kind: "fix", id: sel.fix_id };
-        render();
-      });
-    });
-
-    app.querySelectorAll("select[data-choice]").forEach((select) => {
-      select.addEventListener("change", () => {
-        const { step, choice } = select.dataset;
-        const sel = state.round.selections.find((item) => item.step === Number(step));
-        if (!sel) return;
-        if (choice === "diag") {
-          sel.diagnosis_id = select.value;
-          sel.diagnosis_label = select.selectedOptions[0].textContent.trim();
-        } else {
-          sel.fix_id = select.value;
-        }
-        select.title = select.selectedOptions[0].textContent.trim();
-        app.querySelector('[data-act="submit"]').disabled = state.busy || !lightReady(state.round);
-        persistActive();
-      });
-    });
+    const hold = app.querySelector("[data-act=toggle-clean]");
+    if (hold) hold.addEventListener("click", () => commitVerdict());
 
     // Free-text mode controls
     let target = null;
@@ -1943,6 +1694,7 @@
   }
 
   async function begin(body) {
+    if (state.busy) return;
     state.error = "";
     state.shareMessage = "";
     state.shareText = "";
@@ -2070,24 +1822,17 @@
     return box ? box.value : (state.round.findings || "");
   }
 
+  function commitVerdict(step) {
+    const round = state.round;
+    if (!isLightPlay(round) || round.graded || state.busy) return;
+    round.selections = step ? [{ step }] : [];
+    state.justFlagged = step || 0;
+    return grade("submit", { mode: "verdict", selections: round.selections, clean_claim: !step });
+  }
+
   async function submitRound() {
     const r = state.round;
-    if (!r || r.graded) return;
-    if (isLightPlay(r)) {
-      const selections = (r.selections || []).slice();
-      if (!r.cleanClaim && !selections.length) {
-        if (!window.confirm(text.confirmEmpty)) return;
-        r.cleanClaim = true;
-      } else if (!lightReady(r)) {
-        state.error = text.needPicks;
-        render();
-        const drawer = app && app.querySelector(".choice-drawer");
-        if (drawer && drawer.scrollIntoView) drawer.scrollIntoView({ behavior: "smooth", block: "nearest" });
-        return;
-      }
-      await grade("submit", { mode: "light", selections, clean_claim: !!r.cleanClaim });
-      return;
-    }
+    if (!r || r.graded || state.busy) return;
     if (r.rows && (r.rows.some((row) => !row.step && (row.wrong || row.fix)) ||
       (r.rows.some((row) => row.step === "clean") && r.rows.some((row) => row.step && row.step !== "clean")))) {
       state.error = zh ? "请选择位置；「本题无错」不能与报错同时提交。" : "Choose a segment. A clean claim cannot be combined with flaw findings.";
@@ -2119,8 +1864,8 @@
         const path = apiPath(`api/rounds/${state.round.id}/${action}`);
         let body = {};
         if (action === "submit") {
-          body = payload.mode === "light"
-            ? { mode: "light", selections: payload.selections, clean_claim: payload.clean_claim }
+          body = payload.mode === "verdict"
+            ? payload
             : { findings: payload.findings };
         }
         state.round.debrief = await api(path, body);
@@ -2144,6 +1889,7 @@
       );
     } catch (err) {
       state.error = err.message;
+      if (payload && payload.mode === "verdict") state.round.selections = [];
     } finally {
       state.busy = false;
       render();
@@ -2190,7 +1936,7 @@
       <h2>${zh ? "本机练习记录与薄弱项" : "Local history & weak spots"}</h2>
       <p class="small-muted">${zh ? "本浏览器已完成" : "Completed in this browser"}: <strong>${rows.length}</strong></p>
       ${catRows.length ? `<table><thead><tr><th>${zh ? "类别" : "Category"}</th><th>${zh ? "命中 / 遇到" : "Hits / seen"}</th></tr></thead><tbody>${catRows.map(([k, v]) => `<tr><td>${esc(categoryLabel(k))}</td><td>${v.found}/${v.total}</td></tr>`).join("")}</tbody></table>` : ""}
-      ${rows.slice(-5).reverse().map((r) => `<p class="small-muted">${esc(r.title)} · ${r.revealed ? esc(text.revealed) : esc(r.score) + "/100"}</p>`).join("")}
+      ${rows.slice(-5).reverse().map((r) => `<p class="small-muted">${esc(r.title)} · ${esc(RedPenDaily.stampLabel(r, locale))}</p>`).join("")}
       <p class="small-muted">${zh ? "记录仅保存在当前浏览器。" : "History is stored only in this browser."}</p>
     </section>`;
   }
@@ -2316,14 +2062,15 @@
         ),
         secret.key.errors.length
       );
-    } else if (payload && payload.mode === "light") {
+    } else if (payload && payload.mode === "verdict") {
       gradeObj = RedPenGrade.gradeSelections(entry, payload.selections, payload.clean_claim);
     } else {
       gradeObj = RedPenGrade.gradeFindings(entry, payload ? payload.findings : "");
     }
     const debrief = RedPenGrade.buildDebrief(
       entry, state.round.mode, state.round.hints_used, gradeObj, revealed,
-      revealed ? "reveal" : state.round.browserLive ? "model" : "auto"
+      revealed ? "reveal" : state.round.browserLive ? "model" : "auto",
+      payload && payload.mode === "verdict"
     );
     debrief.commitment_ok = await hashMatches(secret.key, entry.commitment);
     return debrief;

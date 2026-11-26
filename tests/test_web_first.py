@@ -257,53 +257,43 @@ const d1Again = Daily.selectDaily(enCards.slice().reverse(), '2026-11-20', 3);
 const d1Zh = Daily.selectDaily(zhCards, '2026-11-20', 3);
 assert.deepEqual(d1.map(x => x.id), d1Again.map(x => x.id));
 assert.deepEqual(d1.map(x => x.id), d1Zh.map(x => x.id));
-assert.deepEqual(d1.map(x => x.domain), ['logic', 'code', 'math']);
-assert.equal(d1[0].opener, true);
-assert.equal(d1Zh[0].opener, true);
+assert.deepEqual(d1.map(x => x.domain), ['logic', 'logic', 'logic']);
 
-// First-slot rotation stays inside the opener pool and visits each opener once per cycle.
-// 2026-01-01 is dayIdx 0, so it starts a cycle for any pool length.
-const openers = enCards.filter(x => x.opener === true).map(x => x.id).sort();
-assert.ok(openers.length >= 4);
-const firstIds = [];
-for (let i = 0; i < openers.length; i++) {
-  const day = String(1 + i).padStart(2, '0');
-  const picked = Daily.selectDaily(enCards, `2026-01-${day}`, 3);
-  assert.equal(picked[0].opener, true);
-  firstIds.push(picked[0].id);
+// 2. The shipped bank rotates fairly within each pool, with no adjacent-day overlap.
+const days = Array.from({length: 730}, (_, i) => new Date(Date.UTC(2026, 0, i + 1)).toISOString().slice(0, 10));
+const counts = [0, 0, 0, 0];
+const planted = enCards.filter(x => x.domain === 'logic' && x.level !== 0).map(x => x.id).sort();
+const preferred = enCards.filter(x => x.domain === 'logic' && x.daily_priority).map(x => x.id).sort();
+const seen = new Map();
+let previous = new Set();
+for (const date of days) {
+  const row = Daily.selectDaily(enCards, date);
+  assert.deepEqual(row.map(x => x.id), Daily.selectDaily(zhCards, date).map(x => x.id));
+  assert.equal(row.length, 3);
+  assert.equal(row[0].opener, true);
+  assert.equal(new Set(row.map(x => x.id)).size, 3);
+  assert.ok(row.every(x => x.domain === 'logic' && !previous.has(x.id)));
+  previous = new Set(row.map(x => x.id));
+  const clean = row.filter(x => x.level === 0);
+  assert.ok(clean.every(x => preferred.includes(x.id)));
+  counts[clean.length]++;
+  for (const item of row) seen.set(item.id, (seen.get(item.id) || 0) + 1);
 }
-assert.deepEqual([...firstIds].sort(), openers);
+assert.ok(counts[0] / days.length > 0.45 && counts[0] / days.length < 0.60, counts);
+assert.ok(counts[1] / days.length > 0.32 && counts[1] / days.length < 0.50, counts);
+assert.ok(counts[2] / days.length > 0.02 && counts[2] / days.length < 0.11, counts);
+assert.equal(counts[3], 0);
+for (const pool of [planted, preferred]) {
+  assert.ok(pool.length > 1);
+  const usage = pool.map(id => seen.get(id) || 0);
+  assert.ok(Math.min(...usage) > 0 && Math.max(...usage) - Math.min(...usage) <= 2, usage);
+}
 
-// 2. Consecutive days do not repeat puzzles within a domain cycle.
+// 3. A short general pool never pads with code or math.
 const d2 = Daily.selectDaily(enCards, '2026-11-21', 3);
-for (let i = 0; i < 3; i++) {
-  assert.notEqual(d1[i].id, d2[i].id);
-}
-
-// A mixed bank can start with either kind of correct puzzle and can draw
-// all correct, all planted, or a mix. Two-opener pools still alternate.
-const days = Array.from({length: 180}, (_, i) => new Date(Date.UTC(2026, 0, i + 1)).toISOString().slice(0, 10));
-const mixed = ['logic', 'code', 'math'].flatMap(domain =>
-  ['planted', 'clean', 'trick_clean', 'planted'].map((kind, i) =>
-    ({ id: domain + i, domain, kind, opener: domain === 'logic' })));
-const draws = days.map(date => Daily.selectDaily(mixed, date));
-for (const slot of [0, 1, 2]) {
-  assert.deepEqual(new Set(draws.map(row => row[slot].kind)), new Set(['planted', 'clean', 'trick_clean']));
-}
-assert.deepEqual(new Set(draws.map(row => row.filter(item => item.kind !== 'planted').length)),
-                 new Set([0, 1, 2, 3]));
-assert.ok(draws.slice(1).every((row, i) => row[0].id !== draws[i][0].id));
-const twoOpeners = mixed.filter(x => x.domain !== 'logic' || x.kind !== 'planted');
-const two = days.map(date => Daily.selectDaily(twoOpeners, date)[0].id);
-assert.ok(two.slice(1).every((id, i) => id !== two[i]));
-
-// 3. Fallback when one domain is missing still returns 3 deterministic unique puzzles.
-const noCode = enCards.filter(x => x.domain !== 'code');
-const fb1 = Daily.selectDaily(noCode, '2026-11-20', 3);
-const fb2 = Daily.selectDaily(noCode.slice().reverse(), '2026-11-20', 3);
-assert.equal(fb1.length, 3);
-assert.equal(new Set(fb1.map(x => x.id)).size, 3);
-assert.deepEqual(fb1.map(x => x.id), fb2.map(x => x.id));
+const oneGeneral = enCards.filter(x => x.domain !== 'logic').concat(d1[0]);
+assert.deepEqual(Daily.selectDaily(oneGeneral, '2026-11-20'), [d1[0]]);
+assert.deepEqual(Daily.selectDaily(oneGeneral.slice(0, -1), '2026-11-20'), []);
 
 // 4. Streak tracking & EN/ZH localStorage isolation.
 const mem = new Map();
@@ -311,12 +301,12 @@ const store = { getItem: k => mem.get(k) || null, setItem: (k, v) => mem.set(k, 
 const ids1 = d1.map(x => x.id);
 const ids2 = d2.map(x => x.id);
 for (const item of d1) {
-  Daily.recordDailyResult('en', '2026-11-20', ids1, item.id, { score: 100, found: 1, planted: 1, false_alarms: 0, elapsedSec: 30, domain: item.domain }, store);
+  Daily.recordDailyResult('en', '2026-11-20', ids1, item.id, { found: 1, planted: 1, false_alarms: 0, elapsedSec: 30, domain: item.domain }, store);
 }
 assert.equal(Daily.currentStreak(Daily.loadState('en', store), '2026-11-20'), 1);
 assert.equal(Daily.currentStreak(Daily.loadState('zh', store), '2026-11-20'), 0);
 for (const item of d2) {
-  Daily.recordDailyResult('en', '2026-11-21', ids2, item.id, { score: 80, found: 1, planted: 1, false_alarms: 1, elapsedSec: 40, domain: item.domain }, store);
+  Daily.recordDailyResult('en', '2026-11-21', ids2, item.id, { found: 1, planted: 1, false_alarms: 1, elapsedSec: 40, domain: item.domain }, store);
 }
 assert.equal(Daily.currentStreak(Daily.loadState('en', store), '2026-11-21'), 2);
 // Missed a day -> streak resets to 0 on 2026-11-23.
@@ -331,6 +321,8 @@ const cardEn = Daily.formatShareCard({
 assert.match(cardEn, /RedPen Daily #\d+/);
 assert.match(cardEn, /2026-11-21/);
 assert.match(cardEn, /2-day streak/);
+assert.match(cardEn, /False alarm/);
+assert.doesNotMatch(cardEn, /\/100|Accuracy/);
 assert.match(cardEn, /Does this hold up\?/);
 assert.doesNotMatch(cardEn, /Step \d|L\d|Claim \d/i);
 
@@ -340,6 +332,8 @@ const cardZh = Daily.formatShareCard({
 });
 assert.match(cardZh, /今日红笔 #\d+/);
 assert.match(cardZh, /连续 2 天/);
+assert.match(cardZh, /冤假错案/);
+assert.doesNotMatch(cardZh, /\/100|准确度/);
 assert.match(cardZh, /红笔抓错：这段话站得住脚吗？/);
 assert.doesNotMatch(cardZh, /步骤\s*\d|第\s*\d|论点\s*\d/);
 console.log('PASS daily determinism, fallback, streaks, isolation, spoiler-free share');
@@ -379,20 +373,23 @@ class PlayFeelExportTest(unittest.TestCase):
                 self.assertIn("没毛病，站得住", app_js)
                 self.assertIn("Copy text", app_js)
                 self.assertIn("复制战绩文本", app_js)
-                self.assertIn("function playDockHtml", app_js)
+                self.assertIn("() => commitVerdict()", app_js)
+                self.assertIn("commitVerdict(stepNum)", app_js)
+                self.assertIn('mode: "verdict"', app_js)
                 self.assertIn("function shareCardVisualHtml", app_js)
-                self.assertIn("choice-drawer", app_js)
-                self.assertIn("canNativeShare", app_js)
+                self.assertIn("verdict-stamp", app_js)
+                self.assertIn("evidenceStamp(id, ctx, true)", app_js)
+                self.assertNotIn("accuracy-pill", app_js)
+                self.assertNotIn("select[data-choice]", app_js)
                 # Commitment verification stays in the post-round details, not the play surface.
                 start = app_js.index("function roundHtml()")
                 mid = app_js.index("function debriefHtml(")
                 self.assertNotIn('data-act="verify"', app_js[start:mid])
                 self.assertIn('data-act="verify"', app_js[mid:])
                 self.assertIn("@keyframes ink-flag", css)
-                self.assertIn("@keyframes score-pop", css)
                 self.assertIn(".play-dock", css)
                 self.assertIn(".share-card", css)
-                self.assertIn(".choice-drawer", css)
+                self.assertIn(".verdict-stamp", css)
 
 
 
