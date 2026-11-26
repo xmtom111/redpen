@@ -125,41 +125,45 @@ button {
   color: #d3e8e2;
   letter-spacing: 0;
 }
-.daily-scale,
 .daily-slots {
   display: flex;
   align-items: center;
-}
-.daily-scale {
-  gap: 6px;
-  color: #d3e8e2;
-  font-size: 12px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
+  gap: 3px;
 }
 .daily-slot {
   display: grid;
   place-items: center;
-  width: 16px;
+  width: 46px;
   height: 44px;
   padding: 0;
   background: none;
   border: 0;
 }
-.daily-slot::after {
-  content: "";
-  width: 12px;
-  height: 3px;
-  border-radius: 2px;
-  background: #597c77;
+.daily-slot-mark {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 23px;
+  border: 1px dashed #759792;
+  border-radius: 3px;
+  color: #def1e9;
+  font-size: 10px;
+  font-weight: 750;
+  white-space: nowrap;
 }
-.daily-slot.done::after {
-  background: #91b2a2;
+.daily-slot[aria-current="step"] .daily-slot-mark,
+.daily-slot:hover .daily-slot-mark {
+  border-color: #def1e9;
+  background: #245451;
 }
-.daily-slot.active::after,
-.daily-slot:hover::after {
-  background: #c3ecdc;
+.daily-slot.done .daily-slot-mark {
+  border-style: solid;
+  border-color: #a4c8bb;
+  background: #cfe7df;
+  color: var(--deep);
+}
+.daily-slot-mark.just-stamped {
+  animation: slot-in 160ms ease-out;
 }
 .lang-switch {
   display: flex;
@@ -309,6 +313,24 @@ mjx-container,
 }
 .judge-evidence {
   min-width: 0;
+}
+.retort-slip {
+  position: relative;
+  z-index: 1;
+  width: fit-content;
+  max-width: calc(100% - 32px);
+  margin: 0 16px -1px auto;
+  padding: 4px 10px 5px;
+  border: 1px solid var(--line-strong);
+  border-radius: 3px 3px 0 0;
+  background: var(--surface-tint);
+  color: var(--ink-soft);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.4;
+}
+.evidence-stack.just-slid {
+  animation: evidence-in 180ms cubic-bezier(.2, .7, .25, 1);
 }
 .dossier-head {
   display: flex;
@@ -973,6 +995,13 @@ ol.segments-prose li.seg-item.selected > .seg-static {
   gap: 8px;
   margin: 14px 0 10px;
 }
+.next-bar.has-attitudes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.has-attitudes .next-btn {
+  padding-inline: 8px;
+}
 .next-btn {
   width: 100%;
   padding: 11px 16px;
@@ -1430,6 +1459,14 @@ dialog::backdrop {
   0% { transform: scale(1.22) rotate(-4deg); opacity: 0.4; }
   100% { transform: scale(1) rotate(0deg); opacity: 1; }
 }
+@keyframes slot-in {
+  from { transform: scale(1.09) rotate(-3deg); }
+  to { transform: none; }
+}
+@keyframes evidence-in {
+  from { transform: translateY(8px); }
+  to { transform: none; }
+}
 @keyframes card-in {
   from { opacity: 0; transform: translateY(5px); }
   to { opacity: 1; transform: translateY(0); }
@@ -1499,6 +1536,29 @@ dialog::backdrop {
   }
 }
 
+@media (max-width: 374px) {
+  .top-inner {
+    gap: 4px;
+    padding-inline: 8px;
+  }
+  .brand-btn {
+    font-size: 17px;
+  }
+  .brand-zh {
+    font-size: 11px;
+  }
+  .daily-slots {
+    gap: 1px;
+  }
+  .daily-slot {
+    width: 44px;
+  }
+  .lang-switch a,
+  .lang-switch [aria-current="page"] {
+    min-width: 34px;
+  }
+}
+
 @media (max-width: 640px) {
   ol.segments-code .seg-btn,
   ol.segments-code li.seg-item > .seg-static {
@@ -1523,7 +1583,9 @@ dialog::backdrop {
   li.seg-item.just-flagged .seg-btn,
   li.seg-item.just-flagged .chat-row,
   .results-stage.just-graded .verdict-stamp,
-  .share-card {
+  .share-card,
+  .daily-slot-mark.just-stamped,
+  .evidence-stack.just-slid {
     animation: none !important;
   }
 }

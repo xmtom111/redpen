@@ -7,6 +7,8 @@ const path = require('path');
 
 const root = path.resolve(__dirname, '..');
 const staticPath = process.env.REDPEN_STATIC_PATH || '/';
+const dailyDate = '2026-01-03T12:00:00';
+const screenshotDir = process.env.REDPEN_MIDLOOP_SCREENSHOTS;
 const draft = JSON.parse(fs.readFileSync(path.join(root, 'demo/bank/cubic-lost-root.json')));
 
 (async () => {
@@ -16,9 +18,25 @@ const draft = JSON.parse(fs.readFileSync(path.join(root, 'demo/bank/cubic-lost-r
     args: ['--no-sandbox'],
   });
   try {
+    let dailyIds;
     for (const port of [18971, 18972]) {
       for (const lang of ['', 'zh/']) {
-        const page = await browser.newPage();
+        const capture = screenshotDir && port === 18972 && lang === 'zh/';
+        const page = await browser.newPage(capture ? {
+          viewport: { width: 375, height: 667 }, deviceScaleFactor: 2,
+          isMobile: true, hasTouch: true,
+        } : {});
+        await page.clock.setFixedTime(new Date(dailyDate));
+        const shot = async (name) => {
+          if (!capture) return;
+          await page.mouse.move(0, 0);
+          await page.screenshot({
+            path: path.join(screenshotDir, `midloop-mobile-zh-${name}.png`),
+            animations: 'disabled',
+          });
+        };
+        const opener = require(`../demo/packs/logic/${lang ? 'zh' : 'en'}/logic-chat-laundry-queue.json`);
+        const hitLine = opener.flaws[0].segment_id;
         const errors = [];
         page.on('pageerror', (e) => errors.push(e.message));
         await page.route('https://**', (r) => r.abort());
@@ -27,29 +45,64 @@ const draft = JSON.parse(fs.readFileSync(path.join(root, 'demo/bank/cubic-lost-r
         await page.goto(`http://127.0.0.1:${port}${port === 18972 ? staticPath : '/'}${lang}`);
         await page.locator('button.seg-btn[data-seg="1"]').waitFor();
         assert.equal(await page.locator('#live-form').count(), 0, 'API/live form must not block first screen');
-        assert.equal(await page.locator('.daily-slot').count(), 3, 'Daily strip should show 3 slots');
+        const slots = page.locator('.daily-slot');
+        const ids = await slots.evaluateAll((buttons) => buttons.map((button) => button.dataset.dailyId));
+        assert.equal(ids.length, 3, 'Daily must show three stamp slots');
+        assert.equal(ids[0], opener.id, 'Pinned day must use a shipped opener');
+        dailyIds ||= ids;
+        assert.deepEqual(ids, dailyIds, 'Daily IDs must match across languages and hosts');
+        assert.equal(await page.locator('.daily-count, .daily-slot.done, .retort-slip').count(), 0);
+        await shot('first');
 
         // A single tap commits and reveals a qualitative verdict.
-        await page.locator('button.seg-btn[data-seg="1"]').click();
+        await page.locator(`button.seg-btn[data-seg="${hitLine}"]`).click();
         await page.locator('.verdict-stamp').waitFor();
-        await page.locator('[data-seg-item="1"] .ink-slash-svg').waitFor();
+        await page.locator(`[data-seg-item="${hitLine}"] .ink-slash-svg`).waitFor();
+        assert.equal(await page.locator('.verdict-stamp').textContent(), lang ? '一针见血' : 'Sharp catch');
         assert.ok(await page.locator('.seg-stamp').count() > 1);
         assert.equal(await page.locator('.score, .accuracy-pill, .choice-drawer').count(), 0);
         assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem('redpen:history')).at(-1).score), null);
-        await page.locator('[data-next-id]').waitFor();
+        const next = page.locator('[data-next-id]');
+        const invite = next.filter({ hasText: lang ? '尽管再来' : 'Bring it on' });
+        await invite.waitFor();
+        assert.equal(await next.count(), 2);
+        assert.equal(await page.locator('.daily-slot.done, [data-share-daily]').count(), 0);
+        if (capture) await invite.scrollIntoViewIfNeeded();
+        await shot('attitude');
 
-        // Mid-daily: no induced share prompt. The docket appears after the third verdict.
-        assert.equal(await page.locator('[data-share-daily]').count(), 0);
+        await invite.click();
+        await page.locator('.retort-slip + .evidence-chat').waitFor();
+        assert.equal(await slots.nth(0).locator('.daily-slot-mark').textContent(), lang ? '一针见血' : 'Caught');
+        assert.equal(await slots.nth(1).getAttribute('aria-current'), 'step');
+        assert.equal(await page.locator('.daily-slot.done').count(), 1);
+        await shot('slip');
+        if (capture) {
+          await page.setViewportSize({ width: 320, height: 667 });
+          assert.ok(await slots.last().evaluate((slot) =>
+            slot.closest('.top-inner').lastElementChild.getBoundingClientRect().right <= innerWidth));
+          assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+          await page.setViewportSize({ width: 375, height: 667 });
+        }
 
-        // Advance to Daily #2 and #3 via Next button and complete Daily.
-        await page.locator('[data-next-id]').click();
         await page.locator('[data-act="toggle-clean"]').click();
-        await page.locator('[data-next-id]').waitFor();
+        await next.first().waitFor();
         assert.match(await page.locator('.verdict-stamp').textContent(), lang ? /放虎归山|没上钩/ : /Let it slip|Saw through the bait/);
+        assert.equal(await next.count(), 1);
+        assert.match(await next.textContent(), lang ? /下一题/ : /Next/);
+        assert.equal(await page.locator('.daily-slot.done, [data-share-daily]').count(), 1);
 
-        await page.locator('[data-next-id]').click();
+        await next.click();
+        await page.locator('[data-act="toggle-clean"]').waitFor();
+        assert.equal(await page.locator('.daily-slot.done').count(), 2);
+        assert.equal(await page.locator('.retort-slip').count(), 0);
+        await shot('slots');
         await page.locator('[data-act="toggle-clean"]').click();
         await page.locator('[data-share-daily]').first().waitFor();
+        assert.equal(await page.locator('.daily-slot.done').count(), 3);
+        const ticketLine = lang ? '请继续。红笔还没盖帽。' : 'Do go on. The pen is still uncapped.';
+        assert.equal(await page.locator('.docket-verdict').textContent(), ticketLine);
+        if (capture) await page.locator('.share-card').scrollIntoViewIfNeeded();
+        await shot('ticket');
 
         // Copy a spoiler-free Daily ticket.
         assert.equal(await page.locator(".docket-mark").count(), 3);
@@ -57,6 +110,7 @@ const draft = JSON.parse(fs.readFileSync(path.join(root, 'demo/bank/cubic-lost-r
         await page.locator('.share-preview pre').waitFor();
         const shareCard = await page.locator('.share-preview pre').textContent();
         assert.match(shareCard, lang ? /今日红笔 #\d+/ : /RedPen Daily #\d+/);
+        assert.ok(shareCard.includes(ticketLine));
         assert.doesNotMatch(shareCard, /Step \d|步骤 \d|\/100|Accuracy|准确度/i);
 
         // Code remains available as a pack with the same immediate verdict.
@@ -117,6 +171,18 @@ const draft = JSON.parse(fs.readFileSync(path.join(root, 'demo/bank/cubic-lost-r
         await page.locator('[data-act="toggle-clean"]').click();
         assert.equal(await page.locator('.verdict-stamp').textContent(), lang ? '没上钩' : 'Saw through the bait');
         assert.ok(await page.evaluate(() => JSON.parse(localStorage.getItem('redpen:history')).length >= 5));
+        // A wrongful flag gets the other pair of choices and a slip, even with reduced motion.
+        await page.emulateMedia({ reducedMotion: 'reduce' });
+        await page.evaluate(() => { localStorage.clear(); sessionStorage.clear(); });
+        await page.goto(page.url().split('#')[0]);
+        await page.locator('button.seg-btn[data-seg="1"]').click();
+        await page.locator('[data-attitude="concede"]').waitFor();
+        assert.equal(await page.locator('[data-next-id]').count(), 2);
+        await page.locator('[data-attitude="shrug"]').click();
+        await page.locator('.retort-slip').waitFor();
+        assert.equal(await slots.nth(0).locator('.daily-slot-mark').textContent(), lang ? '冤假错案' : 'Alarm');
+        assert.equal(await page.locator('.evidence-stack').evaluate((card) => getComputedStyle(card).animationName), 'none');
+
         assert.deepEqual(errors, []);
         await page.close();
         console.log(`PASS web-first daily, light mode, share card, packs, advanced mode: ${port}/${lang}`);
@@ -154,6 +220,7 @@ const draft = JSON.parse(fs.readFileSync(path.join(root, 'demo/bank/cubic-lost-r
     });
 
     await page.goto(`http://127.0.0.1:18972${staticPath}zh/`);
+    await page.locator('.daily-slot').first().waitFor();
     await page.locator('[data-nav="workshop"]').click();
     await page.locator('#ai-settings').click();
     await page.locator('#provider').selectOption('DeepSeek');

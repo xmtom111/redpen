@@ -235,7 +235,16 @@
     return stamps[locale === "zh" ? "zh" : "en"][verdictOf(result)] || "—";
   }
 
+  const attitudeLines = {
+    invite: ["请继续。红笔还没盖帽。", "Do go on. The pen is still uncapped."],
+    file: ["按例归档。红笔照常上班。", "Filed as usual. The red pen is still on duty."],
+    concede: ["错判认了，红笔还得接着用。", "I stand corrected. The pen stays on duty."],
+    shrug: ["卷翻过去了，案底还在。", "I turned the page. The record stayed put."],
+  };
+
   function docketLine(results, locale) {
+    const chosen = results.find((result) => result && Object.hasOwn(attitudeLines, result.attitude));
+    if (chosen) return attitudeLines[chosen.attitude][locale === "zh" ? 0 : 1];
     const verdicts = results.map(verdictOf);
     const alarms = verdicts.filter((verdict) => verdict === "alarm").length;
     const misses = verdicts.filter((verdict) => verdict === "missed").length;
