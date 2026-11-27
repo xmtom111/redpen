@@ -26,13 +26,15 @@ const draft = JSON.parse(fs.readFileSync(path.join(root, 'demo/bank/cubic-lost-r
           viewport: { width: 375, height: 667 }, deviceScaleFactor: 2,
           isMobile: true, hasTouch: true,
         } : {});
-        await page.clock.setFixedTime(new Date(dailyDate));
-        const shot = async (name) => {
+        await page.clock.install({ time: new Date(new Date(dailyDate).getTime() - 1000) });
+        await page.clock.pauseAt(new Date(dailyDate));
+        const shot = async (name, redact = "") => {
           if (!capture) return;
           await page.mouse.move(0, 0);
           await page.screenshot({
-            path: path.join(screenshotDir, `midloop-mobile-zh-${name}.png`),
+            path: path.join(screenshotDir, `replay-mobile-zh-${name}.png`),
             animations: 'disabled',
+            style: redact || undefined,
           });
         };
         const opener = require(`../demo/packs/logic/${lang ? 'zh' : 'en'}/logic-chat-laundry-queue.json`);
@@ -52,7 +54,6 @@ const draft = JSON.parse(fs.readFileSync(path.join(root, 'demo/bank/cubic-lost-r
         dailyIds ||= ids;
         assert.deepEqual(ids, dailyIds, 'Daily IDs must match across languages and hosts');
         assert.equal(await page.locator('.daily-count, .daily-slot.done, .retort-slip').count(), 0);
-        await shot('first');
 
         // A single tap commits and reveals a qualitative verdict.
         await page.locator(`button.seg-btn[data-seg="${hitLine}"]`).click();
@@ -68,14 +69,36 @@ const draft = JSON.parse(fs.readFileSync(path.join(root, 'demo/bank/cubic-lost-r
         assert.equal(await next.count(), 2);
         assert.equal(await page.locator('.daily-slot.done, [data-share-daily]').count(), 0);
         if (capture) await invite.scrollIntoViewIfNeeded();
-        await shot('attitude');
+        const edge = page.locator('.next-card-edge');
+        assert.equal(await edge.textContent(), '');
+        assert.equal(await edge.locator('..').locator('[data-attitude]').count(), 2);
+        assert.equal(await edge.evaluate((el) => getComputedStyle(el).animationDelay), '0.5s');
+        await page.clock.fastForward(600);
+        await edge.waitFor({state: 'visible'});
+        assert.ok(await edge.evaluate((el) => {
+          const bounds = el.getBoundingClientRect();
+          return [...el.parentElement.querySelectorAll('button')].every((button) => {
+            const top = button.getBoundingClientRect().top;
+            return top >= bounds.top && top < bounds.bottom;
+          });
+        }));
+        await shot('peek', '.judge-evidence { display: none; } .results-stage > .debrief-punch { visibility: hidden; }');
+        await page.setViewportSize({ width: 320, height: 667 });
+        assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+        const buttonBounds = await next.evaluateAll((buttons) => buttons.map((btn) => btn.getBoundingClientRect()));
+        assert.equal(buttonBounds[0].top, buttonBounds[1].top);
+        await page.setViewportSize(capture ? { width: 375, height: 667 } : { width: 1280, height: 720 });
 
         await invite.click();
         await page.locator('.retort-slip + .evidence-chat').waitFor();
         assert.equal(await slots.nth(0).locator('.daily-slot-mark').textContent(), lang ? '一针见血' : 'Caught');
         assert.equal(await slots.nth(1).getAttribute('aria-current'), 'step');
         assert.equal(await page.locator('.daily-slot.done').count(), 1);
-        await shot('slip');
+        assert.ok((lang
+          ? ['这张，别忙着得意。', '换一份。你再下笔。']
+          : ["This sheet. Don't get comfortable.", "Another sheet. Let's see your hand."]
+        ).includes(await page.locator('.retort-slip').textContent()));
+        await shot('slip', '.dossier-head, .evidence-brief, .evidence-conclusion, .evidence-stack .seg-btn > * { visibility: hidden; }');
         if (capture) {
           await page.setViewportSize({ width: 320, height: 667 });
           assert.ok(await slots.last().evaluate((slot) =>
@@ -95,14 +118,14 @@ const draft = JSON.parse(fs.readFileSync(path.join(root, 'demo/bank/cubic-lost-r
         await page.locator('[data-act="toggle-clean"]').waitFor();
         assert.equal(await page.locator('.daily-slot.done').count(), 2);
         assert.equal(await page.locator('.retort-slip').count(), 0);
-        await shot('slots');
         await page.locator('[data-act="toggle-clean"]').click();
         await page.locator('[data-share-daily]').first().waitFor();
         assert.equal(await page.locator('.daily-slot.done').count(), 3);
+        assert.equal(await edge.count(), 0);
+        assert.equal(await page.locator('.ticket-pile').count(), 0);
         const ticketLine = lang ? '请继续。红笔还没盖帽。' : 'Do go on. The pen is still uncapped.';
         assert.equal(await page.locator('.docket-verdict').textContent(), ticketLine);
         if (capture) await page.locator('.share-card').scrollIntoViewIfNeeded();
-        await shot('ticket');
 
         // Copy a spoiler-free Daily ticket.
         assert.equal(await page.locator(".docket-mark").count(), 3);
@@ -113,8 +136,64 @@ const draft = JSON.parse(fs.readFileSync(path.join(root, 'demo/bank/cubic-lost-r
         assert.ok(shareCard.includes(ticketLine));
         assert.doesNotMatch(shareCard, /Step \d|步骤 \d|\/100|Accuracy|准确度/i);
 
+        const base = page.url().split('#')[0];
+        const otherLocale = lang ? base.replace(/zh\/$/, '') : base + 'zh/';
+        const grudgeLine = lang ? '昨天挺狂？先看这份。' : 'Feeling bold yesterday? Start with this.';
+        await page.clock.fastForward(24 * 60 * 60 * 1000);
+        await page.reload();
+        await page.locator('.retort-slip').waitFor();
+        assert.equal(await page.locator('.retort-slip').textContent(), grudgeLine);
+        await slots.nth(1).click();
+        await page.locator('.daily-slot[aria-current="step"]').and(slots.nth(1)).waitFor();
+        assert.equal(await page.locator('.retort-slip').count(), 0);
+        await page.goto(otherLocale);
+        await page.locator('[data-act="toggle-clean"]').waitFor();
+        assert.equal(await page.locator('.retort-slip, .ticket-pile').count(), 0);
+        await page.clock.fastForward(24 * 60 * 60 * 1000);
+        await page.goto(base);
+        await page.locator('.ticket-pile').waitFor();
+        assert.equal(await page.locator('.retort-slip').count(), 0);
+
+        // Pin the capture back to the shipped opener and seed an older completed record.
+        await page.evaluate((locale) => {
+          const key = 'redpen:daily:' + locale;
+          const daily = JSON.parse(localStorage.getItem(key));
+          const completed = daily.days['2026-01-03'];
+          daily.days = {
+            '2026-01-02': completed,
+            '2026-01-01': {
+              ...completed,
+              results: Object.fromEntries(Object.entries(completed.results)
+                .map(([id, result]) => [id, { ...result, attitude: result.attitude ? 'file' : undefined }])),
+            },
+          };
+          localStorage.setItem(key, JSON.stringify(daily));
+        }, lang ? 'zh' : 'en');
+        await page.clock.setFixedTime(new Date(dailyDate));
+        await page.reload();
+        await page.locator('.retort-slip').waitFor();
+        assert.equal(await page.locator('.retort-slip').textContent(), grudgeLine);
+        await shot('grudge');
+        const packs = page.locator('#foot-nav [data-nav="packs"]');
+        assert.equal(await packs.textContent(), lang ? '题库' : 'Packs');
+        await page.locator('.ticket-pile').click();
+        const deck = page.locator('.ticket-deck');
+        const visibleTicket = deck.locator('.archived-ticket:visible');
+        assert.equal(await visibleTicket.count(), 1);
+        assert.equal(await visibleTicket.locator('.docket-mark').count(), 3);
+        assert.equal(await visibleTicket.locator('.docket-verdict').textContent(), ticketLine);
+        await deck.locator('[data-flip-ticket]').click();
+        assert.equal(await visibleTicket.count(), 1);
+        assert.match(await visibleTicket.locator('.docket-verdict').textContent(), lang ? /按例归档/ : /Filed as usual/);
+        assert.doesNotMatch(await deck.innerText(), /\d|streak|total|连续|累计/i);
+        assert.equal(await page.locator('.ticket-pile').textContent(), '');
+        await shot('tickets', '.dossier-head, .evidence-brief, .evidence-conclusion, .evidence-stack .seg-btn > * { visibility: hidden; }');
+        await deck.getByRole('button', { name: lang ? '关闭' : 'Close' }).click();
+        await deck.waitFor({state: 'hidden'});
+
         // Code remains available as a pack with the same immediate verdict.
         await page.locator('[data-nav="packs"]').click();
+        assert.equal(await page.locator('.ticket-pile, .ticket-deck').count(), 0);
         await page.locator('[data-filter="code"]').click();
         await page.locator('[data-id="code-clean-binary-search"]').click();
         await page.locator('[data-seg="1"]').click();
@@ -178,6 +257,10 @@ const draft = JSON.parse(fs.readFileSync(path.join(root, 'demo/bank/cubic-lost-r
         await page.locator('button.seg-btn[data-seg="1"]').click();
         await page.locator('[data-attitude="concede"]').waitFor();
         assert.equal(await page.locator('[data-next-id]').count(), 2);
+        await edge.waitFor({state: 'visible'});
+        assert.equal(await edge.evaluate((el) => getComputedStyle(el).animationName), 'none');
+        await page.setViewportSize({ width: 320, height: 667 });
+        assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
         await page.locator('[data-attitude="shrug"]').click();
         await page.locator('.retort-slip').waitFor();
         assert.equal(await slots.nth(0).locator('.daily-slot-mark').textContent(), lang ? '冤假错案' : 'Alarm');

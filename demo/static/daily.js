@@ -173,7 +173,9 @@
     const state = loadState(locale, storage);
     if (!dailyIds.includes(puzzleId)) return state;
     const day = state.days[dateStr] || { results: {}, completedAt: null };
+    const attitude = day.results[puzzleId]?.attitude;
     day.results[puzzleId] = {
+      ...(attitude ? { attitude } : {}),
       found: Number(result.found) || 0,
       planted: Number(result.planted) || 0,
       falseAlarms: Number(result.false_alarms != null ? result.false_alarms : result.falseAlarms) || 0,
