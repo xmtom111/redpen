@@ -1589,3 +1589,82 @@ dialog::backdrop {
     animation: none !important;
   }
 }
+
+/* The incoming sheet is represented by a ruled edge beneath the controls. */
+.next-bar.has-next-edge {
+  position: relative;
+  isolation: isolate;
+  padding: 10px 8px 0;
+}
+.next-card-edge {
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 auto;
+  height: 24px;
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  background: var(--paper);
+  border-radius: 4px 4px 0 0;
+  animation: next-card-peek 180ms ease-out 500ms both;
+  pointer-events: none;
+}
+.next-card-edge::before {
+  content: "";
+  display: block;
+  margin: 4px 9px 0;
+  border-top: 1px solid var(--line);
+}
+@keyframes next-card-peek {
+  from { visibility: hidden; transform: translateY(10px); }
+  to { visibility: visible; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .next-card-edge { animation: none; }
+}
+
+.judge-question {
+  position: relative;
+}
+.judge-question:has(.ticket-pile) .judge-q {
+  padding-inline-end: 48px;
+}
+.ticket-pile {
+  position: absolute;
+  inset: 0 0 auto auto;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.ticket-pile::before,
+.ticket-pile::after {
+  content: "";
+  position: absolute;
+  width: 26px;
+  height: 7px;
+  inset: 14px 6px auto auto;
+  border: 1px solid var(--line);
+  background: linear-gradient(to right, var(--red) 0 4px, var(--paper) 4px);
+  transform: rotate(8deg);
+}
+.ticket-pile::after {
+  inset: 19px 9px auto auto;
+  transform: rotate(-5deg);
+}
+.ticket-deck {
+  width: min(330px, calc(100% - 32px));
+  padding: 18px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+}
+.ticket-deck::backdrop {
+  background: rgb(0 0 0 / 24%);
+}
+.archived-stamps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}

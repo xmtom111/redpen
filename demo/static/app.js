@@ -589,7 +589,14 @@
   }
 
   async function restoreOrAutoStart() {
-    const hash = location.hash.replace(/^#/, "");
+    let hash = location.hash.slice(1);
+    try {
+      const route = JSON.parse(sessionStorage.getItem("redpen:daily-route:" + locale) || "null");
+      if (route?.hash === hash && route.date !== state.dateStr) {
+        window.history.replaceState(null, "", location.pathname + location.search);
+        hash = "";
+      }
+    } catch (_) {}
     if (hash === "packs") {
       state.view = "packs";
       return;
@@ -708,13 +715,24 @@
         const body = blind ? { blind: true, lang: locale } : { worksheet_id: entry.id, lang: locale };
         const round = await api(apiPath("api/rounds"), body);
         adoptServerRound(round);
-        if (updateHash) location.hash = "r=" + round.id;
       } catch (err) {
         state.error = err.message;
+        return;
       }
-      return;
+    } else {
+      openStatic(entry, blind, false);
     }
-    openStatic(entry, blind, updateHash);
+    if (!updateHash) return;
+    const hash = state.round.server ? "r=" + state.round.id : "w=" + entry.id + (blind ? "&blind=1" : "");
+    try {
+      const key = "redpen:daily-route:" + locale;
+      if (!blind && dailyIds().includes(entry.id)) {
+        sessionStorage.setItem(key, JSON.stringify({ hash, date: state.dateStr }));
+      } else {
+        sessionStorage.removeItem(key);
+      }
+    } catch (_) {}
+    location.hash = hash;
   }
 
   function persistActive() {
@@ -759,14 +777,29 @@
 
   const midloop = {
     caught: {
-      slips: [["这一笔，我先记着。", "I’ll remember that stroke."], ["行，这一笔算你的。", "Fine. That one’s yours."]],
+      slips: [["这张，别忙着得意。", "This sheet. Don't get comfortable."], ["换一份。你再下笔。", "Another sheet. Let's see your hand."]],
       choices: [["invite", "尽管再来", "Bring it on"], ["file", "照例归档", "File it"]],
     },
     alarm: {
-      slips: [["红笔挺快，判词先欠着。", "Quick pen. Shame about the verdict."], ["这一笔，我可不认。", "I dispute that stroke."]],
+      slips: [["刚那么急。这张慢慢来。", "You were quick. Take this one slower."], ["换一份。看你怎么判。", "Another sheet. Let's see the call."]],
       choices: [["concede", "这笔认了", "I concede"], ["shrug", "翻篇再审", "Moving on"]],
     },
   };
+  const grudgeLines = {
+    invite: ["昨天挺狂？先看这份。", "Feeling bold yesterday? Start with this."],
+    file: ["昨天归档倒干净。这份在这儿。", "Filed neatly yesterday. This one's here."],
+    concede: ["昨天认的那笔，我记得。先看这份。", "I remember yesterday's concession. Look at this first."],
+    shrug: ["昨天翻得倒快。这份还在桌上。", "You turned the page fast yesterday. This one's still on the desk."],
+  };
+
+  function openerRetort(round) {
+    if (round.debrief || round.worksheet_id !== state.daily[0]?.id || Object.keys(todayResults()).length) return "";
+    const yesterday = RedPenDaily.prevDateStr(state.dateStr);
+    const results = dailyState().days[yesterday]?.results || {};
+    const chosen = Object.values(results).find((result) => Object.hasOwn(grudgeLines, result?.attitude));
+    return chosen ? grudgeLines[chosen.attitude][zh ? 0 : 1] : "";
+  }
+
   const shortStamps = { caught: "Caught", missed: "Missed", alarm: "Alarm", held: "Held", revealed: "Shown" };
 
   function advanceBeat(entry) {
@@ -984,6 +1017,33 @@
     return { num, dateStr: state.dateStr, rows, timeLabel, streak, verdict };
   }
 
+  function archivedTicketsHtml() {
+    const tickets = Object.entries(dailyState().days)
+      .filter(([date, day]) => date < state.dateStr && day?.completedAt)
+      .sort(([a], [b]) => b.localeCompare(a))
+      .slice(0, 7)
+      .map(([, day]) => Object.values(day.results || {}))
+      .filter((results) => results.length === 3);
+    if (!tickets.length) return "";
+    const label = zh ? "往日小票" : "Past tickets";
+    return `
+      <button type="button" class="ticket-pile" aria-label="${label}" aria-haspopup="dialog"></button>
+      <dialog class="ticket-deck" aria-label="${label}">
+        <div class="docket-brand">${zh ? "RedPen 红笔" : "RedPen"}</div>
+        ${tickets.map((results, index) => `
+          <div class="archived-ticket"${index ? " hidden" : ""}>
+            <div class="archived-stamps">${results.map((r) =>
+              `<span class="docket-mark ${isPassedResult(r) ? "good" : ""}">${esc(RedPenDaily.stampLabel(r, locale))}</span>`
+            ).join("")}</div>
+            <p class="docket-verdict">${esc(RedPenDaily.docketLine(results, locale))}</p>
+          </div>`).join("")}
+        <form method="dialog" class="docket-actions">
+          ${tickets.length > 1 ? `<button type="button" class="btn secondary small" data-flip-ticket>${zh ? "换一张" : "Flip ticket"}</button>` : ""}
+          <button class="btn secondary small">${zh ? "关闭" : "Close"}</button>
+        </form>
+      </dialog>`;
+  }
+
   function saveDocketImage() {
     const d = docketSummaryData();
     const scale = 2;
@@ -1161,7 +1221,7 @@
 
   function renderEvidenceHtml(round, segs, ctx) {
     const { kind, debrief, selectedSteps } = ctx;
-    const retort = round.retort?.date === state.dateStr ? round.retort.line : "";
+    const retort = round.retort?.date === state.dateStr ? round.retort.line : openerRetort(round);
     const cardClass = `evidence-stack${state.justAdvanced && retort ? " just-slid" : ""}`;
     const slip = retort ? `<aside class="retort-slip" aria-label="${zh ? "送审方附言" : "From the submitter"}">${esc(retort)}</aside>` : "";
 
@@ -1270,6 +1330,7 @@
       <div class="play-stage${debrief ? " is-revealed" : ""}">
         <div class="judge-question">
           <h1 class="judge-q">${esc(text.judgeQ)}</h1>
+          ${dailyIds().includes(round.worksheet_id) ? archivedTicketsHtml() : ""}
           ${!debrief ? `<p class="judge-sub">${helpHtml}</p>` : ""}
         </div>
         <section class="judge-evidence" aria-labelledby="evidence-title">
@@ -1449,6 +1510,8 @@
         ${bounties ? `<h3 class="sub-head">${zh ? "额外发现" : "Bounties"}</h3><ul class="alarm-list">${bounties}</ul>` : ""}
         ${alarms ? `<h3 class="sub-head">${esc(text.falseAlarms)}</h3><ul class="alarm-list">${alarms}</ul>` : ""}`;
 
+    const peek = inDaily && nextInfo?.isDaily
+      && dailyIds().indexOf(nextInfo.entry.id) > dailyIds().indexOf(round.worksheet_id);
     const showDailyDocket = dailyComplete && inDaily;
     const showSingleDocket = !inDaily;
     const docketHtml = showDailyDocket
@@ -1468,7 +1531,8 @@
         ${docketHtml}
         ${state.shareMessage ? `<p class="share-status" role="status">${esc(state.shareMessage)}</p>` : ""}
         ${state.shareText ? `<div class="share-preview"><p class="small-muted">${esc(text.copyFallback)}</p><pre>${esc(state.shareText)}</pre></div>` : ""}
-        <div class="next-bar${choices ? " has-attitudes" : ""}">
+        <div class="next-bar${choices ? " has-attitudes" : ""}${peek ? " has-next-edge" : ""}">
+          ${peek ? '<span class="next-card-edge" aria-hidden="true"></span>' : ""}
           ${primaryCta}
         </div>
         <details class="more-details" ${round.ai ? "open" : ""}>
@@ -1516,6 +1580,18 @@
   }
 
   function bind() {
+    const deck = app.querySelector(".ticket-deck");
+    if (deck) {
+      const tickets = [...deck.querySelectorAll(".archived-ticket")];
+      let current = 0;
+      app.querySelector(".ticket-pile").addEventListener("click", () => deck.showModal());
+      deck.querySelector("[data-flip-ticket]")?.addEventListener("click", () => {
+        tickets[current].hidden = true;
+        current = (current + 1) % tickets.length;
+        tickets[current].hidden = false;
+      });
+    }
+
     // Pack filters & cards
     app.querySelectorAll("[data-filter]").forEach((btn) => {
       btn.addEventListener("click", () => {
